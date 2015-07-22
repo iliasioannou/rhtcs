@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"	xmlns:context="http://www.springframework.org/schema/context" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+
+    <flow name="landsat8MainSearchFlow1" doc:name="landsat8MainSearchFlow1" doc:description="{
+&quot;acquisitionDate1&quot;:&quot;2014-07-11&quot;,
+&quot;acquisitionDate2&quot;:&quot;2015-05-11&quot;,
+&quot;sceneCenterLatitude1&quot;:&quot;39.9476478239225&quot;,
+&quot;sceneCenterLatitude2&quot;:&quot;42.41940144722477&quot;,
+&quot;sceneCenterLongitude1&quot;:&quot;11.8212890625&quot;,
+&quot;sceneCenterLongitude2&quot;:&quot;16.5069580078125&quot;
+}">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9091" doc:name="HTTP" path="zearch"/>
+        <logger message="ALT SEARCH FLOW CONNECTION" level="INFO" doc:name="ALT SEARCH FLOW"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+        <set-variable variableName="acquisitionDateFilter" value="acquisitionDate:[#[payload.get(&quot;acquisitionDate1&quot;)]+TO+#[payload.get(&quot;acquisitionDate2&quot;)]]" doc:name="acquisitionDateFilter"/>
+        <set-variable variableName="sceneCenterLatitudeFilter" value="sceneCenterLatitude:[#[payload.get(&quot;sceneCenterLatitude1&quot;)]+TO+#[payload.get(&quot;sceneCenterLatitude2&quot;)]]" doc:name="sceneCenterLatitudeFilter"/>
+        <set-variable variableName="sceneCenterLongitudeFilter" value="sceneCenterLongitude:[#[payload.get(&quot;sceneCenterLongitude1&quot;)]+TO+#[payload.get(&quot;sceneCenterLongitude2&quot;)]]" doc:name="sceneCenterLongitude"/>
+        <set-variable variableName="querystr" value="#[acquisitionDateFilter]+AND+#[sceneCenterLatitudeFilter]+AND+#[sceneCenterLongitudeFilter]${landsat8.queryoptions}" doc:name="querystr"/>
+        <component class="org.mule.transformers.landsat8HTTPSearch" doc:name="landsat8HTTPSearch"/>
+        <scripting:component doc:name="HTTP Status Check">
+            <scripting:script engine="Groovy"><![CDATA[httpStatus = message.getInboundProperty('http.status');
+if(httpStatus != 200)
+	throw new org.apache.commons.httpclient.HttpException("Landsat8 DataHub returned an HTTP error code: "+httpStatus)
+return payload]]></scripting:script>
+        </scripting:component>
+        <logger message="CODE: #[message.inboundProperties['http.status']] BODY: #[payload.substring(0, 500)]..." level="INFO" doc:name="HTTP 200 OK"/>
+        <http:response-builder status="#[message.inboundProperties['http.status']]" contentType="application/json" doc:name="HTTP Response Builder"/>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy doc:name="Catch HttpException" enableNotifications="false" when="#[exception.causedBy( org.apache.commons.httpclient.HttpException)]">
+                <logger message="HttpException: #[exception.getCause().getMessage()]" level="WARN" doc:name="Log HttpException"/>
+                <http:response-builder status="500" contentType="text/plain" doc:name="HTTP Response Builder"/>
+            </catch-exception-strategy>
+            <catch-exception-strategy doc:name="Generic Exception Strategy">
+                <logger level="WARN" doc:name="Log Generic Exception" message="Generic Exception: #[exception.getCause().getMessage()]"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
+    </flow>
+</mule>

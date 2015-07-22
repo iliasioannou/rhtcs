@@ -1,0 +1,16 @@
+syntax: glob
+$MULE_HOME
+bin
+.settings
+.project
+.classpath
+.studio
+target
+
+# python
+*.pyc
+
+# misc
+*.url
+*.log
+

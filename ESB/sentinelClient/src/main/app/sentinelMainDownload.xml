@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:https="http://www.mulesoft.org/schema/mule/https"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core"
+	xmlns:context="http://www.springframework.org/schema/context"
+	version="CE-3.4.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+
+    
+    <spring:beans>
+		<spring:bean id="objectStore"
+			class="org.mule.util.store.SimpleMemoryObjectStore" />
+		<context:property-placeholder location="classpath:sentinelclient.properties" />
+		<spring:bean id="sentinelProps"
+			class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<spring:property name="singleton" value="true" />
+			<spring:property name="location"
+				value="classpath:sentinelclient.properties" />
+		</spring:bean>
+	</spring:beans>
+	<!-- Hide MULE Headers in the HTTP packets -->
+	<http:connector name="NoMuleHeadersConnector" doc:name="HTTP\HTTPS">
+		<service-overrides sessionHandler="org.mule.session.NullSessionHandler" />
+	</http:connector>
+	<queued-asynchronous-processing-strategy
+		name="Queued_Asynchronous_Processing_Strategy" maxThreads="3"
+		poolExhaustedAction="WAIT" threadWaitTimeout="-1"
+		doc:name="Queued Asynchronous Processing Strategy" />
+	<ftp:connector name="createPathFtpConnector" doc:name="FTP">
+		<dispatcher-threading-profile
+			doThreading="false" />
+		<service-overrides
+			dispatcherFactory="org.mule.transport.customftp.CreatePathFtpMessageDispatcherFactory"></service-overrides>
+	</ftp:connector> 
+    
+    <flow name="sentinelDownloadFlow1" doc:name="sentinelDownloadFlow1" doc:description="SLC 1.7gb
+{
+&quot;UUID&quot;:&quot;3016488c-721f-451a-b2a0-2a8602334ee2&quot;
+}
+
+GRD 130mb
+{
+&quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
+}" processingStrategy="synchronous">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" doc:name="HTTP" />
+        <set-variable variableName="dlUUID" value="#[json:UUID]" doc:name="dlUUID var"/>
+        <object-to-string-transformer doc:name="workaround for streams error" doc:description="https://www.mulesoft.org/jira/browse/MULE-4096
+https://mulemuse.wordpress.com/2014/03/21/http/"/>
+
+        <set-payload value="Download Request received." doc:name="Set Body"/>        <http:response-builder status="200" contentType="text/plain" doc:name="HTTP Response Builder">
+            <http:cache-control noCache="true"/>
+        </http:response-builder>
+        <async doc:name="Async" processingStrategy="Queued_Asynchronous_Processing_Strategy">
+            <logger message="GET Request to: https://${sentinel.host}:${sentinel.port}${sentinel.path.odata}('#[dlUUID]')/$value" level="INFO" doc:name="Request URL"/>
+            <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[dlUUID]')/$value" method="GET" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="HTTP" responseTimeout="30000"/>
+            <logger message="DataHub HTTP resp: #[message]" level="INFO" doc:name="HTTP response"/>
+            <scripting:component doc:name="HTTP status check">
+                <scripting:script engine="Groovy"><![CDATA[httpStatus = message.getInboundProperty('http.status');
+if(httpStatus != "200")
+	throw new org.apache.commons.httpclient.HttpException("Sentinel DataHub returned an HTTP error code: "+httpStatus)
+return payload]]></scripting:script>
+            </scripting:component>
+            <set-variable variableName="testPrefix" value="#[server.dateTime.format('mmssS_')]" doc:name="TEST: testPrefix"/>
+            <set-variable variableName="zipName" value="#[message.inboundProperties['Content-Disposition'].split('&quot;')[1]]" doc:name="var zipName"/>
+            <set-variable variableName="filesQryableMap" value="#[new java.util.HashMap()]" doc:name="set filesQryableMap"/>
+            <component class="org.mule.transformers.unZipComponent" doc:name="unzip"/>
+            <foreach doc:name="For Each">
+                <set-variable variableName="xtractedFilePath" value="#[payload]" doc:name="set xtractedFilePath"/>
+                <set-variable variableName="xtractedFileName" value="#[new File(xtractedFilePath).getName()]" doc:name="set xtractedFileName"/>
+                <set-payload value="#[new FileInputStream(xtractedFilePath)]" doc:name="open xtractedFilePath as Stream"/>
+                <choice doc:name="Choice">
+                    <when expression="#[xtractedFileName.toLowerCase().endsWith(&quot;.xml&quot;)]">
+                        <logger message="XML: #[xtractedFilePath] converting to ISO19139" level="INFO" doc:name="XML +conversion"/>
+                        <set-variable doc:name="set xtractedFileId" value="#[xtractedFileName.substring(0, xtractedFileName.lastIndexOf('.'))]" variableName="xtractedFileId"/>
+
+                        <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
+                        <logger message="Parsed Template Received!!!!!" level="INFO" doc:name="Logger"/>
+                        <expression-component doc:name="save qryableMap in filesQryableMap"><![CDATA[filesQryableMap.put(xtractedFileId, qryableMap);]]></expression-component>
+
+                    </when>
+                    <when expression="#[xtractedFileName.toLowerCase().endsWith(&quot;.tiff&quot;)]">
+                        <logger message="TIFF: #[xtractedFilePath]" level="INFO" doc:name="TIFF data"/>
+                    </when>
+                    <otherwise>
+                        <logger message="Other file type: #[xtractedFilePath]" level="INFO" doc:name="Other file type"/>
+                    </otherwise>
+                </choice>
+                <logger message="Moving #[xtractedFileName] to FTP" level="INFO" doc:name="move to FTP"/>
+
+                <ftp:outbound-endpoint host="${ftp.host}" port="${ftp.port}" path="${sentinel.ftp.path}" user="${ftp.usr}" password="${ftp.pwd}" responseTimeout="10000" doc:name="FTP" outputPattern="#[dlUUID]/#[xtractedFileName]" connector-ref="createPathFtpConnector"/>
+                <logger message="Deleting temp file #[xtractedFilePath]: #[new File(xtractedFilePath).delete()] " level="INFO" doc:name="Delete temp FILE"/>
+
+            </foreach>
+            <logger message="Deleting temp folder #[new File(xtractedFilePath).getParentFile()]: #[new File(xtractedFilePath).getParentFile().delete()]" level="INFO" doc:name="Delete temp DIR"/>
+            <set-variable variableName="apolloCrawlrPath" value="${apollo.repo.path}${sentinel.ftp.path}#[dlUUID]/" doc:name="set apolloCrawlrPath"/>
+            <set-variable variableName="apolloAggregateID" value="${sentinel.apollo.aggregate}" doc:name="set apolloAggregateID"/>
+            <logger message="Launch Apollo Crawler on #[apolloCrawlrPath]" level="INFO" doc:name="Launch Apollo Crawler"/>
+            <parse-template location="template_apollo_crawling_HTTP_request.json" doc:name="Parse Request Template"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${apollo.host}" port="${apollo.port}" path="erdas-apollo/services/rpc?cmd=execute&amp;qualifier=com.erdas.apollo.dmbl.scheduling.BeanOperationScheduler&amp;operation=schedule&amp;asyncTime=0&amp;target=beanOperationScheduler" method="POST"  user="${apollo.usr}" password="${apollo.pwd}"  doc:name="Apollo Crawler" encoding="UTF-8" connector-ref="NoMuleHeadersConnector"/>
+            <object-to-string-transformer doc:name="Object to String"/>
+            <logger message="Apollo Crawler HTTP resp: #[message] #['\n']body: #[payload]" level="INFO" doc:name="HTTP Resp"/>
+            <set-variable variableName="crawlJobName" value="#[json:result/jobName]:#[json:result/jobGroup]" doc:name="crawlJobName"/>
+            <logger message="JobName: #[crawlJobName]" level="INFO" doc:name="crawlJobName"/>
+            <set-variable variableName="crawlSuccessful" value="#[false]" doc:name="set crawlSuccessful"/>
+            <set-variable variableName="dfaStatus" value="START" doc:name="dfaStatus = START"/>
+
+            <until-successful objectStore-ref="objectStore" maxRetries="400" secondsBetweenRetries="2" doc:name="Check until Crawler Job Successful" failureExpression="#[dfaStatus != &quot;DONE&quot;]">
+                <processor-chain doc:name="Processor Chain">
+
+                    <set-payload value="{&quot;args&quot;:[&quot;#[crawlJobName]&quot;]}" doc:name="Set ReqBody"/>
+
+                    <http:outbound-endpoint exchange-pattern="request-response" host="${apollo.host}" port="${apollo.port}" method="POST" doc:name="Check Crawling Job Status !?? "  password="${apollo.pwd}"  user="${apollo.usr}"    path="erdas-apollo/services/rpc?cmd=execute&amp;qualifier=com.erdas.apollo.api.scheduling.JobManagementService&amp;operation=find&amp;asyncTime=0&amp;target=jobManager" />
+                    <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+
+                    <logger message="crawlJob body: #[payload]" level="INFO" doc:name="crawlJob resp"/>
+                    <choice doc:name="Choice">
+
+                        <when expression="#[!payload.containsKey(&quot;result&quot;) &amp;&amp; dfaStatus != &quot;START&quot;]">
+                            <logger message="SUCCESSFUL CRAWLING (precStatus==STATUS and !hasResult): dfaStatus: #[dfaStatus] and newStatus: DONE #['\n']Retry Crawling Status Check STOPPED." level="INFO" doc:name="Successful Crawling Status"/>
+                            <set-variable variableName="dfaStatus" value="DONE" doc:name="dfaStatus = DONE"/>
+                            <flow-ref name="queryablesStorerFlow1" doc:name="call queryablesStorer Flow"/>
+                        </when>
+                        <when expression="#[dfaStatus == &quot;ERROR&quot;]">
+                            <logger level="INFO" doc:name="ERROR Status" message="ERROR!!!   dfaStatus = #[dfaStatus]"/>
+                            <scripting:component doc:name="throw Exception">
+                                <scripting:script engine="Groovy"><![CDATA[throw new Exception("Apollo Crawler failed with status: "+dfaStatus);]]></scripting:script>
+                            </scripting:component>
+
+                        </when>
+                        <when expression="#[payload.containsKey(&quot;result&quot;)]">
+                            <logger message="hasResult: new dfaStatus: #[payload.get(&quot;result&quot;).get(&quot;state&quot;).get(&quot;value&quot;)]" level="INFO" doc:name="New Crawling Status"/>
+                            <set-variable variableName="dfaStatus" value="#[payload.get(&quot;result&quot;).get(&quot;state&quot;).get(&quot;value&quot;)]" doc:name="dfaStatus = STATUS"/>
+                        </when>
+                        <otherwise>
+                            <logger message="Ingnored Crawling Status ( dfaStatus: #[dfaStatus] and hasResult: #[payload.containsKey(&quot;result&quot;)] )" level="INFO" doc:name="Ingnored Crawling Status"/>
+                        </otherwise>
+                    </choice>
+                </processor-chain>
+            </until-successful>
+
+        </async>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy doc:name="Catch HttpException" enableNotifications="false" when="#[exception.causedBy( org.apache.commons.httpclient.HttpException)]">
+                <logger message="HttpException: #[exception.getCause().getMessage()]" level="WARN" doc:name="Log HttpException"/>
+            </catch-exception-strategy>
+            <catch-exception-strategy doc:name="Generic Exception Strategy" enableNotifications="false">
+                <logger level="WARN" doc:name="Log Generic Exception" message="Generic Exception: #[exception.getCause().getMessage()]"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
+    </flow>
+</mule>

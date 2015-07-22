@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <process id="SoilSealingWRM" name="Soil Sealing - Working Region Manager" isExecutable="true">
+    <startEvent id="startevent1" name="Start"></startEvent>
+    <userTask id="usertask1" name="WRM : Selezione dati Input" activiti:owner="${initiator}" activiti:candidateGroups="WRM" activiti:dueDate="${waDueDate}">
+      <documentation>Here you can find the ${wrName} working region shapefile and the available data on it.
+This working region has an area of ${wrArea} km^2.
+Please, choose the data you wish to use as input for the next processing steps and set a due date for the WR completion (Whole project due date: ${waDueDate}).</documentation>
+      <extensionElements>
+        <activiti:formProperty id="wrDataList" name="WR Catalog Data" type="selection-list" variable="wrDataList" required="true"></activiti:formProperty>
+        <activiti:formProperty id="wrDueDate" name="Set a due date for this working region" type="date" required="true"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <serviceTask id="servicetask1" name="AttachWorkingRegion" activiti:class="it.planetek.dfc.AttachWorkingRegion"></serviceTask>
+    <sequenceFlow id="flow3" sourceRef="manualtask1" targetRef="usertask1"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="startevent1" targetRef="servicetask1"></sequenceFlow>
+    <userTask id="usertask3" name="WRM : Mosaicatura" activiti:owner="${initiator}" activiti:candidateGroups="WRM" activiti:dueDate="${wrDueDate}">
+      <documentation>Proceed with the data mosaic of the results obtained from the previous eleaborations.
+Optionally, you can add a text note to this task.</documentation>
+      <extensionElements>
+        <activiti:formProperty id="mosaicComment" name="Note sulla mosaicatura" type="textarea"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <userTask id="usertask4" name="QM: Quality check" activiti:owner="${initiator}" activiti:candidateGroups="QM">
+      <documentation>Check whether the working region output data is valid or not.</documentation>
+      <extensionElements>
+        <activiti:formProperty id="qCheck" name="WR Quality Check passed?" type="enum" required="true">
+          <activiti:value id="passed" name="Passed"></activiti:value>
+          <activiti:value id="notpassed" name="Not passed"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow9" sourceRef="usertask3" targetRef="usertask4"></sequenceFlow>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow10" sourceRef="usertask4" targetRef="exclusivegateway1"></sequenceFlow>
+    <sequenceFlow id="flow11" sourceRef="exclusivegateway1" targetRef="usertask3">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${qCheck == 'notpassed'}]]></conditionExpression>
+    </sequenceFlow>
+    <endEvent id="endevent2" name="End"></endEvent>
+    <sequenceFlow id="flow12" sourceRef="exclusivegateway1" targetRef="endevent2">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${qCheck == 'passed'}]]></conditionExpression>
+    </sequenceFlow>
+    <callActivity id="callactivity1" name="Images Processing" calledElement="SoilSealingIM">
+      <extensionElements>
+        <activiti:in source="loopCounter" target="loopCounter"></activiti:in>
+        <activiti:in source="selectedData" target="selectedData"></activiti:in>
+        <activiti:in source="initiator" target="initiator"></activiti:in>
+        <activiti:in source="wrDueDate" target="wrDueDate"></activiti:in>
+      </extensionElements>
+      <multiInstanceLoopCharacteristics isSequential="false" activiti:collection="${wrDataList}" activiti:elementVariable="selectedData"></multiInstanceLoopCharacteristics>
+    </callActivity>
+    <sequenceFlow id="flow13" sourceRef="usertask1" targetRef="callactivity1"></sequenceFlow>
+    <sequenceFlow id="flow14" sourceRef="callactivity1" targetRef="usertask3"></sequenceFlow>
+    <manualTask id="manualtask1" name="WRM: Valutazione fattibilità (WebGIS)"></manualTask>
+    <sequenceFlow id="flow15" sourceRef="servicetask1" targetRef="manualtask1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_SoilSealingWRM">
+    <bpmndi:BPMNPlane bpmnElement="SoilSealingWRM" id="BPMNPlane_SoilSealingWRM">
+      <bpmndi:BPMNShape bpmnElement="startevent1" id="BPMNShape_startevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="0.0" y="288.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask1" id="BPMNShape_usertask1">
+        <omgdc:Bounds height="73.0" width="121.0" x="390.0" y="269.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="servicetask1" id="BPMNShape_servicetask1">
+        <omgdc:Bounds height="55.0" width="131.0" x="50.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask3" id="BPMNShape_usertask3">
+        <omgdc:Bounds height="55.0" width="151.0" x="700.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="usertask4" id="BPMNShape_usertask4">
+        <omgdc:Bounds height="55.0" width="105.0" x="886.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="1021.0" y="288.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent2" id="BPMNShape_endevent2">
+        <omgdc:Bounds height="35.0" width="35.0" x="1090.0" y="291.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="callactivity1" id="BPMNShape_callactivity1">
+        <omgdc:Bounds height="55.0" width="126.0" x="540.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="manualtask1" id="BPMNShape_manualtask1">
+        <omgdc:Bounds height="73.0" width="141.0" x="210.0" y="269.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="351.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="390.0" y="305.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="35.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="50.0" y="305.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="851.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="886.0" y="305.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="991.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1021.0" y="308.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow11" id="BPMNEdge_flow11">
+        <omgdi:waypoint x="1041.0" y="288.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1040.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="775.0" y="228.0"></omgdi:waypoint>
+        <omgdi:waypoint x="775.0" y="278.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow12" id="BPMNEdge_flow12">
+        <omgdi:waypoint x="1061.0" y="308.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1090.0" y="308.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow13" id="BPMNEdge_flow13">
+        <omgdi:waypoint x="511.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="305.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow14" id="BPMNEdge_flow14">
+        <omgdi:waypoint x="666.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="305.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow15" id="BPMNEdge_flow15">
+        <omgdi:waypoint x="181.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="210.0" y="305.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

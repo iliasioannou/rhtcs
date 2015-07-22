@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+    <flow name="callFtpSyncerFlow1" doc:name="callFtpSyncerFlow1">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9099" path="ftpSync" doc:name="HTTP"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="FTPSYNC!#[&quot;\n&quot;]Message:#[message]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="ftpConnectionUrl" value="#[json:ftpConnectionUrl]" doc:name="ftpConnectionUrl"/>
+        <set-variable variableName="ftpRemoteRoot" value="#[json:ftpRemoteRoot]" doc:name="ftpRemoteRoot"/>
+        <scripting:component doc:name="Python">
+            <scripting:script engine="jython"><![CDATA[# client.py
+import sys
+
+#sys.path.append('E:/xmlrpclib-1.0.1')
+#print sys.path
+
+import xmlrpclib
+
+print "Calling the slave ..."
+proxy = xmlrpclib.ServerProxy("http://morgana.planetek.it:9090/")
+result = proxy.execute(ftpConnectionUrl, ftpRemoteRoot)
+print "ExitCode: ", result]]></scripting:script>
+        </scripting:component>
+    </flow>
+</mule>

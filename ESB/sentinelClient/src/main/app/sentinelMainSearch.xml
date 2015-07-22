@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+    <flow name="sentinelclientFlow1" doc:name="sentinelclientFlow1" doc:description="{
+&quot;startDate&quot;:&quot;2014-01-01T00:00:00.000Z&quot;,
+&quot;endDate&quot;:&quot;2014-12-31T00:00:00.000Z&quot;,
+&quot;AOI&quot;:&quot;POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))&quot;
+}">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="search" doc:name="HTTP"/>
+        <logger message="MAIN SEARCH FLOOOOOOOOOW" level="INFO" doc:name="Logger"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+        <set-variable variableName="aoiFilter" value="footprint%3A%22Intersects(#[URLEncoder.encode(payload.get(&quot;AOI&quot;), &quot;UTF-8&quot;)])%22" doc:name="aoiFilter"/>
+        <logger message="AOI: #[aoiFilter]" level="INFO" doc:name="aoiFilter"/>
+        <set-variable variableName="dateFilter" value="[#[payload.get(&quot;startDate&quot;)]%20TO%20#[payload.get(&quot;endDate&quot;)]]" doc:name="dateFilter var"/>
+        <logger message="Date: #[dateFilter]" level="INFO" doc:name="dateFilter"/>
+        <set-variable variableName="querystr" value="#[aoiFilter]%20AND%20beginPosition:#[dateFilter]%20AND%20endPosition:#[dateFilter]${sentinel.queryoptions}" doc:name="set querystr"/>
+        <logger message="Query: ${sentinel.path.solr}#[querystr]" level="INFO" doc:name="QueryString"/>
+        <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.solr}#[querystr]" method="GET" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="HTTP"/>
+        <logger message="Response: #[payload]" level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>

@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="Report-IM" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="52ca052f-7e12-423c-bb76-2dc8875d5266">
+	<property name="ireport.zoom" value="0.9090909090909092"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="table">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TH" mode="Opaque" backcolor="#F0F8FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_CH" mode="Opaque" backcolor="#BFE1FF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 1_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2">
+		<box>
+			<pen lineWidth="1.0" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TH" mode="Opaque" backcolor="#FFA500">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_CH" mode="Opaque" backcolor="#FFE9BF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="table 2_TD" mode="Opaque" backcolor="#FFFFFF">
+		<box>
+			<pen lineWidth="0.5" lineColor="#000000"/>
+		</box>
+	</style>
+	<style name="DaysToGo" mode="Opaque" forecolor="#000000">
+		<box>
+			<pen lineWidth="1.0"/>
+			<topPen lineWidth="1.0"/>
+			<leftPen lineWidth="1.0"/>
+			<bottomPen lineWidth="1.0"/>
+			<rightPen lineWidth="1.0"/>
+		</box>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{days_to_go}.getDays() < 10]]></conditionExpression>
+			<style mode="Opaque" forecolor="#000000" backcolor="#FF0000" isBold="true" isItalic="false" isUnderline="true" isStrikeThrough="false"/>
+		</conditionalStyle>
+	</style>
+	<style name="Status" mode="Opaque" forecolor="#000000">
+		<box>
+			<topPen lineWidth="1.0"/>
+			<leftPen lineWidth="1.0"/>
+			<bottomPen lineWidth="1.0"/>
+			<rightPen lineWidth="1.0"/>
+		</box>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{status} == "Completed"]]></conditionExpression>
+			<style forecolor="#000000" backcolor="#99FF99"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{status} == "Running"]]></conditionExpression>
+			<style forecolor="#000000" backcolor="#FFFF99"/>
+		</conditionalStyle>
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$F{status} == "Waiting"]]></conditionExpression>
+			<style mode="Opaque" forecolor="#000000" backcolor="#FF6666"/>
+		</conditionalStyle>
+	</style>
+	<subDataset name="Activiti IM" uuid="c5f3bd3a-c2fa-4938-b9fb-6c5e9f39ee16">
+		<queryString>
+			<![CDATA[select * from act_proc_ss_img_mgmt]]>
+		</queryString>
+		<field name="image_id" class="java.lang.String"/>
+		<field name="image_name" class="java.lang.String"/>
+		<field name="current_task" class="java.lang.String"/>
+		<field name="status" class="java.lang.String"/>
+		<field name="pm_owner" class="java.lang.String"/>
+		<field name="assigned_to" class="java.lang.String"/>
+		<field name="start_date" class="java.sql.Timestamp"/>
+		<field name="end_time" class="java.sql.Timestamp"/>
+		<field name="due_date" class="java.sql.Timestamp"/>
+		<field name="days_to_go" class="org.postgresql.util.PGInterval"/>
+		<field name="process_id" class="java.lang.String"/>
+	</subDataset>
+	<queryString language="SQL">
+		<![CDATA[select * from act_proc_ss_img_mgmt]]>
+	</queryString>
+	<field name="image_id" class="java.lang.String"/>
+	<field name="image_name" class="java.lang.String"/>
+	<field name="current_task" class="java.lang.String"/>
+	<field name="status" class="java.lang.String"/>
+	<field name="pm_owner" class="java.lang.String"/>
+	<field name="assigned_to" class="java.lang.String"/>
+	<field name="start_date" class="java.sql.Timestamp"/>
+	<field name="due_date" class="java.sql.Timestamp"/>
+	<field name="days_to_go" class="org.postgresql.util.PGInterval"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="31" splitType="Stretch">
+			<staticText>
+				<reportElement x="318" y="2" width="167" height="26" uuid="c1730f87-4d20-41fe-af29-058ccaf023f2"/>
+				<textElement>
+					<font size="16"/>
+				</textElement>
+				<text><![CDATA[Image Manager Report]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="43" splitType="Stretch">
+			<textField pattern="dd/MM/yy - HH.mm">
+				<reportElement x="353" y="11" width="97" height="20" uuid="7f51443e-9876-47ab-8ea0-eca6ec87dac0"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="11" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="11" splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band height="15" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="322" splitType="Stretch">
+			<componentElement>
+				<reportElement key="table 2" style="table 2" x="0" y="0" width="802" height="322" uuid="c6b001b8-f88f-49ce-bd9d-b94ee68cb85b"/>
+				<jr:table xmlns:jr="http://jasperreports.sourceforge.net/jasperreports/components" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports/components http://jasperreports.sourceforge.net/xsd/components.xsd">
+					<datasetRun subDataset="Activiti IM" uuid="63ad23ed-0f32-4582-af1a-d8bc96bd3fc9">
+						<connectionExpression><![CDATA[$P{REPORT_CONNECTION}]]></connectionExpression>
+					</datasetRun>
+					<jr:column width="57" uuid="8cfc4138-128c-45c1-bf07-f561ea0837ec">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="57" height="30" uuid="4109b406-df19-40d2-8b22-547710167ca9"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Process ID]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell height="22" rowSpan="1">
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="57" height="22" uuid="fa967e9f-4efc-43a0-ba8e-461fd9cb016c"/>
+								<box>
+									<pen lineWidth="1.0"/>
+									<topPen lineWidth="1.0"/>
+									<leftPen lineWidth="1.0"/>
+									<bottomPen lineWidth="1.0"/>
+									<rightPen lineWidth="1.0"/>
+								</box>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{process_id}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="49" uuid="143fb55f-90c3-4282-97f1-f137fb175278">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="49" height="30" uuid="7cfe296f-0361-4d1b-b900-e3a073ce7a98"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Image ID]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="49" height="22" uuid="929687b0-f3f4-4ed6-91f9-48ff40980190"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{image_id}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="203" uuid="1b9a7757-e2a9-451c-8132-bc15a753e7de">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="203" height="30" uuid="c9bdbb6b-6302-456c-919a-068800f06309"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Image Name]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="203" height="22" uuid="a0ecc138-0929-444b-8993-7586ccded87e"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{image_name}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="102" uuid="f00e1367-fe1a-462d-b27b-4c355425afb4">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="102" height="30" uuid="9e79ae80-b7bf-442c-821d-d95d5fb9a18a"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Current task]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="102" height="22" uuid="6b2c8ef6-0507-4a05-b4c3-872c1f1bc906"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{current_task}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="57" uuid="ccc49973-d652-43c9-b71e-1e9cde69e5d9">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="57" height="30" uuid="6089d030-4772-468f-ab18-a53fec6496e1"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Status]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="Status" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="57" height="22" uuid="cc5d8829-c5dc-466c-bdc1-1a6f99d3b87f"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{status}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="67" uuid="e44b684e-fbe9-46d3-b9f6-39e0fd2d4624">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="67" height="30" uuid="6a907492-a556-46ca-8830-9a3555fda964"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[PM Owner]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="67" height="22" uuid="73c07696-08be-426a-8313-d91e8ce06b26"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{pm_owner}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="69" uuid="0eb874fe-8ba2-41f3-8443-6c62b78592ea">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="69" height="30" uuid="42bbfec3-189c-4ced-a89c-41bd13a642bb"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Assigned to]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" pattern="" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" mode="Transparent" x="0" y="0" width="69" height="22" forecolor="#000000" backcolor="#FFFFFF" uuid="8ec26743-39f3-4931-837f-e64c50599588"/>
+								<textElement textAlignment="Left" verticalAlignment="Top" rotation="None" markup="none">
+									<font fontName="SansSerif" size="10" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+									<paragraph lineSpacing="Single" leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{assigned_to}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="83" uuid="33db75b7-1603-4906-8760-62934a96f92a">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="83" height="30" uuid="a61a2f26-8d15-4524-9f62-53625a26ad0b"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Start date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="83" height="22" uuid="cc759c6c-7756-403f-a9ee-c684fdb7297b"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{start_date}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="84" uuid="754adb01-e1b8-4215-a26d-346f216da947">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="84" height="30" uuid="38d7b44e-bd86-4955-bb71-e567926e392a"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Due date]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="table 2_TD" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="84" height="22" uuid="38e6026f-d4b2-4294-8e8f-2e46c9d7d96d"/>
+								<textElement textAlignment="Left">
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<textFieldExpression><![CDATA[$F{due_date}]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+					<jr:column width="30" uuid="c0588c6e-bd9c-4a64-921c-c3ea988e3cfc">
+						<jr:columnHeader style="table 2_TH" height="30" rowSpan="1">
+							<staticText>
+								<reportElement x="0" y="0" width="30" height="30" uuid="75a05e0a-bac2-489c-9be7-297f9c7aadd6"/>
+								<textElement>
+									<paragraph leftIndent="2"/>
+								</textElement>
+								<text><![CDATA[Days to go]]></text>
+							</staticText>
+						</jr:columnHeader>
+						<jr:columnFooter style="table 2_CH" height="16" rowSpan="1"/>
+						<jr:detailCell style="DaysToGo" height="22" rowSpan="1">
+							<box leftPadding="0"/>
+							<textField isStretchWithOverflow="true" isBlankWhenNull="true">
+								<reportElement stretchType="RelativeToBandHeight" x="0" y="0" width="30" height="22" uuid="d68fb843-e529-4571-8056-440c92ae1c7d"/>
+								<textElement textAlignment="Right">
+									<paragraph leftIndent="2" rightIndent="5"/>
+								</textElement>
+								<textFieldExpression><![CDATA[""+$F{days_to_go}.getDays()]]></textFieldExpression>
+							</textField>
+						</jr:detailCell>
+					</jr:column>
+				</jr:table>
+			</componentElement>
+		</band>
+	</summary>
+</jasperReport>

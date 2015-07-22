@@ -1,0 +1,16 @@
+syntax: glob
+.classpath
+.project
+.settings
+build
+target
+deployment
+.settings
+*.class
+
+# --------------- #
+#    Activiti	  #
+# --------------- #
+deployment/
+.studio/
+target/

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://www.activiti.org/test">
+  <signal id="muleSignal" name="muleSignal"></signal>
+  <process id="MuleConnection" name="Mule HTTP Connection" isExecutable="true">
+    <documentation>Activiti workflow comunicating with Mule ESB</documentation>
+    <startEvent id="startevent" name="Ask the user a message" activiti:initiator="initiator"></startEvent>
+    <endEvent id="endevent" name="End"></endEvent>
+    <scriptTask id="scriptMuleSend" name="Send data to MuleESB" scriptFormat="groovy" activiti:autoStoreVariables="false">
+      <script>import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+
+def endpointREST = "${muleEP}";
+
+def jsonBuilder = new groovy.json.JsonBuilder();
+jsonBuilder(
+	initiator: "${initiator}",
+    	msg: "${msg}",
+	activitiExecID: execution.id,
+	mail: "${mail}"
+)
+println(jsonBuilder.toPrettyString());
+
+Client c = Client.create();
+WebResource r = c.resource(endpointREST);
+r.post(String.class, jsonBuilder.toPrettyString());</script>
+    </scriptTask>
+    <intermediateCatchEvent id="signalintermediatecatchevent1" name="Mule Signal Catcher">
+      <documentation>Wait for Mule to respond with a signal named "muleSignal"</documentation>
+      <signalEventDefinition signalRef="muleSignal"></signalEventDefinition>
+    </intermediateCatchEvent>
+    <sequenceFlow id="flow2" sourceRef="scriptMuleSend" targetRef="signalintermediatecatchevent1"></sequenceFlow>
+    <userTask id="userAccept" name="Accept Mule Output?" activiti:assignee="${initiator}">
+      <extensionElements>
+        <activiti:formProperty id="muleOutput" name="Mule Elaboration Output" type="string" variable="muleOutput" default="${muleOutput}" writable="false"></activiti:formProperty>
+        <activiti:formProperty id="accepted" name="accept this output?" type="enum" required="true">
+          <activiti:value id="acceptyes" name="YES"></activiti:value>
+          <activiti:value id="acceptno" name="NO"></activiti:value>
+        </activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" sourceRef="signalintermediatecatchevent1" targetRef="userAccept"></sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="userAccept" targetRef="exGatewayAccept"></sequenceFlow>
+    <exclusiveGateway id="exGatewayAccept" name="Exclusive Gateway" default="flow7"></exclusiveGateway>
+    <sequenceFlow id="flowAcceptNO" sourceRef="exGatewayAccept" targetRef="userInitForm">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${accepted == 'acceptno'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="userInitForm" name="Insert msg to send to Mule" activiti:assignee="${initiator}">
+      <extensionElements>
+        <activiti:formProperty id="msg" name="Message to Mule" type="string" required="true"></activiti:formProperty>
+        <activiti:formProperty id="muleend" name="Mule Endpoint" type="string" variable="muleEP" default="http://localhost:8088/connection" required="true"></activiti:formProperty>
+        <activiti:formProperty id="mail" name="Mail Address" type="string" required="true"></activiti:formProperty>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow7" sourceRef="userInitForm" targetRef="scriptMuleSend"></sequenceFlow>
+    <sequenceFlow id="flowAcceptYES" sourceRef="exGatewayAccept" targetRef="endevent">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${accepted == 'acceptyes'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow9" sourceRef="startevent" targetRef="userInitForm"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_MuleConnection">
+    <bpmndi:BPMNPlane bpmnElement="MuleConnection" id="BPMNPlane_MuleConnection">
+      <bpmndi:BPMNShape bpmnElement="startevent" id="BPMNShape_startevent">
+        <omgdc:Bounds height="35.0" width="35.0" x="20.0" y="190.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent" id="BPMNShape_endevent">
+        <omgdc:Bounds height="35.0" width="35.0" x="700.0" y="281.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="scriptMuleSend" id="BPMNShape_scriptMuleSend">
+        <omgdc:Bounds height="62.0" width="135.0" x="280.0" y="177.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="signalintermediatecatchevent1" id="BPMNShape_signalintermediatecatchevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="460.0" y="191.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="userAccept" id="BPMNShape_userAccept">
+        <omgdc:Bounds height="63.0" width="128.0" x="540.0" y="176.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exGatewayAccept" id="BPMNShape_exGatewayAccept">
+        <omgdc:Bounds height="40.0" width="40.0" x="583.0" y="278.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="userInitForm" id="BPMNShape_userInitForm">
+        <omgdc:Bounds height="55.0" width="135.0" x="100.0" y="180.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow2" id="BPMNEdge_flow2">
+        <omgdi:waypoint x="415.0" y="208.0"></omgdi:waypoint>
+        <omgdi:waypoint x="460.0" y="208.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="495.0" y="208.0"></omgdi:waypoint>
+        <omgdi:waypoint x="540.0" y="207.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="604.0" y="239.0"></omgdi:waypoint>
+        <omgdi:waypoint x="603.0" y="278.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowAcceptNO" id="BPMNEdge_flowAcceptNO">
+        <omgdi:waypoint x="583.0" y="298.0"></omgdi:waypoint>
+        <omgdi:waypoint x="167.0" y="298.0"></omgdi:waypoint>
+        <omgdi:waypoint x="167.0" y="235.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow7" id="BPMNEdge_flow7">
+        <omgdi:waypoint x="235.0" y="207.0"></omgdi:waypoint>
+        <omgdi:waypoint x="280.0" y="208.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flowAcceptYES" id="BPMNEdge_flowAcceptYES">
+        <omgdi:waypoint x="623.0" y="298.0"></omgdi:waypoint>
+        <omgdi:waypoint x="700.0" y="298.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="55.0" y="207.0"></omgdi:waypoint>
+        <omgdi:waypoint x="100.0" y="207.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

@@ -1,0 +1,13 @@
+- Tutte le variabili definite nel WF (Activiti) saranno passate al modulo python all'interno di un python dictionary.
+
+- Lo script dovrà utilizzare come cartelle di input e output, le 2 omonime cartelle che ritroverà in maniera trasparente nella propria working directory.
+
+- Il modulo python dovrà contenere un metodo "run(argsDict)", che racchiuda l'implementazione della logica di processing e che verrà richiamato per l'esecuzione del modulo.
+	Come unico argomento dovrà accettare un dizionario, contenente coppie key/value rappresentanti le variabili definite nel WF activiti.
+	Il valore associato a ciascuna chiave del dizionario sarà di tipo stringa unicode, quindi prestare attenzione a convertire (cast) le variabili nei tipi corretti (int, str, ecc...).
+
+- L'output (return value del metodo "run(argsDict)") dovrà essere un pyDictionary contenente coppie key/value che saranno rese disponibili come variabili (nome variabile = key, valore variabile = value) all'interno del contesto del WF (Activiti).
+
+- Definire (in modalità da convenire) i criteri di validazione dei dati di input (dominio dei valori).
+
+- Definire (in modalità da convenire) i criteri di ranking dei dati ottenuti dalla ricerca nel catalogo.

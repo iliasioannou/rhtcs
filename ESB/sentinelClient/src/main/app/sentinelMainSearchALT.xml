@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+    <flow name="sentinelMainSearchALTFlow1" doc:name="sentinelMainSearchALTFlow1" doc:description="{
+&quot;startDate&quot;:&quot;2014-01-01T00:00:00.000Z&quot;,
+&quot;endDate&quot;:&quot;2015-01-28T00:00:00.000Z&quot;,
+&quot;ingestionDate1&quot;:&quot;NOW-1DAY&quot;,
+&quot;ingestionDate2&quot;:&quot;NOW&quot;,
+&quot;AOI&quot;:&quot;POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))&quot;,
+&quot;type&quot;:&quot;SLC&quot;
+}">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" doc:name="HTTP" path="zearch"/>
+        <logger message="ALT SEARCH FLOW CONNECTION" level="INFO" doc:name="ALT SEARCH FLOW"/>
+        <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+        <set-variable variableName="typeFilter" value="producttype:#[payload.get(&quot;type&quot;)]" doc:name="typeFilter"/>
+        <set-variable variableName="aoiFilter" value="footprint:&quot;Intersects(#[URLEncoder.encode(payload.get(&quot;AOI&quot;), &quot;UTF-8&quot;)])&quot;" doc:name="aoiFilter"/>
+        <set-variable variableName="dateFilter" value="[#[payload.get(&quot;startDate&quot;)]%20TO%20#[payload.get(&quot;endDate&quot;)]]" doc:name="dateFilter"/>
+        <set-variable variableName="relativeOrbitFilter" value="relativeorbitnumber:#[payload.get(&quot;relativeOrbitNumber&quot;)]" doc:name="relativeOrbitFilter"/>
+        <set-variable variableName="orbitDirectionFilter" value="orbitdirection:#[payload.get(&quot;orbitDirection&quot;)]" doc:name="orbitDirectionFilter"/>
+        <set-variable variableName="ingestionDateFilter" value="[#[payload.get(&quot;ingestionDate1&quot;)]+TO+#[payload.get(&quot;ingestionDate2&quot;)]]" doc:name="ingestionDateFilter"/>
+        <set-variable variableName="querystr" value="#[typeFilter]+AND+#[relativeOrbitFilter]+AND+#[orbitDirectionFilter]+AND+#[aoiFilter]+AND+beginPosition:#[dateFilter]+AND+endPosition:#[dateFilter]+AND+ingestionDate:#[ingestionDateFilter]${sentinel.queryoptions}" doc:name="querystr"/>
+        <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
+        <scripting:component doc:name="HTTP Status Check">
+            <scripting:script engine="Groovy"><![CDATA[httpStatus = message.getInboundProperty('http.status');
+if(httpStatus != 200)
+	throw new org.apache.commons.httpclient.HttpException("Sentinel DataHub returned an HTTP error code: "+httpStatus)
+return payload]]></scripting:script>
+        </scripting:component>
+        <logger message="CODE: #[message.inboundProperties['http.status']] BODY: #[payload.substring(0, 500)]..." level="INFO" doc:name="HTTP 200 OK"/>
+        <http:response-builder status="#[message.inboundProperties['http.status']]" contentType="application/json" doc:name="HTTP Response Builder"/>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy doc:name="Catch HttpException" enableNotifications="false" when="#[exception.causedBy( org.apache.commons.httpclient.HttpException)]">
+                <logger message="HttpException: #[exception.getCause().getMessage()]" level="WARN" doc:name="Log HttpException"/>
+                <http:response-builder status="500" contentType="text/plain" doc:name="HTTP Response Builder"/>
+            </catch-exception-strategy>
+            <catch-exception-strategy doc:name="Generic Exception Strategy">
+                <logger level="WARN" doc:name="Log Generic Exception" message="Generic Exception: #[exception.getCause().getMessage()]"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
+    </flow>
+</mule>

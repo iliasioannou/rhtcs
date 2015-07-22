@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:smtp="http://www.mulesoft.org/schema/mule/smtp" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smtp/current/mule-smtp.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <flow name="mailNotifierFlow1" doc:name="mailNotifierFlow1" initialState="started">
+        <poll frequency="86400000" doc:name="Poll" doc:description="24h = 86400000 ms">
+            <processor-chain doc:name="Processor Chain">
+                <logger message="Checking new Sentinel acquisitions..." level="INFO" doc:name="Checking..."/>
+                <set-payload value="{ &quot;type&quot;:&quot;SLC&quot;, &quot;relativeOrbitNumber&quot;:&quot;44&quot;, &quot;orbitDirection&quot;:&quot;Ascending&quot;, &quot;startDate&quot;:&quot;NOW-10MONTHS&quot;, &quot;endDate&quot;:&quot;NOW&quot;, &quot;ingestionDate1&quot;:&quot;NOW-1DAY&quot;, &quot;ingestionDate2&quot;:&quot;NOW&quot;, &quot;AOI&quot;:&quot;POLYGON((13.95 40.8, 14.23 40.8, 14.23 41.1, 13.95 41.1, 13.95 40.8))&quot; }" doc:name="Search Body Req" doc:description="{ &quot;type&quot;:&quot;SLC&quot;, &quot;relativeOrbitNumber&quot;:&quot;44&quot;, &quot;orbitDirection&quot;:&quot;Ascending&quot;, &quot;startDate&quot;:&quot;NOW-10MONTHS&quot;, &quot;endDate&quot;:&quot;NOW&quot;, &quot;ingestionDate1&quot;:&quot;NOW-1DAY&quot;, &quot;ingestionDate2&quot;:&quot;NOW&quot;, &quot;AOI&quot;:&quot;POLYGON((13.95 40.8, 14.23 40.8, 14.23 41.1, 13.95 41.1, 13.95 40.8))&quot; }"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="zearch" method="POST" doc:name="Search Sentinel"/>
+            </processor-chain>
+        </poll>
+        <set-variable variableName="resSize" value="#[json:feed/'opensearch:totalResults']" doc:name="set resSize"/>
+        <choice doc:name="Choice">
+            <when expression="#[Integer.parseInt(resSize)  &gt; 0]">
+                <logger message="New Acquisitions Detected!!! (#[resSize] acquisitions)" level="INFO" doc:name="New Acquisition Detected!"/>
+                <logger message="ID: #[json:feed/entry/id] #[&quot;\n&quot;] Summary: #[json:feed/entry/summary]" level="INFO" doc:name="Logger"/>
+                <set-variable variableName="mailbody" value="New Sentinel-1 Acquisition on GIUGLIANO: #[json:feed/entry/summary]" doc:name="set mailbody"/>
+                <set-payload value="{ &quot;UUID&quot;:&quot;#[json:feed/entry/id]&quot; }" doc:name="DL body req"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="changedetection" method="POST" doc:name="Download Sentinel and Change Detection"/>
+                <set-payload value="#[mailbody]" doc:name="Set Payload mailbody"/>
+                <smtp:outbound-endpoint host="mail.planetek.it" to="giorgio@planetek.it" from="shiradfc@planetek.it" subject="New Sentinel Data available on GIUGLIANO" cc="lorusso@planetek.it" responseTimeout="10000" doc:name="SMTP"/>
+            </when>
+            <otherwise>
+                <logger message="No new acquisitions for today... " level="INFO" doc:name="No new acquisitions"/>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>
