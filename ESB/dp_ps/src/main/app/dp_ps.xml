@@ -16,7 +16,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
                     <logger message="Dataset non Presente" level="INFO" doc:name="dataset non presente"/>
                     <expression-component doc:name="update dataset_list"><![CDATA[dataset_list.add(datasetID);]]></expression-component>
                     <set-variable variableName="dataset" value="#[new java.util.HashMap()]" doc:name="dataset"/>
-                    <expression-component doc:name="insert datasetID"><![CDATA[dataset.put("datasetID", datasetID);]]></expression-component>
+                    <expression-component doc:name="insert datasetID"><![CDATA[dataset.put("destFtpPath","processors/PS/");
+dataset.put("datasetID", datasetID);]]></expression-component>
                     <set-payload value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;],&quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}" doc:name="Set Payload query elasticsearch"/>
                     <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel/sen/_search" method="POST" doc:name="HTTP"/>
                     <set-payload value="#[json:hits/hits]" doc:name="Set Payload for data of interesting"/>
