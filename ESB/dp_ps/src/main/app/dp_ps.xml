@@ -6,11 +6,12 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
     <flow name="dp_psFlow1" doc:name="dp_psFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" host="localhost" port="8081" doc:name="HTTP"/>
+        <http:inbound-endpoint exchange-pattern="request-response" host="127.0.0.1" port="9091" doc:name="HTTP" path="ps"/>
         <json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to Object"/>
         <set-variable variableName="dataset_list" value="#[new java.util.HashSet()]" doc:name="dataset_list"/>
         <foreach doc:name="For Each">
             <set-variable variableName="datasetID" value="#[payload.get(&quot;datasetID&quot;)]" doc:name="datasetID"/>
+            <logger message="DATASETID: #[datasetID]" level="INFO" doc:name="Logger"/>
             <choice doc:name="Choice">
                 <when expression="#[!dataset_list.contains(datasetID)]">
                     <logger message="Dataset non Presente" level="INFO" doc:name="dataset non presente"/>
@@ -19,9 +20,14 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
                     <expression-component doc:name="insert datasetID"><![CDATA[dataset.put("destFtpPath","processors/PS/");
 dataset.put("datasetID", datasetID);]]></expression-component>
                     <set-payload value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;],&quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}" doc:name="Set Payload query elasticsearch"/>
-                    <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel/sen/_search" method="POST" doc:name="HTTP"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" host="127.0.0.1" port="9200" path="sentinel/ps/_search" method="POST" doc:name="HTTP"/>
+                    <set-variable variableName="dimension" value="#[json:hits/total]" doc:name="dimension"/>
+                    <logger message="#[&quot;\n&quot;] dim: #[dimension]" level="INFO" doc:name="Logger"/>
+                    <set-payload value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;], &quot;from&quot;: &quot;0&quot;, &quot;size&quot;: &quot;#[dimension]&quot; , &quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}" doc:name="Set Payload"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" host="127.0.0.1" port="9200" path="sentinel/ps/_search" method="POST" doc:name="HTTP"/>
                     <set-payload value="#[json:hits/hits]" doc:name="Set Payload for data of interesting"/>
                     <json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to Object"/>
+                    <logger message="#[payload]" level="INFO" doc:name="Logger"/>
                     <choice doc:name="Choice">
                         <when expression="#[payload.size()&gt;15]">
                             <logger message="#[&quot;\n&quot;]Dataset maggiore di 15 (#[payload.size()])" level="INFO" doc:name="Maggiore"/>
@@ -44,7 +50,8 @@ import sys
 import xmlrpclib
 
 print "Calling the slave ..."
-proxy = xmlrpclib.ServerProxy("http://cristal.planetek.it:9091/")
+#proxy = xmlrpclib.ServerProxy(" :9092/")
+proxy = xmlrpclib.ServerProxy("http://127.0.0.1:9092/")
 result = proxy.execute(payload)
 print "ExitCode: ", result]]></scripting:script>
                             </scripting:component>
@@ -62,5 +69,6 @@ print "ExitCode: ", result]]></scripting:script>
             </choice>
         </foreach>
         <logger message="End" level="INFO" doc:name="Logger"/>
+        <set-payload value="#[&quot;200 OK&quot;]" doc:name="Set Payload"/>
     </flow>
 </mule>
