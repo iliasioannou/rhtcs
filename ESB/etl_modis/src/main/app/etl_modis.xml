@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+
+	<spring:beans>
+		<context:property-placeholder location="classpath:etl_modis.properties" />
+		<spring:bean id="modisProps"
+			class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<spring:property name="singleton" value="true" />
+			<spring:property name="location"
+				value="classpath:etl_modis.properties" />
+		</spring:bean>
+	</spring:beans>
+
+    <flow name="etl_modisFlow1" doc:name="etl_modisFlow1">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="modis" doc:name="HTTP"/>
+        <logger message="Modis Connector Started." level="INFO" doc:name="Logger"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="${modis.host}" port="${modis.port}" path="${modis.path}?${modis.filters}" method="GET" doc:name="HTTP"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <choice doc:name="Choice">
+            <when expression="#[payload.startsWith(&quot;Your query generated&quot;)]">
+                <logger message="Modis returned result: #[payload]" level="INFO" doc:name="Logger"/>
+                <set-payload value="#[payload.substring(payload.indexOf('\n')+2);]" doc:name="Remove first 2 lines"/>
+                <set-payload value="#[payload.split(&quot;\n&quot;)]" doc:name="Split result list"/>
+                <foreach doc:name="For Each">
+                    <logger message="Dowloading file n. #[counter]: #[payload]" level="INFO" doc:name="Logger"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" method="GET" address="http://#[payload.substring(7)]" doc:name="Download NC file"/>
+                    <set-variable variableName="ncFilename" value="#[message.inboundProperties['Content-Disposition'].split(&quot;filename=&quot;)[1]].H5" doc:name="ncFilename"/>
+                    <file:outbound-endpoint path="${download.temp.dir}" outputPattern="#[ncFilename]" responseTimeout="10000" doc:name="Save in TEMP"/>
+                    <logger message="Before Jvaa" level="INFO" doc:name="Logger"/>
+                    <component class="org.mule.transformers.ExtractMetadataComponent" doc:name="Java"/>
+                    <object-to-string-transformer doc:name="Object to String"/>
+                    <logger message="JAVA: #[payload]" level="INFO" doc:name="Logger"/>
+                </foreach>
+            </when>
+            <otherwise>
+                <logger message="No Result" level="INFO" doc:name="Logger"/>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>
