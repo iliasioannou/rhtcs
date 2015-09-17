@@ -5,7 +5,14 @@ bin
 .project
 .classpath
 .studio
+.recommenders
+.metadata
 target
+
+# mule
+/
+target/
+**/*.mflow
 
 # python
 *.pyc
