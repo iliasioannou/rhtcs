@@ -1,11 +1,18 @@
 syntax: glob
-$MULE_HOME
 bin
 .settings
 .project
 .classpath
 .studio
+.recommenders
+.metadata
 target
+
+# mule
+/
+target/
+**/*.mflow
+.mule
 
 # python
 *.pyc
