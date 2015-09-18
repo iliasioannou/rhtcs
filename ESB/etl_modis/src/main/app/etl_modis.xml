@@ -24,7 +24,7 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
     <flow name="etl_modisFlow1" doc:name="etl_modisFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="modis" doc:name="HTTP"/>
         <logger message="Modis Connector Started." level="INFO" doc:name="Logger"/>
-        <http:outbound-endpoint exchange-pattern="request-response" host="${modis.host}" port="${modis.port}" path="${modis.path}?${modis.filters}" method="GET" doc:name="HTTP"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="${modis.search.host}" port="${modis.search.port}" path="${modis.search.path}?${modis.filter.usage}${modis.filter.sensor}${modis.filter.sdate}${modis.filter.edate}${modis.filter.psdate}${modis.filter.pedate}${modis.filter.dtype}${modis.filter.addurl}${modis.filter.results_as_file}${modis.filter.search}${modis.filter.subID}${modis.filter.std_only}${modis.filter.chksum}" method="GET" doc:name="HTTP"/>
         <object-to-string-transformer doc:name="Object to String"/>
         <choice doc:name="Choice">
             <when expression="#[payload.startsWith(&quot;Your query generated&quot;)]">
