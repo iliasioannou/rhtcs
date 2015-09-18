@@ -14,28 +14,28 @@ import org.mule.api.lifecycle.Callable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExtractModisProductsFromHtml implements Callable
+public class ExtractModisProductsFromHtmlComponent implements Callable
 {
-	private static final Logger log = LoggerFactory.getLogger(ExtractModisProductsFromHtml.class);
-	
+	private static final Logger log = LoggerFactory.getLogger(ExtractModisProductsFromHtmlComponent.class);
+
 	public Object onCall(MuleEventContext eventContext) throws IOException
 	{
-		log.info("Started java class");
-		
+		log.info("[ExtractModisProductsFromHtmlComponent] Started...");
+
 		Properties modisProps = eventContext.getMuleContext().getRegistry().get("modisProps");
-		
+
 		InputStream modisResultPage = (InputStream) eventContext.getMessage().getPayload();
-		
+
 		Document doc = Jsoup.parse(modisResultPage, "UTF-8", "http://"+modisProps.getProperty("modis.search.host"));
-		
+
 		Elements links = doc.select(modisProps.getProperty("modis.search.cssselector"));
-		
-		ArrayList<String> modisProductList = new ArrayList<>();
-		
+
+		ArrayList<String> modisProductList = new ArrayList<String>();
+
 		for( Element link : links )
 		{
 			modisProductList.add(link.text()+".nc");
 		}
 		return modisProductList;
-    }
+	}
 }	

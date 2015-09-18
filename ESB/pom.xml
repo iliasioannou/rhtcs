@@ -14,6 +14,7 @@
 		<module>muleMail</module>
 		<module>masterflow</module>
 		<module>floodflow</module>
+		<module>etl_modis</module>
 	</modules>
 
 	<properties>

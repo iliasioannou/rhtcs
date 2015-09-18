@@ -35,13 +35,15 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         </foreach>
         <logger message="http://${modis.search.host}:${modis.search.port}/${modis.search.path}#[qryString]" level="INFO" doc:name="Logger"/>
         <http:outbound-endpoint exchange-pattern="request-response" host="${modis.search.host}" port="${modis.search.port}" path="${modis.search.path}#[qryString]" method="GET" doc:name="Search on Modis Browser"/>
-        <component class="org.mule.transformers.ExtractModisProductsFromHtml" doc:name="Extract Products from HTML"/>
+        <component class="org.mule.transformers.ExtractModisProductsFromHtmlComponent" doc:name="Extract Products from HTML"/>
         <foreach doc:name="For Each">
             <logger message="ForEach: #[payload] #[&quot;\n&quot;] Downloading http://${modis.download.host}:${modis.download.port}/${modis.download.path}#[payload]" level="INFO" doc:name="Logger"/>
             <set-variable variableName="prodFilename" value="#[payload]" doc:name="prodFilename"/>
             <http:outbound-endpoint exchange-pattern="request-response" host="${modis.download.host}" port="${modis.download.port}" path="${modis.download.path}#[payload]" method="GET" mimeType="binary/octet-stream" contentType="binary/octet-stream" doc:name="Download Modis Prod"/>
             <file:outbound-endpoint path="C:\Users\adminpk\Desktop\TEMP" outputPattern="#[prodFilename]" responseTimeout="10000" doc:name="File"/>
+            <logger message="Res: #[payload]" level="INFO" doc:name="Logger"/>
+            <component class="org.mule.transformers.MODISMetadataReaderComponent" doc:name="Java"/>
         </foreach>
-        <logger message="Res: #[payload]" level="INFO" doc:name="Logger"/>
+
     </flow>
 </mule>
