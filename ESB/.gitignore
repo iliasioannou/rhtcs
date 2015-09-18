@@ -1,5 +1,4 @@
 syntax: glob
-$MULE_HOME
 bin
 .settings
 .project
@@ -13,6 +12,7 @@ target
 /
 target/
 **/*.mflow
+.mule
 
 # python
 *.pyc
