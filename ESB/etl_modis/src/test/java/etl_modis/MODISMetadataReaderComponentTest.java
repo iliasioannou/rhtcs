@@ -1,8 +1,10 @@
 package etl_modis;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.junit.After;
 import org.junit.AfterClass;
@@ -14,6 +16,7 @@ import org.mule.transformers.MODISMetadataReaderComponent;
 public class MODISMetadataReaderComponentTest {
 
 	MODISMetadataReaderComponent modis = null;
+
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
 	}
@@ -32,12 +35,15 @@ public class MODISMetadataReaderComponentTest {
 	}
 
 	@Test
-	public final void testOnCall() {
+	public final void testReadMetadata() {
 		try {
-			assertNull(modis.readMetadata("C:\\Users\\adminpk\\Desktop\\TEMP\\a.nc"));
+			Map<String, Object> metadata = (Map<String, Object>) modis.readMetadata("C:\\Users\\adminpk\\Desktop\\TEMP\\MODISMetadataReaderComponentTest.nc");
+
+			assertNotNull(metadata);
+			assertTrue(metadata.size()>0);
+
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.println("[testReadMetadata] IOException "+e.getMessage());
 		}
 	}
 

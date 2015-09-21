@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:context="http://www.springframework.org/schema/context"
@@ -10,7 +10,8 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
 
 	<spring:beans>
 		<context:property-placeholder location="classpath:etl_modis.properties" />
@@ -23,7 +24,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 	</spring:beans>
 
     <flow name="etl_modisFlow1" doc:name="etl_modisFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="modis" doc:name="HTTP"/>
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="modis" doc:name="HTTP etl_modis"/>
         <logger message="Modis Connector Started." level="INFO" doc:name="Modis connector started"/>
         <set-variable variableName="qryString" value="#[new String()]" doc:name="qryString"/>
         <foreach collection="#[app.registry.modisProps]" doc:name="For Each modisProps">
@@ -39,10 +40,16 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         <foreach doc:name="For Each">
             <logger message="ForEach: #[payload] #[&quot;\n&quot;] Downloading http://${modis.download.host}:${modis.download.port}/${modis.download.path}#[payload]" level="INFO" doc:name="Logger"/>
             <set-variable variableName="prodFilename" value="#[payload]" doc:name="prodFilename"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="${modis.download.host}" port="${modis.download.port}" path="${modis.download.path}#[payload]" method="GET" mimeType="binary/octet-stream" contentType="binary/octet-stream" doc:name="Download Modis Prod"/>
-            <file:outbound-endpoint path="C:\Users\adminpk\Desktop\TEMP" outputPattern="#[prodFilename]" responseTimeout="10000" doc:name="File"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${modis.download.host}" port="${modis.download.port}" path="${modis.download.path}#[payload]" method="GET" mimeType="binary/octet-stream" contentType="binary/octet-stream" doc:name="Download Modis Product"/>
+            <file:outbound-endpoint path="${download.temp.dir}" outputPattern="#[prodFilename]" responseTimeout="10000" doc:name="File"/>
             <logger message="Res: #[payload]" level="INFO" doc:name="Logger"/>
-            <component class="org.mule.transformers.MODISMetadataReaderComponent" doc:name="Java"/>
+            <component class="org.mule.transformers.MODISMetadataReaderComponent" doc:name="MODIS Metadata Reader"/>
+            <set-variable variableName="platform" value="#[payload.get(&quot;platform&quot;)]" doc:name="Set platform as MODIS data type"/>
+            <set-variable variableName="product_name" value="#[payload.get(&quot;product_name&quot;)]" doc:name="Set product_name as MODIS product uuid"/>
+            <json:object-to-json-transformer doc:name="HaspMap to GeoJSON"/>
+            <logger message="Metadata in JSON: #[payload]" level="INFO" doc:name="Logger"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="modis/#[platform]/#[product_name]?pretty" method="POST" doc:name="Ingestion in Elastic Search"/>
+            <logger message="Elastic Search Response : #[message]" level="INFO" doc:name="Elastic Search Response"/>
         </foreach>
 
     </flow>

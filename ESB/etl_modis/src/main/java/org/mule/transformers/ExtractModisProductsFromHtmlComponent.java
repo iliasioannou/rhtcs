@@ -18,26 +18,40 @@ public class ExtractModisProductsFromHtmlComponent implements Callable
 {
 	private static final Logger log = LoggerFactory.getLogger(ExtractModisProductsFromHtmlComponent.class);
 
-	public Object onCall(MuleEventContext eventContext) throws IOException
-	{
-		log.info("[ExtractModisProductsFromHtmlComponent] Started...");
+	/**
+	 * Parsers an HTML document retrieving a list of MODIS products that fulfills the previous search  
+	 * 
+	 * @param eventContext
+	 * @return modisProductList
+	 */
+	public Object onCall(MuleEventContext eventContext) throws IOException {
 
-		Properties modisProps = eventContext.getMuleContext().getRegistry().get("modisProps");
+		try {
+			log.info("[ExtractModisProductsFromHtmlComponent] Start ...");
 
-		InputStream modisResultPage = (InputStream) eventContext.getMessage().getPayload();
+			Properties modisProps = eventContext.getMuleContext().getRegistry().get("modisProps");
 
-		Document doc = Jsoup.parse(modisResultPage, "UTF-8", "http://"+modisProps.getProperty("modis.search.host"));
+			InputStream modisResultPage = (InputStream) eventContext.getMessage().getPayload();
 
-		Elements links = doc.select(modisProps.getProperty("modis.search.cssselector"));
+			Document doc = Jsoup.parse(modisResultPage, "UTF-8", "http://"+modisProps.getProperty("modis.search.host"));
 
-		ArrayList<String> modisProductList = new ArrayList<String>();
+			Elements links = doc.select(modisProps.getProperty("modis.search.cssselector"));
 
-		for( Element link : links )
-		{
-			if (!link.text().isEmpty()) {
-				modisProductList.add(link.text()+".nc");
+			ArrayList<String> modisProductList = new ArrayList<String>();
+
+			for( Element link : links ) {
+				if (!link.text().isEmpty()) {
+					modisProductList.add(link.text()+".nc");
+				}
 			}
+			return modisProductList;
+
+		} catch (Exception e) {
+			log.error("[ExtractModisProductsFromHtmlComponent] EXCEPTION: "+e.getMessage());
+		} finally { 
+			log.info("[ExtractModisProductsFromHtmlComponent] End ...");
 		}
-		return modisProductList;
+		return null;
 	}
+
 }	
