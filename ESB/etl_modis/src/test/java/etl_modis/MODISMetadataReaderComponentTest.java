@@ -37,6 +37,7 @@ public class MODISMetadataReaderComponentTest {
 	@Test
 	public final void testReadMetadata() {
 		try {
+			@SuppressWarnings("unchecked")
 			Map<String, Object> metadata = (Map<String, Object>) modis.readMetadata("C:\\Users\\adminpk\\Desktop\\TEMP\\MODISMetadataReaderComponentTest.nc");
 
 			assertNotNull(metadata);
