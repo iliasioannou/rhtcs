@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
+
+	<ftp:connector name="createPathFtpConnector" doc:name="FTP">
+		<dispatcher-threading-profile
+			doThreading="false" />
+		<service-overrides
+			dispatcherFactory="org.mule.transport.customftp.CreatePathFtpMessageDispatcherFactory"></service-overrides>
+	</ftp:connector> 
+	
+    <flow name="landsat8MainDownloadFlow1" doc:name="landsat8MainDownloadFlow1" doc:description="LC80030172015001LGN00">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9091" path="download" doc:name="HTTP"/>
+        <logger message="Start Download" level="INFO" doc:name="status"/>
+        <set-payload value="#[json:results]" doc:name="Set Payload"/>
+        <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
+        <foreach doc:name="For Each">
+            <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to Object"/>
+            <set-variable variableName="sceneID" value="#[payload.get(&quot;sceneID&quot;)]" doc:name="sceneID"/>
+            <set-variable variableName="metadatiMap" value="#[new java.util.HashMap()]" doc:name="matadatiMap"/>
+            <expression-component doc:name="Create Hashmap"><![CDATA[
+java.util.HashMap location = new java.util.HashMap();
+location.put('type' , 'Polygon');
+location.put('coordinates' ,'[['+ payload.get("lowerRightCornerLongitude")+','+payload.get("lowerRightCornerLatitude")+'],['+ payload.get("upperRightCornerLongitude")+','+payload.get("upperRightCornerLatitude")+'],['+ payload.get("upperLeftCornerLongitude")+','+payload.get("upperLeftCornerLatitude")+'],['+ payload.get("lowerLeftCornerLongitude")+','+payload.get("lowerLeftCornerLatitude")+'],['+ payload.get("lowerRightCornerLongitude")+','+payload.get("lowerRightCornerLatitude")+']]');
+metadatiMap.put("location",location);
+metadatiMap.put("dateUpdated",payload.get("dateUpdated"));
+metadatiMap.put("sceneStartTime",payload.get("sceneStartTime"));
+metadatiMap.put("sceneStopTime",payload.get("sceneStopTime"));
+metadatiMap.put("cloudCover",payload.get("cloudCover"));
+metadatiMap.put("cloudCoverFull",payload.get("cloudCoverFull"));
+metadatiMap.put("dayOrNight",payload.get("dayOrNight"));
+metadatiMap.put("row",payload.get("row"));
+metadatiMap.put("path",payload.get("path"));
+metadatiMap.put("sceneID",payload.get("sceneID"));
+
+arrayListData.add(metadatiMap);
+]]></expression-component>
+            <set-payload value="#[metadatiMap]" doc:name="Set Payload"/>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="landsat/8/#[sceneID]" method="POST" doc:name="Insert ElasticSearch"/>
+        </foreach>
+        <set-payload value="#[arrayListData]" doc:name="Set Payload"/>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+
+    </flow>
+</mule>
