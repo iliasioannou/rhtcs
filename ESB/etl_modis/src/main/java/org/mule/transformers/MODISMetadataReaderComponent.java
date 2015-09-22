@@ -95,7 +95,6 @@ public class MODISMetadataReaderComponent implements Callable
 			//log.info("[readMetadata] location : "+metadata.get("location"));
 
 		} catch (IOException ioe) {
-			//log.error("[readMetadata] EXCEPTION: "+ioe.getMessage());
 			log.error("[readMetadata] EXCEPTION: "+ioe.getMessage());
 		} finally { 
 			if (null != ncfile) try {
@@ -122,14 +121,13 @@ public class MODISMetadataReaderComponent implements Callable
 		try{
 			File file = new File(filepath);
 			b = file.delete();
-			System.out.println("File deleted: "+b);
+			log.info("File \""+filepath+"\"deleted: "+b);
 		} catch(Exception e) {
-			//log.error("[readMetadata] EXCEPTION: "+e.getMessage());
-			System.out.println("[readMetadata] EXCEPTION: "+e.getMessage());
+			log.error("[readMetadata] EXCEPTION: "+e.getMessage());
 		}
 		return b;
 	}
-	
+
 	/**
 	 * Retrieves attribute value(s) 
 	 * 
@@ -140,13 +138,11 @@ public class MODISMetadataReaderComponent implements Callable
 		ArrayList<String> value = new ArrayList<String>();
 		try {
 			//System.out.println("attribute name : "+attribute.getFullName());
-			//System.out.println("attribute data type : "+attribute.getDataType());
 			Array attributeValues = attribute.getValues();
 			for (int i = 0; i < attributeValues.getSize(); i++) {
 				//System.out.println("("+i+") attribute value: "+attribute.getValue(i));
 				value.add(attribute.getValue(i).toString());
 			}
-			//System.out.println("attribute value : "+ret);
 		} catch (Exception e) {
 			log.error("[getMetadataAttributeValue] EXCEPTION: "+e.getMessage());
 		} finally { 
@@ -204,7 +200,7 @@ public class MODISMetadataReaderComponent implements Callable
 			location.put("coordinates", footprint);
 
 		} catch (Exception e) {
-			log.error("[calculateFootprint] EXCEPTION: "+e.getMessage());
+			log.error("[getGeoJsonLocation] EXCEPTION: "+e.getMessage());
 		} finally { 
 			//do nothing
 		}
