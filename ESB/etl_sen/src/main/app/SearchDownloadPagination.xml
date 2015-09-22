@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd">
+    <flow name="SearchDownloadPaginationFlow1" doc:name="SearchDownloadPaginationFlow1">
+        <http:inbound-endpoint exchange-pattern="one-way" host="0.0.0.0" port="9090" path="SearchDownloadPagination" responseTimeout="4000000" doc:name="HTTP"/>
+        <logger message="Checking new Sentinel acquisitions..." level="INFO" doc:name="Checking"/>
+        <set-payload value="{ &quot;startRows&quot;:&quot;0&quot;,&quot;type&quot;:&quot;SLC&quot;, &quot;startDate&quot;:&quot;NOW-5YEARS&quot;, &quot;endDate&quot;:&quot;NOW&quot;,&quot;AOI&quot;:&quot;POLYGON((6.3496516561495 36.519283063025,18.786175093649 36.519283063025,18.786175093649 47.272464907535,6.3496516561495 47.272464907535,6.3496516561495 36.519283063025))&quot; }" doc:name="Set search parameter"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="zearch" method="POST" responseTimeout="400000" doc:name="Search Sentinel"/>
+        <set-variable variableName="resSize" value="#[json:feed/'opensearch:totalResults']" doc:name="Set resSize"/>
+        <choice doc:name="Choice">
+            <when expression="#[Integer.parseInt(resSize)  &gt; 0]">
+                <logger message="New Acquisitions Detected!!! (#[resSize] acquisitions)" level="INFO" doc:name="New Acquisition Detected!"/>
+                <set-variable variableName="GlobalVarOutput" value="#[new java.util.ArrayList()]" doc:name="GlobalVarOutput"/>
+                <flow-ref name="SearchDownloadPaginationFlow2" doc:name="Call loop flow"/>
+            </when>
+            <otherwise>
+                <logger message="No new acquisitions for today... " level="INFO" doc:name="No new acquisitions"/>
+            </otherwise>
+        </choice>
+    </flow>
+    <flow name="SearchDownloadPaginationFlow2" doc:name="SearchDownloadPaginationFlow2">
+        <logger message="*****************ENTER LOOP***********************" level="INFO" doc:name="enter loop"/>
+        <set-variable variableName="next" value="#[json:feed/link[2]/rel]" doc:name="next"/>
+        <set-variable variableName="next2" value="#[json:feed/link[3]/rel]" doc:name="next2"/>
+        <logger message="********************************** #[next] #[next2]" level="INFO" doc:name="Logger"/>
+        <choice doc:name="Choice">
+            <when expression="#[next.equals('next') || next2.equals('next')]">
+                <choice doc:name="Choice">
+                    <when expression="#[next.equals('next')]">
+                        <set-variable variableName="linkNext" value="#[json:feed/link[2]/href]" doc:name="Link Next"/>
+                    </when>
+                    <otherwise>
+                        <set-variable variableName="linkNext" value="#[json:feed/link[3]/href]" doc:name="Link Next"/>
+                    </otherwise>
+                </choice>
+                <set-variable variableName="querystr" value="&quot;&quot;" doc:name="querystr"/>
+                <expression-component doc:name="Expression"><![CDATA[import java.net.URL;
+
+URL aURL = new URL(linkNext.toString());
+querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></expression-component>
+                <logger message="+++++++++++++++++++++++++#[querystr]" level="INFO" doc:name="Log host"/>
+                <logger message="Calling Download from Sentinel" level="INFO" doc:name="Download from Sentinel"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="download" method="POST" responseTimeout="4000000" doc:name="Download Sentinel "/>
+                <json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to Object"/>
+                <expression-component doc:name="Expression"><![CDATA[GlobalVarOutput.addAll(payload);]]></expression-component>
+                <logger message="Step completed... call next step" level="INFO" doc:name="Step Completed"/>
+                <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
+                <logger message="search next **********************************" level="INFO" doc:name="Logger"/>
+                <flow-ref name="SearchDownloadPaginationFlow2" doc:name="Flow Reference"/>
+            </when>
+            <otherwise>
+                <logger message="Calling Download from Sentinel" level="INFO" doc:name="Download from Sentinel"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="download" method="POST" responseTimeout="4000000" doc:name="Download Sentinel "/>
+                <json:json-to-object-transformer doc:name="JSON to Object" returnClass="java.util.ArrayList"/>
+                <expression-component doc:name="Expression"><![CDATA[GlobalVarOutput.addAll(payload);]]></expression-component>
+                <logger message="Download finished, generating Report" level="INFO" doc:name="Generating Report"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="tester" method="POST" doc:name="Call Flow datasettester" responseTimeout="4000000"/>
+                <set-payload value="#[GlobalVarOutput]" doc:name="Set Payload"/>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+                <scripting:component doc:name="Groovy">
+                    <scripting:script engine="Groovy"><![CDATA[import static groovy.json.JsonOutput.*;
+return prettyPrint(payload);]]></scripting:script>
+                </scripting:component>
+                <file:outbound-endpoint path="C:\Users\adminpk\Desktop\Download" outputPattern="totaldownload.txt" responseTimeout="10000" doc:name="File"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9093" path="ps" method="POST" doc:name="Call PS processor"/>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>
