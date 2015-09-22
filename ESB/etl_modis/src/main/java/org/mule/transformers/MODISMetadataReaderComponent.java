@@ -158,10 +158,10 @@ public class MODISMetadataReaderComponent implements Callable
 	 * @param latitude
 	 * @return point
 	 */
-	private ArrayList<String> setPointCoordinate(String longitude, String latitude) {
-		ArrayList<String> point = new ArrayList<String>();
-		point.add(longitude);
-		point.add(latitude);
+	private ArrayList<Float> setPointCoordinate(String longitude, String latitude) {
+		ArrayList<Float> point = new ArrayList<Float>();
+		point.add(Float.parseFloat(longitude));
+		point.add(Float.parseFloat(latitude));
 		return point;
 	}
 
