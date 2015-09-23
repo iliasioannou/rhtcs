@@ -1,56 +1,56 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8MainSearch">
+<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8Search">
     <global-element name="Property Placeholder" type="http://www.springframework.org/schema/context/property-placeholder" entity-id="Property Placeholder#1">
         <properties>
-            <property name="properties-ref"/>
-            <property name="order"/>
             <property name="location" value="classpath:etl_lan8.properties"/>
+            <property name="properties-ref"/>
+            <property name="file-encoding"/>
+            <property name="order"/>
+            <property name="ignore-resource-not-found"/>
+            <property name="ignore-unresolvable"/>
             <property name="local-override"/>
             <property name="system-properties-mode"/>
-            <property name="file-encoding"/>
-            <property name="auxiliary;wrappedIn" value="beans@spring@http://www.springframework.org/schema/beans"/>
-            <property name="auxiliary;wrapIn" value="1"/>
             <property name="auxiliary;index" value="2"/>
-            <property name="ignore-unresolvable"/>
-            <property name="ignore-resource-not-found"/>
+            <property name="auxiliary;wrapIn" value="1"/>
+            <property name="auxiliary;wrappedIn" value="beans@spring@http://www.springframework.org/schema/beans"/>
         </properties>
     </global-element>
     <global-element name="Bean" type="http://www.springframework.org/schema/beans/bean" entity-id="Bean#1">
         <properties>
-            <property name="factory-bean"/>
-            <property name="abstract"/>
-            <property name="scope"/>
-            <property name="init-method"/>
-            <property name="autowire-candidate"/>
-            <property name="factory-method"/>
-            <property name="class" value="org.springframework.beans.factory.config.PropertiesFactoryBean"/>
-            <property name="parent"/>
-            <property name="children"/>
-            <property name="lazy-init"/>
-            <property name="auxiliary;wrappedIn" value="beans@spring@http://www.springframework.org/schema/beans"/>
             <property name="id" value="etl_lan8Props"/>
             <property name="name"/>
-            <property name="primary"/>
+            <property name="class" value="org.springframework.beans.factory.config.PropertiesFactoryBean"/>
+            <property name="parent"/>
+            <property name="scope"/>
+            <property name="children"/>
+            <property name="abstract"/>
+            <property name="lazy-init"/>
             <property name="autowire"/>
-            <property name="destroy-method"/>
-            <property name="auxiliary;wrapIn" value="1"/>
-            <property name="auxiliary;index" value="3"/>
             <property name="depends-on"/>
+            <property name="autowire-candidate"/>
+            <property name="primary"/>
+            <property name="init-method"/>
+            <property name="destroy-method"/>
+            <property name="factory-method"/>
+            <property name="factory-bean"/>
+            <property name="auxiliary;index" value="3"/>
+            <property name="auxiliary;wrapIn" value="1"/>
+            <property name="auxiliary;wrappedIn" value="beans@spring@http://www.springframework.org/schema/beans"/>
             <property-collection name="@http://www.springframework.org/schema/beans/property;0">
                 <property name="name" value="singleton"/>
                 <property name="value" value="true"/>
-                <property name="auxiliary;index" value="4"/>
                 <property name="auxiliary;wrapIn" value="4"/>
+                <property name="auxiliary;index" value="4"/>
             </property-collection>
             <property-collection name="@http://www.springframework.org/schema/beans/property;1">
                 <property name="name" value="location"/>
                 <property name="value" value="classpath:etl_lan8.properties"/>
-                <property name="auxiliary;index" value="5"/>
                 <property name="auxiliary;wrapIn" value="5"/>
+                <property name="auxiliary;index" value="5"/>
             </property-collection>
         </properties>
     </global-element>
-    <flow SubFlow="false" name="landsat8SearchFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="a6477c4c-291e-485d-ac88-21eae60522bc">
+    <flow SubFlow="false" name="landsat8SearchFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="dfefd6c1-0e7f-4797-b707-53b2dcdf1641">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -70,87 +70,79 @@
 &quot;skip&quot;:&quot;0&quot;
 }</description>
         <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#1">
-            <graphicalData x="0" y="0" width="0" height="0"/>
             <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="port" value="9091"/>
-                    <property name="host" value="0.0.0.0"/>
-                    <property name="businessEventsLabel"/>
-                    <property name="followRedirects"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
-                    <property name="keep-alive"/>
-                    <property name="contentType"/>
-                    <property name="disableTransportTransformer"/>
-                    <property name="password"/>
                     <property name="exchange-pattern" value="request-response"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="0.0.0.0"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="zearch"/>
+                    <property name="method"/>
+                    <property name="businessEventsLabel"/>
                     <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
                     <property name="ref"/>
                     <property name="transformer-refs"/>
-                    <property name="httpLabel"/>
-                    <property name="address"/>
-                    <property name="path" value="zearch"/>
-                    <property name="encoding"/>
                     <property name="responseTransformer-refs"/>
-                    <property name="method"/>
                     <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
                     <property name="auxiliary;index" value="7"/>
-                    <property name="responseTimeout"/>
-                    <property name="mimeType"/>
-                    <property name="connector-ref"/>
                 </properties>
             </endpoint>
             <pattern name="Search into landsat8 catalog" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="Searching into landsat8 catalog. Post payload = #[System.getProperty('line.separator')] #[message.payloadAs(java.lang.String)]"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="8"/>
                 </properties>
             </pattern>
             <pattern name="JSON to HashMap" type="http://www.mulesoft.org/schema/mule/json/json-to-object-transformer" entity-id="JSON to Object#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="returnClass" value="java.util.HashMap"/>
                     <property name="ignoreBadInput"/>
                     <property name="encoding"/>
+                    <property name="mimeType"/>
                     <property name="mapper-ref"/>
                     <property name="auxiliary;index" value="9"/>
-                    <property name="mimeType"/>
                 </properties>
             </pattern>
             <pattern name="Log payload trasformed into HashMap" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#2">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="Log payload trasformed into HashMap = #[System.getProperty('line.separator')] #[payload]"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="10"/>
                 </properties>
             </pattern>
             <pattern name="landsat8HTTPSearch" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="class" value="it.planetek.rheticus.mule.components.landsat8.Landsat8HTTPSearch"/>
                     <property name="auxiliary;index" value="11"/>
                 </properties>
             </pattern>
             <pattern name="HTTP 200 Code" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#3">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="From API Landsat8 catalog Code:  #[System.getProperty('line.separator')] #[message.inboundProperties['http.status']]"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="12"/>
                 </properties>
             </pattern>
             <pattern name="HTTP Response Builder" type="http://www.mulesoft.org/schema/mule/http/response-builder" entity-id="HTTP Response Builder#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="cookiesLabel"/>
                     <property name="status" value="#[message.inboundProperties['http.status']]"/>
                     <property name="contentType" value="application/json"/>
+                    <property name="cookiesLabel"/>
                     <property name="auxiliary;index" value="13"/>
                 </properties>
             </pattern>
@@ -161,7 +153,6 @@
                 <compartment entity-id="compartment#1">
                     <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#2">
                         <scope name="Catch HttpException" type="http://www.mulesoft.org/schema/mule/core/catch-exception-strategy" entity-id="Catch Exception Strategy#1">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="labelConfigureConditionalExecutionUsingExpression"/>
 <property name="when" value="#[exception.causedBy( org.apache.commons.httpclient.HttpException)]"/>
@@ -171,20 +162,18 @@
                             <compartment entity-id="compartment#2">
 <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#3">
     <pattern name="Log HttpException" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#4">
-        <graphicalData x="0" y="0" width="0" height="0"/>
         <properties>
             <property name="message" value="HttpException: #[exception.getCause().getMessage()]"/>
-            <property name="category"/>
             <property name="level" value="WARN"/>
+            <property name="category"/>
             <property name="auxiliary;index" value="16"/>
         </properties>
     </pattern>
     <pattern name="HTTP Response Builder" type="http://www.mulesoft.org/schema/mule/http/response-builder" entity-id="HTTP Response Builder#2">
-        <graphicalData x="0" y="0" width="0" height="0"/>
         <properties>
-            <property name="cookiesLabel"/>
             <property name="status" value="500"/>
             <property name="contentType" value="text/plain"/>
+            <property name="cookiesLabel"/>
             <property name="auxiliary;index" value="17"/>
         </properties>
     </pattern>
@@ -192,7 +181,6 @@
                             </compartment>
                         </scope>
                         <scope name="Generic Exception Strategy" type="http://www.mulesoft.org/schema/mule/core/catch-exception-strategy" entity-id="Catch Exception Strategy#2">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="labelConfigureConditionalExecutionUsingExpression"/>
 <property name="when"/>
@@ -202,11 +190,10 @@
                             <compartment entity-id="compartment#3">
 <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#4">
     <pattern name="Log Generic Exception" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#5">
-        <graphicalData x="0" y="0" width="0" height="0"/>
         <properties>
             <property name="message" value="Generic Exception: #[exception.getCause().getMessage()]"/>
-            <property name="category"/>
             <property name="level" value="WARN"/>
+            <property name="category"/>
             <property name="auxiliary;index" value="19"/>
         </properties>
     </pattern>

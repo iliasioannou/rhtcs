@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8SearchDownloadPagination">
-    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="9f703899-b36f-43d5-a683-801e07c541cd">
+<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8SearchAndIngestionWithPagination">
+    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="fb14351d-8066-4fe2-97ef-ac9e45a1ff00">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -11,179 +11,164 @@
         </properties>
         <description>This flow let to search and download from Landsat8 catalog automatically</description>
         <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#1">
-            <graphicalData x="0" y="0" width="0" height="0"/>
             <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="port" value="9091"/>
-                    <property name="host" value="0.0.0.0"/>
-                    <property name="businessEventsLabel"/>
-                    <property name="followRedirects"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
-                    <property name="keep-alive"/>
-                    <property name="contentType"/>
-                    <property name="disableTransportTransformer"/>
-                    <property name="password"/>
                     <property name="exchange-pattern" value="one-way"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="0.0.0.0"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="SearchAndIngestion"/>
+                    <property name="method"/>
+                    <property name="businessEventsLabel"/>
                     <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout" value="4000000"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
                     <property name="ref"/>
                     <property name="transformer-refs"/>
-                    <property name="httpLabel"/>
-                    <property name="address"/>
-                    <property name="path" value="SearchAndIngestion"/>
-                    <property name="encoding"/>
                     <property name="responseTransformer-refs"/>
-                    <property name="method"/>
                     <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
                     <property name="auxiliary;index" value="2"/>
-                    <property name="responseTimeout" value="4000000"/>
-                    <property name="mimeType"/>
-                    <property name="connector-ref"/>
                 </properties>
             </endpoint>
             <pattern name="Check new landsat8 acquisitions" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="Check for new landsat8 acquisitions ..."/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="3"/>
                 </properties>
             </pattern>
             <pattern name="landsat8ConfigureFlow" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="class" value="it.planetek.rheticus.mule.components.landsat8.Landsat8ConfigureFlow"/>
                     <property name="auxiliary;index" value="4"/>
                 </properties>
             </pattern>
             <pattern name="Log Configurated Payload " type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#2">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="Configurated Payload = #[System.getProperty('line.separator')] #[message.payloadAs(java.lang.String)]"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="5"/>
                 </properties>
             </pattern>
             <pattern name="Convert payload in JSON" type="http://www.mulesoft.org/schema/mule/json/object-to-json-transformer" entity-id="Object to JSON#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="sourceClass"/>
                     <property name="returnClass"/>
                     <property name="ignoreBadInput"/>
                     <property name="encoding"/>
-                    <property name="mapper-ref"/>
-                    <property name="auxiliary;index" value="6"/>
                     <property name="mimeType"/>
+                    <property name="mapper-ref"/>
+                    <property name="sourceClass"/>
+                    <property name="auxiliary;index" value="6"/>
                 </properties>
             </pattern>
             <pattern name="originalPayloadJson" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="variableName" value="originalPayloadJson"/>
                     <property name="value" value="#[payload]"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="auxiliary;index" value="7"/>
                 </properties>
             </pattern>
             <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Search Landsat8" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#2">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="port" value="9091"/>
-                    <property name="host" value="localhost"/>
-                    <property name="businessEventsLabel"/>
-                    <property name="followRedirects"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
-                    <property name="keep-alive"/>
-                    <property name="contentType"/>
-                    <property name="disableTransportTransformer"/>
-                    <property name="password"/>
                     <property name="exchange-pattern" value="request-response"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="localhost"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="zearch"/>
+                    <property name="method" value="POST"/>
+                    <property name="businessEventsLabel"/>
                     <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout" value="400000"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
                     <property name="ref"/>
                     <property name="transformer-refs"/>
-                    <property name="httpLabel"/>
-                    <property name="address"/>
-                    <property name="path" value="zearch"/>
-                    <property name="encoding"/>
                     <property name="responseTransformer-refs"/>
-                    <property name="method" value="POST"/>
                     <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
                     <property name="auxiliary;index" value="8"/>
-                    <property name="responseTimeout" value="400000"/>
-                    <property name="mimeType"/>
-                    <property name="connector-ref"/>
                 </properties>
             </endpoint>
             <pattern name="Set total" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#2">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="variableName" value="total"/>
                     <property name="value" value="#[json:meta/results/total]"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="auxiliary;index" value="9"/>
                 </properties>
             </pattern>
             <pattern name="Set limit" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#3">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="variableName" value="limit"/>
                     <property name="value" value="#[json:meta/results/limit]"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="auxiliary;index" value="10"/>
                 </properties>
             </pattern>
             <pattern name="Set skip" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#4">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="variableName" value="skip"/>
                     <property name="value" value="0"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
                     <property name="auxiliary;index" value="11"/>
                 </properties>
             </pattern>
             <splitter index="12" name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property-collection name="9f8b9a7a-2519-4265-818f-d74d5b693d8c">
+                    <property-collection name="9622364c-4dae-42a5-9a2b-62dfa90f9aba">
+                        <property name="choice.otherwise" value="true"/>
+                        <property-collection name="choice.attributes"/>
+                    </property-collection>
+                    <property-collection name="3ca56637-0af7-4996-9caf-95c0b9aa65e4">
                         <property name="choice.expression" value="#[Integer.parseInt(total)  &gt; 0]"/>
                         <property-collection name="choice.attributes">
                             <property name="expression" value="#[Integer.parseInt(total)  &gt; 0]"/>
                         </property-collection>
                     </property-collection>
-                    <property-collection name="186dfe70-5097-42f4-b521-0cd0e42a5f39">
-                        <property name="choice.otherwise" value="true"/>
-                        <property-collection name="choice.attributes"/>
-                    </property-collection>
                 </properties>
                 <pattern name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#2"/>
                 <compartment entity-id="compartment#1">
-                    <lane hadOnlyOneElement="false" index="14" isChoiceOtherwiseLane="false" entity-id="9f8b9a7a-2519-4265-818f-d74d5b693d8c">
+                    <lane hadOnlyOneElement="false" index="14" isChoiceOtherwiseLane="false" entity-id="3ca56637-0af7-4996-9caf-95c0b9aa65e4">
                         <pattern name="New Acquisition Detected for landsat8 !" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#3">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="message" value="New Acquisitions Detected for landsat8 !!! (#[total] acquisitions)"/>
-<property name="category"/>
 <property name="level" value="INFO"/>
+<property name="category"/>
 <property name="auxiliary;index" value="14"/>
                             </properties>
                         </pattern>
                         <pattern name="Call loop flow" type="http://www.mulesoft.org/schema/mule/core/flow-ref" entity-id="Flow Reference#1">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="name" value="SearchAndIngestionWithPaginationFlow2"/>
 <property name="auxiliary;index" value="15"/>
                             </properties>
                         </pattern>
                     </lane>
-                    <lane hadOnlyOneElement="false" index="17" isChoiceOtherwiseLane="true" entity-id="186dfe70-5097-42f4-b521-0cd0e42a5f39">
+                    <lane hadOnlyOneElement="false" index="17" isChoiceOtherwiseLane="true" entity-id="9622364c-4dae-42a5-9a2b-62dfa90f9aba">
                         <pattern name="No new acquisitions" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#4">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="message" value="No new acquisitions for today... "/>
-<property name="category"/>
 <property name="level" value="INFO"/>
+<property name="category"/>
 <property name="auxiliary;index" value="17"/>
                             </properties>
                         </pattern>
@@ -192,7 +177,7 @@
             </splitter>
         </lane>
     </flow>
-    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow2" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="2ce1759d-33c4-484e-96b9-d10482578741">
+    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow2" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="b9556416-9de6-4761-8153-7815548c40a1">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -202,89 +187,81 @@
             <property name="auxiliary;index" value="18"/>
         </properties>
         <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#2">
-            <graphicalData x="0" y="0" width="0" height="0"/>
             <pattern name="enter loop" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#5">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="*****************ENTER LOOP PAGINATION***********************"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="19"/>
                 </properties>
             </pattern>
             <pattern name="Print Stage" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#6">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="***********Total: #[total] old skip: #[skip] limit: #[limit]"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="20"/>
                 </properties>
             </pattern>
             <pattern name="Increment page" type="http://www.mulesoft.org/schema/mule/core/expression-component" entity-id="Expression#1">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
+                    <property name="evaluator"/>
                     <property name="expression" value="skip = Integer.parseInt(skip) + Integer.parseInt(limit);"/>
                     <property name="file"/>
-                    <property name="evaluator"/>
                     <property name="auxiliary;index" value="21"/>
                 </properties>
             </pattern>
             <pattern name="Print Stage" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#7">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="***********Total: #[total] new skip: #[skip] limit: #[limit]"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="22"/>
                 </properties>
             </pattern>
             <pattern name="Ingestion from Landsat8" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#8">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
                     <property name="message" value="Calling Ingestion metadata from Landsat8"/>
-                    <property name="category"/>
                     <property name="level" value="INFO"/>
+                    <property name="category"/>
                     <property name="auxiliary;index" value="23"/>
                 </properties>
             </pattern>
             <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Ingestion Landsat8" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#3">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property name="port" value="9091"/>
-                    <property name="host" value="localhost"/>
-                    <property name="businessEventsLabel"/>
-                    <property name="followRedirects"/>
-                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
-                    <property name="keep-alive"/>
-                    <property name="contentType"/>
-                    <property name="disableTransportTransformer"/>
-                    <property name="password"/>
                     <property name="exchange-pattern" value="request-response"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="localhost"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="ingestionMetadata"/>
+                    <property name="method" value="POST"/>
+                    <property name="businessEventsLabel"/>
                     <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout" value="4000000"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
                     <property name="ref"/>
                     <property name="transformer-refs"/>
-                    <property name="httpLabel"/>
-                    <property name="address"/>
-                    <property name="path" value="ingestionMetadata"/>
-                    <property name="encoding"/>
                     <property name="responseTransformer-refs"/>
-                    <property name="method" value="POST"/>
                     <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
                     <property name="auxiliary;index" value="24"/>
-                    <property name="responseTimeout" value="4000000"/>
-                    <property name="mimeType"/>
-                    <property name="connector-ref"/>
                 </properties>
             </endpoint>
             <splitter index="25" name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#3">
-                <graphicalData x="0" y="0" width="0" height="0"/>
                 <properties>
-                    <property-collection name="763b048b-263f-481a-9260-fa05dff106d9">
+                    <property-collection name="b927b78e-17f6-493e-879f-ec4904b74d30">
                         <property name="choice.otherwise" value="true"/>
                         <property-collection name="choice.attributes"/>
                     </property-collection>
-                    <property-collection name="a4c65ee8-ef22-4f21-b83d-53256dde9c4d">
+                    <property-collection name="38b74555-f68e-40c9-9f01-594098d6f7f7">
                         <property name="choice.expression" value="#[Integer.parseInt(skip)&lt;Integer.parseInt(total)]"/>
                         <property-collection name="choice.attributes">
                             <property name="expression" value="#[Integer.parseInt(skip)&lt;Integer.parseInt(total)]"/>
@@ -293,97 +270,89 @@
                 </properties>
                 <pattern name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#4"/>
                 <compartment entity-id="compartment#2">
-                    <lane hadOnlyOneElement="false" index="27" isChoiceOtherwiseLane="false" entity-id="a4c65ee8-ef22-4f21-b83d-53256dde9c4d">
+                    <lane hadOnlyOneElement="false" index="27" isChoiceOtherwiseLane="false" entity-id="38b74555-f68e-40c9-9f01-594098d6f7f7">
                         <pattern name="Step Completed" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#9">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="message" value="Step completed... call next step"/>
-<property name="category"/>
 <property name="level" value="INFO"/>
+<property name="category"/>
 <property name="auxiliary;index" value="27"/>
                             </properties>
                         </pattern>
                         <pattern name="Set Payload to orignal" type="http://www.mulesoft.org/schema/mule/core/set-payload" entity-id="Set Payload#1">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="value" value="#[originalPayloadJson]"/>
 <property name="auxiliary;index" value="28"/>
                             </properties>
                         </pattern>
                         <pattern name="JSON to Object" type="http://www.mulesoft.org/schema/mule/json/json-to-object-transformer" entity-id="JSON to Object#1">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="returnClass" value="java.util.HashMap"/>
 <property name="ignoreBadInput"/>
 <property name="encoding"/>
+<property name="mimeType"/>
 <property name="mapper-ref"/>
 <property name="auxiliary;index" value="29"/>
-<property name="mimeType"/>
                             </properties>
                         </pattern>
                         <pattern name="Landsat8UpdatePayloadForPagination" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#2">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="class" value="it.planetek.rheticus.mule.components.landsat8.Landsat8UpdatePayloadForPagination"/>
 <property name="auxiliary;index" value="30"/>
                             </properties>
                         </pattern>
                         <pattern name="Object to JSON" type="http://www.mulesoft.org/schema/mule/json/object-to-json-transformer" entity-id="Object to JSON#2">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
-<property name="sourceClass"/>
 <property name="returnClass"/>
 <property name="ignoreBadInput"/>
 <property name="encoding"/>
-<property name="mapper-ref"/>
-<property name="auxiliary;index" value="31"/>
 <property name="mimeType"/>
+<property name="mapper-ref"/>
+<property name="sourceClass"/>
+<property name="auxiliary;index" value="31"/>
                             </properties>
                         </pattern>
                         <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Search Landsat8" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#4">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
-<property name="port" value="9091"/>
-<property name="host" value="localhost"/>
-<property name="businessEventsLabel"/>
-<property name="followRedirects"/>
-<property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
-<property name="keep-alive"/>
-<property name="contentType"/>
-<property name="disableTransportTransformer"/>
-<property name="password"/>
 <property name="exchange-pattern" value="request-response"/>
+<property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+<property name="httpLabel"/>
+<property name="host" value="localhost"/>
+<property name="port" value="9091"/>
+<property name="path" value="zearch"/>
+<property name="method" value="POST"/>
+<property name="businessEventsLabel"/>
 <property name="tracking:enable-default-events"/>
+<property name="address"/>
+<property name="encoding"/>
+<property name="disableTransportTransformer"/>
+<property name="mimeType"/>
+<property name="responseTimeout"/>
+<property name="followRedirects"/>
+<property name="connector-ref"/>
 <property name="ref"/>
 <property name="transformer-refs"/>
-<property name="httpLabel"/>
-<property name="address"/>
-<property name="path" value="zearch"/>
-<property name="encoding"/>
 <property name="responseTransformer-refs"/>
-<property name="method" value="POST"/>
 <property name="user"/>
+<property name="password"/>
+<property name="contentType"/>
+<property name="keep-alive"/>
 <property name="auxiliary;index" value="32"/>
-<property name="responseTimeout"/>
-<property name="mimeType"/>
-<property name="connector-ref"/>
                             </properties>
                         </endpoint>
                         <pattern name="Recall myself" type="http://www.mulesoft.org/schema/mule/core/flow-ref" entity-id="Flow Reference#2">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="name" value="SearchAndIngestionWithPaginationFlow2"/>
 <property name="auxiliary;index" value="33"/>
                             </properties>
                         </pattern>
                     </lane>
-                    <lane hadOnlyOneElement="false" index="35" isChoiceOtherwiseLane="true" entity-id="763b048b-263f-481a-9260-fa05dff106d9">
+                    <lane hadOnlyOneElement="false" index="35" isChoiceOtherwiseLane="true" entity-id="b927b78e-17f6-493e-879f-ec4904b74d30">
                         <pattern name="Download end" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#10">
-                            <graphicalData x="0" y="0" width="0" height="0"/>
                             <properties>
 <property name="message" value="*****************DOWNLOAD landsat8 METADATA FINISHED***********************"/>
-<property name="category"/>
 <property name="level" value="INFO"/>
+<property name="category"/>
 <property name="auxiliary;index" value="35"/>
                             </properties>
                         </pattern>
