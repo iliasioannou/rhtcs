@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8MainDownload">
+    <global-element name="FTP" type="org.mule.tooling.ui.modules.core.global.ftpConnector" entity-id="FTP#1">
+        <properties>
+            <property name="dispatcherPoolFactory-ref"/>
+            <property name="streaming"/>
+            <property name="binary"/>
+            <property name="pollingFrequency"/>
+            <property name="name" value="createPathFtpConnector"/>
+            <property name="passive"/>
+            <property name="validateConnections"/>
+            <property name="connectionFactoryClass"/>
+            <property name="dynamicNotification"/>
+            <property name="outputPattern"/>
+            <property name="auxiliary;index" value="1"/>
+        </properties>
+    </global-element>
+    <flow SubFlow="false" name="landsat8IngestionMetadataFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="a1ab6480-3d29-4532-af2b-9fe6201c01d6">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="4"/>
+        </properties>
+        <description>Ingestion dei medatati in input</description>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#1">
+            <graphicalData x="0" y="0" width="0" height="0"/>
+            <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="port" value="9091"/>
+                    <property name="host" value="0.0.0.0"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="followRedirects"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="keep-alive"/>
+                    <property name="contentType"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="password"/>
+                    <property name="exchange-pattern" value="request-response"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="ref"/>
+                    <property name="transformer-refs"/>
+                    <property name="httpLabel"/>
+                    <property name="address"/>
+                    <property name="path" value="ingestionMetadata"/>
+                    <property name="encoding"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="method"/>
+                    <property name="user"/>
+                    <property name="auxiliary;index" value="5"/>
+                    <property name="responseTimeout"/>
+                    <property name="mimeType"/>
+                    <property name="connector-ref"/>
+                </properties>
+            </endpoint>
+            <pattern name="status" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="message" value="Start Download"/>
+                    <property name="category"/>
+                    <property name="level" value="INFO"/>
+                    <property name="auxiliary;index" value="6"/>
+                </properties>
+            </pattern>
+            <pattern name="Set Payload" type="http://www.mulesoft.org/schema/mule/core/set-payload" entity-id="Set Payload#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="value" value="#[json:results]"/>
+                    <property name="auxiliary;index" value="7"/>
+                </properties>
+            </pattern>
+            <pattern name="arrayListData" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="variableName" value="arrayListData"/>
+                    <property name="value" value="#[new java.util.ArrayList()]"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+                    <property name="auxiliary;index" value="8"/>
+                </properties>
+            </pattern>
+            <scope name="For Each" type="http://www.mulesoft.org/schema/mule/core/foreach" entity-id="For Each#1">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="counterVariableName"/>
+                    <property name="rootMessageVariableName"/>
+                    <property name="batchSize"/>
+                    <property name="collection"/>
+                    <property name="auxiliary;index" value="9"/>
+                </properties>
+                <compartment entity-id="compartment#1">
+                    <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#2">
+                        <pattern name="JSON to Object" type="http://www.mulesoft.org/schema/mule/json/json-to-object-transformer" entity-id="JSON to Object#1">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="returnClass" value="java.util.HashMap"/>
+<property name="ignoreBadInput"/>
+<property name="encoding"/>
+<property name="mapper-ref"/>
+<property name="auxiliary;index" value="10"/>
+<property name="mimeType"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="sceneID" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#2">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="variableName" value="sceneID"/>
+<property name="value" value="#[payload.get(&quot;sceneID&quot;)]"/>
+<property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+<property name="auxiliary;index" value="11"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="matadatiMap" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#3">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="variableName" value="metadatiMap"/>
+<property name="value" value="#[new java.util.HashMap()]"/>
+<property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+<property name="auxiliary;index" value="12"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Expression" type="http://www.mulesoft.org/schema/mule/core/expression-component" entity-id="Expression#1">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="expression" value="&#xA;import java.text.SimpleDateFormat;&#xA;java.util.HashMap location = new java.util.HashMap();&#xA;location.put('type' , 'Polygon');&#xA;&#xA;java.util.ArrayList coordinatefinal = new java.util.ArrayList();&#xA;java.util.ArrayList coordinatefinal2 = new java.util.ArrayList();&#xA;java.util.ArrayList coordinate = new java.util.ArrayList();&#xA;java.util.ArrayList coordinate2 = new java.util.ArrayList();&#xA;java.util.ArrayList coordinate3 = new java.util.ArrayList();&#xA;java.util.ArrayList coordinate4 = new java.util.ArrayList();&#xA;java.util.ArrayList coordinate5 = new java.util.ArrayList();&#xA;&#xA;coordinate.add(Float.parseFloat(payload.get(&quot;lowerRightCornerLongitude&quot;)));&#xA;coordinate.add(Float.parseFloat(payload.get(&quot;lowerRightCornerLatitude&quot;)));&#xA;coordinate2.add(Float.parseFloat(payload.get(&quot;upperRightCornerLongitude&quot;)));&#xA;coordinate2.add(Float.parseFloat(payload.get(&quot;upperRightCornerLatitude&quot;)));&#xA;coordinate3.add(Float.parseFloat(payload.get(&quot;upperLeftCornerLongitude&quot;)));&#xA;coordinate3.add(Float.parseFloat(payload.get(&quot;upperLeftCornerLatitude&quot;)));&#xA;coordinate4.add(Float.parseFloat(payload.get(&quot;lowerLeftCornerLongitude&quot;)));&#xA;coordinate4.add(Float.parseFloat(payload.get(&quot;lowerLeftCornerLatitude&quot;)));&#xA;coordinate5.add(Float.parseFloat(payload.get(&quot;lowerRightCornerLongitude&quot;)));&#xA;coordinate5.add(Float.parseFloat(payload.get(&quot;lowerRightCornerLatitude&quot;)));&#xA;&#xA;coordinatefinal.add(coordinate);&#xA;coordinatefinal.add(coordinate2);&#xA;coordinatefinal.add(coordinate3);&#xA;coordinatefinal.add(coordinate4);&#xA;coordinatefinal.add(coordinate5);&#xA;coordinatefinal2.add(coordinatefinal);&#xA;&#xA;location.put('coordinates' , coordinatefinal2);&#xA;metadatiMap.put('location',location);&#xA;metadatiMap.put('dateUpdated',payload.get(&quot;dateUpdated&quot;));&#xA;&#xA;metadatiMap.put('cloudCover',payload.get(&quot;cloudCover&quot;));&#xA;metadatiMap.put('cloudCoverFull',payload.get(&quot;cloudCoverFull&quot;));&#xA;metadatiMap.put('dayOrNight',payload.get(&quot;dayOrNight&quot;));&#xA;metadatiMap.put('row',payload.get(&quot;row&quot;));&#xA;metadatiMap.put(&quot;path&quot;,payload.get(&quot;path&quot;));&#xA;metadatiMap.put(&quot;sceneID&quot;,payload.get(&quot;sceneID&quot;));&#xA;if(payload.get(&quot;sceneStartTime&quot;).contains(&quot;-&quot;))&#xA;{&#xA;&#x9;metadatiMap.put('sceneStartTime',payload.get(&quot;sceneStartTime&quot;).replaceFirst(&quot; &quot;,&quot;T&quot;));&#xA;&#x9;metadatiMap.put('sceneStopTime',payload.get(&quot;sceneStopTime&quot;).replaceFirst(&quot; &quot;,&quot;T&quot;));&#xA;}&#xA;else if(payload.get(&quot;sceneStartTime&quot;).contains(&quot;:&quot;))&#xA;{&#xA;&#x9;String sceneStartTime=payload.get(&quot;sceneStartTime&quot;);&#xA;&#x9;String sceneStopTime=payload.get(&quot;sceneStopTime&quot;);&#xA;&#x9;Calendar calendar = Calendar.getInstance();&#xA;&#x9;calendar.set(Calendar.YEAR, Integer.parseInt(sceneStartTime.substring(0,4)));&#xA;&#x9;calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(sceneStartTime.substring(5,8)));&#xA;&#x9;calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(sceneStartTime.substring(9,11)));&#xA;&#x9;calendar.set(Calendar.MINUTE, Integer.parseInt(sceneStartTime.substring(12,14)));&#xA;&#x9;calendar.set(Calendar.SECOND, Integer.parseInt(sceneStartTime.substring(15,17)));&#xA;&#x9;String format1 = new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss.SSS&quot;, Locale.ENGLISH).format(calendar.getTime());&#xA;&#x9;metadatiMap.put('sceneStartTime',format1);&#xA;&#x9;calendar.set(Calendar.YEAR, Integer.parseInt(sceneStopTime.substring(0,4)));&#xA;&#x9;calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(sceneStopTime.substring(5,8)));&#xA;&#x9;calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(sceneStopTime.substring(9,11)));&#xA;&#x9;calendar.set(Calendar.MINUTE, Integer.parseInt(sceneStopTime.substring(12,14)));&#xA;&#x9;calendar.set(Calendar.SECOND, Integer.parseInt(sceneStopTime.substring(15,17)));&#xA;&#x9;String format2 = new SimpleDateFormat(&quot;yyyy-MM-dd'T'HH:mm:ss.SSS&quot;, Locale.ENGLISH).format(calendar.getTime());&#xA;&#x9;metadatiMap.put('sceneStopTime',format2);&#xA;}&#xA;arrayListData.add(metadatiMap);&#xA;"/>
+<property name="file"/>
+<property name="evaluator"/>
+<property name="auxiliary;index" value="13"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Set Payload" type="http://www.mulesoft.org/schema/mule/core/set-payload" entity-id="Set Payload#2">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="value" value="#[metadatiMap]"/>
+<property name="auxiliary;index" value="14"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Object to JSON" type="http://www.mulesoft.org/schema/mule/json/object-to-json-transformer" entity-id="Object to JSON#1">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="sourceClass"/>
+<property name="returnClass"/>
+<property name="ignoreBadInput"/>
+<property name="encoding"/>
+<property name="mapper-ref"/>
+<property name="auxiliary;index" value="15"/>
+<property name="mimeType"/>
+                            </properties>
+                        </pattern>
+                        <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Insert ElasticSearch" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#2">
+                            <graphicalData x="0" y="0" width="0" height="0"/>
+                            <properties>
+<property name="port" value="9200"/>
+<property name="host" value="localhost"/>
+<property name="businessEventsLabel"/>
+<property name="followRedirects"/>
+<property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+<property name="keep-alive"/>
+<property name="contentType"/>
+<property name="disableTransportTransformer"/>
+<property name="password"/>
+<property name="exchange-pattern" value="request-response"/>
+<property name="tracking:enable-default-events"/>
+<property name="ref"/>
+<property name="transformer-refs"/>
+<property name="httpLabel"/>
+<property name="address"/>
+<property name="path" value="landsat/8/#[sceneID]"/>
+<property name="encoding"/>
+<property name="responseTransformer-refs"/>
+<property name="method" value="POST"/>
+<property name="user"/>
+<property name="auxiliary;index" value="16"/>
+<property name="responseTimeout"/>
+<property name="mimeType"/>
+<property name="connector-ref"/>
+                            </properties>
+                        </endpoint>
+                    </lane>
+                </compartment>
+            </scope>
+            <pattern name="Set Payload" type="http://www.mulesoft.org/schema/mule/core/set-payload" entity-id="Set Payload#3">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="value" value="#[arrayListData]"/>
+                    <property name="auxiliary;index" value="17"/>
+                </properties>
+            </pattern>
+            <pattern name="Object to JSON" type="http://www.mulesoft.org/schema/mule/json/object-to-json-transformer" entity-id="Object to JSON#2">
+                <graphicalData x="0" y="0" width="0" height="0"/>
+                <properties>
+                    <property name="sourceClass"/>
+                    <property name="returnClass"/>
+                    <property name="ignoreBadInput"/>
+                    <property name="encoding"/>
+                    <property name="mapper-ref"/>
+                    <property name="auxiliary;index" value="18"/>
+                    <property name="mimeType"/>
+                </properties>
+            </pattern>
+        </lane>
+    </flow>
+</mule-configuration>

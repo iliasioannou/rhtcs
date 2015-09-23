@@ -3,6 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.planetek.dfc</groupId>
+	<artifactId>landsat8client</artifactId>
 	<packaging>mule</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 
@@ -15,6 +16,12 @@
 		<jdkName>JavaSE-1.6</jdkName>
 		<jdk.version>1.6</jdk.version>
 		<junit.version>4.9</junit.version>
+		
+        <!-- Apache Commons -->
+        <commons-lang3.version>3.2</commons-lang3.version>
+        
+        <joda-time.version>2.8.2</joda-time.version>
+		
 	</properties>
 
 	<build>
@@ -225,8 +232,31 @@
 		</plugins>
 	</reporting>
 
-	<!-- Mule Dependencies -->
 	<dependencies>
+        <!-- +++++++++++++++++++++++ -->
+        <!-- Commons Lang - Commons Lang, a package of Java utility classes for 
+            the classes that are in java.lang's hierarchy, or are considered to be so 
+            standard as to justify existence in java.lang. -->
+            <!-- 
+        <dependency>
+             <groupId>org.apache.commons</groupId>
+             <artifactId>commons-lang3</artifactId>
+             <version>${commons-lang3.version}</version>
+        </dependency>       
+             -->
+             
+        <!-- +++++++++++++++++++++++ -->
+        <!-- Date and time library to replace JDK date handling http://joda-time.sourceforge.net/ -->
+        <!-- Mule usa già joda, ma una versione più vecchia ed è consigliato di non aggiornare manualmente ma effettuare l'update di mule alla 3.6 che aggiorna joda-time -->
+        <!-- 
+        <dependency>
+          <groupId>joda-time</groupId>
+          <artifactId>joda-time</artifactId>
+          <version>${joda-time.version}</version>
+        </dependency>  	
+         -->
+	
+    	<!-- Mule Dependencies -->
 		<dependency>
 			<groupId>org.mule</groupId>
 			<artifactId>mule-core</artifactId>
@@ -310,6 +340,7 @@
 			<version>${mule.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		
 		<!-- for testing -->
 		<dependency>
 			<groupId>org.mule.tests</groupId>
@@ -375,5 +406,4 @@
         </pluginRepository>
     </pluginRepositories>
 
-    <artifactId>etl_lan8</artifactId>
 </project>
