@@ -134,21 +134,36 @@ public class MODISMetadataReaderComponent implements Callable
 	 * @param attribute
 	 * @return value
 	 */
-	private ArrayList<String> getMetadataAttributeValue(Attribute attribute){
-		ArrayList<String> value = new ArrayList<String>();
+	private ArrayList<Object> getMetadataAttributeValue(Attribute attribute){
+		ArrayList<Object> valueList = new ArrayList<Object>();
 		try {
 			//System.out.println("attribute name : "+attribute.getFullName());
 			Array attributeValues = attribute.getValues();
+			Object value = null;
 			for (int i = 0; i < attributeValues.getSize(); i++) {
-				//System.out.println("("+i+") attribute value: "+attribute.getValue(i));
-				value.add(attribute.getValue(i).toString());
+				switch (attribute.getDataType()) {
+				case DOUBLE:
+				case FLOAT:
+				case INT:
+				case LONG:
+				case SHORT:
+					value = attribute.getNumericValue(i);
+					break;
+				case CHAR:
+				case STRING:
+					value = attribute.getStringValue(i);
+				default:
+					break;
+				}
+				//System.out.println("("+i+") attribute value: "+value);
+				valueList.add(value);
 			}
 		} catch (Exception e) {
 			log.error("[getMetadataAttributeValue] EXCEPTION: "+e.getMessage());
 		} finally { 
 			//do nothing
 		}
-		return value;
+		return valueList;
 	}
 
 	/**
@@ -158,10 +173,10 @@ public class MODISMetadataReaderComponent implements Callable
 	 * @param latitude
 	 * @return point
 	 */
-	private ArrayList<String> setPointCoordinate(String longitude, String latitude) {
-		ArrayList<String> point = new ArrayList<String>();
-		point.add(longitude);
-		point.add(latitude);
+	private ArrayList<Float> setPointCoordinate(Object longitude, Object latitude) {
+		ArrayList<Float> point = new ArrayList<Float>();
+		point.add(Float.parseFloat(longitude.toString()));
+		point.add(Float.parseFloat(latitude.toString()));
 		return point;
 	}
 
@@ -176,12 +191,12 @@ public class MODISMetadataReaderComponent implements Callable
 	private Map<String, Object> getGeoJsonLocation(NetcdfFile ncfile){
 		Map<String, Object> location = new HashMap<String, Object>();
 		try {
-			ArrayList<String> navigation_data_gringpointlatitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("navigation_data_gringpointlatitude"));
-			ArrayList<String> navigation_data_gringpointlongitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("navigation_data_gringpointlongitude"));
-			ArrayList<String> start_center_longitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("start_center_longitude"));
-			ArrayList<String> start_center_latitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("start_center_latitude"));
-			ArrayList<String> end_center_longitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("end_center_longitude"));
-			ArrayList<String> end_center_latitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("end_center_latitude"));
+			ArrayList<Object> navigation_data_gringpointlatitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("navigation_data_gringpointlatitude"));
+			ArrayList<Object> navigation_data_gringpointlongitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("navigation_data_gringpointlongitude"));
+			ArrayList<Object> start_center_longitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("start_center_longitude"));
+			ArrayList<Object> start_center_latitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("start_center_latitude"));
+			ArrayList<Object> end_center_longitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("end_center_longitude"));
+			ArrayList<Object> end_center_latitude = this.getMetadataAttributeValue(ncfile.findGlobalAttribute("end_center_latitude"));
 
 			//The type parameter indicates the type of shape that the coordinates represent. 
 			location.put("type", "polygon");
