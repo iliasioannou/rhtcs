@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8SearchAndIngestionWithPagination">
+    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="73edbec2-a635-4e93-a4bb-9aeb40d1f9c9">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="1"/>
+        </properties>
+        <description>This flow let to search and download from Landsat8 catalog automatically</description>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#1">
+            <endpoint direction="Inbound" message-exchange-pattern="RequestResponse" name="HTTP" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#1">
+                <properties>
+                    <property name="exchange-pattern" value="one-way"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="0.0.0.0"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="SearchAndIngestion"/>
+                    <property name="method"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout" value="4000000"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
+                    <property name="ref"/>
+                    <property name="transformer-refs"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
+                    <property name="auxiliary;index" value="2"/>
+                </properties>
+            </endpoint>
+            <pattern name="Check new landsat8 acquisitions" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#1">
+                <properties>
+                    <property name="message" value="Check for new landsat8 acquisitions ..."/>
+                    <property name="level" value="INFO"/>
+                    <property name="category"/>
+                    <property name="auxiliary;index" value="3"/>
+                </properties>
+            </pattern>
+            <pattern name="landsat8ConfigureFlow" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#1">
+                <properties>
+                    <property name="class" value="it.planetek.rheticus.mule.components.landsat8.Landsat8ConfigureFlow"/>
+                    <property name="auxiliary;index" value="4"/>
+                </properties>
+            </pattern>
+            <pattern name="Log Configurated Payload " type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#2">
+                <properties>
+                    <property name="message" value="Configurated Payload = #[System.getProperty('line.separator')] #[message.payloadAs(java.lang.String)]"/>
+                    <property name="level" value="INFO"/>
+                    <property name="category"/>
+                    <property name="auxiliary;index" value="5"/>
+                </properties>
+            </pattern>
+            <pattern name="Convert payload in JSON" type="http://www.mulesoft.org/schema/mule/json/object-to-json-transformer" entity-id="Object to JSON#1">
+                <properties>
+                    <property name="returnClass"/>
+                    <property name="ignoreBadInput"/>
+                    <property name="encoding"/>
+                    <property name="mimeType"/>
+                    <property name="mapper-ref"/>
+                    <property name="sourceClass"/>
+                    <property name="auxiliary;index" value="6"/>
+                </properties>
+            </pattern>
+            <pattern name="originalPayloadJson" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#1">
+                <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+                    <property name="variableName" value="originalPayloadJson"/>
+                    <property name="value" value="#[payload]"/>
+                    <property name="auxiliary;index" value="7"/>
+                </properties>
+            </pattern>
+            <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Search Landsat8" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#2">
+                <properties>
+                    <property name="exchange-pattern" value="request-response"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="localhost"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="zearch"/>
+                    <property name="method" value="POST"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout" value="400000"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
+                    <property name="ref"/>
+                    <property name="transformer-refs"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
+                    <property name="auxiliary;index" value="8"/>
+                </properties>
+            </endpoint>
+            <pattern name="Set total" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#2">
+                <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+                    <property name="variableName" value="total"/>
+                    <property name="value" value="#[json:meta/results/total]"/>
+                    <property name="auxiliary;index" value="9"/>
+                </properties>
+            </pattern>
+            <pattern name="Set limit" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#3">
+                <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+                    <property name="variableName" value="limit"/>
+                    <property name="value" value="#[json:meta/results/limit]"/>
+                    <property name="auxiliary;index" value="10"/>
+                </properties>
+            </pattern>
+            <pattern name="Set skip" type="http://www.mulesoft.org/schema/mule/core/variable-transformer" entity-id="Variable#4">
+                <properties>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/core/set-variable"/>
+                    <property name="variableName" value="skip"/>
+                    <property name="value" value="0"/>
+                    <property name="auxiliary;index" value="11"/>
+                </properties>
+            </pattern>
+            <splitter index="12" name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#1">
+                <properties>
+                    <property-collection name="95b160b2-d5c8-4944-922f-41a25e20081a">
+                        <property name="choice.otherwise" value="true"/>
+                        <property-collection name="choice.attributes"/>
+                    </property-collection>
+                    <property-collection name="dac95843-d9f2-4358-a47f-62c76a010762">
+                        <property name="choice.expression" value="#[Integer.parseInt(total)  &gt; 0]"/>
+                        <property-collection name="choice.attributes">
+                            <property name="expression" value="#[Integer.parseInt(total)  &gt; 0]"/>
+                        </property-collection>
+                    </property-collection>
+                </properties>
+                <pattern name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#2"/>
+                <compartment entity-id="compartment#1">
+                    <lane hadOnlyOneElement="false" index="14" isChoiceOtherwiseLane="false" entity-id="dac95843-d9f2-4358-a47f-62c76a010762">
+                        <pattern name="New Acquisition Detected for landsat8 !" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#3">
+                            <properties>
+<property name="message" value="New Acquisitions Detected for landsat8 !!! (#[total] acquisitions)"/>
+<property name="level" value="INFO"/>
+<property name="category"/>
+<property name="auxiliary;index" value="14"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Call loop flow" type="http://www.mulesoft.org/schema/mule/core/flow-ref" entity-id="Flow Reference#1">
+                            <properties>
+<property name="name" value="SearchAndIngestionWithPaginationFlow2"/>
+<property name="auxiliary;index" value="15"/>
+                            </properties>
+                        </pattern>
+                    </lane>
+                    <lane hadOnlyOneElement="false" index="17" isChoiceOtherwiseLane="true" entity-id="95b160b2-d5c8-4944-922f-41a25e20081a">
+                        <pattern name="No new acquisitions" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#4">
+                            <properties>
+<property name="message" value="No new acquisitions for today... "/>
+<property name="level" value="INFO"/>
+<property name="category"/>
+<property name="auxiliary;index" value="17"/>
+                            </properties>
+                        </pattern>
+                    </lane>
+                </compartment>
+            </splitter>
+        </lane>
+    </flow>
+    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow2" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="9a496913-4718-4815-8398-fe8ad4b061c8">
+        <properties>
+            <property name="initialState"/>
+            <property name="processingStrategy2"/>
+            <property name="processingStrategy"/>
+            <property name="bussinessEventsLabel"/>
+            <property name="tracking:enable-default-events"/>
+            <property name="auxiliary;index" value="18"/>
+        </properties>
+        <lane hadOnlyOneElement="false" index="0" isChoiceOtherwiseLane="false" entity-id="compartment-lane#2">
+            <pattern name="enter loop" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#5">
+                <properties>
+                    <property name="message" value="*****************ENTER LOOP PAGINATION***********************"/>
+                    <property name="level" value="INFO"/>
+                    <property name="category"/>
+                    <property name="auxiliary;index" value="19"/>
+                </properties>
+            </pattern>
+            <pattern name="Print Stage" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#6">
+                <properties>
+                    <property name="message" value="***********Total: #[total] old skip: #[skip] limit: #[limit]"/>
+                    <property name="level" value="INFO"/>
+                    <property name="category"/>
+                    <property name="auxiliary;index" value="20"/>
+                </properties>
+            </pattern>
+            <pattern name="Increment page" type="http://www.mulesoft.org/schema/mule/core/expression-component" entity-id="Expression#1">
+                <properties>
+                    <property name="evaluator"/>
+                    <property name="expression" value="skip = Integer.parseInt(skip) + Integer.parseInt(limit);"/>
+                    <property name="file"/>
+                    <property name="auxiliary;index" value="21"/>
+                </properties>
+            </pattern>
+            <pattern name="Print Stage" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#7">
+                <properties>
+                    <property name="message" value="***********Total: #[total] new skip: #[skip] limit: #[limit]"/>
+                    <property name="level" value="INFO"/>
+                    <property name="category"/>
+                    <property name="auxiliary;index" value="22"/>
+                </properties>
+            </pattern>
+            <pattern name="Ingestion from Landsat8" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#8">
+                <properties>
+                    <property name="message" value="Calling Ingestion metadata from Landsat8"/>
+                    <property name="level" value="INFO"/>
+                    <property name="category"/>
+                    <property name="auxiliary;index" value="23"/>
+                </properties>
+            </pattern>
+            <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Ingestion Landsat8" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#3">
+                <properties>
+                    <property name="exchange-pattern" value="request-response"/>
+                    <property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+                    <property name="httpLabel"/>
+                    <property name="host" value="localhost"/>
+                    <property name="port" value="9091"/>
+                    <property name="path" value="ingestionMetadata"/>
+                    <property name="method" value="POST"/>
+                    <property name="businessEventsLabel"/>
+                    <property name="tracking:enable-default-events"/>
+                    <property name="address"/>
+                    <property name="encoding"/>
+                    <property name="disableTransportTransformer"/>
+                    <property name="mimeType"/>
+                    <property name="responseTimeout" value="4000000"/>
+                    <property name="followRedirects"/>
+                    <property name="connector-ref"/>
+                    <property name="ref"/>
+                    <property name="transformer-refs"/>
+                    <property name="responseTransformer-refs"/>
+                    <property name="user"/>
+                    <property name="password"/>
+                    <property name="contentType"/>
+                    <property name="keep-alive"/>
+                    <property name="auxiliary;index" value="24"/>
+                </properties>
+            </endpoint>
+            <splitter index="25" name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#3">
+                <properties>
+                    <property-collection name="6a37e689-e74a-4341-b112-d618942d160d">
+                        <property name="choice.otherwise" value="true"/>
+                        <property-collection name="choice.attributes"/>
+                    </property-collection>
+                    <property-collection name="8ae0c07f-3fff-4572-a211-2d309178d14b">
+                        <property name="choice.expression" value="#[Integer.parseInt(skip)&lt;Integer.parseInt(total)]"/>
+                        <property-collection name="choice.attributes">
+                            <property name="expression" value="#[Integer.parseInt(skip)&lt;Integer.parseInt(total)]"/>
+                        </property-collection>
+                    </property-collection>
+                </properties>
+                <pattern name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#4"/>
+                <compartment entity-id="compartment#2">
+                    <lane hadOnlyOneElement="false" index="27" isChoiceOtherwiseLane="false" entity-id="8ae0c07f-3fff-4572-a211-2d309178d14b">
+                        <pattern name="Step Completed" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#9">
+                            <properties>
+<property name="message" value="Step completed... call next step"/>
+<property name="level" value="INFO"/>
+<property name="category"/>
+<property name="auxiliary;index" value="27"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Set Payload to orignal" type="http://www.mulesoft.org/schema/mule/core/set-payload" entity-id="Set Payload#1">
+                            <properties>
+<property name="value" value="#[originalPayloadJson]"/>
+<property name="auxiliary;index" value="28"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="JSON to Object" type="http://www.mulesoft.org/schema/mule/json/json-to-object-transformer" entity-id="JSON to Object#1">
+                            <properties>
+<property name="returnClass" value="java.util.HashMap"/>
+<property name="ignoreBadInput"/>
+<property name="encoding"/>
+<property name="mimeType"/>
+<property name="mapper-ref"/>
+<property name="auxiliary;index" value="29"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Landsat8UpdatePayloadForPagination" type="http://www.mulesoft.org/schema/mule/core/component" entity-id="Java#2">
+                            <properties>
+<property name="class" value="it.planetek.rheticus.mule.components.landsat8.Landsat8UpdatePayloadForPagination"/>
+<property name="auxiliary;index" value="30"/>
+                            </properties>
+                        </pattern>
+                        <pattern name="Object to JSON" type="http://www.mulesoft.org/schema/mule/json/object-to-json-transformer" entity-id="Object to JSON#2">
+                            <properties>
+<property name="returnClass"/>
+<property name="ignoreBadInput"/>
+<property name="encoding"/>
+<property name="mimeType"/>
+<property name="mapper-ref"/>
+<property name="sourceClass"/>
+<property name="auxiliary;index" value="31"/>
+                            </properties>
+                        </pattern>
+                        <endpoint direction="Outbound" message-exchange-pattern="RequestResponse" name="Search Landsat8" type="http://www.mulesoft.org/schema/mule/http/endpoint" entity-id="HTTP#4">
+                            <properties>
+<property name="exchange-pattern" value="request-response"/>
+<property name="org.mule.tooling.ui.modules.core.widgets.meta.ModeAttribute" value="http://www.mulesoft.org/schema/mule/http/endpoint"/>
+<property name="httpLabel"/>
+<property name="host" value="localhost"/>
+<property name="port" value="9091"/>
+<property name="path" value="zearch"/>
+<property name="method" value="POST"/>
+<property name="businessEventsLabel"/>
+<property name="tracking:enable-default-events"/>
+<property name="address"/>
+<property name="encoding"/>
+<property name="disableTransportTransformer"/>
+<property name="mimeType"/>
+<property name="responseTimeout"/>
+<property name="followRedirects"/>
+<property name="connector-ref"/>
+<property name="ref"/>
+<property name="transformer-refs"/>
+<property name="responseTransformer-refs"/>
+<property name="user"/>
+<property name="password"/>
+<property name="contentType"/>
+<property name="keep-alive"/>
+<property name="auxiliary;index" value="32"/>
+                            </properties>
+                        </endpoint>
+                        <pattern name="Recall myself" type="http://www.mulesoft.org/schema/mule/core/flow-ref" entity-id="Flow Reference#2">
+                            <properties>
+<property name="name" value="SearchAndIngestionWithPaginationFlow2"/>
+<property name="auxiliary;index" value="33"/>
+                            </properties>
+                        </pattern>
+                    </lane>
+                    <lane hadOnlyOneElement="false" index="35" isChoiceOtherwiseLane="true" entity-id="6a37e689-e74a-4341-b112-d618942d160d">
+                        <pattern name="Download end" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#10">
+                            <properties>
+<property name="message" value="*****************DOWNLOAD landsat8 METADATA FINISHED***********************"/>
+<property name="level" value="INFO"/>
+<property name="category"/>
+<property name="auxiliary;index" value="35"/>
+                            </properties>
+                        </pattern>
+                    </lane>
+                </compartment>
+            </splitter>
+        </lane>
+    </flow>
+</mule-configuration>
