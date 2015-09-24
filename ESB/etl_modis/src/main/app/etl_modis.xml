@@ -48,7 +48,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
             <set-variable variableName="product_name" value="#[payload.get(&quot;product_name&quot;)]" doc:name="Set product_name as MODIS product uuid"/>
             <json:object-to-json-transformer doc:name="HaspMap to GeoJSON"/>
             <logger message="Metadata in JSON: #[payload]" level="INFO" doc:name="Logger"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="modis/#[platform]/#[product_name]?pretty" method="POST" doc:name="Ingestion in Elastic Search"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.search.host}" port="${elastic.search.port}" path="${elastic.search.path}#[platform]/#[product_name]" method="POST" doc:name="Ingestion in Elastic Search"/>
             <logger  level="INFO" doc:name="Elastic Search Response"/>
         </foreach>
         <set-payload value="&lt;HTML&gt;&lt;BODY&gt;ETL_MODIS ... Elastic Search Ingestion COMPLETED!&lt;/BODY&gt;&lt;/HTML&gt;" doc:name="Set Payload"/>
