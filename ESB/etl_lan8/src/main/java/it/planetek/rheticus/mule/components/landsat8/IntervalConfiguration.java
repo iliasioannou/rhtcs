@@ -13,8 +13,8 @@ import org.mule.util.StringUtils;
  */
 public class IntervalConfiguration {
 	final static String DATE_FORMAT = "yyyy-MM-dd";
-	private final int MIN_NUMBER_OF_DAYS = 0;
-	private final int MAX_NUMBER_OF_DAYS = 50*365;
+	private final static int MIN_NUMBER_OF_DAYS = 0;
+	private final static int MAX_NUMBER_OF_DAYS = 50*365;
 
 	private LocalDate from = null;
 	private LocalDate to = null;
