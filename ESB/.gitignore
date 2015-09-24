@@ -7,12 +7,15 @@ bin
 .recommenders
 .metadata
 target
+log
 
 # mule
 /
 target/
 **/*.mflow
 .mule
+mappings
+
 
 # python
 *.pyc
