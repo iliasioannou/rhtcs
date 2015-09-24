@@ -3,7 +3,7 @@
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>it.planetek.dfc</groupId>
-	<artifactId>landsat8client</artifactId>
+	<artifactId>etl_lan8</artifactId>
 	<packaging>mule</packaging>
 	<version>1.0.0-SNAPSHOT</version>
 

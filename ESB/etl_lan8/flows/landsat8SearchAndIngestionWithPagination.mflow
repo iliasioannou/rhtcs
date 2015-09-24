@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="landsat8SearchAndIngestionWithPagination">
-    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="fb14351d-8066-4fe2-97ef-ac9e45a1ff00">
+    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow1" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="73edbec2-a635-4e93-a4bb-9aeb40d1f9c9">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -134,11 +134,11 @@
             </pattern>
             <splitter index="12" name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#1">
                 <properties>
-                    <property-collection name="9622364c-4dae-42a5-9a2b-62dfa90f9aba">
+                    <property-collection name="95b160b2-d5c8-4944-922f-41a25e20081a">
                         <property name="choice.otherwise" value="true"/>
                         <property-collection name="choice.attributes"/>
                     </property-collection>
-                    <property-collection name="3ca56637-0af7-4996-9caf-95c0b9aa65e4">
+                    <property-collection name="dac95843-d9f2-4358-a47f-62c76a010762">
                         <property name="choice.expression" value="#[Integer.parseInt(total)  &gt; 0]"/>
                         <property-collection name="choice.attributes">
                             <property name="expression" value="#[Integer.parseInt(total)  &gt; 0]"/>
@@ -147,7 +147,7 @@
                 </properties>
                 <pattern name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#2"/>
                 <compartment entity-id="compartment#1">
-                    <lane hadOnlyOneElement="false" index="14" isChoiceOtherwiseLane="false" entity-id="3ca56637-0af7-4996-9caf-95c0b9aa65e4">
+                    <lane hadOnlyOneElement="false" index="14" isChoiceOtherwiseLane="false" entity-id="dac95843-d9f2-4358-a47f-62c76a010762">
                         <pattern name="New Acquisition Detected for landsat8 !" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#3">
                             <properties>
 <property name="message" value="New Acquisitions Detected for landsat8 !!! (#[total] acquisitions)"/>
@@ -163,7 +163,7 @@
                             </properties>
                         </pattern>
                     </lane>
-                    <lane hadOnlyOneElement="false" index="17" isChoiceOtherwiseLane="true" entity-id="9622364c-4dae-42a5-9a2b-62dfa90f9aba">
+                    <lane hadOnlyOneElement="false" index="17" isChoiceOtherwiseLane="true" entity-id="95b160b2-d5c8-4944-922f-41a25e20081a">
                         <pattern name="No new acquisitions" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#4">
                             <properties>
 <property name="message" value="No new acquisitions for today... "/>
@@ -177,7 +177,7 @@
             </splitter>
         </lane>
     </flow>
-    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow2" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="b9556416-9de6-4761-8153-7815548c40a1">
+    <flow SubFlow="false" name="SearchAndIngestionWithPaginationFlow2" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="9a496913-4718-4815-8398-fe8ad4b061c8">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
@@ -257,11 +257,11 @@
             </endpoint>
             <splitter index="25" name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#3">
                 <properties>
-                    <property-collection name="b927b78e-17f6-493e-879f-ec4904b74d30">
+                    <property-collection name="6a37e689-e74a-4341-b112-d618942d160d">
                         <property name="choice.otherwise" value="true"/>
                         <property-collection name="choice.attributes"/>
                     </property-collection>
-                    <property-collection name="38b74555-f68e-40c9-9f01-594098d6f7f7">
+                    <property-collection name="8ae0c07f-3fff-4572-a211-2d309178d14b">
                         <property name="choice.expression" value="#[Integer.parseInt(skip)&lt;Integer.parseInt(total)]"/>
                         <property-collection name="choice.attributes">
                             <property name="expression" value="#[Integer.parseInt(skip)&lt;Integer.parseInt(total)]"/>
@@ -270,7 +270,7 @@
                 </properties>
                 <pattern name="Choice" type="org.mule.tooling.ui.modules.core.pattern.cbr" entity-id="Choice#4"/>
                 <compartment entity-id="compartment#2">
-                    <lane hadOnlyOneElement="false" index="27" isChoiceOtherwiseLane="false" entity-id="38b74555-f68e-40c9-9f01-594098d6f7f7">
+                    <lane hadOnlyOneElement="false" index="27" isChoiceOtherwiseLane="false" entity-id="8ae0c07f-3fff-4572-a211-2d309178d14b">
                         <pattern name="Step Completed" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#9">
                             <properties>
 <property name="message" value="Step completed... call next step"/>
@@ -347,7 +347,7 @@
                             </properties>
                         </pattern>
                     </lane>
-                    <lane hadOnlyOneElement="false" index="35" isChoiceOtherwiseLane="true" entity-id="b927b78e-17f6-493e-879f-ec4904b74d30">
+                    <lane hadOnlyOneElement="false" index="35" isChoiceOtherwiseLane="true" entity-id="6a37e689-e74a-4341-b112-d618942d160d">
                         <pattern name="Download end" type="http://www.mulesoft.org/schema/mule/core/logger" entity-id="Logger#10">
                             <properties>
 <property name="message" value="*****************DOWNLOAD landsat8 METADATA FINISHED***********************"/>

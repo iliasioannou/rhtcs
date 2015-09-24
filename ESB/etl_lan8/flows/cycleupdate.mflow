@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <mule-configuration xmlns="http://www.mulesoft.com/tooling/messageflow" name="cycleupdate">
-    <flow SubFlow="false" name="CycleUpdateFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="58ced791-3d68-4944-b54b-c8ec197d3b29">
+    <flow SubFlow="false" name="CycleUpdateFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="ad092007-6ea3-4295-bf16-eed51167193f">
         <properties>
             <property name="initialState" value="started"/>
             <property name="processingStrategy2"/>

@@ -15,7 +15,7 @@
             <property name="auxiliary;index" value="1"/>
         </properties>
     </global-element>
-    <flow SubFlow="false" name="landsat8IngestionMetadataFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="e8c99c05-5e49-40c3-95e9-7ad1d5c91ed6">
+    <flow SubFlow="false" name="landsat8IngestionMetadataFlow" type="http://www.mulesoft.org/schema/mule/core/flow" entity-id="31ead8e5-aadb-4ce7-b7c2-35e3a98ba4fb">
         <properties>
             <property name="initialState"/>
             <property name="processingStrategy2"/>
