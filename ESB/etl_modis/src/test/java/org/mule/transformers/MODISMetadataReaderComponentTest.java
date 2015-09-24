@@ -1,4 +1,4 @@
-package etl_modis;
+package org.mule.transformers;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
