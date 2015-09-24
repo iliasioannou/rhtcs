@@ -95,7 +95,7 @@ arrayListData.add(metadatiMap);
 ]]></expression-component>
             <set-payload value="#[metadatiMap]" doc:name="Set Payload"/>
             <json:object-to-json-transformer doc:name="Object to JSON"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="landsat/8/#[sceneID]" method="POST" doc:name="Insert ElasticSearch"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="landsat/L8/#[sceneID]" method="POST" doc:name="Insert ElasticSearch"/>
         </foreach>
         <set-payload value="#[arrayListData]" doc:name="Set Payload"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
