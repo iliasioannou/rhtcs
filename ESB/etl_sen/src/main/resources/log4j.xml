@@ -9,7 +9,7 @@
 </appender>
 
 <appender name="FILE" class="org.apache.log4j.DailyRollingFileAppender">
-    <param name="File" value="/var/log/muleSentinel.log" />
+    <param name="File" value="/var/log/etl_sen.log" />
     <param name="DatePattern" value="'.'dd-MM-yyyy" />
     <layout class="org.apache.log4j.PatternLayout">
         <param name="ConversionPattern" value="%d %-5p [%t] %C{2} (%F:%L) - %m%n" />
