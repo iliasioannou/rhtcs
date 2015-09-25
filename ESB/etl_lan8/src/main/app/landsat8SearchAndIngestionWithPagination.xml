@@ -69,7 +69,7 @@ http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/ht
                 <set-variable variableName="originalPayloadJson" doc:name="originalPayloadJson" value="#[payload]" />
                  -->
                 
-                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9091" path="zearch" method="POST" doc:name="Search Landsat8"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9091" path="zearch" method="POST" doc:name="Search Landsat8" responseTimeout="400000" />
                 
                 <flow-ref name="SearchAndIngestionWithPaginationFlow2" doc:name="Recall myself"/>
             </when>
