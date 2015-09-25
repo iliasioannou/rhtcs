@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	
 	<parent>
 		<groupId>it.planetek.dfc</groupId>
 		<artifactId>esb</artifactId>
 		<version>1.0.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-
+	
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>etl_modis</artifactId>
-	<packaging>mule</packaging>
 
+	<!-- packaging>mule</packaging -->
+	
 	<properties>
 		<netcdf-java.version>4.6.0</netcdf-java.version>
 	</properties>
@@ -48,52 +48,32 @@
 			<artifactId>cdm</artifactId>
 			<version>${netcdf-java.version}</version>
 		</dependency>
-		<!-- <dependency> <groupId>org.slf4j</groupId> <artifactId>slf4j-jdk14</artifactId> 
-			<version>1.7.5</version> </dependency> -->
+		<!--
 		<dependency>
-			<groupId>org.mule.modules</groupId>
-			<artifactId>mule-module-json</artifactId>
-			<version>${mule.version}</version>
-			<scope>provided</scope>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-jdk14</artifactId>
+			<version>1.7.5</version>
 		</dependency>
-	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.mule.tools</groupId>
-				<artifactId>maven-mule-plugin</artifactId>
-				<version>1.9</version>
-				<extensions>true</extensions>
-				<configuration>
-					<copyToAppsDirectory>true</copyToAppsDirectory>
-					<inclusions>
-						<inclusion>
-							<groupId>org.mule.modules</groupId>
-							<artifactId>mule-module-json</artifactId>
-						</inclusion>
-						<inclusion>
-							<groupId>org.mule.transports</groupId>
-							<artifactId>mule-transport-email</artifactId>
-						</inclusion>
-						<inclusion>
-							<groupId>org.mule.transports</groupId>
-							<artifactId>mule-transport-ftp</artifactId>
-						</inclusion>
-						<inclusion>
-							<groupId>org.mule.modules</groupId>
-							<artifactId>mule-module-jersey</artifactId>
-						</inclusion>
-						<inclusion>
-							<groupId>org.mule.transports</groupId>
-							<artifactId>mule-transport-sftp</artifactId>
-						</inclusion>
-					</inclusions>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-
+		-->
+	<dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-json</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.modules</groupId>
+            <artifactId>mule-module-scripting</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    <dependency>
+            <groupId>org.mule.transports</groupId>
+            <artifactId>mule-transport-vm</artifactId>
+            <version>${mule.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 	<repositories>
 		<repository>
 			<id>Central</id>
