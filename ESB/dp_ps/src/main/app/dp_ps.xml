@@ -5,6 +5,7 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
     <flow name="dp_psFlow1" doc:name="dp_psFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="127.0.0.1" port="9091" doc:name="HTTP" path="ps"/>
         <json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to Object"/>

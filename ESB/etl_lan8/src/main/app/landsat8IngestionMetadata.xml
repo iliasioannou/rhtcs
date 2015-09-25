@@ -25,7 +25,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
             <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to Object"/>
             <set-variable variableName="sceneID" value="#[payload.get(&quot;sceneID&quot;)]" doc:name="sceneID"/>
             <set-variable variableName="metadatiMap" value="#[new java.util.HashMap()]" doc:name="matadatiMap"/>
-            <expression-component doc:name="Expression"><![CDATA[
+            <expression-component doc:name="Expression"><![CDATA[import java.util.Calendar;
 import java.text.SimpleDateFormat;
 java.util.HashMap location = new java.util.HashMap();
 location.put('type' , 'Polygon');
@@ -95,7 +95,7 @@ arrayListData.add(metadatiMap);
 ]]></expression-component>
             <set-payload value="#[metadatiMap]" doc:name="Set Payload"/>
             <json:object-to-json-transformer doc:name="Object to JSON"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="landsat/8/#[sceneID]" method="POST" doc:name="Insert ElasticSearch"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="landsat/L8/#[sceneID]" method="POST" doc:name="Insert ElasticSearch"/>
         </foreach>
         <set-payload value="#[arrayListData]" doc:name="Set Payload"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>

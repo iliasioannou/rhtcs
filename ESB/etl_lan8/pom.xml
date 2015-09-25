@@ -63,6 +63,17 @@
 						</lifecycleMappingMetadata>
 					</configuration>
 				</plugin>
+				
+                <!-- +++++++++++++++++++++++ -->
+                <!-- Cobertura Maven Plugin -->
+                <!-- This plugin provides the features of Cobertura within the Maven 2 environment. -->
+                <!-- http://cobertura.sourceforge.net/index.html -->
+                <!-- http://mojo.codehaus.org/cobertura-maven-plugin/index.html -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>cobertura-maven-plugin</artifactId>
+                    <version>2.6</version>
+                </plugin>				
 			</plugins>
 		</pluginManagement>
 		<plugins>
@@ -166,6 +177,7 @@
 				<version>2.4.2</version>
 			</plugin>
 
+            <!-- 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-checkstyle-plugin</artifactId>
@@ -174,6 +186,8 @@
 					<configLocation>http://mulesoft.org/download/attachments/92/checkstyle.xml?version=1</configLocation>
 				</configuration>
 			</plugin>
+             -->
+			
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-pmd-plugin</artifactId>
@@ -182,11 +196,35 @@
 					<targetJdk>${jdk.version}</targetJdk>
 				</configuration>
 			</plugin>
+			
+			<!-- 
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>cobertura-maven-plugin</artifactId>
 				<version>2.5</version>
 			</plugin>
+			 -->
+        
+            <!-- +++++++++++++++++++++++ -->
+            <!-- Cobertura Maven Plugin -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>cobertura-maven-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <!-- defines cobertura projects- and aggregate-report -->
+                        <id>cobertura</id>
+                        <reports>
+                            <report>cobertura</report>
+                        </reports>
+                        <configuration>
+                            <aggregate>true</aggregate>
+                            <outputDirectory>${project.reporting.outputDirectory}/cobertura</outputDirectory>
+                        </configuration>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+			
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>taglist-maven-plugin</artifactId>
@@ -393,6 +431,13 @@
             <url>http://repository.mulesoft.org/snapshots/</url>
             <layout>default</layout>
         </repository>
+        <repository>
+            <id>codehaus-mule-repo</id>
+            <name>codehaus-mule-repo</name>
+            <url>https://repository-master.mulesoft.org/nexus/content/groups/public/</url>
+            <layout>default</layout>
+        </repository>
+        
     </repositories>
     <pluginRepositories>
         <pluginRepository>
