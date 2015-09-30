@@ -71,7 +71,7 @@ stringKml+="<SimpleField name=\"IDS1\" type=\"string\"> \n <displayName>IDS1</di
         </foreach>
         <expression-component doc:name="Expression"><![CDATA[stringKml+="  </Document>\n </kml>"]]></expression-component>
         <set-payload value="#[stringKml]" doc:name="stringKml"/>
-        <file:outbound-endpoint path="\\VBOXSVR\Downloads" outputPattern="Result.kml" responseTimeout="10000" doc:name="save to VBOX folder"/>
+        <file:outbound-endpoint path="\\VBOXSVR\Downloads" outputPattern="Result2.kml" responseTimeout="10000" doc:name="save to VBOX folder"/>
         <set-payload value="Report saved" doc:name="Status"/>
         <http:response-builder status="200" contentType="text/css" doc:name="HTTP Response Builder"/>
 

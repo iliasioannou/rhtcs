@@ -63,7 +63,10 @@ GRD 130mb
             <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" doc:name="Manifest request" password="${sentinel.pwd}" user="${sentinel.usr}" responseTimeout="4000000"/>
             <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
             <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
-            <expression-component doc:name="Expression"><![CDATA[qryableMap.put('uuid',id);
+            <set-variable variableName="metaCoordinate" value="0.0" doc:name="metaCoordinate"/>
+            <expression-component doc:name="Expression"><![CDATA[import java.lang.Math;
+Double temp;
+qryableMap.put('uuid',id);
 qryableMap.put('filename',title);
 qryableMap.put('linkDownload',link);
 qryableMap.put('superMaster','false');
@@ -75,12 +78,19 @@ java.util.ArrayList coordinate2 = new java.util.ArrayList();
 java.util.ArrayList coordinate3 = new java.util.ArrayList();
 java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(coordinates," ");
 int i =0;
+int j=0;
 while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 {
 	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken(),",");
 	while ((java.lang.Boolean)pointCoordinate.hasMoreTokens())
 		{
-			coordinate2.add(Float.parseFloat(pointCoordinate.nextToken()));
+			temp=Double.parseDouble(pointCoordinate.nextToken());
+                    if (j==0)
+    					{
+							metaCoordinate=Math.round(temp) ;
+							j++;
+						}
+			coordinate2.add(temp);
 		}
 	if (i==0)
 				{
@@ -96,7 +106,9 @@ location.put('coordinates' , coordinatefinal);
 qryableMap.put('location',location);
 qryableMap.put('ingestion',ingestion);
 
-String dataset = familyName+mode+swath+relativeOrbitNumberStart+relativeOrbitNumberStop+pass+instrumentConfigurationID+productClass+productType+sliceNumber;
+
+
+String dataset = familyName+mode+swath+relativeOrbitNumberStart+relativeOrbitNumberStop+pass+instrumentConfigurationID+productClass+productType+sliceNumber+metaCoordinate;
 java.security.MessageDigest md;
 md = java.security.MessageDigest.getInstance("MD5");
 md.update(dataset.getBytes(java.nio.charset.Charset.forName("UTF-8")));
@@ -105,6 +117,7 @@ qryableMap.put('datasetID',result);
 
 
 ]]></expression-component>
+            <logger message="************************************#[metaCoordinate]" level="INFO" doc:name="Logger"/>
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
             <expression-component doc:name="Expression"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
 

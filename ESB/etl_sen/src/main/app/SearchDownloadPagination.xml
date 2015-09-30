@@ -60,7 +60,7 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
                 <json:json-to-object-transformer doc:name="JSON to Object" returnClass="java.util.ArrayList"/>
                 <expression-component doc:name="Expression"><![CDATA[GlobalVarOutput.addAll(payload);]]></expression-component>
                 <logger message="Download finished, generating Report" level="INFO" doc:name="Generating Report"/>
-                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="tester" method="POST" doc:name="Call Flow datasettester" responseTimeout="4000000"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="tokml" method="POST" doc:name="Call Flow tokml" responseTimeout="4000000"/>
                 <set-payload value="#[GlobalVarOutput]" doc:name="Set Payload"/>
                 <json:object-to-json-transformer doc:name="Object to JSON"/>
                 <scripting:component doc:name="Groovy">
