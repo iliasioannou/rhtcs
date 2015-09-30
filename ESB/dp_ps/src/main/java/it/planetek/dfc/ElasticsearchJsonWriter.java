@@ -3,14 +3,20 @@ package it.planetek.dfc;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.client.Client;
+import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-public class ElasticsearchJsonWriter implements JsonWriter,InitializingBean {
+public class ElasticsearchJsonWriter implements JsonWriter {
 
-	@Autowired private Client client;
+	//private static final String HOST = "kim.planetek.it";
+	private static final String HOST = "localhost";
+	private static final int PORT = 9300;
+	
+	Client client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(HOST, PORT));
+	
+	
 	private BulkRequestBuilder bulkRequestBuilder;
 	private String indexName;
 	private String indexType;

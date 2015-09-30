@@ -5,7 +5,6 @@ import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -18,15 +17,13 @@ import org.geotools.feature.FeatureCollection;
 import org.geotools.feature.FeatureIterator;
 import org.opengis.feature.Feature;
 import org.opengis.feature.Property;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
+
 
 
 /**
  * {@link Service} with hard-coded input data.
  */
-public class ShapefileImporterServiceImpl implements ShapefileImporterService,InitializingBean {
+public class ShapefileImporterServiceImpl implements ShapefileImporterService {
 	
 	private JsonWriter writer;
 	
@@ -35,7 +32,7 @@ public class ShapefileImporterServiceImpl implements ShapefileImporterService,In
 	}
 	
 	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(writer);
+		if (writer== null) throw new Exception();		
 	}
 	
 	public void importFile(String measurePrefixes,String filename) {

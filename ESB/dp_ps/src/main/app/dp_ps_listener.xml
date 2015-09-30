@@ -4,13 +4,12 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:elasticsearch="http://www.springframework.org/schema/data/elasticsearch"
+	
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
-http://www.springframework.org/schema/data/elasticsearch http://www.springframework.org/schema/data/elasticsearch/spring-elasticsearch-1.0.xsd">
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
 
-	<elasticsearch:client id="esClient" esNodes="kim.planetek.it:9300" />
+	
 	
 	<spring:beans>
 		<spring:bean class="it.planetek.dfc.ShapefileImporterServiceImpl"
@@ -28,7 +27,10 @@ http://www.springframework.org/schema/data/elasticsearch http://www.springframew
 
 	<flow name="dp_ps_listenerFlow1" doc:name="dp_ps_listenerFlow1">
 		<file:inbound-endpoint responseTimeout="10000"
-			doc:name="File" path="C:\Users\adminpk\Desktop\TEMP"/>
+			doc:name="File" path="C:\Users\adminpk\Desktop\TEMP\in" moveToDirectory="C:\Users\adminpk\Desktop\TEMP\out">
+            <file:filename-regex-filter pattern=".*\.dbf" caseSensitive="true"/>
+        </file:inbound-endpoint>
+        <expression-component doc:name="Expression"><![CDATA[payload.close() ]]></expression-component>
         <logger message="File: #[payload] #[&quot;\n&quot;] Msg: #[message]" level="INFO" doc:name="Logger"/>
         <component class="org.mule.transformers.ShapefileImporterComponent" doc:name="ShapefileImporter"/>
 	</flow>
