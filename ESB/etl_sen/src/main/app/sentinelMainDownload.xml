@@ -52,7 +52,7 @@ GRD 130mb
 &quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
 }" processingStrategy="synchronous">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" doc:name="HTTP" responseTimeout="4000000"/>
-        <set-payload value="#[json:feed/entry]" doc:name="Payload Entry"/>
+        <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
         <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
         <foreach doc:name="For Each">
             <set-variable variableName="id" value="#[json:id]" doc:name="id"/>
@@ -64,7 +64,7 @@ GRD 130mb
             <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
             <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
             <set-variable variableName="metaCoordinate" value="0.0" doc:name="metaCoordinate"/>
-            <expression-component doc:name="Expression"><![CDATA[import java.lang.Math;
+            <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
 Double temp;
 qryableMap.put('uuid',id);
 qryableMap.put('filename',title);
@@ -117,16 +117,16 @@ qryableMap.put('datasetID',result);
 
 
 ]]></expression-component>
-            <logger message="************************************#[metaCoordinate]" level="INFO" doc:name="Logger"/>
+
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
-            <expression-component doc:name="Expression"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
+            <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
 
 
             <json:object-to-json-transformer doc:name="Object to JSON"/>
 
             <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel1/slc/#[id]" method="POST" doc:name="Insert in ElasticSearch" responseTimeout="1000000"/>
         </foreach>
-        <set-payload value="#[arrayListData]" doc:name="Set Payload"/>
+        <set-payload value="#[arrayListData]" doc:name="arrayListData"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
 
 

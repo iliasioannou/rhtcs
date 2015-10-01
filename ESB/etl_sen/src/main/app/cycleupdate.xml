@@ -6,11 +6,12 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
     <flow name="CycleUpdateFlow1" doc:name="CycleUpdateFlow1" initialState="started">
-        <quartz:inbound-endpoint jobName="SentinelUpdating" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 51 10 ? * THU">
+        <quartz:inbound-endpoint jobName="SentinelUpdating" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 28 11 ? * THU">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
         <logger message="Started Sentinel Cycle Update ............." level="INFO" doc:name="Start Sentinel Update"/>
-        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="SearchDownloadPagination" method="GET" responseTimeout="10000000" doc:name="Start Update"/>
+        <set-payload value="{ &quot;startRows&quot;:&quot;0&quot;,&quot;type&quot;:&quot;SLC&quot;, &quot;startDate&quot;:&quot;NOW-7DAYS&quot;, &quot;endDate&quot;:&quot;NOW&quot;,&quot;AOI&quot;:&quot;POLYGON((6.3496516561495 36.519283063025,18.786175093649 36.519283063025,18.786175093649 47.272464907535,6.3496516561495 47.272464907535,6.3496516561495 36.519283063025))&quot; }" doc:name="Set Payload"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="SearchDownloadPagination" method="POST" responseTimeout="10000000" doc:name="Start Update"/>
         
     </flow>
     
