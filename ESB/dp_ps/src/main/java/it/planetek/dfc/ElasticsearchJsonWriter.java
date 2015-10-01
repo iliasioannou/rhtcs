@@ -6,15 +6,20 @@ import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.common.xcontent.XContentBuilder;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-public class ElasticsearchJsonWriter implements JsonWriter {
+public class ElasticsearchJsonWriter implements JsonWriter,InitializingBean {
 
 	//private static final String HOST = "kim.planetek.it";
-	private static final String HOST = "localhost";
+	/*private static final String HOST = "localhost";
 	private static final int PORT = 9300;
+	*/
 	
-	Client client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(HOST, PORT));
+	private String clientHost;
+	private String clientPort; 	
+
+	private Client client;
 	
 	
 	private BulkRequestBuilder bulkRequestBuilder;
@@ -22,6 +27,22 @@ public class ElasticsearchJsonWriter implements JsonWriter {
 	private String indexType;
 	private int bulkSize = 1000;
 	private int counter;
+
+	public void afterPropertiesSet() throws Exception {
+		Assert.notNull(indexName);
+		Assert.notNull(indexType);
+		Assert.notNull(clientHost);
+		Assert.notNull(clientPort);
+		client = new TransportClient().addTransportAddress(new InetSocketTransportAddress(clientHost, Integer.parseInt(clientPort)));
+	}
+	
+	public void setClientHost(String clientHost) {
+		this.clientHost = clientHost;
+	}
+	
+	public void setClientPort(String clientPort) {
+		this.clientPort = clientPort;
+	}
 	
 	public void setIndexName(String indexName) {
 		this.indexName = indexName;
@@ -34,11 +55,7 @@ public class ElasticsearchJsonWriter implements JsonWriter {
 	public void setBulkSize(int bulkSize) {
 		this.bulkSize = bulkSize;
 	}
-	
-	public void afterPropertiesSet() throws Exception {
-		Assert.notNull(indexName);
-		Assert.notNull(indexType);
-	}
+		
 	
 	public void open() {
 		bulkRequestBuilder = client.prepareBulk();
@@ -56,6 +73,8 @@ public class ElasticsearchJsonWriter implements JsonWriter {
 		BulkResponse response = bulkRequestBuilder.get();
 		if(response.hasFailures()) 
 			System.out.println(response.buildFailureMessage());		
+		
+		client.close();
 	}
 
 	private void flush() {

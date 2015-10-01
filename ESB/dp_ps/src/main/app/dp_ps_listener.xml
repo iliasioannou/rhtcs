@@ -4,11 +4,13 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	
+
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
 
+
+	
 	<spring:beans>
 		<spring:bean class="it.planetek.dfc.ShapefileImporterServiceImpl"
 			id="importer">
@@ -17,8 +19,11 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 
 		<spring:bean class="it.planetek.dfc.ElasticsearchJsonWriter"
 			name="esWriter">
-			<spring:property name="indexName" value="ps" />
-			<spring:property name="indexType" value="point" />
+			<spring:property name="indexName" value="${elasticsearch.ps.index}" />
+			<spring:property name="indexType" value="${elasticsearch.ps.type}" />
+
+			<spring:property name="clientHost" value="${elasticsearch.host}" />
+			<spring:property name="clientPort" value="${elasticsearch.transport.port}" />
 		</spring:bean>
 	</spring:beans>
 
@@ -26,10 +31,13 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 	<flow name="dp_ps_listenerFlow1" doc:name="dp_ps_listenerFlow1">
 		<file:inbound-endpoint responseTimeout="10000"
 			doc:name="File" path="${ps.transfer.dir}" moveToDirectory="${ps.moveto.dir}">
-            <file:filename-regex-filter pattern=".*\.dbf" caseSensitive="true"/>
-        </file:inbound-endpoint>
-        <expression-component doc:name="Close ReleasingInputStream"><![CDATA[payload.close() ]]></expression-component>
-        <logger message="Found new shapefile. #[&quot;\n&quot;] Msg: #[message]" level="INFO" doc:name="Found new shape"/>
-        <component class="org.mule.transformers.ShapefileImporterComponent" doc:name="ShapefileImporter"/>
+			<file:filename-regex-filter pattern=".*\.dbf"
+				caseSensitive="true" />
+		</file:inbound-endpoint>
+		<expression-component doc:name="Close ReleasingInputStream"><![CDATA[payload.close() ]]></expression-component>
+		<logger message="Found new shapefile. #[&quot;\n&quot;] Msg: #[message]"
+			level="INFO" doc:name="Found new shape" />
+		<component class="org.mule.transformers.ShapefileImporterComponent"
+			doc:name="ShapefileImporter" />
 	</flow>
 </mule>

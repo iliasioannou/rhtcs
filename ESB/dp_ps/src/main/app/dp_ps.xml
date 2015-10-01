@@ -14,16 +14,18 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 
-	<context:property-placeholder location="classpath:dp_ps.properties" />
-	<spring:bean id="psProps"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<spring:property name="singleton" value="true" />
-		<spring:property name="location" value="classpath:dp_ps.properties" />
-	</spring:bean>
+	<context:property-placeholder location="classpath*:dp_ps.properties"
+		system-properties-mode="OVERRIDE"  />
+    <spring:beans>
+        <spring:bean id="psProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <spring:property name="singleton" value="true"/>
+            <spring:property name="location" value="classpath:dp_ps.properties"/>
+        </spring:bean>
+    </spring:beans>
 
 	<flow name="dp_psFlow1" doc:name="dp_psFlow1">
 		<http:inbound-endpoint exchange-pattern="request-response"
-			host="127.0.0.1" port="9091" doc:name="HTTP" path="ps" />
+			host="${dp.ps.host}" port="${dp.ps.port}" doc:name="HTTP" path="${dp.ps.path}" />
 		<json:json-to-object-transformer
 			returnClass="java.util.ArrayList" doc:name="JSON to Object" />
 		<set-variable variableName="dataset_list" value="#[new java.util.HashSet()]"
@@ -46,7 +48,7 @@ dataset.put("datasetID", datasetID);]]></expression-component>
 						value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;],&quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}"
 						doc:name="Set Payload query elasticsearch" />
 					<http:outbound-endpoint exchange-pattern="request-response"
-						host="127.0.0.1" port="9200" path="sentinel/ps/_search" method="POST"
+						host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST"
 						doc:name="HTTP" />
 					<set-variable variableName="dimension" value="#[json:hits/total]"
 						doc:name="dimension" />
@@ -56,7 +58,7 @@ dataset.put("datasetID", datasetID);]]></expression-component>
 						value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;], &quot;from&quot;: &quot;0&quot;, &quot;size&quot;: &quot;#[dimension]&quot; , &quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}"
 						doc:name="Set Payload" />
 					<http:outbound-endpoint exchange-pattern="request-response"
-						host="127.0.0.1" port="9200" path="sentinel/ps/_search" method="POST"
+						host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST"
 						doc:name="HTTP" />
 					<set-payload value="#[json:hits/hits]"
 						doc:name="Set Payload for data of interesting" />
@@ -64,7 +66,7 @@ dataset.put("datasetID", datasetID);]]></expression-component>
 						returnClass="java.util.ArrayList" doc:name="JSON to Object" />
 					<logger message="#[payload]" level="INFO" doc:name="Logger" />
 					<choice doc:name="Choice">
-						<when expression="#[payload.size()&gt;15]">
+						<when expression="#[payload.size()&gt;15">
 							<logger
 								message="#[&quot;\n&quot;]Dataset maggiore di 15 (#[payload.size()])"
 								level="INFO" doc:name="Maggiore" />
@@ -86,6 +88,7 @@ data.add(fields);]]></expression-component>
 							<json:object-to-json-transformer
 								doc:name="Object to JSON" />
 							<logger message="#[payload]" level="INFO" doc:name="Logger JSON" />
+                            <set-variable variableName="xmlrpcUrl" value="${dp.ps.proc.url}" doc:name="xmlrpcUrl"/>
 							<scripting:component doc:name="Send JSON to Server">
 								<scripting:script engine="jython"><![CDATA[# client.py
 import sys
@@ -93,7 +96,7 @@ import xmlrpclib
 
 print "Calling the slave ..."
 #proxy = xmlrpclib.ServerProxy(" :9092/")
-proxy = xmlrpclib.ServerProxy("http://127.0.0.1:9092/")
+proxy = xmlrpclib.ServerProxy(xmlrpcUrl)
 result = proxy.execute(payload)
 print "ExitCode: ", result]]></scripting:script>
 							</scripting:component>
@@ -113,6 +116,6 @@ print "ExitCode: ", result]]></scripting:script>
 			</choice>
 		</foreach>
 		<logger message="End" level="INFO" doc:name="Logger" />
-		<set-payload value="#[&quot;200 OK&quot;]" doc:name="Set Payload" />
+		<set-payload value="&quot;200 OK&quot;" doc:name="Set Payload" />
 	</flow>
 </mule>
