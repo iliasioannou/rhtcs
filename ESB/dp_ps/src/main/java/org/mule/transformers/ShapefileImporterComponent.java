@@ -1,11 +1,12 @@
 package org.mule.transformers;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Properties;
 
 import org.mule.api.MuleEventContext;
 import org.mule.api.lifecycle.Callable;
@@ -19,39 +20,86 @@ public class ShapefileImporterComponent implements Callable
 {
 	protected static final Logger log = LoggerFactory.getLogger(ShapefileImporterComponent.class);
 	
-	static private String[] shapeExts;
-
 	/**
-	 * Extract Shapefile data
-	 * 
-	 * @param eventContext
-	 * @return modisProductList
+	 *  private Class implementing FilenameFilter for files with same name but different extension (shapefile.*)
+	 *
 	 */
-	public Object onCall(MuleEventContext eventContext) throws IOException
+	private class ShapeFilenameFilter implements FilenameFilter
 	{
-		String shapefileDir = eventContext.getMessage().getProperty("directory", PropertyScope.INBOUND);
-		String shapefileName = eventContext.getMessage().getProperty("originalFilename", PropertyScope.INBOUND);
-		String shapefileOutdir = eventContext.getMessage().getProperty("moveToDirectory", PropertyScope.INVOCATION);
+		private String filenameWithNoExt;
 		
-		String shapefileNameNoExt = shapefileName.substring(0, shapefileName.lastIndexOf("."));
-		shapeExts = new String[] {".shp",".shx", ".prj"};
-		
-		// move files
-		for(String ext : shapeExts)
+		public ShapeFilenameFilter(String filenameWithNoExt)
 		{
-			Files.move( Paths.get(shapefileDir, shapefileNameNoExt+ext), Paths.get(shapefileOutdir, shapefileNameNoExt+ext), StandardCopyOption.REPLACE_EXISTING);
+			this.filenameWithNoExt = filenameWithNoExt;
 		}
 		
+		@Override
+		public boolean accept(File dir, String name)
+		{
+			return name.startsWith(this.filenameWithNoExt);
+		}
+	};
+	
+	
+	/**
+	 * Extract Shapefile PS data and save to ElasticSearch
+	 * 
+	 * @param eventContext
+	 * @return shapefileNameNoExt
+	 */
+	public String onCall(MuleEventContext eventContext)
+	{
+		// Get dp_ps properties
+		Properties psProps = eventContext.getMuleContext().getRegistry().get("psProps");
+		
+		// Get detected shape filename
+		String shapefileName = eventContext.getMessage().getProperty("originalFilename", PropertyScope.INBOUND);
+		String shapefileNameNoExt = shapefileName.substring(0, shapefileName.lastIndexOf("."));
+		
+		String shapefileTransferDir = psProps.getProperty("ps.transfer.dir");
+		String shapefileMoveToDir =  psProps.getProperty("ps.moveto.dir");
+		
+		log.info("New shapefile detected: "+shapefileNameNoExt+" in "+shapefileTransferDir);
+		
+		// Get filelist of files with the same name as the ".dbf" file, but different extension (.shx, .shp, .prj, ...)
+		File[] shapefileFiles = new File(shapefileTransferDir).listFiles(new ShapeFilenameFilter(shapefileNameNoExt));
+
+		// Move newly arrived shape file(S) to elaboration dir
+		if (!Files.exists(Paths.get(shapefileMoveToDir)))
+		{
+			try
+			{
+				// TODO: check if Files.createTempDirectory(dir, prefix, attrs) could be used to create a temp elaboration dir
+				Files.createDirectories(Paths.get(shapefileMoveToDir));
+			}
+			catch (IOException e)
+			{
+				log.error("Cannot create elaboration dir: "+shapefileMoveToDir);
+			}
+		}
+		for(File file: shapefileFiles)
+		{
+			try
+			{
+				Files.move( Paths.get(file.getPath()), Paths.get(shapefileMoveToDir, file.getName()), StandardCopyOption.REPLACE_EXISTING);
+			}
+			catch (IOException e)
+			{
+				log.error("Failed to move "+file.getName()+" to elaboration dir "+shapefileMoveToDir);
+			}
+		}
+		log.info("Moved "+shapefileNameNoExt+".* to elaboration dir "+shapefileMoveToDir);
+		
+		
+		// Load Shapefile ps data into ElasticSearch
 		ShapefileImporterService importer = eventContext.getMuleContext().getRegistry().lookupObject("importer");
-		
-		
-		log.info("name: "+shapefileName);
-		log.info("dir: "+shapefileDir);
-		String shapefilePath = Paths.get(shapefileOutdir, shapefileNameNoExt+".shp").toString();
-		log.info("shapefilePath: "+shapefilePath);
-		importer.importFile("^(DL)([0-9]{8})$",shapefilePath);
+		// TODO: check if the regex is correctly escaped in the property file
+		//importer.importFile("^(DL)([0-9]{8})$", Paths.get(shapefileMoveToDir, shapefileNameNoExt+".shp").toString());
+		importer.importFile( psProps.getProperty("ps.measures.prefix"), Paths.get(shapefileMoveToDir, shapefileNameNoExt+".shp").toString());
 		
 		/*
+		 * TODO: is importFile() async? If so, how can we delete shp files, *ONLY* when importFile has finished?
+		 * 
 		log.info("Deleting shape...");
 		
 		for(String ext : shapeExts)
@@ -60,7 +108,7 @@ public class ShapefileImporterComponent implements Callable
 		}
 		log.info("Deleted");
 		*/
-		return null;
+		return shapefileNameNoExt;
 	}
 
 }	
