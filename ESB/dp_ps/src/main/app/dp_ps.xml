@@ -40,18 +40,43 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					<logger message="Dataset non Presente" level="INFO"
 						doc:name="dataset non presente" />
 					<expression-component doc:name="update dataset_list"><![CDATA[dataset_list.add(datasetID);]]></expression-component>
+                    <set-payload value="{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetID&quot;:&quot;#[datasetID]&quot;}},{&quot;range&quot;:{&quot;superMaster&quot;:{&quot;gte&quot;:0}}}]}}}" doc:name="Set Payload"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.path}/_search" method="POST" doc:name="HTTP SM exists"/>
+                    <set-variable variableName="superMaster" value="0" doc:name="superMaster"/>
+                    <choice doc:name="Choice">
+                        <when expression="#[json:hits/total]&gt;0">
+                            <logger level="INFO" doc:name="Logger"/>
+                            <set-payload value="#[json:hits/hits[0]/_source/superMaster]" doc:name="Set Payload"/>
+                            <expression-component doc:name="Expression"><![CDATA[superMaster= payload]]></expression-component>
+                        </when>
+                        <otherwise>
+                            <logger level="INFO" doc:name="Logger"/>
+                        </otherwise>
+                    </choice>
+                    <set-payload value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;],&quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}" doc:name="Set Payload query elasticsearch"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="HTTP dimensione"/>
+                    <set-variable variableName="dimension" value="#[json:hits/total]" doc:name="dimension"/>
+                    <set-variable variableName="SuperMasterID" value="#[&quot;&quot;]" doc:name="SMuuid"/>
+                    <choice doc:name="Choice">
+                        <when expression="#[dimension-superMaster]&gt;15">
+                            <logger level="INFO" doc:name="Logger"/>
+                            <set-payload value="{ &quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}" doc:name="Matedati query"/>
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="HTTP metadati ES"/>
+                            <logger message="Richiesta SuperMaster..." level="INFO" doc:name="Logger SuperM"/>
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${sm.host}" port="${sm.port}" path="${sm.path}" method="POST" doc:name="HTTP"/>
+                            <expression-component doc:name="Expression"/>
+                            <set-payload doc:name="Set Payload"/>
+                        </when>
+                        <otherwise>
+                            <logger level="INFO" doc:name="Logger"/>
+                        </otherwise>
+                    </choice>
 					<set-variable variableName="dataset"
 						value="#[new java.util.HashMap()]" doc:name="dataset" />
+                    <set-variable variableName="requestID" value="#[dataset]-#[server.dateTime]" doc:name="requestID"/>
 					<expression-component doc:name="insert datasetID"><![CDATA[dataset.put("destFtpPath","processors/PS/");
 dataset.put("datasetID", datasetID);]]></expression-component>
-					<set-payload
-						value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;],&quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}"
-						doc:name="Set Payload query elasticsearch" />
-					<http:outbound-endpoint exchange-pattern="request-response"
-						host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST"
-						doc:name="HTTP" />
-					<set-variable variableName="dimension" value="#[json:hits/total]"
-						doc:name="dimension" />
+
 					<logger message="#[&quot;\n&quot;] dim: #[dimension]" level="INFO"
 						doc:name="Logger" />
 					<set-payload
@@ -59,14 +84,14 @@ dataset.put("datasetID", datasetID);]]></expression-component>
 						doc:name="Set Payload" />
 					<http:outbound-endpoint exchange-pattern="request-response"
 						host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST"
-						doc:name="HTTP" />
+						doc:name="HTTP item request" />
 					<set-payload value="#[json:hits/hits]"
 						doc:name="Set Payload for data of interesting" />
 					<json:json-to-object-transformer
 						returnClass="java.util.ArrayList" doc:name="JSON to Object" />
 					<logger message="#[payload]" level="INFO" doc:name="Logger" />
 					<choice doc:name="Choice">
-						<when expression="#[payload.size()&gt;15">
+						<when expression="#[payload.size()]&gt;15">
 							<logger
 								message="#[&quot;\n&quot;]Dataset maggiore di 15 (#[payload.size()])"
 								level="INFO" doc:name="Maggiore" />
