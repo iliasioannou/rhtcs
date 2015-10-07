@@ -63,12 +63,12 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
                 <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="tokml" method="POST" doc:name="Call Flow tokml" responseTimeout="4000000"/>
                 <set-payload value="#[GlobalVarOutput]" doc:name="Set Payload as GlobalVar"/>
                 <json:object-to-json-transformer doc:name="Object to JSON"/>
-                <scripting:component doc:name="Groovy">
+                <scripting:component doc:name="Pretty Json">
                     <scripting:script engine="Groovy"><![CDATA[import static groovy.json.JsonOutput.*;
 return prettyPrint(payload);]]></scripting:script>
                 </scripting:component>
                 <file:outbound-endpoint path="C:\Users\adminpk\Desktop\Download" outputPattern="totaldownload.txt" responseTimeout="10000" doc:name="File"/>
-                <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9093" path="ps" method="POST" doc:name="Call PS processor"/>
+                <http:outbound-endpoint exchange-pattern="request-response" host="${ps.host}" port="${ps.port}" path="${ps.path}" method="POST" doc:name="Call PS processor"/>
             </otherwise>
         </choice>
     </flow>

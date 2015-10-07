@@ -38,6 +38,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 }">
 		<http:inbound-endpoint exchange-pattern="request-response"
 			host="0.0.0.0" port="9090" doc:name="HTTP" path="zearch" responseTimeout="1000000"/>
+        <set-variable variableName="saveJson" value="#[payload]" doc:name="save Json"/>
 		<logger message="ALT SEARCH FLOW CONNECTION" level="INFO"
 			doc:name="ALT SEARCH FLOW" />
 		<json:json-to-object-transformer
@@ -67,17 +68,12 @@ return payload]]></scripting:script>
 		<http:response-builder status="#[message.inboundProperties['http.status']]"
 			contentType="application/json" doc:name="HTTP Response Builder" />
 		<choice-exception-strategy doc:name="Choice Exception Strategy">
-			<catch-exception-strategy doc:name="Catch HttpException"
-				enableNotifications="false"
-				when="#[exception.causedBy( org.apache.commons.httpclient.HttpException)]">
-				<logger message="HttpException: #[exception.getCause().getMessage()]"
-					level="WARN" doc:name="Log HttpException" />
-				<http:response-builder status="500"
-					contentType="text/plain" doc:name="HTTP Response Builder" />
-			</catch-exception-strategy>
+
 			<catch-exception-strategy doc:name="Generic Exception Strategy">
 				<logger level="WARN" doc:name="Log Generic Exception"
 					message="Generic Exception: #[exception.getCause().getMessage()]" />
+                <set-payload value="#[saveJson]" doc:name="saveJson"/>
+                <flow-ref name="sentinelMainSearchALTFlow1" doc:name="Call search flow"/>
 			</catch-exception-strategy>
 		</choice-exception-strategy>
 	</flow>

@@ -40,7 +40,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 					<logger message="Dataset not exist" level="INFO"
 						doc:name="dataset not exist" />
 					<expression-component doc:name="update dataset_list with new datasetId"><![CDATA[dataset_list.add(datasetId);]]></expression-component>
-                    <set-payload value="{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;superMaster&quot;:{&quot;gte&quot;:1}}}]}}}" doc:name="Query getsuperMaster"/>
+                    <set-payload value="{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;superMaster&quot;:{&quot;gt&quot;:0}}}]}}}" doc:name="Query getsuperMaster"/>
                     <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.path}/_search" method="POST" doc:name="ElasticSearch"/>
                     <set-variable variableName="resSize" value="#[json:hits/total]" doc:name="resSize"/>
                     <set-variable variableName="superMasterValue" value="0" doc:name="superMasterValue"/>
@@ -55,7 +55,6 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 superMasterValue= Integer.parseInt(tokenizerCoordinates.nextToken());
 superMasterId= tokenizerCoordinates.nextToken();]]></expression-component>
 
-                            <logger message="*******#[superMasterId]********#[superMasterValue]" level="INFO" doc:name="superMaster"/>
                         </when>
                         <otherwise>
                             <logger level="INFO" doc:name="SuperMaster not exist" message="***********SuperMaster not exist**************"/>
@@ -64,7 +63,7 @@ superMasterId= tokenizerCoordinates.nextToken();]]></expression-component>
                     <set-payload value="{&quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="query cardinality datasetId"/>
                     <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="ElasticSearch"/>
                     <set-variable variableName="sizeDatasetId" value="#[json:hits/total]" doc:name="sizeDatasetId"/>
-                    <logger message="********Dimension Dataset: #[sizeDatasetId]" level="INFO" doc:name="Size"/>
+                    <logger message="*******SuperMasterId:  #[superMasterId] *** SuperMasterValue:  #[superMasterValue] *** Dimension Dataset: #[sizeDatasetId]" level="INFO" doc:name="Size"/>
 
                     <choice doc:name="Choice">
                         <when expression="#[sizeDatasetId-superMasterValue&gt;15">
@@ -76,10 +75,12 @@ superMasterId= tokenizerCoordinates.nextToken();]]></expression-component>
                                     <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
                                 </when>
                                 <otherwise>
-                                    <logger message="********superMaster not exist" level="INFO" doc:name="superMaster not exist"/>
+                                    <logger message="********superMaster not exist, launch processor CM" level="INFO" doc:name="superMaster not exist"/>
                                 </otherwise>
                             </choice>
                             <set-payload value="{ &quot;size&quot;: #[sizeDatasetId], &quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="Query full metadata"/>
+
+
                             <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="ElasticSearch"/>
                             <logger message="**********Prepare Input Processor" level="INFO" doc:name="Prepare Input Processor"/>
                             <set-variable variableName="arrayResult" value="#[new java.util.ArrayList()]" doc:name="arrayResult"/>
@@ -127,10 +128,11 @@ jsonMap.put("callbackUri", callbackUri);
                             <expression-component doc:name="Add data to jsonMap"><![CDATA[jsonMap.put("data", data);]]></expression-component>
                             <set-payload value="#[jsonMap]" doc:name="jsonMap"/>
                             <json:object-to-json-transformer doc:name="Object to JSON"/>
+                            <logger message="******Call S1TB " level="INFO" doc:name="Call S1TB "/>
 
-                            <http:outbound-endpoint exchange-pattern="request-response" host="${s1toolbox.host}" port="${s1toolbox.port}" path="${s1toolbox.path}" method="POST" doc:name="Call S1TB" responseTimeout="20000"/>
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${s1toolbox.host}" port="${s1toolbox.port}" path="${s1toolbox.path}" method="POST" doc:name="processor S1TB" responseTimeout="20000"/>
                             <object-to-string-transformer doc:name="Object to String"/>
-                            <logger message="Request done:  #[payload]" level="INFO" doc:name="Result S1TB"/>
+                            <logger message="Request response:  #[payload]" level="INFO" doc:name="Result S1TB"/>
 
                         </when>
                         <otherwise>
@@ -152,7 +154,7 @@ jsonMap.put("callbackUri", callbackUri);
     <flow name="dp_psFlow2" doc:name="dp_psFlow2">
         <logger message="********Pagination Start" level="INFO" doc:name="Pagination Start"/>
         <set-payload value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;], &quot;from&quot;: &quot;#[counter]&quot;, &quot;size&quot;: &quot;#[paginationSize]&quot; , &quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="query pagination"/>
-        <logger message="#[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="#[payload]" level="INFO" doc:name="Payload"/>
         <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.path}/_search" method="POST" doc:name="ElasticSearch"/>
         <set-payload value="#[json:hits/hits]" doc:name="Extract Result"/>
         <foreach doc:name="For Each">
