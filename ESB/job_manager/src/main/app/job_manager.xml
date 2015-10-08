@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json"
+	xmlns:jersey="http://www.mulesoft.org/schema/mule/jersey" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/jersey/current/mule-jersey.xsd">
+
+	<spring:beans>
+	    <spring:import resource="classpath:spring/applicationContext.xml"/>
+	</spring:beans>
+	
+    <http:listener-config name="HTTP_Listener_Configuration_API_REST_V01" host="0.0.0.0" port="9999" basePath="api/v01" doc:name="HTTP Listener Configuration"/>
+    <flow name="jobApiRest">
+        <http:listener doc:name="jobApiRest Listener" config-ref="HTTP_Listener_Configuration_API_REST_V01" path="/*" />
+        <jersey:resources doc:name="jobApiRest Rest Impl">
+	        <!-- 
+	            <component class="it.planetek.rheticus.api.JobRestImpl"/>
+	         -->
+			<component doc:name="jobRestImpl">
+			  <spring-object bean="jobRestImpl"/>
+			</component>              
+        </jersey:resources>
+    </flow>
+</mule>

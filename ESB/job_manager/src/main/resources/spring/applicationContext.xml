@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:elasticsearch="http://www.springframework.org/schema/data/elasticsearch"
+       xsi:schemaLocation="http://www.springframework.org/schema/data/elasticsearch http://www.springframework.org/schema/data/elasticsearch/spring-elasticsearch-1.0.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd">
+		
+<!--     Replace placeholder with value loaded from external property file
+    <bean id="propertyAppConfig"  class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                Default value
+                <value>classpath:dp_ps.properties</value>
+                Property of custom value located in
+                <value>classpath:dp_psCustom.properties</value>
+                <value>file:dp_psCustom.properties</value>
+            </list>
+        </property>
+        If false (default) then config file ("resource") must exist or exception is thrown. Set to true if the config file is optional
+        <property name="ignoreResourceNotFound" value="true"/>
+        If false (default) then if placeholder fails to resolve throw exception
+        <property name="ignoreUnresolvablePlaceholders" value="true"/>        
+    </bean> -->
+		
+
+    <!-- Spring and Elasticsearch integration -->
+    <elasticsearch:transport-client id="clientES" cluster-name="elasticsearch" cluster-nodes="localhost:9300" />
+
+    <!-- Dao -->
+    <bean name="elasticsearchTemplate" class="org.springframework.data.elasticsearch.core.ElasticsearchTemplate">
+        <constructor-arg name="client" ref="clientES"/>
+    </bean>
+
+    <!-- Set up Spring to create proxy instances for repository's interfaces. -->
+    <elasticsearch:repositories base-package="it.planetek.rheticus.dao.elasticsearch" />
+    
+    <!-- Use proxy in repository -->
+	<bean id="jobRepo" scope="prototype" class="it.planetek.rheticus.repository.JobRepositoryImpl">
+        <constructor-arg index="0">
+            <ref bean="jobDaoEs" />
+        </constructor-arg>
+	</bean>    
+	
+    <bean id="jobService" scope="prototype" class="it.planetek.rheticus.service.JobServiceImpl">
+        <constructor-arg index="0">
+            <ref bean="jobRepo" />
+        </constructor-arg>
+    </bean>  	
+
+    <bean id="jobRestImpl" scope="prototype" class="it.planetek.rheticus.api.JobRestImpl">
+        <constructor-arg index="0">
+            <ref bean="jobService" />
+        </constructor-arg>
+    </bean>  	
+
+</beans>
