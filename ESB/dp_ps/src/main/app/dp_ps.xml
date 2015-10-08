@@ -14,105 +14,166 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 
 
-	<context:property-placeholder location="classpath:dp_ps.properties" />
-	<spring:bean id="psProps"
-		class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-		<spring:property name="singleton" value="true" />
-		<spring:property name="location" value="classpath:dp_ps.properties" />
-	</spring:bean>
+	<context:property-placeholder location="classpath*:dp_ps.properties"
+		system-properties-mode="OVERRIDE"  />
+    <spring:beans>
+        <spring:bean id="psProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+            <spring:property name="singleton" value="true"/>
+            <spring:property name="location" value="classpath:dp_ps.properties"/>
+        </spring:bean>
+    </spring:beans>
 
 	<flow name="dp_psFlow1" doc:name="dp_psFlow1">
 		<http:inbound-endpoint exchange-pattern="request-response"
-			host="127.0.0.1" port="9091" doc:name="HTTP" path="ps" />
+			host="${dp.ps.host}" port="${dp.ps.port}" doc:name="HTTP" path="${dp.ps.path}" />
 		<json:json-to-object-transformer
 			returnClass="java.util.ArrayList" doc:name="JSON to Object" />
 		<set-variable variableName="dataset_list" value="#[new java.util.HashSet()]"
 			doc:name="dataset_list" />
 		<foreach doc:name="For Each">
-			<set-variable variableName="datasetID"
-				value="#[payload.get(&quot;datasetID&quot;)]" doc:name="datasetID" />
-			<logger message="DATASETID: #[datasetID]" level="INFO"
-				doc:name="Logger" />
+			<set-variable variableName="datasetId"
+				value="#[payload.get(&quot;datasetId&quot;)]" doc:name="datasetId" />
+			<logger message="DATASETID: #[datasetId]" level="INFO"
+				doc:name="Show datasetId" />
 			<choice doc:name="Choice">
-				<when expression="#[!dataset_list.contains(datasetID)]">
-					<logger message="Dataset non Presente" level="INFO"
-						doc:name="dataset non presente" />
-					<expression-component doc:name="update dataset_list"><![CDATA[dataset_list.add(datasetID);]]></expression-component>
-					<set-variable variableName="dataset"
-						value="#[new java.util.HashMap()]" doc:name="dataset" />
-					<expression-component doc:name="insert datasetID"><![CDATA[dataset.put("destFtpPath","processors/PS/");
-dataset.put("datasetID", datasetID);]]></expression-component>
-					<set-payload
-						value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;],&quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}"
-						doc:name="Set Payload query elasticsearch" />
-					<http:outbound-endpoint exchange-pattern="request-response"
-						host="127.0.0.1" port="9200" path="sentinel/ps/_search" method="POST"
-						doc:name="HTTP" />
-					<set-variable variableName="dimension" value="#[json:hits/total]"
-						doc:name="dimension" />
-					<logger message="#[&quot;\n&quot;] dim: #[dimension]" level="INFO"
-						doc:name="Logger" />
-					<set-payload
-						value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;], &quot;from&quot;: &quot;0&quot;, &quot;size&quot;: &quot;#[dimension]&quot; , &quot;query&quot;: { &quot;match&quot;: {&quot;datasetID&quot;:&quot;#[datasetID]&quot; }}}"
-						doc:name="Set Payload" />
-					<http:outbound-endpoint exchange-pattern="request-response"
-						host="127.0.0.1" port="9200" path="sentinel/ps/_search" method="POST"
-						doc:name="HTTP" />
-					<set-payload value="#[json:hits/hits]"
-						doc:name="Set Payload for data of interesting" />
-					<json:json-to-object-transformer
-						returnClass="java.util.ArrayList" doc:name="JSON to Object" />
-					<logger message="#[payload]" level="INFO" doc:name="Logger" />
-					<choice doc:name="Choice">
-						<when expression="#[payload.size()&gt;15]">
-							<logger
-								message="#[&quot;\n&quot;]Dataset maggiore di 15 (#[payload.size()])"
-								level="INFO" doc:name="Maggiore" />
-							<set-variable variableName="data"
-								value="#[new java.util.ArrayList()]" doc:name="data" />
-							<foreach doc:name="For Each">
-								<set-variable variableName="fields"
-									value="#[new java.util.HashMap()]" doc:name="fields" />
-								<set-variable variableName="link"
-									value="#[json:fields/linkDownload[0]]" doc:name="link" />
-								<set-variable variableName="uuid" value="#[json:fields/uuid[0]]"
-									doc:name="uuid" />
-								<expression-component doc:name="Polulate data"><![CDATA[fields.put("uuid",uuid);
-fields.put("linkDownload",link);
-data.add(fields);]]></expression-component>
-							</foreach>
-							<expression-component doc:name="Populate dataset"><![CDATA[dataset.put("data", data);]]></expression-component>
-							<set-payload value="#[dataset]" doc:name="Set Payload" />
-							<json:object-to-json-transformer
-								doc:name="Object to JSON" />
-							<logger message="#[payload]" level="INFO" doc:name="Logger JSON" />
-							<scripting:component doc:name="Send JSON to Server">
-								<scripting:script engine="jython"><![CDATA[# client.py
-import sys
-import xmlrpclib
+				<when expression="#[!dataset_list.contains(datasetId)]">
+					<logger message="Dataset not exist" level="INFO"
+						doc:name="dataset not exist" />
+					<expression-component doc:name="update dataset_list with new datasetId"><![CDATA[dataset_list.add(datasetId);]]></expression-component>
+                    <set-payload value="{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;superMaster&quot;:{&quot;gt&quot;:0}}}]}}}" doc:name="Query getsuperMaster"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.path}/_search" method="POST" doc:name="ElasticSearch"/>
+                    <set-variable variableName="resSize" value="#[json:hits/total]" doc:name="resSize"/>
+                    <set-variable variableName="superMasterValue" value="0" doc:name="superMasterValue"/>
+                    <set-variable variableName="superMasterId" value="#[new String()]" doc:name="superMasterId"/>
+                    <choice doc:name="Choice">
+                        <when expression="#[resSize.equals('1') ]">
+                            <logger level="INFO" doc:name="SuperMaster exist" message="***********SuperMaster exist**************"/>
+                            <set-variable variableName="tempSuperMaster" value="#[json:hits/hits[0]/_source/superMaster] #[json:hits/hits[0]/_source/uuid]" doc:name="Temp superMasterId &amp; value"/>
 
-print "Calling the slave ..."
-#proxy = xmlrpclib.ServerProxy(" :9092/")
-proxy = xmlrpclib.ServerProxy("http://127.0.0.1:9092/")
-result = proxy.execute(payload)
-print "ExitCode: ", result]]></scripting:script>
-							</scripting:component>
-							<logger message="#[payload]" level="INFO" doc:name="Response Server" />
-						</when>
-						<otherwise>
-							<logger
-								message="#[&quot;\n&quot;]Dataset minore di 15 (#[payload.size()])"
-								level="INFO" doc:name="Minore" />
-						</otherwise>
-					</choice>
+                            <expression-component doc:name="Update superMaster Vars"><![CDATA[java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(tempSuperMaster," ");
+
+superMasterValue= Integer.parseInt(tokenizerCoordinates.nextToken());
+superMasterId= tokenizerCoordinates.nextToken();]]></expression-component>
+
+                        </when>
+                        <otherwise>
+                            <logger level="INFO" doc:name="SuperMaster not exist" message="***********SuperMaster not exist**************"/>
+                        </otherwise>
+                    </choice>
+                    <set-payload value="{&quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="query cardinality datasetId"/>
+                    <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="ElasticSearch"/>
+                    <set-variable variableName="sizeDatasetId" value="#[json:hits/total]" doc:name="sizeDatasetId"/>
+                    <logger message="*******SuperMasterId:  #[superMasterId] *** SuperMasterValue:  #[superMasterValue] *** Dimension Dataset: #[sizeDatasetId]" level="INFO" doc:name="Size"/>
+
+                    <choice doc:name="Choice">
+                        <when expression="#[sizeDatasetId-superMasterValue&gt;15">
+                            <logger level="INFO" doc:name="more then 15 new acquisitions" message="more then 15 new acquisitions"/>
+                            <choice doc:name="Choice">
+                                <when expression="#[superMasterValue&gt;0]">
+                                    <logger message="superMaster exist, reset value and launch processor CM" level="INFO" doc:name="superMaster exist"/>
+                                    <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : &quot;0&quot;    }}" doc:name="Reset Value superMaster"/>
+                                    <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
+                                </when>
+                                <otherwise>
+                                    <logger message="********superMaster not exist, launch processor CM" level="INFO" doc:name="superMaster not exist"/>
+                                </otherwise>
+                            </choice>
+                            <set-payload value="{ &quot;size&quot;: #[sizeDatasetId], &quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="Query full metadata"/>
+
+
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="ElasticSearch"/>
+                            <logger message="**********Prepare Input Processor" level="INFO" doc:name="Prepare Input Processor"/>
+                            <set-variable variableName="arrayResult" value="#[new java.util.ArrayList()]" doc:name="arrayResult"/>
+                            <set-payload value="#[json:hits/hits]" doc:name="Filter hits"/>
+                            <foreach doc:name="For Each">
+                                <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to Object"/>
+
+                                <set-variable variableName="filterResult" value="#[payload.get('_source')]" doc:name="filterResult"/>
+
+                                <expression-component doc:name="add filterResult to Array"><![CDATA[arrayResult.add(filterResult);]]></expression-component>
+
+                            </foreach>
+                            <logger message="**********Call Processor Calculate SuperMaster" level="INFO" doc:name="Call Processor SM"/>
+                            <set-payload value="#[arrayResult]" doc:name="arrayResult"/>
+                            <json:object-to-json-transformer mimeType="application/json" doc:name="Object to JSON"/>
+
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${sm.host}" port="${sm.port}" path="${sm.path}" method="POST" doc:name="Processor Calculate SM"/>
+                            <set-payload value="#[json:superMasterId]" doc:name="superMasterId"/>
+                            <expression-component doc:name="Set superMasterId variable"><![CDATA[superMasterId=payload;]]></expression-component>
+                            <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : &quot;#[sizeDatasetId]&quot;    }}" doc:name="Update SM value"/>
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
+                        </when>
+                        <otherwise>
+                            <logger level="INFO" doc:name="less then 15 new acquisitions" message="less then 15 new acquisitions"/>
+                        </otherwise>
+                    </choice>
+                    <logger message="********superMasterId: #[superMasterId]" level="INFO" doc:name="superMasterId"/>
+                    <choice doc:name="Choice">
+                        <when expression="#[!superMasterId.isEmpty()]">
+                            <logger message="*******superMaster exist**********" level="INFO" doc:name="superMaster exist"/>
+
+                            <logger message="*********Create Json for S1TB**********" level="INFO" doc:name="Create Json for S1TB"/>
+                            <set-variable variableName="jsonMap" value="#[new java.util.HashMap()]" doc:name="jsonMap"/>
+                            <set-variable variableName="callbackUri" value="${planetek.callbackUri.host}:${planetek.callbackUri.port}/${planetek.callbackUri.path}" doc:name="callbackUri"/>
+                            <set-variable variableName="requestId" value="#[datasetId]-#[server.dateTime]" doc:name="requestId"/>
+                            <expression-component doc:name="Insert element JsonMap"><![CDATA[jsonMap.put("datasetId", datasetId);
+jsonMap.put("requestId", requestId);
+jsonMap.put("superMasterId", superMasterId);
+jsonMap.put("callbackUri", callbackUri);
+]]></expression-component>
+                            <set-variable variableName="counter" value="0" doc:name="counter"/>
+                            <set-variable variableName="paginationSize" value="${elasticsearch.sentinel.pagination}" doc:name="pagination size"/>
+                            <set-variable variableName="data" value="#[new java.util.ArrayList()]" doc:name="data"/>
+                            <flow-ref name="dp_psFlow2" doc:name="call ElasticSearch Pagination"/>
+                            <expression-component doc:name="Add data to jsonMap"><![CDATA[jsonMap.put("data", data);]]></expression-component>
+                            <set-payload value="#[jsonMap]" doc:name="jsonMap"/>
+                            <json:object-to-json-transformer doc:name="Object to JSON"/>
+                            <logger message="******Call S1TB " level="INFO" doc:name="Call S1TB "/>
+
+                            <http:outbound-endpoint exchange-pattern="request-response" host="${s1toolbox.host}" port="${s1toolbox.port}" path="${s1toolbox.path}" method="POST" doc:name="processor S1TB" responseTimeout="20000"/>
+                            <object-to-string-transformer doc:name="Object to String"/>
+                            <logger message="Request response:  #[payload]" level="INFO" doc:name="Result S1TB"/>
+
+                        </when>
+                        <otherwise>
+                            <logger message="superMaster not exist" level="INFO" doc:name="superMaster not exist"/>
+                        </otherwise>
+                    </choice>
+
+
 
 				</when>
 				<otherwise>
-					<logger message="Dataset Presente" level="INFO" doc:name="Dataset Presente" />
+					<logger message="Dataset exist" level="INFO" doc:name="Dataset exist" />
 				</otherwise>
 			</choice>
 		</foreach>
-		<logger message="End" level="INFO" doc:name="Logger" />
-		<set-payload value="#[&quot;200 OK&quot;]" doc:name="Set Payload" />
+		<logger message="End" level="INFO" doc:name="End" />
+		<set-payload value="&quot;200 OK&quot;" doc:name="Set Payload" />
 	</flow>
+    <flow name="dp_psFlow2" doc:name="dp_psFlow2">
+        <logger message="********Pagination Start" level="INFO" doc:name="Pagination Start"/>
+        <set-payload value="{&quot;fields&quot; : [&quot;uuid&quot;, &quot;linkDownload&quot;], &quot;from&quot;: &quot;#[counter]&quot;, &quot;size&quot;: &quot;#[paginationSize]&quot; , &quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="query pagination"/>
+        <logger message="#[payload]" level="INFO" doc:name="Payload"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.path}/_search" method="POST" doc:name="ElasticSearch"/>
+        <set-payload value="#[json:hits/hits]" doc:name="Extract Result"/>
+        <foreach doc:name="For Each">
+            <set-variable variableName="fields" value="#[new java.util.HashMap()]" doc:name="fields"/>
+
+            <set-variable variableName="link" value="#[json:fields/linkDownload[0]]" doc:name="link"/>
+            <set-variable variableName="uuid" value="#[json:fields/uuid[0]]" doc:name="uuid"/>
+            <expression-component doc:name="populate"><![CDATA[fields.put("uuid",uuid);
+fields.put("linkDownload",link);
+data.add(fields);]]></expression-component>
+        </foreach>
+        <expression-component doc:name="Increment Counter"><![CDATA[counter+=paginationSize;]]></expression-component>
+        <choice doc:name="Choice">
+            <when expression="#[counter&lt;SizeDatasetId]">
+                <flow-ref name="dp_psFlow2" doc:name="Call myself"/>
+            </when>
+            <otherwise>
+                <logger message="*********End Pagination" level="INFO" doc:name="End Pagination Return Data"/>
+            </otherwise>
+        </choice>
+    </flow>
 </mule>

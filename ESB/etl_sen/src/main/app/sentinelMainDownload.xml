@@ -40,6 +40,13 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
 	</ftp:connector>
     <http:endpoint exchange-pattern="request-response" host="localhost" port="9090" path="startupdate" method="GET" name="HTTP" doc:name="HTTP"/>
     <http:endpoint exchange-pattern="request-response" host="localhost" port="9090" path="startupdate" method="GET" name="HTTP1" doc:name="HTTP"/>
+    <choice-exception-strategy name="Choice_Exception_Strategy">
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="****************Generic Exception****************" level="WARN" doc:name="Generic Exception"/>
+            <set-payload value="#[savePayload]" doc:name="savePayload"/>
+            <flow-ref name="sentinelDownloadFlow1" doc:name="Call Download Flow"/>
+        </catch-exception-strategy>
+    </choice-exception-strategy>
  
     
     <flow name="sentinelDownloadFlow1" doc:name="sentinelDownloadFlow1" doc:description="SLC 1.7gb
@@ -52,6 +59,7 @@ GRD 130mb
 &quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
 }" processingStrategy="synchronous">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" doc:name="HTTP" responseTimeout="4000000"/>
+        <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
         <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
         <foreach doc:name="For Each">
@@ -69,7 +77,7 @@ Double temp;
 qryableMap.put('uuid',id);
 qryableMap.put('filename',title);
 qryableMap.put('linkDownload',link);
-qryableMap.put('superMaster','false');
+qryableMap.put('superMaster','0');
 java.util.HashMap location = new java.util.HashMap();
 location.put('type' , 'Polygon');
 java.util.ArrayList coordinatefinal = new java.util.ArrayList();
@@ -113,7 +121,7 @@ java.security.MessageDigest md;
 md = java.security.MessageDigest.getInstance("MD5");
 md.update(dataset.getBytes(java.nio.charset.Charset.forName("UTF-8")));
 result = String.format(Locale.ROOT, "%032x", new BigInteger(1, md.digest()));
-qryableMap.put('datasetID',result);
+qryableMap.put('datasetId',result);
 
 
 ]]></expression-component>
@@ -124,7 +132,7 @@ qryableMap.put('datasetID',result);
 
             <json:object-to-json-transformer doc:name="Object to JSON"/>
 
-            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel1/slc/#[id]" method="POST" doc:name="Insert in ElasticSearch" responseTimeout="1000000"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/#[id]" method="POST" doc:name="Insert in ElasticSearch" responseTimeout="1000000"/>
         </foreach>
         <set-payload value="#[arrayListData]" doc:name="arrayListData"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>

@@ -9,7 +9,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
     <flow name="ElasticToKmlFlow1" doc:name="ElasticToKmlFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="tokml" doc:name="HTTP"/>
         <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetID&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
-        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel1/slc/_search" method="POST" doc:name="ElasticSearch"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
         <set-variable variableName="total" value="#[json:hits/total]" doc:name="total"/>
         <logger message="&quot;total&quot;: #[total]" level="INFO" doc:name="total res"/>
         <set-payload value="#[json:aggregations/group_by_dataset/buckets]" doc:name="select buckets"/>
@@ -27,7 +27,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
             <set-variable variableName="datasetID" value="#[json:key]" doc:name="datasetID"/>
             <set-variable variableName="count" value="#[json:doc_count]" doc:name="count"/>
             <set-payload value="{&quot;size&quot;: 20000,&quot;query&quot;: {&quot;bool&quot;: {&quot;must&quot;: [{ &quot;match&quot;: { &quot;datasetID&quot;:  &quot;#[json:key]&quot; }}]}}}" doc:name="request a ID"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel1/slc/_search" method="POST" doc:name="ElasticSearch"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
             <set-variable variableName="metadati" value="#[json:hits/hits[0]/_source/mode] #[json:hits/hits[0]/_source/swath] #[json:hits/hits[0]/_source/relativeOrbitNumberStart] #[json:hits/hits[0]/_source/relativeOrbitNumberStop] #[json:hits/hits[0]/_source/pass] #[json:hits/hits[0]/_source/productType] #[json:hits/hits[0]/_source/productClass] #[json:hits/hits[0]/_source/sliceNumber]" doc:name="All metadata"/>
             <set-variable variableName="transmitterReceiverPolarisation" value="#[json:hits/hits[0]/_source/transmitterReceiverPolarisation1]-#[json:hits/hits[0]/_source/transmitterReceiverPolarisation2]" doc:name="transmitterReceiverPolarisation Fusion (1-2)"/>
             <logger message="*************#[datasetID] #[metadati]" level="INFO" doc:name="Log dataset and metadata"/>
