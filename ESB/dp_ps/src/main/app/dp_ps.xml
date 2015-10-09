@@ -62,11 +62,12 @@ superMasterId= tokenizerCoordinates.nextToken();]]></expression-component>
                     </choice>
                     <set-payload value="{&quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; }}}" doc:name="query cardinality datasetId"/>
                     <http:outbound-endpoint exchange-pattern="request-response" host="${elasticsearch.host}" port="${elasticsearch.rest.port}" path="${elasticsearch.sentinel.index}/${elasticsearch.sentinel.type}/_search" method="POST" doc:name="ElasticSearch"/>
-                    <set-variable variableName="sizeDatasetId" value="#[json:hits/total]" doc:name="sizeDatasetId"/>
-                    <logger message="*******SuperMasterId:  #[superMasterId] *** SuperMasterValue:  #[superMasterValue] *** Dimension Dataset: #[sizeDatasetId]" level="INFO" doc:name="Size"/>
+                    <set-payload value="#[json:hits/total]" doc:name="totalHits"/>
+                    <set-variable variableName="sizeDatasetId" value="#[Integer.parseInt(payload)]" doc:name="sizeDatasetId"/>
+                    <logger message="*******SuperMasterId:  #[superMasterId] *** SuperMasterValue:  #[superMasterValue] #[superMasterValue.getClass()]*** Dimension Dataset: #[sizeDatasetId] #[sizeDatasetId.getClass()]" level="INFO" doc:name="Size"/>
 
                     <choice doc:name="Choice">
-                        <when expression="#[sizeDatasetId-superMasterValue&gt;15">
+                        <when expression="#[sizeDatasetId-superMasterValue&gt;15]">
                             <logger level="INFO" doc:name="more then 15 new acquisitions" message="more then 15 new acquisitions"/>
                             <choice doc:name="Choice">
                                 <when expression="#[superMasterValue&gt;0]">
