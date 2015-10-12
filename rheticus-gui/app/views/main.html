@@ -1,0 +1,9 @@
+<openlayers ol-center="center" 
+	width="100%"  
+	height="100%" 
+	ol-view="view" 
+	style="position:fixed" 
+	ol-controls="controls">
+	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
+	<ol-layer ol-layer-properties="wms"></ol-layer>
+</openlayers>
