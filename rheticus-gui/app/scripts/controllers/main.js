@@ -28,6 +28,17 @@ angular.module('workspacePilotApp')
 				step: 1,
 				dimension: " days ago",
 				scale: [0, '|', 50, '|' , 100],
+				skin: 'plastic',
+				      
+			},
+			
+			speedModel : "10",
+			speedOptions : {       
+				from: 1,
+				to: 100,
+				step: 1,
+				dimension: " mm/year",
+				scale: [0, '|', 50, '|' , 100],
 				css: {
 					background: {"background-color": "silver"},
 					before: {"background-color": "purple"},
@@ -35,7 +46,22 @@ angular.module('workspacePilotApp')
 					after: {"background-color": "green"},
 					pointer: {"background-color": "red"}          
 				}        
-			}		  
+			}, 
+			coherenceModel : "80",
+			coherenceOptions : {       
+				from: 75,
+				to: 100,
+				step: 0.5,
+				dimension: " %",
+				scale: [75, '|', 90, '|' , 100],
+				css: {
+					background: {"background-color": "silver"},
+					before: {"background-color": "purple"},
+					default: {"background-color": "white"},
+					after: {"background-color": "green"},
+					pointer: {"background-color": "red"}   
+				}  
+			}
 	  });
   }])
   .controller('MainCtrl', ['$scope',function ($scope) {
