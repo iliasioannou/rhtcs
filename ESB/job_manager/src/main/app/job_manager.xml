@@ -12,15 +12,45 @@ http://www.mulesoft.org/schema/mule/jersey http://www.mulesoft.org/schema/mule/j
 	</spring:beans>
 	
     <http:listener-config name="HTTP_Listener_Configuration_API_REST_V01" host="0.0.0.0" port="9999" basePath="api/v01" doc:name="HTTP Listener Configuration"/>
+    
+
     <flow name="jobApiRest">
         <http:listener doc:name="jobApiRest Listener" config-ref="HTTP_Listener_Configuration_API_REST_V01" path="/*" />
         <jersey:resources doc:name="jobApiRest Rest Impl">
-	        <!-- 
-	            <component class="it.planetek.rheticus.api.JobRestImpl"/>
-	         -->
-			<component doc:name="jobRestImpl">
+			<component >
 			  <spring-object bean="jobRestImpl"/>
 			</component>              
         </jersey:resources>
     </flow>
+    
+    <http:listener-config name="HTTP_Listener_Configuration_API_REST_V01_TESTER" host="0.0.0.0" port="9998"   basePath="api/v01/test"  doc:name="HTTP Rest Tester"/>
+    <flow name="rheticusInternalFlow">
+        <http:listener config-ref="HTTP_Listener_Configuration_API_REST_V01_TESTER" path="/rheticus/flow" doc:name="HTTP"/>
+        <logger message="Internal Flow Called" level="INFO" doc:name="Log Internal Flow"/>
+        <set-variable variableName="output" value="#[new java.util.HashMap()]" doc:name="output"/>
+        <expression-component doc:name="Expression"><![CDATA[
+	        import org.joda.time.DateTime;
+	        String now = new DateTime();
+        
+        	output.put('message','Internal Flow Called at ' + now.toString());
+		]]></expression-component>
+            <set-payload value="#[output]" doc:name="Set Payload"/>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+    </flow>
+    
+    <flow name="externalProcessPs">
+        <http:listener config-ref="HTTP_Listener_Configuration_API_REST_V01_TESTER" path="/process/ps" doc:name="HTTP"/>
+        <logger message="External Process PS Called" level="INFO" doc:name="Log Process PS"/>
+        <logger level="INFO" doc:name="Log Input Payload" message="EXT - External Process PS called with payload = #[System.getProperty('line.separator')] #[message.payloadAs(java.lang.String)]" />
+        <set-variable variableName="output" value="#[new java.util.HashMap()]" doc:name="output"/>
+        <expression-component doc:name="Expression"><![CDATA[
+	        import org.joda.time.DateTime;
+	        DateTime nowInput = new DateTime();
+        	Thread.sleep(5000);
+	        DateTime nowOutput = new DateTime();
+        	output.put('message','External Process PS Called at ' + nowInput.toString() + ' and return at ' + nowOutput.toString());
+		]]></expression-component>
+            <set-payload value="#[output]" doc:name="Set Payload"/>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+    </flow>    
 </mule>

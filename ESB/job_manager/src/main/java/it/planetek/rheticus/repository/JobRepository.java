@@ -63,4 +63,13 @@ public interface JobRepository
          */
         public List<Job> getAllJobs();
 
+
+        /**
+         * Delete job.
+         *
+         * @param id
+         *            the id
+         */
+        public void deleteJob(String id);
+
     }

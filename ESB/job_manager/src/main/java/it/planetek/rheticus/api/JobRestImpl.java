@@ -17,17 +17,23 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Request;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.Response.StatusType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang.StringUtils;
@@ -98,7 +104,7 @@ public class JobRestImpl
         @GET
         @Produces(MediaType.APPLICATION_JSON)
         @Path("/{id}")
-        public Response getJobDetails(@PathParam("id") final String id)
+        public Response getJob(@PathParam("id") final String id)
             {
                 Response response = null;
                 final String message;
@@ -157,8 +163,9 @@ public class JobRestImpl
          * @return the response
          */
         @POST
+        @Consumes(MediaType.APPLICATION_JSON)
         @Produces(MediaType.APPLICATION_JSON)
-        public Response createJob(final JobJaxBeanCreate paramJob)
+        public Response createJob(final JobMessageIntCreate paramJob)
             {
                 Response response = null;
                 final String message;
@@ -167,8 +174,12 @@ public class JobRestImpl
 
                 final String typeJob = StringUtils.trimToEmpty(paramJob.type);
                 final String stepJob = StringUtils.trimToEmpty(paramJob.step);
+                final String externalUrlResourceJob = StringUtils.trimToEmpty(paramJob.externalUrlResource);
+                final String callbackUrlJob = StringUtils.trimToEmpty(paramJob.callbackUrl);
+                final String payloadForExternalResourceJob = StringUtils.trimToEmpty(paramJob.payloadForExternalResource);
+                final long secondTimeoutJob = (paramJob.secondTimeout > 0) ? paramJob.secondTimeout : Long.MAX_VALUE;
 
-                if (StringUtils.isBlank(typeJob) || StringUtils.isBlank(stepJob))
+                if (StringUtils.isBlank(typeJob) || StringUtils.isBlank(stepJob) || StringUtils.isBlank(externalUrlResourceJob) || StringUtils.isBlank(callbackUrlJob))
                     {
                         message = "Problem with Input job parameters: Type and/or step job is empty";
                         response = factoryBadResponse(message);
@@ -177,22 +188,76 @@ public class JobRestImpl
                 else
                     {
                         final JobBuilder builderJob = JobBuilder.getBuilder();
-                        builderJob.withType(typeJob);
-                        builderJob.withStep(stepJob);
+                        // builderJob.withType(typeJob)
+                        // .withStep(stepJob)
+                        builderJob.withCallbackUrl(callbackUrlJob)
+                                .withExternalUrlResource(externalUrlResourceJob)
+                                .withPayloadForExternalResource(payloadForExternalResourceJob)
+                                .withSecondTimeout(secondTimeoutJob);
 
                         final Job job = builderJob.build();
-                        jobService.addJob(job);
                         log.debug("Created job: {}", job.toString());
+                        Job jobSaved = jobService.addJob(job);
+                        log.debug("New job insert into ES index. jobSaved : {}", jobSaved.toString());
 
-                        message = String.format("Job created with id %s", job.getId());
-                        response = factoryCreatedResponse(message, job.getId(), JsonUtil.toJson(job));
+                        message = String.format("Job created with id %s", jobSaved.getId());
+                        response = factoryCreatedResponse(message, jobSaved.getId(), JsonUtil.toJson(jobSaved));
+
+                        final String callbackUrlJobForExternalProcess = response.getLocation().toASCIIString();
+                        log.debug("Callback Url For Esternal Process: {}", callbackUrlJobForExternalProcess);
+
+                        // ------------------------
+                        // Call external resource
+                        // TODO: mettere in un processo esterno l'invio delle richieste in modo da gestire anche un eventuale errore con retrieve
+                        final JobMessageExtOutgoing jobMessageOut = new JobMessageExtOutgoing();
+                        jobMessageOut.callbackUrl = callbackUrlJobForExternalProcess;
+                        jobMessageOut.payload = payloadForExternalResourceJob;
+                        log.debug("Created outgoing job message : {}", jobMessageOut.toString());
+                        log.debug("Created outgoing job message json: {}", jobMessageOut.toJson());
+
+                        try
+                            {
+                                final URI uriExternalProcess = new URI(externalUrlResourceJob);
+
+                                final Client clientForExternalProcess = ClientBuilder.newClient();
+                                final WebTarget webTarget = clientForExternalProcess.target(uriExternalProcess);
+                                final Entity<String> messageForExternalProcess = Entity.entity(jobMessageOut.toJson(), MediaType.APPLICATION_JSON);
+
+                                final Response responseExternalProcess = webTarget.request().accept(MediaType.APPLICATION_JSON).post(messageForExternalProcess);
+                                log.debug("Response from external process: {}", responseExternalProcess.toString());
+
+                                final StatusType responseStatus = responseExternalProcess.getStatusInfo();
+                                log.debug("Response from external process status: {}", responseStatus);
+                                // this is necessary for close connection
+                                final String responseEntity = responseExternalProcess.readEntity(String.class);
+                                log.debug("External process response entity: {}", responseEntity);
+
+                                if (responseStatus.getStatusCode() == Status.OK.getStatusCode())
+                                    {
+                                        job.changeJobStatus(JobStatus.PROGRESS, "Job sent to external process with success response");
+                                        log.debug("External process has accepted successfully");
+                                    }
+                                else
+                                    {
+                                        job.changeJobStatus(JobStatus.FAILURE, String.format("Job sent to external process with error response !!. Response: %s", responseExternalProcess.toString()));
+                                        log.error("There is a problem with External process. Response: {}", responseExternalProcess.toString());
+                                    }
+                                jobSaved = jobService.updateJob(job);
+                                log.debug("job update into ES index. jobSaved : {}", jobSaved.toString());
+                            }
+                        catch (final URISyntaxException e)
+                            {
+                                log.error("Problem during creation URI for : {}. Error: {}", externalUrlResourceJob, e.getMessage());
+                            }
+                        response = factoryCreatedResponse(message, jobSaved.getId(), JsonUtil.toJson(jobSaved));
                     }
+
                 return response;
             }
 
 
         /**
-         * Update job.
+         * Simple Update job status.
          *
          * @param id
          *            the id
@@ -238,12 +303,116 @@ public class JobRestImpl
                             {
                                 log.debug("Job id {} exists: {}", id, job.toString());
 
-                                job.setStatus(JobStatus.getValue(newStatus));
+                                job.changeJobStatus(JobStatus.getValue(newStatus));
                                 jobService.updateJob(job);
 
                                 message = String.format("Job id %s update with new status: %s", id, newStatus);
                                 response = factorySuccessResponse(Status.OK, message, JsonUtil.toJson(job));
                                 log.debug(message);
+                            }
+                        else
+                            {
+                                message = String.format("Job id %s doesn't exists !", id);
+                                response = factoryFailureResponse(Status.NOT_FOUND, message);
+                                log.warn(message);
+                            }
+                    }
+
+                return response;
+            }
+
+
+        /**
+         * Update job status with payload.
+         *
+         * @param id
+         *            the id
+         * @param paramJob
+         *            the param job
+         * @return the response
+         */
+        @PUT
+        @Consumes(MediaType.APPLICATION_JSON)
+        @Produces(MediaType.APPLICATION_JSON)
+        @Path("/{id}")
+        public Response updateJob(@PathParam("id") final String id, final JobMessageExtIncoming paramJob)
+            {
+                Response response = null;
+                String message = "";
+
+                boolean inputAreOk = true;
+
+                final String jobId = StringUtils.trimToEmpty(id);
+                log.debug("Input Job id: {}", jobId);
+                log.debug("Param Job input: {}", paramJob.toString());
+
+                final JobStatus newStatusJob = (paramJob.isOk) ? JobStatus.SUCCESS : JobStatus.FAILURE;
+                String payloadJob = StringUtils.trimToEmpty(paramJob.payload);
+
+                log.debug("Input job id: {}", jobId);
+                if (StringUtils.isBlank(jobId))
+                    {
+                        inputAreOk = false;
+                        message = "Id job is empty";
+                    }
+
+                log.debug("Input payload: {}", payloadJob);
+                if (StringUtils.isBlank(payloadJob))
+                    {
+                        payloadJob = "{}";
+                        log.warn("PayloadJob is empty or null");
+                    }
+
+                if (inputAreOk == false)
+                    {
+                        response = factoryBadResponse(message);
+                        log.error(message);
+                    }
+                else
+                    {
+                        final Job job = jobService.getJob(id);
+                        if (job != null)
+                            {
+                                log.debug("Job id {} exists: {}", id, job.toString());
+
+                                job.changeJobStatus(newStatusJob, paramJob.message);
+                                jobService.updateJob(job);
+
+                                message = String.format("Job id %s update with new status: %s", id, newStatusJob);
+                                response = factorySuccessResponse(Status.OK, message, JsonUtil.toJson(job));
+                                log.debug(message);
+
+                                final String callbackOrchestrator = job.getCallbackUrl();
+                                log.debug("Calling orchestrator to {}", callbackOrchestrator);
+                                try
+                                    {
+
+                                        final JobMessageIntUpdate jobMessageIntUpdate = new JobMessageIntUpdate();
+                                        jobMessageIntUpdate.status = newStatusJob;
+                                        jobMessageIntUpdate.message = paramJob.message;
+                                        jobMessageIntUpdate.payload = paramJob.payload;
+
+                                        log.debug("Created job update message : {}", jobMessageIntUpdate.toString());
+
+                                        final URI uriExternalProcess = new URI(callbackOrchestrator);
+
+                                        final Client clientForOrchestrator = ClientBuilder.newClient();
+                                        final WebTarget webTarget = clientForOrchestrator.target(uriExternalProcess);
+                                        final Entity<String> messageForOrchestrator = Entity.entity(jobMessageIntUpdate.toJson(), MediaType.APPLICATION_JSON);
+
+                                        final Response responseOrchestrator = webTarget.request().accept(MediaType.APPLICATION_JSON).post(messageForOrchestrator);
+                                        log.debug("Response from orchestrator: {}", responseOrchestrator.toString());
+                                        final StatusType responseStatus = responseOrchestrator.getStatusInfo();
+                                        log.debug("Response from Orchestrator status: {}", responseStatus);
+                                        // this is necessary for close connection
+                                        final String responseEntity = responseOrchestrator.readEntity(String.class);
+                                        log.debug("Orchestrator response entity: {}", responseEntity);
+                                    }
+                                catch (final URISyntaxException e)
+                                    {
+                                        log.error("Problem during creation URI for : {}. Error: {}", callbackOrchestrator, e.getMessage());
+                                    }
+
                             }
                         else
                             {

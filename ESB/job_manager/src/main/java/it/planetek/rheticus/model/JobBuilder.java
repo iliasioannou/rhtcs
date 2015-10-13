@@ -5,7 +5,7 @@
  ***********************************************/
 package it.planetek.rheticus.model;
 
-import org.elasticsearch.common.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
 
 /**
@@ -32,30 +32,84 @@ public final class JobBuilder
             }
 
 
+        // /**
+        // * With type.
+        // *
+        // * @param type
+        // * the type
+        // * @return the job builder
+        // */
+        // public JobBuilder withType(final String type)
+        // {
+        // instanceToBuild.setType(StringUtils.trimToEmpty(type));
+        // return this;
+        // }
+
+        // /**
+        // * With step.
+        // *
+        // * @param step
+        // * the step
+        // * @return the job builder
+        // */
+        // public JobBuilder withStep(final String step)
+        // {
+        // instanceToBuild.setStep(StringUtils.trimToEmpty(step));
+        // return this;
+        // }
+
         /**
-         * With type.
+         * With external url resource.
          *
-         * @param type
-         *            the type
+         * @param externalUrlResource
+         *            the external url resource
          * @return the job builder
          */
-        public JobBuilder withType(final String type)
+        public JobBuilder withExternalUrlResource(final String externalUrlResource)
             {
-                instanceToBuild.setType(StringUtils.trimToEmpty(type));
+                instanceToBuild.setExternalUrlResource(StringUtils.trimToEmpty(externalUrlResource));
                 return this;
             }
 
 
         /**
-         * With step.
+         * With callback url.
          *
-         * @param step
-         *            the step
+         * @param callbackUrl
+         *            the callback url
          * @return the job builder
          */
-        public JobBuilder withStep(final String step)
+        public JobBuilder withCallbackUrl(final String callbackUrl)
             {
-                instanceToBuild.setStep(StringUtils.trimToEmpty(step));
+                instanceToBuild.setCallbackUrl(StringUtils.trimToEmpty(callbackUrl));
+                return this;
+            }
+
+
+        /**
+         * With payload for external resource.
+         *
+         * @param payloadForExternalResource
+         *            the payload for external resource
+         * @return the job builder
+         */
+        public JobBuilder withPayloadForExternalResource(final String payloadForExternalResource)
+            {
+                instanceToBuild.setPayloadForExternalResource(StringUtils.trimToEmpty(payloadForExternalResource));
+                return this;
+            }
+
+
+        /**
+         * With second timeout.
+         *
+         * @param secondTimeout
+         *            the second timeout
+         * @return the job builder
+         */
+        public JobBuilder withSecondTimeout(final long secondTimeout)
+            {
+                instanceToBuild.setSecondTimeout(secondTimeout);
                 return this;
             }
 

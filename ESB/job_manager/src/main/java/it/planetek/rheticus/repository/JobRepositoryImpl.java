@@ -51,6 +51,7 @@ public class JobRepositoryImpl
         @Override
         public Job updateJob(final Job job)
             {
+                dao.delete(job.getId());
                 return dao.save(job);
             }
 
@@ -107,4 +108,12 @@ public class JobRepositoryImpl
             {
                 return dao.count();
             }
+
+
+        @Override
+        public void deleteJob(final String id)
+            {
+                dao.delete(id);
+            }
+
     }
