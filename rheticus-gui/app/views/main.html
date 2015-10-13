@@ -1,9 +1,47 @@
 <openlayers ol-center="center" 
-	width="100%"  
+	width="100%"
 	height="100%" 
 	ol-view="view" 
 	style="position:fixed" 
 	ol-controls="controls">
 	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
 	<ol-layer ol-layer-properties="wms"></ol-layer>
+	
+	<div class="row"id="psInfo">
+	<div class="col-md-3 col-md-offset-1 well" style="position:absolute; z-index: 1060; ">
+		
+		<H3>INFO PS</H3>
+			Rheticus Planetek Italia 2015
+			
+			<table class="table table-striped" style="width:100%; font-size:0.8em">
+				<thead>
+				  <tr>
+					<th>Firstname</th>
+					<th>Lastname</th>
+					<th>Email</th>
+				  </tr>
+				</thead>
+				<tbody>
+				  <tr>
+					<td>John</td>
+					<td>Doe</td>
+					<td>john@example.com</td>
+				  </tr>
+				  <tr>
+					<td>Mary</td>
+					<td>Moe</td>
+					<td>mary@example.com</td>
+				  </tr>
+				  <tr>
+					<td>July</td>
+					<td>Dooley</td>
+					<td>july@example.com</td>
+				  </tr>
+				</tbody>
+			  </table>
+		</div>
+		
+	</div>
+	
+	
 </openlayers>
