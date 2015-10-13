@@ -6,16 +6,16 @@
  ***********************************************/
 package it.planetek.rheticus.dao.elasticsearch;
 
-import it.planetek.rheticus.model.Job;
+import it.planetek.rheticus.model.JobHistory;
 
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 
 
 /**
- * The Interface JobDaoEs.
+ * The Interface JobHistoryDaoEs.
  */
-public interface JobDaoEs
-        extends ElasticsearchRepository<Job, String>
+public interface JobHistoryDaoEs
+        extends ElasticsearchRepository<JobHistory, String>
     {
 
     }

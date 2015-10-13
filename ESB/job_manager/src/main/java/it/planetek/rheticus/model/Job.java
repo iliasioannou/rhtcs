@@ -3,8 +3,6 @@
  */
 package it.planetek.rheticus.model;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 import org.apache.commons.lang.StringUtils;
@@ -28,18 +26,24 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
  * The Class Jobs.
  * <p>
  * The history is update only when change the status
- *
- * @Document(indexName = "job", type = "ps", shards = 1, replicas = 0,
- *                     refreshInterval = "-1", indexStoreType = "memory")
  */
-@Document(indexName = "job", type = "current")
+@Document(indexName = Job.INDEX_NAME, type = Job.DOC_TYPE_PARENT)
 public class Job
     {
-        private static final Logger    log                        = LoggerFactory.getLogger(Job.class);
-        private static final String    ISO_8601                   = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+        private static final Logger log                        = LoggerFactory.getLogger(Job.class);
+        private static final String ISO_8601                   = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
+        /** The Constant INDEX_NAME. */
+        public static final String  INDEX_NAME                 = "job";
+
+        /** The Constant DOC_TYPE_PARENT. */
+        public static final String  DOC_TYPE_PARENT            = "current";
+
+        /** The Constant DOC_TYPE_CHILD. */
+        public static final String  DOC_TYPE_CHILD             = "history";
 
         @Id
-        private String                 id                         = String.valueOf(UUID.randomUUID());
+        private String              id                         = String.valueOf(UUID.randomUUID());
 
         // @Field(type = FieldType.String, store = true)
         // private String type = "";
@@ -48,38 +52,38 @@ public class Job
         // private String step = "";
 
         @Field(type = FieldType.String, store = true)
-        private String                 externalUrlResource        = "";
+        private String              externalUrlResource        = "";
 
         @Field(type = FieldType.String, store = true)
-        private String                 callbackUrl                = "";
+        private String              callbackUrl                = "";
 
         @Field(type = FieldType.String, store = true)
-        private String                 payloadForExternalResource = "";
+        private String              payloadForExternalResource = "";
 
         @Field(type = FieldType.Long, store = true)
-        private long                   secondTimeout              = 0;
+        private long                secondTimeout              = 0;
 
         @Field(type = FieldType.String, store = true)
-        private JobStatus              status                     = JobStatus.CREATED;
+        private JobStatus           status                     = JobStatus.CREATED;
 
         @Field(type = FieldType.String, store = true)
-        private String                 message                    = "Created";
+        private String              message                    = "Created";
 
         @Field(type = FieldType.Date, store = true, format = DateFormat.date_hour_minute_second_millis)
         @JsonSerialize(using = CustomDateTimeSerializer.class)
         @JsonDeserialize(using = CustomDateTimeDeserializer.class)
-        private final DateTime         createdTimestamp           = new DateTime();
+        private final DateTime      createdTimestamp           = new DateTime();
 
         @Field(type = FieldType.Date, store = true, format = DateFormat.date_hour_minute_second_millis)
         @JsonSerialize(using = CustomDateTimeSerializer.class)
         @JsonDeserialize(using = CustomDateTimeDeserializer.class)
-        private DateTime               updateTimestamp            = createdTimestamp;
+        private DateTime            updateTimestamp            = createdTimestamp;
 
-        @Field(type = FieldType.Nested, includeInParent = true)
-        // // @Field(type = FieldType.Nested, store = true)
-        // // @JsonDeserialize(as = ArrayList.class, contentAs = JobHistory.class)
-        private final List<JobHistory> history                    = new ArrayList<JobHistory>();
 
+        // @Field(type = FieldType.Nested, includeInParent = true)
+        // // // @Field(type = FieldType.Nested, store = true)
+        // // // @JsonDeserialize(as = ArrayList.class, contentAs = JobHistory.class)
+        // private final List<JobHistory> history = new ArrayList<JobHistory>();
 
         /**
          * Instantiates a new jobs.
@@ -87,7 +91,7 @@ public class Job
         public Job()
             {
                 super();
-                history.add(new JobHistory(status, message));
+                // history.add(new JobHistory(status, message));
             }
 
 
@@ -191,13 +195,13 @@ public class Job
                     }
                 log.debug("Change status job from {} -> {}", this.status, status);
                 log.debug("Job before update: {}", toString());
-                log.debug("History before update: {}", history);
+                // log.debug("History before update: {}", history);
 
                 this.status = status;
                 updateTimestamp = new DateTime();
-                history.add(new JobHistory(this.status, this.message));
+                // history.add(new JobHistory(this.status, this.message));
                 log.debug("Job after update: {}", toString());
-                log.debug("History after update: {}", history);
+                // log.debug("History after update: {}", history);
             }
 
 
@@ -352,16 +356,15 @@ public class Job
             }
 
 
-        /**
-         * Gets (a copy) the history.
-         *
-         * @return the history
-         */
-        public List<JobHistory> getHistory()
-            {
-                return new ArrayList<JobHistory>(history);
-            }
-
+        // /**
+        // * Gets (a copy) the history.
+        // *
+        // * @return the history
+        // */
+        // public List<JobHistory> getHistory()
+        // {
+        // return new ArrayList<JobHistory>(history);
+        // }
 
         @Override
         public String toString()
@@ -378,8 +381,8 @@ public class Job
                         .append(" Update",
                                 getUpdateTimestamp().toString(
                                                               DateTimeFormat.forPattern(ISO_8601)))
-                        .append(" num history:", history.size())
-                        .append(" history:", history.toString())
+                        // .append(" num history:", history.size())
+                        // .append(" history:", history.toString())
                         .toString();
             }
 

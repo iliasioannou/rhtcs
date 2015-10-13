@@ -39,6 +39,9 @@
         <constructor-arg index="0">
             <ref bean="jobDaoEs" />
         </constructor-arg>
+        <constructor-arg index="1">
+            <ref bean="jobHistoryDaoEs" />
+        </constructor-arg>
 	</bean>    
 	
     <bean id="jobService" scope="prototype" class="it.planetek.rheticus.service.JobServiceImpl">

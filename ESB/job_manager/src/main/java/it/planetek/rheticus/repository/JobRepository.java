@@ -6,6 +6,7 @@
 package it.planetek.rheticus.repository;
 
 import it.planetek.rheticus.model.Job;
+import it.planetek.rheticus.model.JobHistory;
 
 import java.util.List;
 
@@ -72,4 +73,23 @@ public interface JobRepository
          */
         public void deleteJob(String id);
 
+
+        /**
+         * Gets the history.
+         *
+         * @param jobId
+         *            the job id
+         * @return the history
+         */
+        public List<JobHistory> getHistory(String jobId);
+
+
+        /**
+         * Gets the history.
+         *
+         * @param job
+         *            the job
+         * @return the history
+         */
+        public List<JobHistory> getHistory(Job job);
     }

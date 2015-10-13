@@ -7,6 +7,7 @@ package it.planetek.rheticus.api;
 
 import it.planetek.rheticus.model.Job;
 import it.planetek.rheticus.model.JobBuilder;
+import it.planetek.rheticus.model.JobHistory;
 import it.planetek.rheticus.model.JobStatus;
 import it.planetek.rheticus.model.OperationResult;
 import it.planetek.rheticus.model.OperationResultBuilder;
@@ -152,6 +153,50 @@ public class JobRestImpl
                 log.debug("Jobs retrived num: {}", jobs.size());
                 final String message = String.format("Job count %d", jobs.size());
                 return factorySuccessResponse(Status.OK, message, JsonUtil.toJson(jobs));
+            }
+
+
+        /**
+         * Gets the job history.
+         *
+         * @param id
+         *            the id
+         * @return the job history
+         */
+        @GET
+        @Produces(MediaType.APPLICATION_JSON)
+        @Path("/{id}/history")
+        public Response getJobHistory(@PathParam("id") final String id)
+            {
+                Response response = null;
+                final String message;
+                final String jobId = StringUtils.trimToEmpty(id);
+                log.debug("Input Job id: {}", jobId);
+
+                if (StringUtils.isEmpty(jobId))
+                    {
+                        message = "Id job is null or empty";
+                        response = factoryBadResponse(message);
+                        log.error(message);
+                    }
+                else
+                    {
+                        final List<JobHistory> jobHistory = jobService.getJobHistory(jobId);
+                        if (jobHistory != null)
+                            {
+                                message = String.format("History for Job id %s exists: %s", id, jobHistory.toString());
+                                response = factorySuccessResponse(Status.OK, message, JsonUtil.toJson(jobHistory));
+                                log.debug(message);
+                            }
+                        else
+                            {
+                                message = String.format("History for Job id %s doesn't exists !", id);
+                                response = factoryFailureResponse(Status.OK, message);
+                                log.warn(message);
+                            }
+                    }
+
+                return response;
             }
 
 

@@ -4,6 +4,7 @@
 package it.planetek.rheticus.service;
 
 import it.planetek.rheticus.model.Job;
+import it.planetek.rheticus.model.JobHistory;
 import it.planetek.rheticus.repository.JobRepositoryImpl;
 
 import java.util.List;
@@ -133,6 +134,13 @@ public class JobServiceImpl
         public long jobCount()
             {
                 return repo.jobCount();
+            }
+
+
+        @Override
+        public List<JobHistory> getJobHistory(final String jobId)
+            {
+                return repo.getHistory(jobId);
             }
 
     }

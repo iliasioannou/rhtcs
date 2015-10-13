@@ -6,6 +6,7 @@
 package it.planetek.rheticus.service;
 
 import it.planetek.rheticus.model.Job;
+import it.planetek.rheticus.model.JobHistory;
 
 import java.util.List;
 
@@ -70,5 +71,15 @@ public interface JobService
          * @return the int
          */
         public long jobCount();
+
+
+        /**
+         * Gets the job history.
+         *
+         * @param jobId
+         *            the job id
+         * @return the job history
+         */
+        public List<JobHistory> getJobHistory(String jobId);
 
     }
