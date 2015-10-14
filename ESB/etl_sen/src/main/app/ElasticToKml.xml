@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
-    <flow name="ElasticToKmlFlow1" doc:name="ElasticToKmlFlow1">
+    <flow name="ElasticToKmlFlow1" >
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="tokml" doc:name="HTTP"/>
-        <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetID&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
+        <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetId&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
         <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
         <set-variable variableName="total" value="#[json:hits/total]" doc:name="total"/>
         <logger message="&quot;total&quot;: #[total]" level="INFO" doc:name="total res"/>
@@ -24,9 +24,9 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
                     <expression-component doc:name="Add top body to stringKml"><![CDATA[stringKml="<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n <kml xmlns=\"http://earth.google.com/kml/2.2\"> \n <Document xmlns=\"http://earth.google.com/kml/2.2\"> \n <name xmlns=\"http://earth.google.com/kml/2.2\"/> \n <visibility xmlns=\"http://earth.google.com/kml/2.2\">1</visibility> \n <Style xmlns=\"http://earth.google.com/kml/2.2\" id=\"mapstyle\"> \n <IconStyle> \n <colorMode>normal</colorMode> \n <scale>1</scale> \n <Icon> \n <href>http://maps.google.com/mapfiles/kml/shapes/info-i.png</href> \n </Icon> \n </IconStyle>\n <LabelStyle> \n <color>7fffaaff</color> \n  <scale>0</scale> \n </LabelStyle> \n <PolyStyle> \n <fill>0</fill>\n <outline>1</outline> \n  </PolyStyle> \n <LineStyle> \n <color>ffff82f6</color> \n <width>3</width> \n </LineStyle> \n </Style> \n ";]]></expression-component>
                 </otherwise>
             </choice>
-            <set-variable variableName="datasetID" value="#[json:key]" doc:name="datasetID"/>
+            <set-variable variableName="datasetId" value="#[json:key]" doc:name="datasetID"/>
             <set-variable variableName="count" value="#[json:doc_count]" doc:name="count"/>
-            <set-payload value="{&quot;size&quot;: 20000,&quot;query&quot;: {&quot;bool&quot;: {&quot;must&quot;: [{ &quot;match&quot;: { &quot;datasetID&quot;:  &quot;#[json:key]&quot; }}]}}}" doc:name="request a ID"/>
+            <set-payload value="{&quot;size&quot;: 20000,&quot;query&quot;: {&quot;bool&quot;: {&quot;must&quot;: [{ &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[json:key]&quot; }}]}}}" doc:name="request a Id"/>
             <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
             <set-variable variableName="metadati" value="#[json:hits/hits[0]/_source/mode] #[json:hits/hits[0]/_source/swath] #[json:hits/hits[0]/_source/relativeOrbitNumberStart] #[json:hits/hits[0]/_source/relativeOrbitNumberStop] #[json:hits/hits[0]/_source/pass] #[json:hits/hits[0]/_source/productType] #[json:hits/hits[0]/_source/productClass] #[json:hits/hits[0]/_source/sliceNumber]" doc:name="All metadata"/>
             <set-variable variableName="transmitterReceiverPolarisation" value="#[json:hits/hits[0]/_source/transmitterReceiverPolarisation1]-#[json:hits/hits[0]/_source/transmitterReceiverPolarisation2]" doc:name="transmitterReceiverPolarisation Fusion (1-2)"/>

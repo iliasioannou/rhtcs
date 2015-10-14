@@ -7,7 +7,7 @@
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core"
 	xmlns:context="http://www.springframework.org/schema/context"
-	version="CE-3.4.0"
+	
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
@@ -49,7 +49,7 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
     </choice-exception-strategy>
  
     
-    <flow name="sentinelDownloadFlow1" doc:name="sentinelDownloadFlow1" doc:description="SLC 1.7gb
+    <flow name="sentinelDownloadFlow1"  doc:description="SLC 1.7gb
 {
 &quot;UUID&quot;:&quot;3016488c-721f-451a-b2a0-2a8602334ee2&quot;
 }
@@ -71,13 +71,14 @@ GRD 130mb
             <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" doc:name="Manifest request" password="${sentinel.pwd}" user="${sentinel.usr}" responseTimeout="4000000"/>
             <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
             <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
-            <set-variable variableName="metaCoordinate" value="0.0" doc:name="metaCoordinate"/>
+            <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
+            <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
             <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
 Double temp;
 qryableMap.put('uuid',id);
 qryableMap.put('filename',title);
 qryableMap.put('linkDownload',link);
-qryableMap.put('superMaster','0');
+qryableMap.put('superMaster','false');
 java.util.HashMap location = new java.util.HashMap();
 location.put('type' , 'Polygon');
 java.util.ArrayList coordinatefinal = new java.util.ArrayList();
@@ -95,9 +96,13 @@ while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 			temp=Double.parseDouble(pointCoordinate.nextToken());
                     if (j==0)
     					{
-							metaCoordinate=Math.round(temp) ;
-							j++;
+							metaCoordinateLat=Math.round(temp) ;
 						}
+ 					 if (j==1)
+    					{
+							metaCoordinateLon=Math.round(temp) ;
+						}
+							j++;
 			coordinate2.add(temp);
 		}
 	if (i==0)
@@ -116,7 +121,7 @@ qryableMap.put('ingestion',ingestion);
 
 
 
-String dataset = familyName+mode+swath+relativeOrbitNumberStart+relativeOrbitNumberStop+pass+instrumentConfigurationID+productClass+productType+sliceNumber+metaCoordinate;
+String dataset = familyName+mode+swath+relativeOrbitNumberStart+relativeOrbitNumberStop+pass+instrumentConfigurationID+productClass+productType+metaCoordinateLat+metaCoordinateLon;
 java.security.MessageDigest md;
 md = java.security.MessageDigest.getInstance("MD5");
 md.update(dataset.getBytes(java.nio.charset.Charset.forName("UTF-8")));
@@ -125,6 +130,7 @@ qryableMap.put('datasetId',result);
 
 
 ]]></expression-component>
+            <logger message="***** #[metaCoordinateLat] ***#[metaCoordinateLon]" level="INFO" doc:name="metacoordinate"/>
 
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
             <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
