@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    <flow name="elasticSearchFlow" doc:description="Query ElasticSearch with automatic pagination management, and return an ArrayList containing the result data.
+
+INPUT (json)
+{&quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;d34d9a33455834004af81d23ee96ea8c&quot; }}}
+
+OUTPUT (ArrayList):
+[{ ... }, { ... }, { ... }, { ... }, { ... }, { ... }, ... ]" processingStrategy="synchronous">
+        <choice doc:name="EL first request or next pages?">
+            <when expression="#[flowVars[&quot;resultCounter&quot;]!=null]">
+                <logger message="ElasticSearch read new page, from #[resultCounter] to #[resultCounter+paginationSize]" level="INFO" doc:name="Read new page"/>
+                <set-payload value="#[inputPayload]" doc:name="Restore originalPayload"/>
+                <expression-component doc:name="add Pagination args to EL query"><![CDATA[payload.put("from", resultCounter);
+payload.put("size", paginationSize);]]></expression-component>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+                <http:request config-ref="HTTP_Request_Configuration" path="/_search" method="POST" doc:name="get page from ElasticSearch"/>
+                <set-payload value="#[json:hits/hits]" doc:name="Extract Result"/>
+                <foreach doc:name="For Each">
+                    <set-payload value="#[json:_source]" doc:name="Extract actual data"/>
+                    <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+                    <expression-component doc:name="add actual data to resultList"><![CDATA[resultList.add(payload)]]></expression-component>
+                </foreach>
+                <expression-component doc:name="update resultCounter"><![CDATA[resultCounter+=paginationSize]]></expression-component>
+            </when>
+            <otherwise>
+                <logger message="ElasticSearch Pagination Flow started." level="INFO" doc:name="Start new ElasticSearch Pagination"/>
+                <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+                <set-variable variableName="inputPayload" value="#[payload]" doc:name="save originalPayload"/>
+                <set-variable variableName="paginationSize" value="#[Integer.parseInt(${elasticsearch.sentinel.pagination})]" doc:name="init paginationSize"/>
+                <set-variable variableName="resultCounter" value="#[new Integer(0)]" doc:name="init resultCounter"/>
+                <set-variable variableName="resultList" value="#[new java.util.ArrayList()]" doc:name="resultList"/>
+                <http:request config-ref="HTTP_Request_Configuration" path="/_count" method="GET" doc:name="count total ElasticSearch results"/>
+                <set-variable variableName="totalCount" value="#[json:count]" doc:name="totalCount"/>
+            </otherwise>
+        </choice>
+        <choice doc:name="Still more pages?">
+            <when expression="#[resultCounter&lt;totalCount]">
+                <flow-ref name="elasticSearchFlow" doc:name="go to next page"/>
+            </when>
+            <otherwise>
+                <set-payload value="#[resultList]" doc:name="Return resultList ArrayList"/>
+            </otherwise>
+        </choice>
+    </flow>
+</mule>
