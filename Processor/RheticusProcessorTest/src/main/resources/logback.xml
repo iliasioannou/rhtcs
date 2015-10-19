@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration  debug="false" scan="true" scanPeriod="30 seconds">
+
+	<property name="DEV_HOME" value="./logs" />
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</encoder>
+	</appender>
+	
+	<appender name="FILE-AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${DEV_HOME}/${project.artifactId}.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				<!--  
+				[${project.artifactId}] %date{yyyy-MM-dd HH:mm:ss} %-40.40logger{40} .%-10.10method [%4.4line] %-40.40caller{4} %xEx{full} %-6.6level| %message%n
+				[${project.artifactId}] %date{yyyy-MM-dd HH:mm:ss} %-40.40logger{40} .%-10.10method [%4.4line] %-6.6level| %message%n
+				-->
+				[${project.artifactId}] %date{yyyy-MM-dd HH:mm:ss} %-40.40logger{40} .%-10.10method [%4.4line]  %xEx{full} %-6.6level| %message%n
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${DEV_HOME}/archived/${project.artifactId}.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+
+	</appender>
+
+	<appender name="FILE-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>${DEV_HOME}/${project.artifactId}.error.log</file>
+		<encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} - %msg%n %xEx{full}
+			</Pattern>
+		</encoder>
+
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<!-- rollover daily -->
+			<fileNamePattern>${DEV_HOME}/archived/${project.artifactId}.error.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>10MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+
+	</appender>
+	
+	<!-- TRACE, DEBUG, INFO, WARN, ERROR, ALL or OFF -->
+	
+	<!-- Send logs to both console and file audit -->
+	<!-- 
+	 -->
+	<logger name="it.planetek.rheticus" level="DEBUG" additivity="false">
+		<appender-ref ref="FILE-AUDIT" />
+		<!-- 
+		<appender-ref ref="STDOUT" />
+		 -->
+	</logger>
+
+	<root level="ERROR">
+		<appender-ref ref="FILE-ERROR" />
+	</root>
+
+</configuration>

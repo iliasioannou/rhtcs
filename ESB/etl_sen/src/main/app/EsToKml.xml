@@ -6,8 +6,8 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
-    <flow name="ElasticToKmlFlow1" >
-        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="tokml" doc:name="HTTP"/>
+    <flow name="EsToKmlFlow1" >
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="EsToKml" doc:name="HTTP"/>
         <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetId&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
         <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
         <set-variable variableName="total" value="#[json:hits/total]" doc:name="total"/>
