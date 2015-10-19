@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -10,7 +10,8 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd">
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
 
 	<context:property-placeholder location="classpath*:dp_ps.properties"
 		system-properties-mode="OVERRIDE" />
@@ -29,7 +30,7 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 		host="${elasticsearch.host}" port="${elasticsearch.rest.port}"
 		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Configuration" />
 	<jms:activemq-connector name="Active_MQ"
-		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" />
+		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
 	<jms:object-to-jmsmessage-transformer
 		name="Object_to_JMSMessage" doc:name="Object to JMSMessage" />
 	<expression-transformer
@@ -56,12 +57,21 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 					value="{ &quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;#[datasetId]&quot; } } }"
 					doc:name="Get full data list for current dataset" />
 				<flow-ref name="elasticSearchFlow" doc:name="elasticSearchFlow" />
+                <logger message="Launching processing flow for dataset #[datasetId]" level="INFO" doc:name="Process Dataset"/>
 				<flow-ref name="dp_ps_datasetFlow" doc:name="dp_ps_datasetFlow" />
 			</foreach>
 			<logger message="End" level="INFO" doc:name="End" />
 		</async>
 		<set-payload value="200 OK" doc:name="HTTP return" />
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.filter.FilterUnacceptedException)" enableNotifications="false" doc:name="Catch JMS message-failed">
+                <logger message="Processor failure for dataset #[datasetId], cause: &quot;#[message.inboundProperties.'message-failed']&quot;" level="INFO" doc:name="Processor failure from JMS"/>
+                <logger level="INFO" doc:name="Full Message"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
 	</flow>
+	
+	
 	<sub-flow name="dp_ps_datasetFlow">
 		<logger message="DATASETID: #[datasetId]" level="INFO"
 			doc:name="Show datasetId" />
@@ -90,14 +100,13 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 				<logger message="**********Call Processor Calculate SuperMaster"
 					level="INFO" doc:name="Call SuperMaster Processor" />
 				<request-reply doc:name="Request-Reply" timeout="5000">
-					<jms:outbound-endpoint queue="rheticus.processor.ps.request" connector-ref="Active_MQ" doc:name="smQueueReq" transformer-refs="Object_to_JMSMessage ExpressionAddJmsType" />
+					<jms:outbound-endpoint queue="rheticus.processor.ps.request" connector-ref="Active_MQ" doc:name="ps.request L0" transformer-refs="Object_to_JMSMessage ExpressionAddJmsType" />
 					<jms:inbound-endpoint queue="rheticus.processor.ps.reply"
-						connector-ref="Active_MQ" doc:name="smQueueReply" />
+						connector-ref="Active_MQ" doc:name="ps.reply L0" />
 				</request-reply>
-                <message-filter throwOnUnaccepted="true" doc:name="If not message-failed">
+                <message-filter throwOnUnaccepted="true" doc:name="If not message-failed (else Exception!)">
                     <message-property-filter pattern="message-failed=null" caseSensitive="true" scope="inbound"/>
                 </message-filter>
-                <logger message="NO message-failed FOUUUUUUUUUUUUUND" level="INFO" doc:name="Logger"/>
                 <set-variable variableName="superMasterId" value="#[json:superMasterId]" doc:name="superMasterId"/>
                 <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : true    }}" doc:name="Update SM value"/>
                 <http:request config-ref="HTTP_Request_Configuration" path="/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>

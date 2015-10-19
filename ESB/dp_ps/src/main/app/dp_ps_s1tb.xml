@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+    <http:request-config name="HTTP_Request_s1tbx" host="127.0.0.1" port="9091" basePath="rest" doc:name="HTTP Request Configuration"/>
+    <flow name="dp_ps_s1tbFlow">
+        <jms:inbound-endpoint queue="rheticus.processor.ps.request" connector-ref="Active_MQ" doc:name="ps.request L1">
+        	<jms:selector expression="JMSType='L1'"/>
+        </jms:inbound-endpoint>
+        <logger level="INFO" doc:name="Logger"/>
+        <set-variable variableName="jmsProperties" value="#[message.inboundProperties]" doc:name="save jmsProperties"/>
+        <http:request config-ref="HTTP_Request_s1tbx" path="start" method="GET" doc:name="HTTP"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="Received #[payload]" level="INFO" doc:name="Logger"/>
+        <scripting:component doc:name="Restore jmsProperties">
+            <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
+{
+   message.setOutboundProperty(key, jmsProperties.get(key))
+}]]></scripting:script>
+        </scripting:component>
+        <logger level="INFO" doc:name="Logger"/>
+    </flow>
+</mule>
