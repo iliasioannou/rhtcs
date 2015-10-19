@@ -68,9 +68,14 @@ GRD 130mb
             <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
             <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
             <logger message="#[id]#[title]#[payload]" level="INFO" doc:name="id&amp; title"/>
-            <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" doc:name="Manifest request" password="${sentinel.pwd}" user="${sentinel.usr}" responseTimeout="4000000"/>
-            <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
-            <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
+            <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
+                <processor-chain doc:name="Processor Chain">
+                    <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" responseTimeout="400000" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="Manifest request (Deprecated)"/>
+                    <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
+                    <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
+                </processor-chain>
+            </until-successful>
+
             <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
             <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
             <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
@@ -93,14 +98,14 @@ while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken(),",");
 	while ((java.lang.Boolean)pointCoordinate.hasMoreTokens())
 		{
-			temp=Double.parseDouble(pointCoordinate.nextToken());
+			temp=(Double.parseDouble(pointCoordinate.nextToken()));
                     if (j==0)
     					{
-							metaCoordinateLat=Math.round(temp) ;
+							metaCoordinateLat=(Math.round(temp*10.0))/10.0 ;
 						}
  					 if (j==1)
     					{
-							metaCoordinateLon=Math.round(temp) ;
+							metaCoordinateLon=(Math.round(temp*10.0))/10.0 ;
 						}
 							j++;
 			coordinate2.add(temp);
@@ -121,7 +126,7 @@ qryableMap.put('ingestion',ingestion);
 
 
 
-String dataset = familyName+mode+swath+relativeOrbitNumberStart+relativeOrbitNumberStop+pass+instrumentConfigurationID+productClass+productType+metaCoordinateLat+metaCoordinateLon;
+String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+instrumentConfigurationID+productClass+productType+metaCoordinateLat+metaCoordinateLon;
 java.security.MessageDigest md;
 md = java.security.MessageDigest.getInstance("MD5");
 md.update(dataset.getBytes(java.nio.charset.Charset.forName("UTF-8")));
