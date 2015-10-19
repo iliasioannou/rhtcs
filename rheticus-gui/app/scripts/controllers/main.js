@@ -8,18 +8,36 @@
  * Controller of the workspacePilotApp
  */
 angular.module('workspacePilotApp')
-  .controller('HeaderController', ['$scope',function ($scope) {
-	  angular.extend($scope, {		  
-			filterPopupTemplateName : "filterPopupTemplate.html",
-			datasets : [
-				{name : 'DS1', selected: false},
-				{name : 'DS2', selected: false},
-				{name : 'DS3', selected: false},
-				{name : 'DS4', selected: false},
-				{name : 'DS5', selected: false},
-				{name : 'DS6', selected: false},
+    .controller('HeaderController', ['$scope', function ($scope) {
+        angular.extend($scope, {
+            filterPopupTemplateName: "filterPopupTemplate.html",
+            datasets: [
+                {
+                    name: 'DS1',
+                    selected: false
+                },
+                {
+                    name: 'DS2',
+                    selected: false
+                },
+                {
+                    name: 'DS3',
+                    selected: false
+                },
+                {
+                    name: 'DS4',
+                    selected: false
+                },
+                {
+                    name: 'DS5',
+                    selected: false
+                },
+                {
+                    name: 'DS6',
+                    selected: false
+                },
 			],
-			selectableDates: [
+            selectableDates: [
 				"dl20110521",
 				"dl20110724",
 				"dl20110926",
@@ -50,115 +68,265 @@ angular.module('workspacePilotApp')
 				"dl20150414",
 				"dl20150516"
 			]
-	  });
-	  angular.extend($scope, {
-			dsModel : [],
-			selectedDatatsets : [],
-			timeModel : "1",
-			timeOptions : {       
-				from: 1,
-				to: $scope.selectableDates.length-1,
-				step: 1,
-				modelLabels: $scope.selectableDates,
-				dimension: "",
-			},
-			speedModel : "10",
-			speedOptions : {       
-				from: 1,
-				to: 100,
-				step: 1,
-				dimension: " mm/year",
-				scale: [0, '|', 50, '|' , 100],
-				css: {
-					background: {"background-color": "silver"},
-					before: {"background-color": "purple"},
-					default: {"background-color": "white"},
-					after: {"background-color": "green"},
-					pointer: {"background-color": "red"}          
-				}        
-			}, 
-			coherenceModel : "80",
-			coherenceOptions : {       
-				from: 75,
-				to: 100,
-				step: 0.5,
-				dimension: " %",
-				scale: [75, '|', 90, '|' , 100],
-				css: {
-					background: {"background-color": "silver"},
-					before: {"background-color": "purple"},
-					default: {"background-color": "white"},
-					after: {"background-color": "green"},
-					pointer: {"background-color": "red"}   
-				}
-			}				
-		});
+        });
+        angular.extend($scope, {
+            dsModel: [],
+            selectedDatatsets: [],
+            timeModel: "1",
+            timeOptions: {
+                from: 1,
+                to: $scope.selectableDates.length - 1,
+                step: 1,
+                modelLabels: $scope.selectableDates,
+                dimension: "",
+            },
+            speedModel: "10",
+            speedOptions: {
+                from: 1,
+                to: 100,
+                step: 1,
+                dimension: " mm/year",
+                scale: [0, '|', 50, '|', 100],
+                css: {
+                    background: {
+                        "background-color": "silver"
+                    },
+                    before: {
+                        "background-color": "purple"
+                    },
+                    default: {
+                        "background-color": "white"
+                    },
+                    after: {
+                        "background-color": "green"
+                    },
+                    pointer: {
+                        "background-color": "red"
+                    }
+                }
+            },
+            coherenceModel: "80",
+            coherenceOptions: {
+                from: 75,
+                to: 100,
+                step: 0.5,
+                dimension: " %",
+                scale: [75, '|', 90, '|', 100],
+                css: {
+                    background: {
+                        "background-color": "silver"
+                    },
+                    before: {
+                        "background-color": "purple"
+                    },
+                    default: {
+                        "background-color": "white"
+                    },
+                    after: {
+                        "background-color": "green"
+                    },
+                    pointer: {
+                        "background-color": "red"
+                    }
+                }
+            }
+        });
   }])
-  .controller('MainCtrl', ['$scope',function ($scope) {
-    
-	angular.extend($scope, {
-		center: {
-			lon: 11.13,
-			lat: 46.05,
-			zoom: 14
-		},
-		defaults : {
-			controls: {
-				zoom:true,
-				rotate: true,
-				zoomtoextent: true,
-				zoomslider: true,
-				scaleline: true,
-				attribution: false
-			}
-		},
-		wms: {			
-			visible: true,
-			opacity: 1,
-			source: {
-				type: 'TileWMS',
-				url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
-				params: {
-					LAYERS: 'PS_density_raster_10m_colorV2',
-					VERSION: '1.3.0',
-					CQL_FILTER: null
-				},
-				serverType: 'geoserver'								
-			}
-		},
-		
-		bkg: {
-			source: {
-				type: 'OSM'
-			}
-		},
-		view: {
-		},
-		controls: [
-			{ name: 'zoom', active: true },
-			{ name: 'fullscreen', active: true },
-			{ name: 'rotate', active: true},
-			{ name: 'zoomslider', active: true},
-			{ name: 'zoomtoextent', active: true},			
-			{ name: 'scaleline', active: true},			
-			{ name: 'attribution', active: false}
-		]
-    });
-	
-	$scope.$watch("center.zoom", function(zoom) {
-		var level = (15-(20-2*Math.floor(zoom/2)));
-		console.log(level);
-		if(level<=12) {
-			level = level<6?6:level;
-			$scope.wms.source.params.LAYERS="PS_density_raster_10m_colorV2";
-			$scope.wms.source.params.STYLES='';
-		} else {
-			$scope.wms.source.params.LAYERS="ps_limit";
-			$scope.wms.source.params.STYLES="ps_limit_style";
-		}
-	});
-	$scope.$watch("selectedDatatsets",function(dataset) {
-		if(dataset)
-			$scope.wms.source.params.CQL_FILTER="dataset_id="+dataset;
-	});
+    .controller('MainCtrl', ['$scope', function ($scope) {
+
+        angular.extend($scope, {
+            center: {
+                lon: 11.13,
+                lat: 46.05,
+                zoom: 14
+            },
+            defaults: {
+                controls: {
+                    zoom: true,
+                    rotate: true,
+                    zoomtoextent: true,
+                    zoomslider: true,
+                    scaleline: true,
+                    attribution: false
+                }
+            },
+            wms: {
+                visible: true,
+                opacity: 1,
+                source: {
+                    type: 'TileWMS',
+                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+                    params: {
+                        LAYERS: 'ps_limit_group',
+                        VERSION: '1.3.0',
+                        CQL_FILTER: null
+                    },
+                    serverType: 'geoserver'
+                }
+            },
+            bkg: {
+                source: {
+                    type: 'OSM'
+                }
+            },
+            view: {},
+            controls: [
+                {
+                    name: 'zoom',
+                    active: true
+                },
+                {
+                    name: 'fullscreen',
+                    active: true
+                },
+                {
+                    name: 'rotate',
+                    active: true
+                },
+                {
+                    name: 'zoomslider',
+                    active: true
+                },
+                {
+                    name: 'zoomtoextent',
+                    active: true
+                },
+                {
+                    name: 'scaleline',
+                    active: true
+                },
+                {
+                    name: 'attribution',
+                    active: false
+                }
+		],
+
+
+            options: {
+                chart: {
+                    type: 'lineChart',
+                    height: 450,
+                    margin: {
+                        top: 20,
+                        right: 20,
+                        bottom: 40,
+                        left: 55
+                    },
+                    x: function (d) {
+                        return d.x;
+                    },
+                    y: function (d) {
+                        return d.y;
+                    },
+                    useInteractiveGuideline: true,
+                    dispatch: {
+                        stateChange: function (e) {
+                            console.log("stateChange");
+                        },
+                        changeState: function (e) {
+                            console.log("changeState");
+                        },
+                        tooltipShow: function (e) {
+                            console.log("tooltipShow");
+                        },
+                        tooltipHide: function (e) {
+                            console.log("tooltipHide");
+                        }
+                    },
+                    xAxis: {
+                        axisLabel: 'Time (ms)'
+                    },
+                    yAxis: {
+                        axisLabel: 'Voltage (v)',
+                        tickFormat: function (d) {
+                            return d3.format('.02f')(d);
+                        },
+                        axisLabelDistance: 30
+                    },
+                    callback: function (chart) {
+                        console.log("!!! lineChart callback !!!");
+                    }
+                },
+                title: {
+                    enable: true,
+                    text: 'Title for Line Chart'
+                },
+                subtitle: {
+                    enable: true,
+                    text: 'Subtitle for simple line chart.',
+                    css: {
+                        'text-align': 'center',
+                        'margin': '10px 13px 0px 7px'
+                    }
+                },
+                caption: {
+                    enable: true,
+                    html: '<b>Figure 1.</b>',
+                    css: {
+                        'text-align': 'justify',
+                        'margin': '10px 13px 0px 7px'
+                    }
+                }
+            },
+
+            data: function sinAndCos() {
+                var sin = [],
+                    sin2 = [],
+                    cos = [];
+
+                //Data is represented as an array of {x,y} pairs.
+                for (var i = 0; i < 100; i++) {
+                    sin.push({
+                        x: i,
+                        y: Math.sin(i / 10)
+                    });
+                    sin2.push({
+                        x: i,
+                        y: i % 10 == 5 ? null : Math.sin(i / 10) * 0.25 + 0.5
+                    });
+                    cos.push({
+                        x: i,
+                        y: .5 * Math.cos(i / 10 + 2) + Math.random() / 10
+                    });
+                }
+
+                //Line chart data should be sent as an array of series objects.
+                return [
+                    {
+                        values: sin, //values - represents the array of {x,y} data points
+                        key: 'Sine Wave', //key  - the name of the series.
+                        color: '#ff7f0e' //color - optional: choose your own line color.
+                },
+                    {
+                        values: cos,
+                        key: 'Cosine Wave',
+                        color: '#2ca02c'
+                },
+                    {
+                        values: sin2,
+                        key: 'Another sine wave',
+                        color: '#7777ff',
+                        area: true //area - set to true if you want this line to turn into a filled area chart.
+                }
+            ];
+            }
+
+        });
+
+        $scope.$watch("center.zoom", function (zoom) {
+            var level = (15 - (20 - 2 * Math.floor(zoom / 2)));
+            console.log(level);
+            if (level <= 12) {
+                level = level < 6 ? 6 : level;
+                $scope.wms.source.params.LAYERS = "ps_limit_group";
+                $scope.wms.source.params.STYLES = '';
+            } else {
+                $scope.wms.source.params.LAYERS = "ps_limit";
+                $scope.wms.source.params.STYLES = "ps_limit_style";
+            }
+        });
+        $scope.$watch("selectedDatatsets", function (dataset) {
+            if (dataset)
+                $scope.wms.source.params.CQL_FILTER = "dataset_id=" + dataset;
+        });
   }]);

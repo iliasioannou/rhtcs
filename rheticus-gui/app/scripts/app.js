@@ -18,7 +18,8 @@ angular
     'ngTouch',
 	'openlayers-directive',
 	'ui.bootstrap',
-	'angularAwesomeSlider'
+	'angularAwesomeSlider',
+    'nvd3'
   ])
   .config(function ($routeProvider) {
     $routeProvider
