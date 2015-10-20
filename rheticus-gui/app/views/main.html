@@ -4,18 +4,13 @@
     <ol-layer ol-layer-properties="wms_vector"></ol-layer>
 	
     <div class="row" ng-controller="DetailController as detail">
-        <div class="col-md-3 col-md-offset-1 well psInfo shadowed" ng-show="detail.show===true">
-
+        <div class="col-md-3 col-md-offset-1 well psInfo shadowed">
             <H3>INFO PS</H3> Rheticus Planetek Italia 2015
-
-            <nvd3 options="options" data="data" class="with-3d-shadow with-transitions"></nvd3>
-            
-            
+            <nvd3 options="graph_options" data="data" class="with-3d-shadow with-transitions"></nvd3>                    
         </div>
-        <button  ng-click="detail.switch()" style="left: 50px; position: absolute; top: 100px; z-index:1100;">Show:{{detail.isVisible()}}</button>
     </div>
 
-    <div class="legenda" ng-controller="HeaderController as header">
-		 <img data-ng-src="{{header.getLegend()}}"> 
+    <div class="legenda">
+        <img data-ng-src="{{legends[0]}}"> 
 	</div>
 </openlayers>

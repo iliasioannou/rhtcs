@@ -8,10 +8,6 @@
  * Controller of the workspacePilotApp
  */
 
-var legends = [
-    'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true',
-    'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
-];
 angular.module('workspacePilotApp')
     .controller('HeaderController', ['$scope', function ($scope) {
         angular.extend($scope, {
@@ -135,15 +131,15 @@ angular.module('workspacePilotApp')
                     }
                 }
             }
+        });        
+    }])
+    .controller('MainCtrl', ['$scope', 'olData', function ($scope, olData) {
+        angular.extend($scope,{
+            legends: [
+                'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true',
+                'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
+            ]
         });
-        
-    this.legends=legends;
-        this.getLegend= function(){
-          return legends[1];
-        };
-  }])
-    .controller('MainCtrl', ['$scope', function ($scope) {
-
         angular.extend($scope, {
             center: {
                 lon: 11.13,
@@ -161,38 +157,38 @@ angular.module('workspacePilotApp')
                 }
             },
             wms_raster: {
-			visible: true,
-			opacity: 0.8,
-			source: {
-				type: 'TileWMS',
-				url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
-				params: { 					 
-					LAYERS: 'PS_heatmap_100m',
-					VERSION: '1.1.0',
-					STYLES: 'PS_heatmap_100m_style',
-                    minScale: 10000
-				},
-				serverType: 'geoserver'								
-			}
-                        
-		},          
-        
-		wms_vector: {
-			visible: true,
-			opacity: 0.8,
-			source: {
-				type: 'TileWMS',
-				url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
-				params: { 					 
-					LAYERS: 'ps_limit',
-					VERSION: '1.1.0',
-					STYLES: 'ps_limit_style',
-                    maxScale: 10000,
-                    minScale: 1000
-				},
-				serverType: 'geoserver'								
-			}
-        },   
+                visible: true,
+                opacity: 0.8,
+                source: {
+                    type: 'TileWMS',
+                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+                    params: {
+                        LAYERS: 'PS_heatmap_100m',
+                        VERSION: '1.1.0',
+                        STYLES: 'PS_heatmap_100m_style',
+                        minScale: 10000
+                    },
+                    serverType: 'geoserver'
+                }
+
+            },
+
+            wms_vector: {
+                visible: true,
+                opacity: 0.8,
+                source: {
+                    type: 'TileWMS',
+                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+                    params: {
+                        LAYERS: 'ps_limit',
+                        VERSION: '1.1.0',
+                        STYLES: 'ps_limit_style',
+                        maxScale: 10000,
+                        minScale: 1000
+                    },
+                    serverType: 'geoserver'
+                }
+            },
             bkg: {
                 source: {
                     type: 'OSM'
@@ -228,13 +224,11 @@ angular.module('workspacePilotApp')
                     name: 'attribution',
                     active: false
                 }
-		],
-
-
-            options: {
+            ],
+            graph_options: {
                 chart: {
                     type: 'lineChart',
-                    height: 450,
+                    height: 250,
                     margin: {
                         top: 20,
                         right: 20,
@@ -270,7 +264,7 @@ angular.module('workspacePilotApp')
                         tickFormat: function (d) {
                             return d3.format('.02f')(d);
                         },
-                        axisLabelDistance: 30
+                        axisLabelDistance: 0
                     },
                     callback: function (chart) {
                         console.log("!!! lineChart callback !!!");
@@ -336,41 +330,89 @@ angular.module('workspacePilotApp')
                         key: 'Another sine wave',
                         color: '#7777ff',
                         area: true //area - set to true if you want this line to turn into a filled area chart.
+                },
+
+                    {
+                        values: [{
+                            x: 0,
+                            y: 0
+                        }, {
+                            x: 1,
+                            y: 1
+                        }],
+                        key: 'Pippo',
+                        color: '#7777ff',
+                        area: true //area - set to true if you want this line to turn into a filled area chart.
                 }
             ];
             }
 
         });
-
-        $scope.$watch("center.zoom", function (zoom) {
-            var level = (15 - (20 - 2 * Math.floor(zoom / 2)));
-            console.log(level);
-            if (level <= 12) {
-                level = level < 6 ? 6 : level;
-                $scope.wms.source.params.LAYERS = "ps_limit_group";
-                $scope.wms.source.params.STYLES = '';
-            } else {
-                $scope.wms.source.params.LAYERS = "ps_limit";
-                $scope.wms.source.params.STYLES = "ps_limit_style";
-            }
-        });
         $scope.$watch("selectedDatatsets", function (dataset) {
             if (dataset)
                 $scope.wms.source.params.CQL_FILTER = "dataset_id=" + dataset;
         });
-  }])
-.controller('DetailController', ['$scope',function ($scope) {
-      
-      this.show = true;
-      
-      this.switch= function(){
-          this.show=!this.show;
-      };
-      this.isVisible= function(){
-          return this.show===true;
-      };
-      
-      angular.extend($scope, {
-          
-      });
-  }]);
+
+        $scope.addWFS = function () {
+
+            var loadFeatures = function (response) {
+                var formatWFS = new ol.format.WFS();
+                sourceVector.addFeatures(formatWFS.readFeatures(response));
+            };
+
+            var sourceVector = new ol.source.Vector({
+                loader: function (extent) {
+                    console.log(extent);
+                    $.ajax('http://morgana.planetek.it:8080/geoserver/pkt284/wms', {
+                        type: 'GET',
+                        data: {
+                            service: 'WFS',
+                            version: '2.0.0',
+                            request: 'GetFeature',
+                            typename: 'pkt284:ps',
+                            srsname: 'EPSG:3857',
+                            bbox: extent.join(',') + ',EPSG:3857'
+                        },
+                    }).done(loadFeatures);
+                },
+                strategy: ol.loadingstrategy.tile(new ol.tilegrid.createXYZ({
+                    maxZoom: 19
+                })),
+            });
+
+            var layerVector = new ol.layer.Vector({
+                source: sourceVector,
+                style: new ol.style.Style({
+                    stroke: new ol.style.Stroke({
+                        color: 'rgba(0, 0, 255, 1.0)',
+                        width: 2
+                    })
+                })
+            });
+
+            olData.getMap().then(function (map) {
+                map.on('singleclick', function (evt) {
+                    console.log("Map clicked");
+                });
+            });
+        };
+
+        olData.getMap().then(function (map) {
+            map.on('singleclick', function (evt) {
+                console.log("Map clicked");
+            });
+        });
+        //$scope.addWFS();
+
+    }])
+    .controller('DetailController', ['$scope', function ($scope) {
+        angular.extend($scope, {
+            show: true,
+            switch: function () {
+                $scope.show = !$scope.show;
+            },
+            isVisible: function () {
+                return $scope.show;
+            }
+        });
+    }]);
