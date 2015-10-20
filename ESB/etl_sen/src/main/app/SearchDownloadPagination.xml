@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:https="http://www.mulesoft.org/schema/mule/https" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd">
-    <flow name="SearchDownloadPaginationFlow1" doc:name="SearchDownloadPaginationFlow1">
+    <flow name="SearchDownloadPaginationFlow1" >
         <http:inbound-endpoint exchange-pattern="one-way" host="0.0.0.0" port="9090" path="SearchDownloadPagination" responseTimeout="4000000" doc:name="HTTP"/>
         <logger message="Checking new Sentinel acquisitions..." level="INFO" doc:name="Checking acquisitions"/>
 
-        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="zearch" method="POST" responseTimeout="400000" doc:name="Search Sentinel"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9090" path="zearch" method="POST" responseTimeout="400000" doc:name="Search Sentinel (Deprecated)"/>
         <set-variable variableName="resSize" value="#[json:feed/'opensearch:totalResults']" doc:name="Set resSize"/>
         <choice doc:name="Choice">
             <when expression="#[Integer.parseInt(resSize)  &gt; 0]">
@@ -24,7 +24,7 @@ http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/ht
             </otherwise>
         </choice>
     </flow>
-    <flow name="SearchDownloadPaginationFlow2" doc:name="SearchDownloadPaginationFlow2">
+    <flow name="SearchDownloadPaginationFlow2" >
         <logger message="*****************ENTER LOOP***********************" level="INFO" doc:name="enter loop"/>
         <set-variable variableName="next" value="#[json:feed/link[2]/rel]" doc:name="First Link Name"/>
         <set-variable variableName="next2" value="#[json:feed/link[3]/rel]" doc:name="Second Link Name"/>
