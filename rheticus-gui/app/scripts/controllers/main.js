@@ -7,6 +7,11 @@
  * # MainCtrl
  * Controller of the workspacePilotApp
  */
+
+var legends = [
+    'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true',
+    'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
+];
 angular.module('workspacePilotApp')
     .controller('HeaderController', ['$scope', function ($scope) {
         angular.extend($scope, {
@@ -35,7 +40,7 @@ angular.module('workspacePilotApp')
                 {
                     name: 'DS6',
                     selected: false
-                },
+                }
 			],
             selectableDates: [
 				"dl20110521",
@@ -78,7 +83,7 @@ angular.module('workspacePilotApp')
                 to: $scope.selectableDates.length - 1,
                 step: 1,
                 modelLabels: $scope.selectableDates,
-                dimension: "",
+                dimension: ""
             },
             speedModel: "10",
             speedOptions: {
@@ -131,6 +136,11 @@ angular.module('workspacePilotApp')
                 }
             }
         });
+        
+    this.legends=legends;
+        this.getLegend= function(){
+          return legends[1];
+        };
   }])
     .controller('MainCtrl', ['$scope', function ($scope) {
 
@@ -282,11 +292,11 @@ angular.module('workspacePilotApp')
                     });
                     sin2.push({
                         x: i,
-                        y: i % 10 == 5 ? null : Math.sin(i / 10) * 0.25 + 0.5
+                        y: i % 10 === 5 ? null : Math.sin(i / 10) * 0.25 + 0.5
                     });
                     cos.push({
                         x: i,
-                        y: .5 * Math.cos(i / 10 + 2) + Math.random() / 10
+                        y: 0.5 * Math.cos(i / 10 + 2) + Math.random() / 10
                     });
                 }
 
@@ -329,4 +339,19 @@ angular.module('workspacePilotApp')
             if (dataset)
                 $scope.wms.source.params.CQL_FILTER = "dataset_id=" + dataset;
         });
+  }])
+.controller('DetailController', ['$scope',function ($scope) {
+      
+      this.show = true;
+      
+      this.switch= function(){
+          this.show=!this.show;
+      };
+      this.isVisible= function(){
+          return this.show===true;
+      };
+      
+      angular.extend($scope, {
+          
+      });
   }]);

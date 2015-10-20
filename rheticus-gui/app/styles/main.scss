@@ -93,6 +93,11 @@ body {
 }
 
 /* Overrides */
+
+.navbar-nav > li > a {
+    cursor: pointer;
+}
+
 .popover-inner {	
 	width: 100%;	
 }
@@ -111,6 +116,7 @@ body {
 .popover-content .ng-scope > div {
 	padding-bottom: 6%;
 }
+
 
 .jslider {
 	width: 97%;
