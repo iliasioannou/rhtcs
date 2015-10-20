@@ -160,20 +160,39 @@ angular.module('workspacePilotApp')
                     attribution: false
                 }
             },
-            wms: {
-                visible: true,
-                opacity: 1,
-                source: {
-                    type: 'TileWMS',
-                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
-                    params: {
-                        LAYERS: 'ps_limit_group',
-                        VERSION: '1.3.0',
-                        CQL_FILTER: null
-                    },
-                    serverType: 'geoserver'
-                }
-            },
+            wms_raster: {
+			visible: true,
+			opacity: 0.8,
+			source: {
+				type: 'TileWMS',
+				url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+				params: { 					 
+					LAYERS: 'PS_heatmap_100m',
+					VERSION: '1.1.0',
+					STYLES: 'PS_heatmap_100m_style',
+                    minScale: 10000
+				},
+				serverType: 'geoserver'								
+			}
+                        
+		},          
+        
+		wms_vector: {
+			visible: true,
+			opacity: 0.8,
+			source: {
+				type: 'TileWMS',
+				url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+				params: { 					 
+					LAYERS: 'ps_limit',
+					VERSION: '1.1.0',
+					STYLES: 'ps_limit_style',
+                    maxScale: 10000,
+                    minScale: 1000
+				},
+				serverType: 'geoserver'								
+			}
+        },   
             bkg: {
                 source: {
                     type: 'OSM'

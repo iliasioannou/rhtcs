@@ -1,7 +1,8 @@
 <openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" ol-controls="controls">
-    <ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
-    <ol-layer ol-layer-properties="wms"></ol-layer>
-
+	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
+	<ol-layer ol-layer-properties="wms_raster"></ol-layer>
+    <ol-layer ol-layer-properties="wms_vector"></ol-layer>
+	
     <div class="row" ng-controller="DetailController as detail">
         <div class="col-md-3 col-md-offset-1 well psInfo shadowed" ng-show="detail.show===true">
 
