@@ -7,7 +7,15 @@
  * # MainCtrl
  * Controller of the workspacePilotApp
  */
+
+var legends = [
+          'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true' , 'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
+        
+      ];
+
 angular.module('workspacePilotApp')
+
+    
   .controller('HeaderController', ['$scope',function ($scope) {
 	  angular.extend($scope, {		  
 			filterPopupTemplateName : "filterPopupTemplate.html",
@@ -60,12 +68,19 @@ angular.module('workspacePilotApp')
 					default: {"background-color": "white"},
 					after: {"background-color": "green"},
 					pointer: {"background-color": "red"}   
-				}  
+				}
 			}
 	  });
+      
+      this.zoom=true;
+      this.legends=legends;
+      this.getLegend= function(){
+          return legends[1];
+      };
   }])
   .controller('MainCtrl', ['$scope',function ($scope) {
     
+      
 	angular.extend($scope, {
 		center: {
 			lon: 11.13,
@@ -114,4 +129,25 @@ angular.module('workspacePilotApp')
 			{ name: 'attribution', active: false}
 		]
     });
+      
+      
+  }])
+  
+
+  .controller('DetailController', ['$scope',function ($scope) {
+      
+      this.show = true;
+      
+      this.switch= function(){
+          this.show=!this.show;
+      };
+      this.isVisible= function(){
+          return this.show===true;
+      };
+      
+      angular.extend($scope, {
+          
+      });
   }]);
+
+      

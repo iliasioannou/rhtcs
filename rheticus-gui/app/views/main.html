@@ -4,11 +4,13 @@
 	ol-view="view" 
 	style="position:fixed" 
 	ol-controls="controls">
-	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
-	<ol-layer ol-layer-properties="wms"></ol-layer>
+	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}">
+	</ol-control>
+	<ol-layer ol-layer-properties="wms">
+</ol-layer>
 	
-	<div class="row"id="psInfo">
-	<div class="col-md-3 col-md-offset-1 well" style="position:absolute; z-index: 1060; ">
+	<div class="row" ng-controller="DetailController as detail">
+	<div class="col-md-3 col-md-offset-1 well psInfo shadowed" ng-show="detail.show===true">
 		
 		<H3>INFO PS</H3>
 			Rheticus Planetek Italia 2015
@@ -40,7 +42,12 @@
 				</tbody>
 			  </table>
 		</div>
-		
+		<!--<button  ng-click="detail.switch()" style="left: 50px; position: absolute; top: 100px; z-index:1100;">Show:{{detail.isVisible()}}</button>-->
+	</div>
+    
+	
+	<div class="legenda" ng-controller="HeaderController as header">
+		 <img data-ng-src="{{header.getLegend()}}"> 
 	</div>
 	
 	
