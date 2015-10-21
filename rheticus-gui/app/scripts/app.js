@@ -42,7 +42,29 @@ angular
         angular.extend($rootScope, {
             configuration: {
                 autozoom: true,
-                autocenter: true
+                autocenter: true,
+                datasets: [
+                    {
+                        name: 'dataset1',
+                        selected: false
+                    },
+                    {
+                        name: 'dataset2',
+                        selected: false
+                    },
+                    {
+                        name: 'DS3',
+                        selected: false
+                    },
+                    {
+                        name: 'DS4',
+                        selected: false
+                    },
+                    {
+                        name: 'DS5',
+                        selected: false
+                    }
+			],
             }
         });
     });

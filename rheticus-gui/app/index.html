@@ -45,16 +45,17 @@
 
                     <ul class="nav navbar-nav">
                         <li class="active"><a href="#/">PS</a></li>
-                        <li><a popover-template="filterPopupTemplateName" type="button" popover-placement="bottom">Filtri</a></li>
+                        <li><a popover-template="filterPopupTemplateName" type="button" popover-placement="bottom">Controlli</a></li>
                         <li><a ng-href="#/about">About</a></li>
                         <script type="text/ng-template" id="filterPopupTemplate.html">
                             <div>                                
                                 <div>
-                                    <label>Datasets</label>
+                                    <label>Seleziona i datasets:</label>
                                     <div class="btn-group">
-                                        <label class="btn btn-primary" ng-model="dataset.selected" btn-checkbox ng-repeat="dataset in datasets">{{dataset.name}}</label>
+                                        <label class="btn btn-primary" ng-model="dataset.selected" btn-checkbox ng-repeat="dataset in configuration.datasets">{{dataset.name}}</label>
                                     </div>
                                 </div>
+                                <!--
                                 <div>
                                     <label>Tempo</label>
                                     <div>
@@ -73,8 +74,9 @@
                                         <input ng-model="coherenceModel" type="text" slider options="coherenceOptions" />
                                     </div>
                                 </div>
-                                
+                                -->
                                 <div class="divider" style="border: 1px"></div>
+                                <label>Opzioni di visualizzazione:</label>
                                 <div>
                                     <div class="btn-group">
                                         <label class="btn btn-primary" ng-class="{'btn-success': configuration.autocenter}" ng-model="configuration.autocenter" btn-checkbox>Autocenter</label>

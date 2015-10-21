@@ -11,33 +11,7 @@
 angular.module('workspacePilotApp')
     .controller('HeaderController', ['$scope', function ($scope) {
         angular.extend($scope, {
-            filterPopupTemplateName: "filterPopupTemplate.html",
-            datasets: [
-                {
-                    name: 'DS1',
-                    selected: false
-                },
-                {
-                    name: 'DS2',
-                    selected: false
-                },
-                {
-                    name: 'DS3',
-                    selected: false
-                },
-                {
-                    name: 'DS4',
-                    selected: false
-                },
-                {
-                    name: 'DS5',
-                    selected: false
-                },
-                {
-                    name: 'DS6',
-                    selected: false
-                }
-			],
+            filterPopupTemplateName: "filterPopupTemplate.html",            
             selectableDates: [
 				"dl20110521",
 				"dl20110724",
@@ -171,7 +145,7 @@ angular.module('workspacePilotApp')
                     url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
                     params: {
                         LAYERS: 'rv1',
-                        VERSION: '1.3.0'
+                        VERSION: '1.3.0'                       
                     }
                 }
 
@@ -191,7 +165,7 @@ angular.module('workspacePilotApp')
                     serverType: 'geoserver'
                 }
 
-            },
+            },            
             wms_vector: {
                 visible: true,
                 opacity: 0.8,
@@ -324,6 +298,19 @@ angular.module('workspacePilotApp')
             data: []
         });
 
+        $scope.$watch("configuration.datasets",function(datasets){           
+            var selected = [];
+            for(var key in datasets) {
+                if(datasets[key].selected)
+                    selected.push("dataset_id='"+datasets[key].name+"'");
+            }
+            var cql = selected.join(' OR ');
+            if(cql)
+                $scope.wms_vector.source.params.CQL_FILTER = cql;
+            else 
+                delete $scope.wms_vector.source.params.CQL_FILTER;
+        },true);
+        
         olData.getMap().then(function (map) {
             map.on('singleclick', function (evt) {
                 var viewResolution = map.getView().getResolution();
