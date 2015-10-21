@@ -108,7 +108,6 @@ angular.module('workspacePilotApp')
             
         });
         $scope.$watch("datatsets", function (datasets) {
-            console.log(datasets);
             if (datasets)
                 $scope.wms.source.params.CQL_FILTER = "dataset_id=" + dataset;
         }, true);
@@ -136,6 +135,9 @@ angular.module('workspacePilotApp')
                     scaleline: true,
                     attribution: false
                 }
+            },
+            marker:{
+                
             },
             wms_basemap: {
                 visible: true,
@@ -323,6 +325,15 @@ angular.module('workspacePilotApp')
 
                 var json = [];
                 $http.get(url).success(function (response) {
+                    var point = ol.proj.toLonLat(evt.coordinate,'EPSG:3857');
+                    if($scope.configuration.autocenter){
+                        $scope.center.lat=point[1];
+                        $scope.center.lon=point[0];
+                        if($scope.configuration.autozoom) {
+                            $scope.center.zoom=20;
+                        }
+                    }
+                    
                     //For IE :: creating "startsWith" method for String Class
                     if (typeof String.prototype.startsWith != 'function') {
                         String.prototype.startsWith = function (str) {
@@ -340,7 +351,13 @@ angular.module('workspacePilotApp')
                                     y: response.features[0].properties[key]
                                 });
                             }
-                        }                       
+                        }
+                        $scope.marker={
+                            lat: point[1],
+                            lon: point[0],
+                            label: response.features[0].properties.code
+                        };
+                        $scope.graph_options.title.text = "PS ID: " + response.features[0].properties.code;
                     }else{
                         $scope.show_panel = false;
                     }
@@ -354,17 +371,8 @@ angular.module('workspacePilotApp')
                         }
                     ]);
                     
-                    $scope.graph_options.title.text = "PS ID: " + response.features[0].properties.code;
-                    $scope.rc.api.update();
                     
-                    var point = ol.proj.toLonLat(evt.coordinate,'EPSG:3857');
-                    if($scope.configuration.autocenter){
-                        $scope.center.lat=point[1];
-                        $scope.center.lon=point[0];
-                        if($scope.configuration.autozoom) {
-                            $scope.center.zoom=20;
-                        }
-                    }
+                    $scope.rc.api.update();
                 });
             });
         });
