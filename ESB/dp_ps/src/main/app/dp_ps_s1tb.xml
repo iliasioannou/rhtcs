@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
+	<http:request-config name="HTTP_Request_S1TB_start" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.request.path}" doc:name="HTTP Request S1TB start"/>
+    <http:request-config name="HTTP_Request_S1TB_polling" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.polling.path}" doc:name="HTTP Request S1TB polling"/>
+    <jms:object-to-jmsmessage-transformer name="prova" doc:name="Object to JMSMessage"/>
+    <expression-transformer expression="payload.setJMSType(&quot;L1&quot;); return payload;" name="Expression" doc:name="Expression"/>
+    <flow name="dp_ps_s1tbFlow">
+        <jms:inbound-endpoint queue="rheticus.processor.ps.request.L1" connector-ref="Active_MQ" doc:name="ps.request L1">
+        
+        </jms:inbound-endpoint>
+
+        <set-variable variableName="jmsProperties" value="#[message.inboundProperties]" doc:name="save jmsProperties"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <http:request config-ref="HTTP_Request_S1TB_start" path="/" method="POST" doc:name="request start S1TBX"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="STATUS AFTER START REQUEST: #[payload]" level="INFO" doc:name="Logger"/>
+        <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful" failureExpression="#[!payload.equals('OK')]" millisBetweenRetries="5000">
+            <processor-chain doc:name="Processor Chain">
+                <http:request config-ref="HTTP_Request_S1TB_polling" path="/" method="GET" doc:name="request polling status S1TBX"/>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger message="STATUS POLLING: #[payload]" level="INFO" doc:name="Logger"/>
+            </processor-chain>
+        </until-successful>
+
+        <object-to-string-transformer doc:name="Object to String"/>
+        <set-variable variableName="resultPayload" value="#[payload]" doc:name="resultPayload"/>
+        <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="Logger"/>
+        <scripting:component doc:name="Restore jmsProperties">
+            <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
+{
+   message.setOutboundProperty(key, jmsProperties.get(key))
+}
+]]></scripting:script>
+        </scripting:component>
+        <set-payload value="#[resultPayload]" doc:name="resultPayload"/>
+
+
+    </flow>
+</mule>
