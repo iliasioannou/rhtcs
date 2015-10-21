@@ -1,16 +1,18 @@
-<openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" ol-controls="controls">
-	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
-	<ol-layer ol-layer-properties="wms_raster"></ol-layer>
+<openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" ol-controls="controls"  custom-layers="true" >
+	<ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>	
+    <ol-layer ol-layer-properties="wms_basemap"></ol-layer>
+    <ol-layer ol-layer-properties="wms_raster"></ol-layer>
     <ol-layer ol-layer-properties="wms_vector"></ol-layer>
 	
-    <div class="row" ng-controller="DetailController as detail">
+    <div class="row" ng-show="show_panel">
         <div class="col-md-3 col-md-offset-1 well psInfo shadowed">
             <H3>INFO PS</H3> Rheticus Planetek Italia 2015
-            <nvd3 options="graph_options" data="data" class="with-3d-shadow with-transitions"></nvd3>                    
+            <nvd3 options="graph_options" data="data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>                    
         </div>
-    </div>
+    </div>  
 
     <div class="legenda">
         <img data-ng-src="{{legends[0]}}"> 
 	</div>
 </openlayers>
+ 
