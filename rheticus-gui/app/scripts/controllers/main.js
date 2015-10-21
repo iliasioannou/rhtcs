@@ -130,8 +130,14 @@ angular.module('workspacePilotApp')
                         "background-color": "red"
                     }
                 }
-            }
+            },
+            
         });
+        $scope.$watch("datatsets", function (datasets) {
+            console.log(datasets);
+            if (datasets)
+                $scope.wms.source.params.CQL_FILTER = "dataset_id=" + dataset;
+        }, true);
     }])
     .controller('MainCtrl', ['$rootScope', '$scope', '$http', 'olData', function ($rootScope, $scope, $http, olData) {
         angular.extend($scope, {
@@ -253,7 +259,6 @@ angular.module('workspacePilotApp')
                 chart: {
                     type: 'lineChart',
                     height: 250,
-                    width: 300,
                     margin: {
                         top: 20,
                         right: 20,
@@ -285,14 +290,14 @@ angular.module('workspacePilotApp')
                         axisLabel: 'Time (ms)'
                     },
                     yAxis: {
-                        axisLabel: 'Voltage (v)',
+                        axisLabel: 'Spostamento (cm)',
                         tickFormat: function (d) {
                             return d3.format('.02f')(d);
                         },
-                        axisLabelDistance: 0
+                        axisLabelDistance: -10
                     },
                     callback: function (chart) {
-                        console.log("!!! lineChart callback !!!");
+                        
                     }
                 },
                 title: {
@@ -300,7 +305,7 @@ angular.module('workspacePilotApp')
                     text: 'Title for Line Chart'
                 },
                 subtitle: {
-                    enable: true,
+                    enable: false,
                     text: 'Subtitle for simple line chart.',
                     css: {
                         'text-align': 'center',
@@ -308,7 +313,7 @@ angular.module('workspacePilotApp')
                     }
                 },
                 caption: {
-                    enable: true,
+                    enable: false,
                     html: '<b>Figure 1.</b>',
                     css: {
                         'text-align': 'justify',
@@ -317,10 +322,6 @@ angular.module('workspacePilotApp')
                 }
             },
             data: []
-        });
-        $scope.$watch("selectedDatatsets", function (dataset) {
-            if (dataset)
-                $scope.wms.source.params.CQL_FILTER = "dataset_id=" + dataset;
         });
 
         olData.getMap().then(function (map) {
@@ -352,11 +353,11 @@ angular.module('workspacePilotApp')
                                     y: response.features[0].properties[key]
                                 });
                             }
-                        }
-                       
+                        }                       
                     }else{
                         $scope.show_panel = false;
                     }
+                    
                     //Line chart data should be sent as an array of series objects.                
                     angular.extend($scope.data, [
                         {
@@ -365,7 +366,18 @@ angular.module('workspacePilotApp')
                             color: '#ff7f0e' //color - optional: choose your own line color.
                         }
                     ]);
+                    
+                    $scope.graph_options.title.text = "PS ID: " + response.features[0].properties.code;
                     $scope.rc.api.update();
+                    
+                    var point = ol.proj.toLonLat(evt.coordinate,'EPSG:3857');
+                    if($scope.configuration.autocenter){
+                        $scope.center.lat=point[1];
+                        $scope.center.lon=point[0];
+                        if($scope.configuration.autozoom) {
+                            $scope.center.zoom=20;
+                        }
+                    }
                 });
             });
         });

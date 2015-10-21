@@ -45,10 +45,10 @@
 
                     <ul class="nav navbar-nav">
                         <li class="active"><a href="#/">PS</a></li>
-                        <li><a popover-template="filterPopupTemplateName" popover-title="Filtri" type="button" popover-placement="bottom">Filtri</a></li>
+                        <li><a popover-template="filterPopupTemplateName" type="button" popover-placement="bottom">Filtri</a></li>
                         <li><a ng-href="#/about">About</a></li>
                         <script type="text/ng-template" id="filterPopupTemplate.html">
-                            <div>
+                            <div>                                
                                 <div>
                                     <label>Datasets</label>
                                     <div class="btn-group">
@@ -73,6 +73,16 @@
                                         <input ng-model="coherenceModel" type="text" slider options="coherenceOptions" />
                                     </div>
                                 </div>
+                                
+                                <div class="divider" style="border: 1px"></div>
+                                <div>
+                                    <div class="btn-group">
+                                        <label class="btn btn-primary" ng-class="{'btn-success': configuration.autocenter}" ng-model="configuration.autocenter" btn-checkbox>Autocenter</label>
+                                    </div>
+                                    <div class="btn-group">
+                                        <label class="btn btn-primary" ng-class="{'btn-success': configuration.autozoom&&configuration.autocenter}" ng-model="configuration.autozoom" ng-disabled="!configuration.autocenter" btn-checkbox>Autozoom</label>
+                                    </div>                                    
+                                </div>                                
                             </div>
                         </script>
 
@@ -125,6 +135,7 @@
     <script src="bower_components/d3/d3.js"></script>
     <script src="bower_components/nvd3/build/nv.d3.js"></script>
     <script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
+    <script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
