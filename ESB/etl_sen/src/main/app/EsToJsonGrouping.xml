@@ -5,11 +5,11 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
-    <flow name="EsToJsonGroupingFlow1" doc:description="Get full Product From ElasticSearch and create a json file">
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd" version="CE-3.4.0">
+    <flow name="EsToJsonGroupingFlow1" doc:description="Get full Product From ElasticSearch and create a json file" doc:name="EsToJsonGroupingFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="EsToJson" doc:name="HTTP"/>
         <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetId&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
-        <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel1/slc/_search" method="POST" doc:name="ElasticSearch"/>
+        <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
         <set-variable variableName="total" value="#[json:hits/total]" doc:name="total"/>
         <logger message="&quot;total&quot;: #[total]" level="INFO" doc:name="total res"/>
         <set-payload value="#[json:aggregations/group_by_dataset/buckets]" doc:name="select buckets"/>
@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
             <set-variable variableName="datasetId" value="#[json:key]" doc:name="datasetId"/>
             <set-variable variableName="count" value="#[json:doc_count]" doc:name="count"/>
             <set-payload value="{&quot;size&quot;: 20000,&quot;query&quot;: {&quot;bool&quot;: {&quot;must&quot;: [{ &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[json:key]&quot; }}]}}}" doc:name="request a Id"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="localhost" port="9200" path="sentinel1/slc/_search" method="POST" doc:name="ElasticSearch"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
             <object-to-string-transformer doc:name="Object to String"/>
             <set-payload value="{&quot;datasetID&quot;:&quot;#[datasetID]&quot;, &quot;cardinality&quot;: #[count], &quot;data&quot;: #[json:hits/hits]}" doc:name="OutputRequest"/>
             <scripting:component doc:name="prettyPrint">
