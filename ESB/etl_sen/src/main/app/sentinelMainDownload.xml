@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
-http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd">
+http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd" version="CE-3.4.0">
 
     
     
@@ -57,7 +57,7 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
 GRD 130mb
 {
 &quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
-}" processingStrategy="synchronous">
+}" processingStrategy="synchronous" doc:name="sentinelDownloadFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" doc:name="HTTP" responseTimeout="4000000"/>
         <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
@@ -68,13 +68,10 @@ GRD 130mb
             <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
             <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
             <logger message="#[id]#[title]#[payload]" level="INFO" doc:name="id&amp; title"/>
-            <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
-                <processor-chain doc:name="Processor Chain">
-                    <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" responseTimeout="400000" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="Manifest request (Deprecated)"/>
-                    <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
-                    <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
-                </processor-chain>
-            </until-successful>
+            <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" responseTimeout="400000" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="Manifest request (Deprecated)"/>
+            <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
+            <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
+
 
             <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
             <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
@@ -105,7 +102,7 @@ while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 						}
  					 if (j==1)
     					{
-							metaCoordinateLon=(Math.round(temp*10.0))/10.0 ;
+							metaCoordinateLon=(Math.round(temp)) ;
 						}
 							j++;
 			coordinate2.add(temp);
