@@ -376,6 +376,7 @@ angular.module('workspacePilotApp')
                         };
                         $scope.graph_options.title.text = "PS ID: " + response.features[0].properties.code;
                     }else{
+                        $scope.graph_options.title.text = "";
                         $scope.show_panel = false;
                     }
                     

@@ -5,7 +5,7 @@
     <ol-layer ol-layer-properties="wms"></ol-layer>
     <ol-marker ol-marker-properties="marker"></ol-marker>
 
-    <div class="row" ng-class="{'keepoff': !show_panel}">
+    <div class="row" ng-class="{'keepoff': (!show_panel) && (!configuration.pinwindow)}">
         <div class="col-md-3 col-md-offset-1 well psInfo shadowed">
             <nvd3 options="graph_options" data="data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
             <table st-safe-src="data[0].values" st-table="displayed" class="table table-striped">

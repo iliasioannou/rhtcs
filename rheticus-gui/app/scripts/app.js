@@ -43,6 +43,7 @@ angular
             configuration: {
                 autozoom: true,
                 autocenter: true,
+                pinwindow: false,
                 datasets: [
                     {
                         name: 'dataset1',
