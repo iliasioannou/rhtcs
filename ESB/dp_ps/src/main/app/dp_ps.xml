@@ -82,6 +82,8 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 			doc:name="Show datasetId" />
 		<set-variable variableName="datasetDataArrayList" value="#[payload]"
 			doc:name="save datasetDataArrayList" />
+        <set-variable variableName="orchestratorId" value="#[server.dateTime]" doc:name="orchestratorId"/>
+        <logger message="#[orchestratorId]" level="INFO" doc:name="Logger"/>
 		<set-payload
 			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"
 			doc:name="Query getsuperMaster" />
@@ -104,7 +106,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 					doc:name="ArrayList to JSON" />
 				<logger message="**********Call Processor Calculate SuperMaster"
 					level="INFO" doc:name="Call SuperMaster Processor" />
-					<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;step&quot;: &quot;L0&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Calcolo superMaster in corso&quot;}"/>
+					<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L0&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Calcolo superMaster in corso&quot;}"/>
 					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
 				<request-reply doc:name="Request-Reply" timeout="10000">
 				
@@ -117,7 +119,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
                     <message-property-filter pattern="message-failed=null" caseSensitive="true" scope="inbound"/>
                 </message-filter>
                 <set-variable variableName="superMasterId" value="#[json:superMasterId]" doc:name="superMasterId"/>
-                <set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;step&quot;: &quot;L0&quot;, &quot;status&quot;: &quot;OK&quot;, &quot;message&quot;:&quot;superMaster individuata:#[superMasterId]&quot;}"/>
+                <set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;,&quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L0&quot;, &quot;status&quot;: &quot;OK&quot;, &quot;message&quot;:&quot;superMaster individuata:#[superMasterId]&quot;}"/>
 					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
                 <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : true    }}" doc:name="Update SM value"/>
                 <http:request config-ref="HTTP_Request_Configuration" path="/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
@@ -144,7 +146,7 @@ mapForS1TB.put("data", datasetDataArrayList);
 		<json:object-to-json-transformer
 			doc:name="Object to JSON" />
 		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
-		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi in corso&quot;}"/>
+		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;,&quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi in corso&quot;}"/>
 					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
 		<request-reply doc:name="Request-Reply" timeout="60000">
 			<jms:outbound-endpoint queue="rheticus.processor.ps.request.L1" connector-ref="Active_MQ" doc:name="ps.request L1" transformer-refs="Object_to_JMSMessage addPropertyTypeL1" />
@@ -153,7 +155,7 @@ mapForS1TB.put("data", datasetDataArrayList);
 			</jms:inbound-endpoint>
 		</request-reply>
 		<object-to-string-transformer doc:name="Object to String" />
-		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;#[payload]&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi completata&quot;}"/>
+		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;,&quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;#[payload]&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi completata&quot;}"/>
 					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
 		<logger message="Request response:  #[payload]" level="INFO"
 			doc:name="Result S1TB" />
