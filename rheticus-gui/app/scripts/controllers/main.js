@@ -117,14 +117,15 @@ angular.module('workspacePilotApp')
             legends: [
                 'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true',
                 'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
-            ]
+            ],            
         });
         angular.extend($scope, {
             rc: {},
+            legend:$scope.legends[0],
             center: {
                 lon: 11.13,
                 lat: 46.05,
-                zoom: 19
+                zoom: 12
             },
             defaults: {
                 controls: {
@@ -144,25 +145,32 @@ angular.module('workspacePilotApp')
                 opacity: 1,
                 source: {
                     type: 'TileWMS',
-                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+                    url: 'http://morgana.planetek.it:8080/geoserver/gwc/service/wms',
                     params: {
-                        LAYERS: 'rv1',
-                        VERSION: '1.3.0'                       
+                        LAYERS: 'pkt284:rv1',
+                        VERSION: '1.3.0',
+                        SRS: 'EPSG:3857',
+                        TILED: true,
+                        format_options:'layout:legend'
                     }
                 }
 
             },
+            wms:{},
             wms_raster: {
                 visible: true,
                 opacity: 0.8,
                 source: {
                     type: 'TileWMS',
-                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+                    url: 'http://morgana.planetek.it:8080/geoserver/gwc/service/wms',
+                    minScale: 10000,
                     params: {
-                        LAYERS: 'PS_heatmap_100m',
+                        LAYERS: 'pkt284:PS_heatmap_100m',
                         VERSION: '1.3.0',
-                        STYLES: 'PS_heatmap_100m_style',
-                        minScale: 10000
+                        //STYLES: 'PS_heatmap_100m_style',
+                        SRS: 'EPSG:3857',
+                        TILED: true,
+                        format_options:'layout:legend'
                     },
                     serverType: 'geoserver'
                 }
@@ -173,12 +181,15 @@ angular.module('workspacePilotApp')
                 opacity: 0.8,
                 source: {
                     type: 'TileWMS',
-                    url: 'http://morgana.planetek.it:8080/geoserver/pkt284/wms',
+                    url: 'http://morgana.planetek.it:8080/geoserver/gwc/service/wms',
+                    maxScale: 10000,
                     params: {
-                        LAYERS: 'ps_limit',
+                        LAYERS: 'pkt284:ps_limit',
                         VERSION: '1.3.0',
-                        STYLES: 'ps_limit_style',
-                        maxScale: 10000
+                        //STYLES: 'ps_limit_style',
+                        SRS: 'EPSG:3857',
+                        TILED: true,
+                        format_options:'layout:legend'
                     },
                     serverType: 'geoserver'
                 }
@@ -300,6 +311,12 @@ angular.module('workspacePilotApp')
             data: []
         });
 
+        $scope.$watch("center.zoom",function(zoom){
+            console.log(zoom);
+            $scope.wms=(zoom<16)?$scope.wms_raster:$scope.wms_vector; 
+            $scope.legend=$scope.legends[(zoom<16)?1:0];
+        });
+        
         $scope.$watch("configuration.datasets",function(datasets){           
             var selected = [];
             for(var key in datasets) {

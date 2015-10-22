@@ -1,8 +1,8 @@
 <openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" ol-controls="controls" custom-layers="true">
     <ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
     <ol-layer ol-layer-properties="wms_basemap"></ol-layer>
-    <ol-layer ol-layer-properties="wms_raster"></ol-layer>
-    <ol-layer ol-layer-properties="wms_vector"></ol-layer>
+
+    <ol-layer ol-layer-properties="wms"></ol-layer>
     <ol-marker ol-marker-properties="marker"></ol-marker>
 
     <div class="row" ng-class="{'keepoff': !show_panel}">
@@ -33,7 +33,7 @@
     </div>
 
     <div class="legenda" ng-controller="HeaderController">
-        <img data-ng-src="{{legends[0]}}">
+        <img data-ng-src="{{legend}}">
 
 
     </div>
