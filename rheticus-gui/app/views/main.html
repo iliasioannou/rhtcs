@@ -8,23 +8,32 @@
     <div class="row" ng-class="{'keepoff': (!show_panel) && (!configuration.pinwindow)}">
         <div class="col-md-3 col-md-offset-1 well psInfo shadowed">
             <nvd3 options="graph_options" data="data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
-            <table st-safe-src="data[0].values" st-table="displayed" class="table table-striped">
+            </br>
+            <table st-safe-src="getFeatureInfoResponse" st-table="displayed" class="table table-striped">
                 <thead>
                     <tr>
-                        <th>Data</th>
-                        <th>Valore</th>
+                        <th>Longitudine</th>
+                        <th>Latitudine</th>
+                        <th>Altitudine</th>
+                        <th>Coerenza</th>
+                        <th>Velocit&agrave;</th>
+                        <th>Dataset&nbsp;ID</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr ng-repeat="record in displayed">
-                        <td>{{record.x}}</td>
-                        <td>{{record.y}}</td>
+                        <td>{{record.lon}}</td>
+                        <td>{{record.lat}}</td>
+                        <td>{{record.height}}</td>
+                        <td>{{record.coh}}</td>
+                        <td>{{record.velocity}}</td>
+                        <td>{{record.dataset_id}}</td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr>
-                        <td colspan="5" class="text-center">
-                            <div st-pagination="" st-items-by-page="5"></div>
+                        <td colspan="6" class="text-center">
+                            <div st-pagination="" st-items-by-page="10"></div>
                         </td>
                     </tr>
                 </tfoot>
