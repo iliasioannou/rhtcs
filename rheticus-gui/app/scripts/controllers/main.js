@@ -115,7 +115,7 @@ angular.module('workspacePilotApp')
     .controller('MainCtrl', ['$rootScope', '$scope', '$http', 'olData', function ($rootScope, $scope, $http, olData) {
         angular.extend($scope, {
             legends: [
-                'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true',
+                'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true&STYLE=ps_limit_legend',
                 'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
             ],            
         });
@@ -340,11 +340,13 @@ angular.module('workspacePilotApp')
         
         olData.getMap().then(function (map) {
             map.on('singleclick', function (evt) {
+                
                 var viewResolution = map.getView().getResolution();
                 var wmsSource = new ol.source.TileWMS($scope.wms_vector_features.source);
                 var url = wmsSource.getGetFeatureInfoUrl(
                     evt.coordinate, viewResolution, 'EPSG:3857', {
-                        'INFO_FORMAT': 'application/json'
+                        INFO_FORMAT: 'application/json',
+                        FEATURE_COUNT: 10
                     });
 
                 $http.get(url).success(function (response) {
@@ -376,6 +378,14 @@ angular.module('workspacePilotApp')
                         $scope.show_panel = true;
                         $scope.graph_options.title.text = "PS ID: ";
 
+                        var autoColor = {
+                            colors : d3.scale.category20(),
+                            index : 0,
+                            getColor: function () {
+                                return this.colors(this.index++) 
+                            }
+                        };
+                        
                         for (var i=0; i<response.features.length; i++){
                             $scope.graph_options.title.text += response.features[i].properties["code"]+", ";
                             
@@ -394,11 +404,7 @@ angular.module('workspacePilotApp')
                                 eval("featureInfo."+key+"=response.features[\""+i+"\"].properties."+key+";");
                             }
 
-                            var autoColor = {
-                                colors : d3.scale.category10(),
-                                index : 0,
-                                getColor: function () { return this.colors(this.index++) }
-                            };
+                            
                             chartData.push({
                                 values: featureData, //values - represents the array of {x,y} data points
                                 key: response.features[i].properties["code"], //key  - the name of the series (PS CODE)
@@ -423,9 +429,10 @@ angular.module('workspacePilotApp')
                     
                     //Line chart data should be sent as an array of series objects.                
                     angular.extend($scope.data, chartData);
-                    angular.extend($scope.getFeatureInfoResponse, infoResponse);
+                    angular.extend($scope, {
+                        getFeatureInfoResponse: infoResponse
+                    });
                     $scope.rc.api.update();
-                    
                 });
             });
         });

@@ -41,8 +41,8 @@ angular
     .run(function ($rootScope) {
         angular.extend($rootScope, {
             configuration: {
-                autozoom: true,
-                autocenter: true,
+                autozoom: false,
+                autocenter: false,
                 pinwindow: false,
                 datasets: [
                     {
