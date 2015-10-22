@@ -235,6 +235,7 @@ angular.module('workspacePilotApp')
                 chart: {
                     type: 'lineChart',
                     height: 250,
+                    width: 650,
                     margin: {
                         top: 20,
                         right: 20,
@@ -263,7 +264,13 @@ angular.module('workspacePilotApp')
                         }
                     },
                     xAxis: {
-                        axisLabel: 'Time (ms)'
+                        axisLabel: 'Data',
+                        tickFormat : function(d) { 
+                            return d3.time.format('%d/%m/%Y')(new Date(d))
+                        }
+                        //range: [new Date("01/01/2011"), new Date("01/01/2016")]
+                        //scale: d3.time.scale().domain([new Date("01/01/2011"), new Date("01/01/2016")])
+                        //tickValues: 
                     },
                     yAxis: {
                         axisLabel: 'Spostamento (cm)',
@@ -297,7 +304,8 @@ angular.module('workspacePilotApp')
                     }
                 }
             },
-            data: []
+            data: [],
+            getFeatureInfoResponse: []
         });
 
         $scope.$watch("configuration.datasets",function(datasets){           
@@ -322,8 +330,6 @@ angular.module('workspacePilotApp')
                         'INFO_FORMAT': 'application/json'
                     });
 
-
-                var json = [];
                 $http.get(url).success(function (response) {
                     var point = ol.proj.toLonLat(evt.coordinate,'EPSG:3857');
                     if($scope.configuration.autocenter){
@@ -340,39 +346,68 @@ angular.module('workspacePilotApp')
                             return this.slice(0, str.length) == str;
                         };
                     }
-                    //Data is represented as an array of {x,y} pairs.                     
-                    if (response.features.length > 0) {
-                        $scope.show_panel = true;
-                        for (var key in response.features[0].properties) {
-                            if (key.startsWith("dl")) {
-                                json.push({
-                                    //                                    x: d3.time.format('%x')(new Date(key.replace("dl", ""))),
-                                    x: key.replace("dl", ""),
-                                    y: response.features[0].properties[key]
-                                });
-                            }
-                        }
-                        $scope.marker={
-                            lat: point[1],
-                            lon: point[0],
-                            label: response.features[0].properties.code
+                    if (typeof String.prototype.splice != 'function') {
+                        String.prototype.splice = function (idx, rem, s) {
+                            return this.slice(0,idx) + s + this.slice(idx + Math.abs(rem));
                         };
-                        $scope.graph_options.title.text = "PS ID: " + response.features[0].properties.code;
+                    }
+
+                    var chartData = [];
+                    var infoResponse = [];
+                    //Data is represented as an array of {x,y} pairs.                     
+                    if (response.features && (response.features.length > 0) ) {
+                        $scope.show_panel = true;
+                        $scope.graph_options.title.text = "PS ID: ";
+
+                        for (var i=0; i<response.features.length; i++){
+                            $scope.graph_options.title.text += response.features[i].properties["code"]+", ";
+                            
+                            var featureData = [];
+                            var featureInfo = {};
+                            for (var key in response.features[i].properties) {
+                                if (key.startsWith("dl")) {
+                                    var FeatureDate = new Date(key.replace("dl", "").splice(6,0,"/").splice(4,0,"/"));
+                                    if (FeatureDate instanceof Date){
+                                        featureData.push({
+                                            x: FeatureDate,
+                                            y: response.features[i].properties[key]
+                                        });
+                                    }
+                                }
+                                eval("featureInfo."+key+"=response.features[\""+i+"\"].properties."+key+";");
+                            }
+
+                            var autoColor = {
+                                colors : d3.scale.category10(),
+                                index : 0,
+                                getColor: function () { return this.colors(this.index++) }
+                            };
+                            chartData.push({
+                                values: featureData, //values - represents the array of {x,y} data points
+                                key: response.features[i].properties["code"], //key  - the name of the series (PS CODE)
+                                //color: '#ff7f0e' //color - optional: choose your own line color.
+                                color: autoColor.getColor() //'#ff7f0e' //color - optional: choose your own line color.
+                            });
+                            
+                            infoResponse.push(featureInfo);
+							$scope.marker={
+								lat: point[1],
+								lon: point[0],
+								label: response.features[0].properties.code
+							};
+
+                        }
+                        $scope.graph_options.title.text = $scope.graph_options.title.text.substr(0,$scope.graph_options.title.text.length-2);
+                        
                     }else{
                         $scope.show_panel = false;
                     }
                     
                     //Line chart data should be sent as an array of series objects.                
-                    angular.extend($scope.data, [
-                        {
-                            values: json, //values - represents the array of {x,y} data points
-                            key: 'PS', //key  - the name of the series.
-                            color: '#ff7f0e' //color - optional: choose your own line color.
-                        }
-                    ]);
-                    
-                    
+                    angular.extend($scope.data, chartData);
+                    angular.extend($scope.getFeatureInfoResponse, infoResponse);
                     $scope.rc.api.update();
+                    
                 });
             });
         });
