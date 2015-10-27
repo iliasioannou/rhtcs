@@ -43,12 +43,13 @@
         <AsyncLogger name="Tracking" level="WARN"/>
         
 		<Logger name="it.planetek.rheticus.mule.components.Logstash" level="INFO">
-			 <AppenderRef ref="logstash-socket"/>
+			<AppenderRef ref="logstash-socket"/>
+			<AppenderRef ref="file" />
 		</Logger>        
         
         <Root level="INFO">
             <AppenderRef ref="Console" />
-            <AppenderRef ref="file" />
+			<AppenderRef ref="file" />
         </Root>        
     </Loggers>
     
