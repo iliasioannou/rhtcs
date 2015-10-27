@@ -51,6 +51,7 @@ public class JobRestImpl
 
         private static final Logger  log = LoggerFactory
                                                  .getLogger(JobServiceImpl.class);
+
         private final JobServiceImpl jobService;
 
         @Context
