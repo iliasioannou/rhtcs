@@ -15,11 +15,6 @@
         </RollingFile>
         
         <Socket name="logstash-socket" host="localhost" port="9500" protocol="tcp">
-        	<!-- 
-        	 <GelfLayout/>
-			<JSONLayout charset="UTF-8" compact="true" complete="false"/>
-        	<JSONLayout complete="false"/>
-        	 -->
         	<SerializedLayout/>
         </Socket>
     </Appenders>
@@ -47,29 +42,12 @@
         <AsyncLogger name="org.jetel" level="WARN"/>
         <AsyncLogger name="Tracking" level="WARN"/>
         
-    <!-- 
-        <AsyncLogger name="it.planetek.rheticus.mule.components.Logstash" level="INFO">
-        	<AppenderRef ref="logstash-gelf-appender" />
-        </AsyncLogger>
-     -->
-        
-            
-        
-            <!-- 
-             
-		<Logger name="logstash" level="INFO">
-			 <AppenderRef ref="logstash-socket"/>
-		</Logger>        
-             -->
 		<Logger name="it.planetek.rheticus.mule.components.Logstash" level="INFO">
 			 <AppenderRef ref="logstash-socket"/>
 		</Logger>        
         
         <Root level="INFO">
             <AppenderRef ref="Console" />
-            <!-- 
-			 <AppenderRef ref="logstash-socket"/>
-             -->
         </Root>        
     </Loggers>
     
