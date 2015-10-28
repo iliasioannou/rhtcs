@@ -11,7 +11,7 @@
 angular.module('workspacePilotApp')
     .controller('HeaderController', ['$scope', function ($scope) {
         angular.extend($scope, {
-            filterPopupTemplateName: "filterPopupTemplate.html",            
+            filterPopupTemplateName: "filterPopupTemplate.html",
             selectableDates: [
 				"dl20110521",
 				"dl20110724",
@@ -105,7 +105,7 @@ angular.module('workspacePilotApp')
                     }
                 }
             },
-            
+
         });
         $scope.$watch("datatsets", function (datasets) {
             if (datasets)
@@ -117,11 +117,14 @@ angular.module('workspacePilotApp')
             legends: [
                 'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_limit&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true&STYLE=ps_limit_legend',
                 'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.0.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:PS_heatmap_100m&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
-            ],            
+            ],
+            legendsTitle: ['Velocità PS (cm/y)', 'Densità PS'],
+
         });
         angular.extend($scope, {
             rc: {},
-            legend:$scope.legends[0],
+            legend: $scope.legends[0],
+            legendTitle: $scope.legendsTitle[0],
             center: {
                 lon: 11.13,
                 lat: 46.05,
@@ -137,8 +140,8 @@ angular.module('workspacePilotApp')
                     attribution: false
                 }
             },
-            marker:{
-                
+            marker: {
+
             },
             wms_basemap: {
                 visible: true,
@@ -151,12 +154,12 @@ angular.module('workspacePilotApp')
                         VERSION: '1.3.0',
                         SRS: 'EPSG:3857',
                         TILED: true,
-                        format_options:'layout:legend'
+                        format_options: 'layout:legend'
                     }
                 }
 
             },
-            wms:{},
+            wms: {},
             wms_raster: {
                 visible: true,
                 opacity: 0.8,
@@ -170,12 +173,12 @@ angular.module('workspacePilotApp')
                         //STYLES: 'PS_heatmap_100m_style',
                         SRS: 'EPSG:3857',
                         TILED: true,
-                        format_options:'layout:legend'
+                        format_options: 'layout:legend'
                     },
                     serverType: 'geoserver'
                 }
 
-            },            
+            },
             wms_vector: {
                 visible: true,
                 opacity: 0.8,
@@ -189,7 +192,7 @@ angular.module('workspacePilotApp')
                         //STYLES: 'ps_limit_style',
                         SRS: 'EPSG:3857',
                         TILED: true,
-                        format_options:'layout:legend'
+                        format_options: 'layout:legend'
                     },
                     serverType: 'geoserver'
                 }
@@ -245,8 +248,6 @@ angular.module('workspacePilotApp')
             graph_options: {
                 chart: {
                     type: 'lineChart',
-                    height: 250,
-                    width: 650,
                     margin: {
                         top: 20,
                         right: 20,
@@ -276,12 +277,12 @@ angular.module('workspacePilotApp')
                     },
                     xAxis: {
                         axisLabel: 'Data',
-                        tickFormat : function(d) { 
-                            return d3.time.format('%d/%m/%Y')(new Date(d))
-                        }
-                        //range: [new Date("01/01/2011"), new Date("01/01/2016")]
-                        //scale: d3.time.scale().domain([new Date("01/01/2011"), new Date("01/01/2016")])
-                        //tickValues: 
+                        tickFormat: function (d) {
+                                return d3.time.format('%d/%m/%Y')(new Date(d))
+                            }
+                            //range: [new Date("01/01/2011"), new Date("01/01/2016")]
+                            //scale: d3.time.scale().domain([new Date("01/01/2011"), new Date("01/01/2016")])
+                            //tickValues: 
                     },
                     yAxis: {
                         axisLabel: 'Spostamento (cm)',
@@ -291,7 +292,7 @@ angular.module('workspacePilotApp')
                         axisLabelDistance: -10
                     },
                     callback: function (chart) {
-                        
+
                     }
                 },
                 title: {
@@ -319,28 +320,29 @@ angular.module('workspacePilotApp')
             getFeatureInfoResponse: []
         });
 
-        $scope.$watch("center.zoom",function(zoom){
+        $scope.$watch("center.zoom", function (zoom) {
             console.log(zoom);
-            $scope.wms=(zoom<16)?$scope.wms_raster:$scope.wms_vector; 
-            $scope.legend=$scope.legends[(zoom<16)?1:0];
+            $scope.wms = (zoom < 16) ? $scope.wms_raster : $scope.wms_vector;
+            $scope.legend = $scope.legends[(zoom < 16) ? 1 : 0];
+            $scope.legendTitle = $scope.legendsTitle[(zoom < 16) ? 1 : 0];
         });
-        
-        $scope.$watch("configuration.datasets",function(datasets){           
+
+        $scope.$watch("configuration.datasets", function (datasets) {
             var selected = [];
-            for(var key in datasets) {
-                if(datasets[key].selected)
-                    selected.push("dataset_id='"+datasets[key].name+"'");
+            for (var key in datasets) {
+                if (datasets[key].selected)
+                    selected.push("dataset_id='" + datasets[key].name + "'");
             }
             var cql = selected.join(' OR ');
-            if(cql)
+            if (cql)
                 $scope.wms_vector.source.params.CQL_FILTER = cql;
-            else 
+            else
                 delete $scope.wms_vector.source.params.CQL_FILTER;
-        },true);
-        
+        }, true);
+
         olData.getMap().then(function (map) {
             map.on('singleclick', function (evt) {
-                
+
                 var viewResolution = map.getView().getResolution();
                 var wmsSource = new ol.source.TileWMS($scope.wms_vector_features.source);
                 var url = wmsSource.getGetFeatureInfoUrl(
@@ -350,15 +352,15 @@ angular.module('workspacePilotApp')
                     });
 
                 $http.get(url).success(function (response) {
-                    var point = ol.proj.toLonLat(evt.coordinate,'EPSG:3857');
-                    if($scope.configuration.autocenter){
-                        $scope.center.lat=point[1];
-                        $scope.center.lon=point[0];
-                        if($scope.configuration.autozoom) {
-                            $scope.center.zoom=20;
+                    var point = ol.proj.toLonLat(evt.coordinate, 'EPSG:3857');
+                    if ($scope.configuration.autocenter) {
+                        $scope.center.lat = point[1];
+                        $scope.center.lon = point[0];
+                        if ($scope.configuration.autozoom) {
+                            $scope.center.zoom = 20;
                         }
                     }
-                    
+
                     //For IE :: creating "startsWith" method for String Class
                     if (typeof String.prototype.startsWith != 'function') {
                         String.prototype.startsWith = function (str) {
@@ -367,66 +369,66 @@ angular.module('workspacePilotApp')
                     }
                     if (typeof String.prototype.splice != 'function') {
                         String.prototype.splice = function (idx, rem, s) {
-                            return this.slice(0,idx) + s + this.slice(idx + Math.abs(rem));
+                            return this.slice(0, idx) + s + this.slice(idx + Math.abs(rem));
                         };
                     }
 
                     var chartData = [];
                     var infoResponse = [];
                     //Data is represented as an array of {x,y} pairs.                     
-                    if (response.features && (response.features.length > 0) ) {
+                    if (response.features && (response.features.length > 0)) {
                         $scope.show_panel = true;
                         $scope.graph_options.title.text = "PS ID: ";
 
                         var autoColor = {
-                            colors : d3.scale.category20(),
-                            index : 0,
+                            colors: d3.scale.category20(),
+                            index: 0,
                             getColor: function () {
-                                return this.colors(this.index++) 
+                                return this.colors(this.index++)
                             }
                         };
-                        
-                        for (var i=0; i<response.features.length; i++){
-                            $scope.graph_options.title.text += response.features[i].properties["code"]+", ";
-                            
+
+                        for (var i = 0; i < response.features.length; i++) {
+                            $scope.graph_options.title.text += response.features[i].properties["code"] + ", ";
+
                             var featureData = [];
                             var featureInfo = {};
                             for (var key in response.features[i].properties) {
                                 if (key.startsWith("dl")) {
-                                    var FeatureDate = new Date(key.replace("dl", "").splice(6,0,"/").splice(4,0,"/"));
-                                    if (FeatureDate instanceof Date){
+                                    var FeatureDate = new Date(key.replace("dl", "").splice(6, 0, "/").splice(4, 0, "/"));
+                                    if (FeatureDate instanceof Date) {
                                         featureData.push({
                                             x: FeatureDate,
                                             y: response.features[i].properties[key]
                                         });
                                     }
                                 }
-                                eval("featureInfo."+key+"=response.features[\""+i+"\"].properties."+key+";");
+                                eval("featureInfo." + key + "=response.features[\"" + i + "\"].properties." + key + ";");
                             }
 
-                            
+
                             chartData.push({
                                 values: featureData, //values - represents the array of {x,y} data points
                                 key: response.features[i].properties["code"], //key  - the name of the series (PS CODE)
                                 //color: '#ff7f0e' //color - optional: choose your own line color.
                                 color: autoColor.getColor() //'#ff7f0e' //color - optional: choose your own line color.
                             });
-                            
+
                             infoResponse.push(featureInfo);
-							$scope.marker={
-								lat: point[1],
-								lon: point[0],
-								label: response.features[0].properties.code
-							};
+                            $scope.marker = {
+                                lat: point[1],
+                                lon: point[0],
+                                label: response.features[0].properties.code
+                            };
 
                         }
-                        $scope.graph_options.title.text = $scope.graph_options.title.text.substr(0,$scope.graph_options.title.text.length-2);
-                        
-                    }else{
+                        $scope.graph_options.title.text = $scope.graph_options.title.text.substr(0, $scope.graph_options.title.text.length - 2);
+
+                    } else {
                         $scope.graph_options.title.text = "";
                         $scope.show_panel = false;
                     }
-                    
+
                     //Line chart data should be sent as an array of series objects.                
                     angular.extend($scope.data, chartData);
                     angular.extend($scope, {
