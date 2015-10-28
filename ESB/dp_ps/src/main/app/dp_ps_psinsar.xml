@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
+	<http:request-config name="HTTP_Request_PSinSAR" host="${psinsar.host}" port="${psinsar.port}" basePath="${psinsar.path}" doc:name="HTTP Request PSinSAR start"/>
+    <flow name="dp_ps_psinsarFlow">
+        <jms:inbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2">
+        
+        </jms:inbound-endpoint>
+        
+        <set-variable variableName="jmsProperties" value="#[message.inboundProperties]" doc:name="save jmsProperties"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <http:request config-ref="HTTP_Request_PSinSAR" path="${psinsar.request}?USERNAME=${psinsar.usr}&amp;PASSWORD=${psinsar.pwd}&amp;NAME=PSinSar&amp;arguments=argsss" method="GET" doc:name="request start PSinSAR">
+        </http:request>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <set-variable variableName="jobId" value="#[xpath3(&quot;//Job/JobsID/JobId&quot;)]" doc:name="jobId"/>
+        <logger message="STATUS AFTER START REQUEST: #[payload]" level="INFO" doc:name="Request returned Payload"/>
+        <logger message="Request jobId: #[jobId]" level="INFO" doc:name="Request jobId"/>
+        <set-variable variableName="jobStatus" value="" doc:name="jobStatus"/>
+        <until-successful maxRetries="10" synchronous="true" doc:name="Until Successful" failureExpression="#[!jobStatus.equals('done') &amp;&amp; !jobStatus.equals('error')]" millisBetweenRetries="5000">
+            <processor-chain doc:name="Processor Chain">
+                <http:request config-ref="HTTP_Request_PSinSAR" path="${psinsar.status}?USERNAME=${psinsar.usr}&amp;PASSWORD=${psinsar.pwd}&amp;IdJob=#[jobId]" method="GET" doc:name="request polling status PSinSAR">
+                    <http:request-builder>
+                    </http:request-builder>
+                </http:request>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <set-variable variableName="jobStatus" value="#[xpath3(&quot;//Jobs/Job/Status/text()&quot;)]" doc:name="jobStatus"/>
+                <logger message="STATUS POLLING: #[payload]" level="INFO" doc:name="Polling payload"/>
+                <logger message="Polling STATUS: #[jobStatus]" level="INFO" doc:name="Polling STATUS"/>
+            </processor-chain>
+        </until-successful>
+
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="Logger"/>
+        <choice doc:name="Error or Done?">
+            <when expression="jobStatus==&quot;done&quot;">
+                <logger message="PSinSAR succedeed #[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" level="INFO" doc:name="Done"/>
+            </when>
+            <otherwise>
+                <set-property propertyName="message_failed" value="errore" doc:name="Set message-failed"/>
+            </otherwise>
+        </choice>
+        <scripting:component doc:name="Restore jmsProperties">
+            <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
+{
+   message.setOutboundProperty(key, jmsProperties.get(key))
+}
+result = payload]]></scripting:script>
+        </scripting:component>
+
+
+    </flow>
+</mule>

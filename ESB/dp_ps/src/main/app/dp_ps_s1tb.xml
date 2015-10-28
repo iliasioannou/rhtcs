@@ -11,10 +11,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 
 	<http:request-config name="HTTP_Request_S1TB_start" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.request.path}" doc:name="HTTP Request S1TB start"/>
     <http:request-config name="HTTP_Request_S1TB_polling" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.polling.path}" doc:name="HTTP Request S1TB polling"/>
-    <jms:object-to-jmsmessage-transformer name="prova" doc:name="Object to JMSMessage"/>
-    <expression-transformer expression="payload.setJMSType(&quot;L1&quot;); return payload;" name="Expression" doc:name="Expression"/>
     <flow name="dp_ps_s1tbFlow">
-        <jms:inbound-endpoint queue="rheticus.processor.ps.request.L1" connector-ref="Active_MQ" doc:name="ps.request L1">
+        <jms:inbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1">
         
         </jms:inbound-endpoint>
 
