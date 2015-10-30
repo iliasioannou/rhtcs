@@ -43,59 +43,56 @@
     -->
     
     <!-- CAMEL -->
-	<camelContext xmlns="http://camel.apache.org/schema/spring">
+    <camelContext xmlns="http://camel.apache.org/schema/spring">
     
         <!-- ================================= -->
         <!-- Processor PS Step S0              -->
         <!-- ================================= -->
         <!-- REQUEST -->
-		<route>
-			<from uri="activemq:topic:rheticus.processor.ps.s0.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
-            <!-- <log message="Route message from rheticus.processor.ps.s0.request.mirror topic to log queue.\n\tIN Body: $simple{in.body}" /> -->
+        <route>
+            <from uri="activemq:topic:rheticus.processor.ps.s0.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <transform>
                 <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "PROGRESS", "message": "Calcolo superMaster in corso"}</simple>
             </transform>
-			<to uri="activemq:queue:rheticus.processor.ps.log" />
-		</route>
+            <to uri="activemq:queue:rheticus.processor.ps.log" />
+        </route>
         <!-- REPLY -->
-		<route>
-			<from uri="activemq:topic:rheticus.processor.ps.s0.reply.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
+        <route>
+            <from uri="activemq:topic:rheticus.processor.ps.s0.reply.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <choice>
                 <when>
                     <!-- Elaborazione del Processore in ERRORE -->
-                    <!-- NB: Trick for check if property message_failed exist -->
+                    <!-- Trick for check il property message_failed exist -->
                     <simple>'-$simple{in.header.message_failed}-' != '--'</simple>
-                    <log message="Processore s0: KO :-(" />
                     <transform>
                         <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "FAILURE", "message": "Problemi nel calcolo della superMaster."}</simple>
                     </transform>
                 </when>
                 <otherwise>
                     <!-- Elaborazione del Processore OK -->
-                    <log message="Processore s0: OK :-)" />
                     <transform>
                         <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "SUCCESS", "message": "Calcolo superMaster eseguito con successo"}</simple>
                     </transform>
                 </otherwise>
             </choice>            
-			<to uri="activemq:queue:rheticus.processor.ps.log" />
-		</route>
+            <to uri="activemq:queue:rheticus.processor.ps.log" />
+        </route>
         
         <!-- ================================= -->
         <!-- Processor PS Step S1              -->
         <!-- ================================= -->
         <!-- REQUEST -->
-		<route>
-			<from uri="activemq:topic:rheticus.processor.ps.s1.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
-			<log message="Route message from rheticus.processor.ps.s1.request.mirror topic to log queue.\n\tIN Body: $simple{in.body}" />
+        <route>
+            <from uri="activemq:topic:rheticus.processor.ps.s1.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
+            <log message="Route message from rheticus.processor.ps.s1.request.mirror topic to log queue.\n\tIN Body: $simple{in.body}" />
             <transform>
                 <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "PROGRESS", "message": "Calcolo coppie interferometriche in corso"}</simple>
             </transform>
-			<to uri="activemq:queue:rheticus.processor.ps.log" />
-		</route>
+            <to uri="activemq:queue:rheticus.processor.ps.log" />
+        </route>
         <!-- REPLY -->
-		<route>
-			<from uri="activemq:topic:rheticus.processor.ps.s1.reply.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
+        <route>
+            <from uri="activemq:topic:rheticus.processor.ps.s1.reply.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <choice>
                 <when>
                     <simple>'-$simple{in.header.message_failed}-' != '--'</simple>
@@ -109,23 +106,23 @@
                     </transform>
                 </otherwise>
             </choice>            
-			<to uri="activemq:queue:rheticus.processor.ps.log" />
-		</route>   
+            <to uri="activemq:queue:rheticus.processor.ps.log" />
+        </route>   
 
         <!-- ================================= -->
         <!-- Processor PS Step S2              -->
         <!-- ================================= -->
         <!-- REQUEST -->
-		<route>
-			<from uri="activemq:topic:rheticus.processor.ps.s2.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
+        <route>
+            <from uri="activemq:topic:rheticus.processor.ps.s2.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <transform>
                 <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "PROGRESS", "message": "Calcolo PS in corso"}</simple>
             </transform>
-			<to uri="activemq:queue:rheticus.processor.ps.log" />
-		</route>
+            <to uri="activemq:queue:rheticus.processor.ps.log" />
+        </route>
         <!-- REPLY -->
-		<route>
-			<from uri="activemq:topic:rheticus.processor.ps.s1.reply.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
+        <route>
+            <from uri="activemq:topic:rheticus.processor.ps.s2.reply.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <choice>
                 <when>
                     <simple>'-$simple{in.header.message_failed}-' != '--'</simple>
@@ -139,10 +136,10 @@
                     </transform>
                 </otherwise>
             </choice>            
-			<to uri="activemq:queue:rheticus.processor.ps.log" />
-		</route>          
+            <to uri="activemq:queue:rheticus.processor.ps.log" />
+        </route>          
 
-	</camelContext>    
+    </camelContext>    
 
     <!--
         The <broker> element is used to configure the ActiveMQ broker.
@@ -244,7 +241,7 @@
         </destinationInterceptors>       
 
     </broker>
-	    
+        
 
     <!--
         Enable web consoles, REST and Ajax APIs and demos

@@ -4,7 +4,7 @@ LOGGING dello stato dell'orchestratore
 
 Il logging dello stato dell'orchestrare utilizza la seguente catena:
 
-flusso MULE 3.7 ---(messaggi JMS)---> ACTIVEMQ 5.12 ---(CAMEL 2.15.2)---> LOGSTASH 1.5.4 ---> ELASTICSEARCH 1.7.2 (indice rheticusorchestratorlog) ---> KIBANA 4.1.2
+flusso MULE 3.7 ---(messaggi JMS)---> ACTIVEMQ 5.12.1 ---(CAMEL 2.15.3)---> LOGSTASH 1.5.4 ---> ELASTICSEARCH 1.7.3 (indice rheticusorchestratorlog) ---> KIBANA 4.1.2
 
 Il flusso MULE che orchestrala generazione di PS comunica con i singoli processori attraverso delle code (queue) JMS utilizzando il broker ACTIVEMQ.
 Le code utilizzate sono le seguenti:
