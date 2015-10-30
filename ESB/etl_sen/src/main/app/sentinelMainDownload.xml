@@ -76,7 +76,8 @@ GRD 130mb
             <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
             <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
             <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
-Double temp;
+Double CoordinateLon;
+Double CoordinateLat;
 qryableMap.put('uuid',id);
 qryableMap.put('filename',title);
 qryableMap.put('linkDownload',link);
@@ -93,24 +94,22 @@ int j=0;
 while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 {
 	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken(),",");
-	while ((java.lang.Boolean)pointCoordinate.hasMoreTokens())
-		{
-			temp=(Double.parseDouble(pointCoordinate.nextToken()));
-                    if (j==0)
-    					{
-							metaCoordinateLat=(Math.round(temp*10.0))/10.0 ;
-						}
- 					 if (j==1)
-    					{
-							metaCoordinateLon=(Math.round(temp)) ;
-						}
-							j++;
-			coordinate2.add(temp);
-		}
+	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
+	CoordinateLon=(Double.parseDouble(pointCoordinate.nextToken()));
+    if (j==0)
+    {
+		metaCoordinateLon=(Math.round(CoordinateLon)) ;
+		metaCoordinateLat=(Math.round(CoordinateLat*10.0))/10.0 ;
+        j++;
+	}
+	
+	
+	coordinate2.add(CoordinateLon);
+	coordinate2.add(CoordinateLat);
 	if (i==0)
-				{
-				   	coordinate3 = coordinate2;
-				}
+	{
+		coordinate3 = coordinate2;
+	}
 	coordinate.add(coordinate2);
 	coordinate2=new java.util.ArrayList();
 	i++;
@@ -123,16 +122,13 @@ qryableMap.put('ingestion',ingestion);
 
 
 
-String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+instrumentConfigurationID+productClass+productType+metaCoordinateLat+metaCoordinateLon;
-java.security.MessageDigest md;
-md = java.security.MessageDigest.getInstance("MD5");
-md.update(dataset.getBytes(java.nio.charset.Charset.forName("UTF-8")));
-result = String.format(Locale.ROOT, "%032x", new BigInteger(1, md.digest()));
-qryableMap.put('datasetId',result);
+String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+transmitterReceiverPolarisation1+transmitterReceiverPolarisation2+productClass+productType+metaCoordinateLon+metaCoordinateLat;
+
+qryableMap.put('datasetId',dataset);
 
 
 ]]></expression-component>
-            <logger message="***** #[metaCoordinateLat] ***#[metaCoordinateLon]" level="INFO" doc:name="metacoordinate"/>
+            <logger message="***** LON #[metaCoordinateLon] ***LAT: #[metaCoordinateLat]" level="INFO" doc:name="metacoordinate"/>
 
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
             <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>

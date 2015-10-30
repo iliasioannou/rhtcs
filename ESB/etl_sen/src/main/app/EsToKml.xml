@@ -5,8 +5,8 @@ http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/cor
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
-http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
-    <flow name="EsToKmlFlow1" >
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd" version="CE-3.4.0">
+    <flow name="EsToKmlFlow1" doc:name="EsToKmlFlow1">
         <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="EsToKml" doc:name="HTTP"/>
         <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetId&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
         <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/_search" method="POST" doc:name="ElasticSearch"/>
@@ -43,7 +43,7 @@ String productType=tokenizerCoordinates.nextToken();
 String productClass=tokenizerCoordinates.nextToken();
 String sliceNumber=tokenizerCoordinates.nextToken();
 
-stringKml+="<Folder> \n <name>Dataset: "#[datasetID]+"[N_img="#[count]+" </name> \n<ExtendedData>	\n   <SchemaData schemaUrl=\"schemadata\">   \n  <SimpleData name= \"mode\">"+mode+"</SimpleData> \n       <SimpleData name=\"swath\">"+swath+"</SimpleData> \n        <SimpleData name=\"relativeOrbitNumberTypeStart\">"+relativeOrbitNumberTypeStart+"</SimpleData> \n      <SimpleData name=\"relativeOrbitNumberTypeStop\">"+relativeOrbitNumberTypeStop+"</SimpleData> \n       <SimpleData name=\"pass\">"+pass+"</SimpleData> \n         <SimpleData name=\"transmitterReceiverPolarisation\">"+transmitterReceiverPolarisation+"</SimpleData> \n        <SimpleData name=\"productType\">"+productType+"</SimpleData> \n         <SimpleData name=\"productClass\">"+productClass+"</SimpleData>	\n	  <SimpleData name=\"sliceNumber\">"+sliceNumber+"</SimpleData> \n      </SchemaData> \n     </ExtendedData>" ;  
+stringKml+="<Folder> \n <name>Dataset: "#[datasetID]+"[N_img="#[count]+" </name> \n<ExtendedData>	\n   <SchemaData schemaUrl=\"schemadata\">   \n  <SimpleData name= \"mode\">"+mode+"</SimpleData> \n       <SimpleData name=\"swath\">"+swath+"</SimpleData> \n        <SimpleData name=\"relativeOrbitNumberTypeStart\">"+relativeOrbitNumberTypeStart+"</SimpleData> \n      <SimpleData name=\"relativeOrbitNumberTypeStop\">"+relativeOrbitNumberTypeStop+"</SimpleData> \n       <SimpleData name=\"pass\">"+pass+"</SimpleData> \n         <SimpleData name=\"transmitterReceiverPolarisation\">"+transmitterReceiverPolarisation+"</SimpleData> \n        <SimpleData name=\"productType\">"+productType+"</SimpleData> \n         <SimpleData name=\"productClass\">"+productClass+"</SimpleData>	\n	    </SchemaData> \n     </ExtendedData>" ;  
 
 ]]></expression-component>
             <set-payload value="#[json:hits/hits]" doc:name="ArrayResult"/>
@@ -55,14 +55,14 @@ stringKml+="<Folder> \n <name>Dataset: "#[datasetID]+"[N_img="#[count]+" </name>
 java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(productMetadati," ");
 
 String uuid=tokenizerCoordinates.nextToken();
-String coordinate1lat=tokenizerCoordinates.nextToken().replace("[","");
-String coordinate1long=tokenizerCoordinates.nextToken().replace("],","");
-String coordinate2lat=tokenizerCoordinates.nextToken().replace("[","");
-String coordinate2long=tokenizerCoordinates.nextToken().replace("],","");
-String coordinate3lat=tokenizerCoordinates.nextToken().replace("[","");
-String coordinate3long=tokenizerCoordinates.nextToken().replace("],","");
-String coordinate4lat=tokenizerCoordinates.nextToken().replace("[","");
-String coordinate4long=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate1long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate1lat=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate2long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate2lat=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate3long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate3lat=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate4long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate4lat=tokenizerCoordinates.nextToken().replace("],","");
 stringKml+="<SimpleField name=\"IDS1\" type=\"string\"> \n <displayName>IDS1</displayName>\n </SimpleField>\n <Placemark> \n <name>QuickLook ID: "+uuid+"</name>\n  <visibility>1</visibility>\n  <styleUrl>#mapstyle</styleUrl>\n <Polygon>\n <extrude>1</extrude> \n <tessellate>1</tessellate> \n <outerBoundaryIs> \n <LinearRing> \n <coordinates> \n"+coordinate1long+","+coordinate1lat+"0 \n"+coordinate2long+","+coordinate2lat+"0 \n"+coordinate3long+","+coordinate3lat+"0 \n"+coordinate4long+","+coordinate4lat+"0 \n"+coordinate1long+","+coordinate1lat+"0 \n </coordinates>\n </LinearRing> \n  </outerBoundaryIs> \n </Polygon></Placemark> \n <Placemark> \n <name>QuickLook ID: "+uuid+"</name>\n  <visibility>1</visibility>\n  <styleUrl>#mapstyle</styleUrl> \n <ExtendedData>\n <SchemaData schemaUrl=\"schemadata\"> \n <SimpleData name=\"IDS1\">"+uuid+"</SimpleData> \n </SchemaData> \n</ExtendedData> \n <Point> \n <extrude>1</extrude> \n <altitudeMode>clampToGround</altitudeMode> \n <coordinates>"+coordinate1long+","+coordinate1lat+"0\n </coordinates> \n </Point> \n   </Placemark> \n";	
 ]]></expression-component>
             </foreach>
