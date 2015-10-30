@@ -1,0 +1,131 @@
+======================================
+LOGGING dello stato dell'orchestratore 
+======================================
+
+Il logging dello stato dell'orchestrare utilizza la seguente catena:
+
+flusso MULE 3.7 ---(messaggi JMS)---> ACTIVEMQ 5.12 ---(CAMEL 2.15.2)---> LOGSTASH 1.5.4 ---> ELASTICSEARCH 1.7.2 (indice rheticusorchestratorlog) ---> KIBANA 4.1.2
+
+Il flusso MULE che orchestrala generazione di PS comunica con i singoli processori attraverso delle code (queue) JMS utilizzando il broker ACTIVEMQ.
+Le code utilizzate sono le seguenti:
+
+per lo step S0 (SuperMaster):
+    rheticus.processor.ps.s0.request
+    rheticus.processor.ps.s0.reply
+    
+per lo step S1 (S1TBX): 
+    rheticus.processor.ps.s1.request
+    rheticus.processor.ps.s1.reply
+
+per lo step S2 (PSInSAR):   
+    rheticus.processor.ps.s2.request
+    rheticus.processor.ps.s2.reply
+
+
+Abbiamo, quindi, una coppia di code per ogni step gestito dall'orchestratore.
+La doppia coda è necessaria per avere fisicamente una comunicazione asincrona fra processore e orchestratore, ma gestita in modo sincrono da quest'ultimo secondo l'Enterprise Integration Pattern (EIP) chiamato Request-Reply.
+
+Il broker ACTIVEMQ è stato configurato in modo da avere il mirroring delle code attraverso dei topic secondo EIP Wire-Tap.
+
+        
+    <!--  Queue Mirroring   -->
+    <destinationInterceptors>
+        <mirroredQueue copyMessage = "true" postfix=".mirror" prefix=""/>
+    </destinationInterceptors> 
+
+
+Quindi nel broker JMS abbiamo i seguenti "topic":
+
+per lo step S0 (SuperMaster):
+    rheticus.processor.ps.s0.request.mirror
+    rheticus.processor.ps.s0.reply.mirror
+    
+per lo step S1 (S1TBX): 
+    rheticus.processor.ps.s1.request.mirror
+    rheticus.processor.ps.s1.reply.mirror
+
+per lo step S2 (PSInSAR):   
+    rheticus.processor.ps.s2.request.mirror
+    rheticus.processor.ps.s2.reply.mirror
+
+su tali topic abbiamo il broadcasting dei messaggi che giungono sulla coppia di queue Request-Reply del singolo step.
+A questo punto entra in gioco CAMEL che è stato configurato per leggere i topic
+- rheticus.processor.ps.s*.request.mirror
+- rheticus.processor.ps.s*.reply.mirror
+creare un Object JSON secondo il seguente template
+    {"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "PROGRESS", "message": "........"}
+
+dove:
+    step in [S0, S1, S2]
+    status in [PROGRESS, SUCCESS, ERROR]
+
+Tale messaggio JSON viene inserito come body in un messaggio JMS che viene inserito nella queue:
+    rheticus.processor.ps.log
+    
+A questo punto i messaggi JMS vengono letti da LOGSTASH da tale coda ed inseriti in ELASTICSEARCH nell'indice "rheticusorchestratorlog" secondo il seguente mapping:
+    "mappings": {
+            "logs": {
+                "properties": {
+                    "@timestamp": {
+                        "format": "dateOptionalTime",
+                        "type": "date"
+                    },
+                    "processorStatus": {
+                        "properties": {
+                            "message": {
+                                "type": "string"
+                            },
+                            "orchestratorId": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "datasetId": {
+                                "type": "string"
+                            },
+                            "processor": {
+                                "type": "string"
+                            },
+                            "step": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "@version": {
+                        "type": "string"
+                    }
+                }
+            }
+
+di seguito un esempio di documento
+    {
+    
+        "_index": "rheticusorchestratoractivemqlog",
+        "_type": "logs",
+        "_id": "AVC2PU07o2L6sVByYjOe",
+        "_version": 1,
+        "_score": null,
+        "_source": {
+            "@version": "1",
+            "@timestamp": "2015-10-30T00:54:42.132Z",
+            "processorStatus": {
+                "processor": "PS",
+                "orchestratorId": "cdff5cc0-7ea0-11e5-86db-00090ffe0001",
+                "datasetId": "cdff5cc1-7ea0-11e5-a92a-00090ffe0001",
+                "step": "S0",
+                "status": "PROGRESS",
+                "message": "Calcolo superMaster in corso"
+            }
+        }
+    }
+
+Sull'indice di ELASTICSEARCH è stata creata la dashboard KIBANA.
+
+IMPORTANTE:
+LOGSTASH ha un plugin di input per JMS (di nome rabbitmq) che si interfaccia con un broker JMS utilizzando il protocollo AMQP (Advanced Message Queuing Protocol).
+Ho provato ad usarlo ma con ACTIVEMQ si verifica un errore imputabile alla diversa versione di AMQP utilizzata.
+Per ovviare a questo ho utilizzato un altro input plugin di LOGSTASH che comunica con un broker JMS attraverso il protocollo STOMP .
+Il plugin in questione è logstash-input-stomp che di default non fa parte dell'installazione del tool per cui è necessario installarlo: 
+    bin\plugin install logstash-input-stomp
+    
