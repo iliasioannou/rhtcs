@@ -52,7 +52,7 @@
         <route>
             <from uri="activemq:topic:rheticus.processor.ps.s0.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <transform>
-                <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "PROGRESS", "message": "Calcolo superMaster in corso"}</simple>
+                <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "PROGRESS", "msg": "Calcolo superMaster in corso"}</simple>
             </transform>
             <to uri="activemq:queue:rheticus.processor.ps.log" />
         </route>
@@ -65,13 +65,13 @@
                     <!-- Trick for check il property message_failed exist -->
                     <simple>'-$simple{in.header.message_failed}-' != '--'</simple>
                     <transform>
-                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "FAILURE", "message": "Problemi nel calcolo della superMaster."}</simple>
+                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "FAILURE", "msg": "Problemi nel calcolo della superMaster."}</simple>
                     </transform>
                 </when>
                 <otherwise>
                     <!-- Elaborazione del Processore OK -->
                     <transform>
-                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "SUCCESS", "message": "Calcolo superMaster eseguito con successo"}</simple>
+                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S0", "status": "SUCCESS", "msg": "Calcolo superMaster eseguito con successo"}</simple>
                     </transform>
                 </otherwise>
             </choice>            
@@ -85,7 +85,7 @@
         <route>
             <from uri="activemq:topic:rheticus.processor.ps.s1.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <transform>
-                <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "PROGRESS", "message": "Calcolo coppie interferometriche in corso"}</simple>
+                <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "PROGRESS", "msg": "Calcolo coppie interferometriche in corso"}</simple>
             </transform>
             <to uri="activemq:queue:rheticus.processor.ps.log" />
         </route>
@@ -96,12 +96,12 @@
                 <when>
                     <simple>'-$simple{in.header.message_failed}-' != '--'</simple>
                     <transform>
-                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "FAILURE", "message": "Problemi nel calcolo delle coppie interferometriche."}</simple>
+                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "FAILURE", "msg": "Problemi nel calcolo delle coppie interferometriche."}</simple>
                     </transform>
                 </when>
                 <otherwise>
                     <transform>
-                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "SUCCESS", "message": "Calcolo coppie interferometriche eseguito con successo"}</simple>
+                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S1", "status": "SUCCESS", "msg": "Calcolo coppie interferometriche eseguito con successo"}</simple>
                     </transform>
                 </otherwise>
             </choice>            
@@ -115,7 +115,7 @@
         <route>
             <from uri="activemq:topic:rheticus.processor.ps.s2.request.mirror?disableTimeToLive=true&amp;disableReplyTo=true" />
             <transform>
-                <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "PROGRESS", "message": "Calcolo PS in corso"}</simple>
+                <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "PROGRESS", "msg": "Calcolo PS in corso"}</simple>
             </transform>
             <to uri="activemq:queue:rheticus.processor.ps.log" />
         </route>
@@ -126,12 +126,12 @@
                 <when>
                     <simple>'-$simple{in.header.message_failed}-' != '--'</simple>
                     <transform>
-                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "FAILURE", "message": "Problemi nel calcolo dei PS."}</simple>
+                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "FAILURE", "msg": "Problemi nel calcolo dei PS."}</simple>
                     </transform>
                 </when>
                 <otherwise>
                     <transform>
-                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "SUCCESS", "message": "Calcolo PS eseguito con successo"}</simple>
+                        <simple>{"processor":"PS", "orchestratorId":"$simple{in.header.OrchestratorId}", "datasetId": "$simple{in.header.DatasetId}", "step":"S2", "status": "SUCCESS", "msg": "Calcolo PS eseguito con successo"}</simple>
                     </transform>
                 </otherwise>
             </choice>            
