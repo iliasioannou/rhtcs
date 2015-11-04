@@ -73,7 +73,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
                 <logger message="Timeout: #[message]" level="INFO" doc:name="Logger"/>
                 <logger message="REPLYTO: #[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" level="INFO" doc:name="I MESSAGGI RESTANO NELLA CODA DI REQUEEEEST!!!!"/>
                 <set-property propertyName="message_failed" value="Reply Timeout" doc:name="message_failed"/>
-                <jms:outbound-endpoint queue="#[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" connector-ref="Active_MQ" doc:name="JMS"/>
+                <jms:outbound-endpoint queue="#[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" connector-ref="Active_MQ" doc:name="Logstash JMS"/>
             </catch-exception-strategy>
         </choice-exception-strategy>
 	</flow>
@@ -85,7 +85,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		<set-variable variableName="datasetDataArrayList" value="#[payload]"
 			doc:name="save datasetDataArrayList" />
         <set-variable variableName="orchestratorId" value="#[java.util.UUID.randomUUID().toString().replaceAll(&quot;-&quot;, &quot;&quot;)]" doc:name="orchestratorId"/>
-        <logger message="#[orchestratorId]" level="INFO" doc:name="Logger"/>
+        <logger message="#[orchestratorId]" level="INFO" doc:name="orchestratorId"/>
 
 		<set-payload
 			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"
@@ -134,15 +134,8 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 			level="INFO" doc:name="Create Json for S1TB" />
 		<set-variable variableName="mapForS1TB" value="#[new java.util.HashMap()]"
 			doc:name="mapForS1TB" />
-		<set-variable variableName="callbackUri"
-			value="${planetek.callbackUri.host}:${planetek.callbackUri.port}/${planetek.callbackUri.path}"
-			doc:name="callbackUri" />
-		<set-variable variableName="requestId"
-			value="#[datasetId]-#[server.dateTime]" doc:name="requestId" />
 		<expression-component doc:name="populate mapForS1TB"><![CDATA[mapForS1TB.put("datasetId", datasetId);
-mapForS1TB.put("requestId", requestId);
 mapForS1TB.put("superMasterId", superMasterId);
-mapForS1TB.put("callbackUri", callbackUri);
 mapForS1TB.put("data", datasetDataArrayList);
 ]]></expression-component>
 		<set-payload value="#[mapForS1TB]" doc:name="mapForS1TB" />

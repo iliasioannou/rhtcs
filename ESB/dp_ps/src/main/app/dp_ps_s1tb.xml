@@ -20,26 +20,41 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         <object-to-string-transformer doc:name="Object to String"/>
         <http:request config-ref="HTTP_Request_S1TB_start" path="/" method="POST" doc:name="request start S1TBX"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="STATUS AFTER START REQUEST: #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="STATUS AFTER START REQUEST: #[payload]" level="INFO" doc:name="STATUS AFTER START REQUEST"/>
         <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful" failureExpression="#[!payload.equals('OK')]" millisBetweenRetries="5000">
             <processor-chain doc:name="Processor Chain">
                 <http:request config-ref="HTTP_Request_S1TB_polling" path="/" method="GET" doc:name="request polling status S1TBX"/>
                 <object-to-string-transformer doc:name="Object to String"/>
-                <logger message="STATUS POLLING: #[payload]" level="INFO" doc:name="Logger"/>
+                <logger message="STATUS POLLING: #[payload]" level="INFO" doc:name="STATUS POLLING"/>
             </processor-chain>
         </until-successful>
 
         <object-to-string-transformer doc:name="Object to String"/>
         <set-variable variableName="resultPayload" value="#[payload]" doc:name="resultPayload"/>
-        <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="AFTER POLLING"/>
         <scripting:component doc:name="Restore jmsProperties">
             <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
    message.setOutboundProperty(key, jmsProperties.get(key))
 }
+result = payload
 ]]></scripting:script>
         </scripting:component>
         <set-payload value="#[resultPayload]" doc:name="resultPayload"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="S1TBX flow exception: #[exception]" level="INFO" doc:name="S1TBX flow exception"/>
+            <set-variable variableName="jmsReplyTo" value="#[message.outboundProperties[&quot;JMSReplyTo&quot;].getQueueName()]" doc:name="jmsReplyTo"/>
+            <scripting:component doc:name="Restore jmsProperties">
+                <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
+{
+   message.setOutboundProperty(key, jmsProperties.get(key))
+}
+result = payload
+]]></scripting:script>
+            </scripting:component>
+            <set-property propertyName="message_failed" value="#[exception.toString()]" doc:name="message_failed"/>
+            <jms:outbound-endpoint queue="#[jmsReplyTo]" connector-ref="Active_MQ" doc:name="JMS" />
+        </catch-exception-strategy>
 
 
     </flow>

@@ -54,6 +54,20 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 }
 result = payload]]></scripting:script>
         </scripting:component>
+        <catch-exception-strategy doc:name="Catch Exception Strategy">
+            <logger message="PSinSAR flow exception: #[exception]" level="INFO" doc:name="PsInSAR flow exception"/>
+            <set-variable variableName="jmsReplyTo" value="#[message.outboundProperties[&quot;JMSReplyTo&quot;].getQueueName()]" doc:name="jmsReplyTo"/>
+            <scripting:component doc:name="Restore jmsProperties">
+                <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
+{
+   message.setOutboundProperty(key, jmsProperties.get(key))
+}
+result = payload
+]]></scripting:script>
+            </scripting:component>
+            <set-property propertyName="message_failed" value="#[exception.toString()]" doc:name="message_failed"/>
+            <jms:outbound-endpoint queue="#[jmsReplyTo]" connector-ref="Active_MQ" doc:name="JMS"/>
+        </catch-exception-strategy>
 
 
     </flow>
