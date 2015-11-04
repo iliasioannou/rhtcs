@@ -18,7 +18,6 @@ public class Logstash
     {
         private static final Logger log = LoggerFactory.getLogger(Logstash.class);
 
-
         @Override
         public Object onCall(final MuleEventContext eventContext) throws Exception
             {

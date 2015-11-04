@@ -44,7 +44,7 @@
         
 		<Logger name="it.planetek.rheticus.mule.components.Logstash" level="INFO">
 			<AppenderRef ref="logstash-socket"/>
-			<AppenderRef ref="file" />
+	  <!--  <AppenderRef ref="file" /> -->
 		</Logger>        
         
         <Root level="INFO">

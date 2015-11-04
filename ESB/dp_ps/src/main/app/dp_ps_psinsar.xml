@@ -44,7 +44,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
                 <logger message="PSinSAR succedeed #[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" level="INFO" doc:name="Done"/>
             </when>
             <otherwise>
-                <set-property propertyName="message_failed" value="errore" doc:name="Set message-failed"/>
+                <set-property propertyName="message_failed" value="errore" doc:name="Set message_failed"/>
             </otherwise>
         </choice>
         <scripting:component doc:name="Restore jmsProperties">

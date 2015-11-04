@@ -1,4 +1,4 @@
-package it.planetek.dfc;
+package it.planetek.rheticus;
 
 import org.elasticsearch.common.xcontent.XContentBuilder;
 

@@ -1,7 +1,7 @@
 /*
  * 
  */
-package it.planetek.dfc;
+package it.planetek.rheticus;
 
 import static org.elasticsearch.common.xcontent.XContentFactory.jsonBuilder;
 

@@ -1,9 +1,6 @@
-/*
- *
- */
-package org.mule.transformers;
+package it.planetek.rheticus.mule.components;
 
-import it.planetek.dfc.ShapefileImporterService;
+import it.planetek.rheticus.ShapefileImporterService;
 
 import java.io.File;
 import java.io.FilenameFilter;

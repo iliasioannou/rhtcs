@@ -31,6 +31,11 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Configuration" />
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
+    <message-properties-transformer name="Logstash-Properties" doc:name="Message Properties">
+        <add-message-property key="OrchestratorId" value="#[orchestratorId]"/>
+        <add-message-property key="DatasetId" value="#[datasetId]"/>
+
+    </message-properties-transformer>
     
 
 	<flow name="dp_psFlow">
@@ -64,6 +69,12 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
                 <logger message="Processor failure for dataset #[datasetId], cause: &quot;#[message.inboundProperties.'message_failed']&quot;" level="INFO" doc:name="Processor failure from JMS"/>
                 <logger level="INFO" doc:name="Full Message"/>
             </catch-exception-strategy>
+            <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.ResponseTimeoutException)" doc:name="Catch JMS reply timeout">
+                <logger message="Timeout: #[message]" level="INFO" doc:name="Logger"/>
+                <logger message="REPLYTO: #[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" level="INFO" doc:name="I MESSAGGI RESTANO NELLA CODA DI REQUEEEEST!!!!"/>
+                <set-property propertyName="message_failed" value="Reply Timeout" doc:name="message_failed"/>
+                <jms:outbound-endpoint queue="#[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" connector-ref="Active_MQ" doc:name="JMS"/>
+            </catch-exception-strategy>
         </choice-exception-strategy>
 	</flow>
 	
@@ -73,8 +84,9 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 			doc:name="Show datasetId" />
 		<set-variable variableName="datasetDataArrayList" value="#[payload]"
 			doc:name="save datasetDataArrayList" />
-        <set-variable variableName="orchestratorId" value="#[server.dateTime]" doc:name="orchestratorId"/>
+        <set-variable variableName="orchestratorId" value="#[java.util.UUID.randomUUID().toString().replaceAll(&quot;-&quot;, &quot;&quot;)]" doc:name="orchestratorId"/>
         <logger message="#[orchestratorId]" level="INFO" doc:name="Logger"/>
+
 		<set-payload
 			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"
 			doc:name="Query getsuperMaster" />
@@ -97,11 +109,10 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 					doc:name="ArrayList to JSON" />
 				<logger message="**********Call Processor Calculate SuperMaster"
 					level="INFO" doc:name="Call SuperMaster Processor" />
-					<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L0&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Calcolo superMaster in corso&quot;}"/>
-					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
-				<request-reply doc:name="Request-Reply" timeout="10000">
+
+				<request-reply doc:name="Request-Reply" timeout="60000">
 				
-					<jms:outbound-endpoint queue="rheticus.processor.ps.s0.request" connector-ref="Active_MQ" doc:name="ps.request S0"  />
+					<jms:outbound-endpoint queue="rheticus.processor.ps.s0.request" connector-ref="Active_MQ" doc:name="ps.request S0" transformer-refs="Logstash-Properties"/>
 					<jms:inbound-endpoint queue="rheticus.processor.ps.s0.reply" connector-ref="Active_MQ" doc:name="ps.reply S0">
 						
 					</jms:inbound-endpoint>
@@ -112,8 +123,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 
                 </message-filter>
                 <set-variable variableName="superMasterId" value="#[json:superMasterId]" doc:name="superMasterId"/>
-                <set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;,&quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L0&quot;, &quot;status&quot;: &quot;OK&quot;, &quot;message&quot;:&quot;superMaster individuata:#[superMasterId]&quot;}"/>
-					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
+
                 <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : true    }}" doc:name="Update SM value"/>
                 <http:request config-ref="HTTP_Request_Configuration" path="/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
 			</otherwise>
@@ -139,10 +149,9 @@ mapForS1TB.put("data", datasetDataArrayList);
 		<json:object-to-json-transformer
 			doc:name="Object to JSON" />
 		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
-		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;,&quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi in corso&quot;}"/>
-					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
+
 		<request-reply doc:name="Request-Reply" timeout="60000">
-			<jms:outbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1" />
+			<jms:outbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1" transformer-refs="Logstash-Properties"/>
 			<jms:inbound-endpoint queue="rheticus.processor.ps.s1.reply"	connector-ref="Active_MQ" doc:name="ps.reply S1" >
 					
 			</jms:inbound-endpoint>
@@ -152,16 +161,14 @@ mapForS1TB.put("data", datasetDataArrayList);
 
         </message-filter>
 		<object-to-string-transformer doc:name="Object to String" />
-		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;,&quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;#[payload]&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi completata&quot;}"/>
-					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
+
 		<logger message="S1TVB Request response:  #[payload]" level="INFO"
 			doc:name="Result S1TB" />
 		
 		<logger message="******Call PSinSAR " level="INFO" doc:name="Call PSinSAR" />
-		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;, &quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;,&quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;PROGRESS&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi in corso&quot;}"/>
-					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
+
 		<request-reply doc:name="Request-Reply" timeout="60000">
-			<jms:outbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2" />
+			<jms:outbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2" transformer-refs="Logstash-Properties"/>
 			<jms:inbound-endpoint queue="rheticus.processor.ps.s2.reply"	connector-ref="Active_MQ" doc:name="ps.reply S2" >
 					
 			</jms:inbound-endpoint>
@@ -171,8 +178,7 @@ mapForS1TB.put("data", datasetDataArrayList);
 
         </message-filter>
 		<object-to-string-transformer doc:name="Object to String" />
-		<set-variable doc:name="logstash" variableName="logstash" value="{&quot;processor&quot;: &quot;PS&quot;, &quot;datasetId&quot;: &quot;#[datasetId]&quot;,&quot;orchestratorId&quot;:&quot;#[orchestratorId]&quot;, &quot;step&quot;: &quot;L1&quot;, &quot;status&quot;: &quot;#[payload]&quot;, &quot;message&quot;:&quot;Produzione di Interferogrammi completata&quot;}"/>
-					<component class="it.planetek.rheticus.mule.components.Logstash" doc:name="Java"/>
+
 		<logger message="PSinSAR Request response:  #[payload]" level="INFO"
 			doc:name="Result PSinSAR" />
         <logger message="END Orchestrator dp_ps" level="INFO" doc:name="End dp_ps"/>

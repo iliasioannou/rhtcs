@@ -1,4 +1,4 @@
-package it.planetek.dfc;
+package it.planetek.rheticus;
 
 public interface ShapefileImporterService
     {
