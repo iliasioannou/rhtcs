@@ -18,6 +18,55 @@
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
     <!-- endbuild -->
+
+	<style>
+
+		.chart {
+			shape-rendering: crispEdges;
+		}
+
+		.mini text {
+			font: 9px sans-serif;	
+		}
+
+		.main text {
+			font: 12px sans-serif;	
+		}
+
+		.miniItem0 {
+			fill: darksalmon;
+			stroke-width: 6;	
+		}
+
+		.miniItem1 {
+			fill: darkolivegreen;
+			fill-opacity: .7;
+			stroke-width: 6;	
+		}
+
+		.miniItem2 {
+			fill: slategray;
+			fill-opacity: .7;
+			stroke-width: 6;	
+		}
+
+		.brush .extent {
+			stroke: gray;
+			fill: dodgerblue;
+			fill-opacity: .365;
+		}
+		
+		.timeline {
+			bottom: 100px;
+			position: absolute;
+			right: 20px;
+			z-index: 1060;
+			background-color: rgba(255, 255, 255, 0.4);
+			border-radius: 4px;
+			padding: 2px;
+		}
+		
+</style>
 </head>
 
 <body ng-app="workspacePilotApp">
@@ -62,12 +111,14 @@
                                         <input ng-model="timeModel" type="text" slider options="timeOptions" />
                                     </div>
                                 </div>
-                                <div>
+-->
+                                <div ng-show="shouldShowDetails()">
                                     <label>Velocità media</label>
                                     <div>
                                         <input ng-model="speedModel" type="text" slider options="speedOptions" />
                                     </div>
                                 </div>
+<!--
                                 <div>
                                     <label>Coerenza</label>
                                     <div>
@@ -98,7 +149,6 @@
     </div>
 
     <div class="container">
-
         <div ng-view=""></div>
     </div>
 
