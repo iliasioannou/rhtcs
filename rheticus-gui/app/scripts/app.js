@@ -46,12 +46,12 @@
 				autocenter: false,
 				pinwindow: false,
 				center: {
-					lon: 11.13,
-					lat: 46.05,
-					zoom: 12
+					lon: 15.85,
+					lat: 38.325,
+					zoom: 14
 				},
-				speedModel: "-40;40",
-				detailZoom: 16,
+				speedModel: "-20;20",
+				detailZoom: 17,
 				datasets: [
 					{
 						name: 'dataset1',
@@ -80,44 +80,3 @@
 			}
 		});
 	});
-/*
-	//setup dependency injection
-	angular.module('d3Service',[]);// this is the service method for getting d3 library
-	angular.module('angularD3.controllers', []);
-	angular.module('angularD3.directives', ['d3Service']); //passing the d3 service to d3 directive
-
-	angular.module('angularD3.controllers').controller('DemoCtrl', ['$scope', function($scope){
-		$scope.title = "DemoCtrl";
-		$scope.data = [
-			{name: "Greg", score:98, color: "red"},
-			{name: "Ari", score:96, color: "blue"},
-			{name: "Loser", score: 48, color: "green"}
-						 ];
-		$scope.d3OnClick = function(){
-			alert("item.name");
-		};
-	}]);
-	
-	angular.module('angularD3.directives')
-	  .directive('d3Bars', [function() {
-		return {
-			restrict: 'EA',
-			replace: true,
-		  scope: {
-			  data: "="
-		  },
-		  link: function(scope, ele, attrs) {
-			  var svg = d3.select(ele[0])
-				.append('svg')
-				.style('width', '100%');
-			  angular.forEach(scope.data, function (item, index) {
-				  svg.append('rect')
-			.attr('height', 20)
-			.attr('width', item.score)
-			.attr('x', 0)
-			.attr('y', 20*index)
-			.attr('fill', item.color);
-			  });
-		  }
-		};
-	  }]);*/

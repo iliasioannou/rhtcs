@@ -19,7 +19,6 @@
                             <th>Altitudine</th>
                             <th>Coerenza</th>
                             <th>Velocit&agrave;&nbsp;Media</th>
-							<th>Spostamento&nbsp;Medio</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,7 +31,6 @@
                             <td>{{record.height}}</td>
                             <td>{{record.coh}}</td>
                             <td>{{record.average_speed}}</td>
-							<td>{{record.average_shift}}</td>
                         </tr>
                         </ul>
                     </tbody>
@@ -47,11 +45,13 @@
             </div>
         </div>
     </div>
+	<!--
 	<div class="timeline">
 		<div ng-controller="DemoCtrl">
 			<d3-bars data="data" ng-model="data[1].score" label="title"></d3-bars>
 		</div>
 	</div>
+	-->
     <div>
         <div class=" legenda" ng-controller="HeaderController">
             <label style="color: #fff; display: block; font-size: 12px">{{legendTitle}}</label>
