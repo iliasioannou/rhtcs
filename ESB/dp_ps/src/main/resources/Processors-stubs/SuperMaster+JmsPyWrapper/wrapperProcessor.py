@@ -63,6 +63,11 @@ class ConsumerProcessorRequest(BaseJmsClient):
         replyTo = frame.headers['reply-to']
         self.logger.debug('\tReplyTo: %s' % replyTo)
         
+        orchestratorId = frame.headers['orchestratorId']
+        self.logger.debug('\orchestratorId: %s' % orchestratorId)
+        datasetId = frame.headers['datasetId']
+        self.logger.debug('\datasetId: %s' % datasetId)
+        
         data = frame.body
         self.logger.debug('Message Body: %s' % data)
         
@@ -78,8 +83,12 @@ class ConsumerProcessorRequest(BaseJmsClient):
         headersMessage = {
             'persistent': 'true',
             #'JMSType': 'L0',
-            'JMSCorrelationID': correlationId
-        }          
+            'JMSCorrelationID': correlationId,
+            'orchestratorId': frame.headers['orchestratorId'],
+            'datasetId': frame.headers['datasetId'],
+            'step': frame.headers['step']
+        }   
+        #headerMessage.update(frame.headers)
         self.jmsBrokerConnection.send(replyTo, body=bodyMessage, headers=headersMessage, receipt='reply-to-message-%s' % messageId)
         
 

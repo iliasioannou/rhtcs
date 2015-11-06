@@ -31,10 +31,24 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Configuration" />
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
+    
+    <!-- Add needed orchestrator properties to the JMS message to pass them to LogStash -->
     <message-properties-transformer name="Logstash-Properties" doc:name="Message Properties">
-        <add-message-property key="OrchestratorId" value="#[orchestratorId]"/>
-        <add-message-property key="DatasetId" value="#[datasetId]"/>
-
+        <add-message-property key="orchestratorId" value="#[orchestratorId]"/>
+        <add-message-property key="datasetId" value="#[datasetId]"/>
+    </message-properties-transformer>
+    <!-- Set specific JMS (and then Logstash) properties depending on the specific processing level -->
+    <message-properties-transformer name="S0-Properties" doc:name="Message Properties">
+    	<add-message-property key="step" value="S0"/>
+        <add-message-property key="timeToLive" value="5000"/>
+    </message-properties-transformer>
+    <message-properties-transformer name="S1-Properties" doc:name="Message Properties">
+    	<add-message-property key="step" value="S1"/>
+        <add-message-property key="timeToLive" value="30000"/>
+    </message-properties-transformer>
+    <message-properties-transformer name="S2-Properties" doc:name="Message Properties">
+    	<add-message-property key="step" value="S2"/>
+        <add-message-property key="timeToLive" value="30000"/>
     </message-properties-transformer>
     
 
@@ -66,14 +80,12 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		<set-payload value="200 OK" doc:name="HTTP return" />
         <choice-exception-strategy doc:name="Choice Exception Strategy">
             <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.filter.FilterUnacceptedException)" enableNotifications="false" doc:name="Catch JMS message-failed">
-                <logger message="Processor failure for dataset #[datasetId], cause: &quot;#[message.inboundProperties.'message_failed']&quot;" level="INFO" doc:name="Processor failure from JMS"/>
-                <logger level="INFO" doc:name="Full Message"/>
+                <logger message="Processor failure from orchestratorId &quot;#[orchestratorId]&quot; for dataset &quot;#[datasetId]&quot;, cause: &quot;#[message.inboundProperties.'message_failed']&quot;" level="INFO" doc:name="Processor failure from JMS"/>
+                <logger level="INFO" doc:name="Full Message" message="Full message: #[message]"/>
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.ResponseTimeoutException)" doc:name="Catch JMS reply timeout">
-                <logger message="Timeout: #[message]" level="INFO" doc:name="Logger"/>
-                <logger message="REPLYTO: #[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" level="INFO" doc:name="I MESSAGGI RESTANO NELLA CODA DI REQUEEEEST!!!!"/>
-                <set-property propertyName="message_failed" value="Reply Timeout" doc:name="message_failed"/>
-                <jms:outbound-endpoint queue="#[message.outboundProperties[&quot;MULE_REPLYTO&quot;].substring(6)]" connector-ref="Active_MQ" doc:name="Logstash JMS"/>
+                <logger message="JMS reply timed out for request in &quot;#[message.outboundProperties['MULE_ENDPOINT']]&quot;  from orchestratorId &quot;#[orchestratorId]&quot; for dataset &quot;#[datasetId]&quot;" level="INFO" doc:name="JMS Reply Timeout (managed by activeMQ DLQ)"/>
+                <logger message="Full message: #[message]" level="INFO" doc:name="Full Message"/>
             </catch-exception-strategy>
         </choice-exception-strategy>
 	</flow>
@@ -112,7 +124,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 
 				<request-reply doc:name="Request-Reply" timeout="60000">
 				
-					<jms:outbound-endpoint queue="rheticus.processor.ps.s0.request" connector-ref="Active_MQ" doc:name="ps.request S0" transformer-refs="Logstash-Properties"/>
+					<jms:outbound-endpoint queue="rheticus.processor.ps.s0.request" connector-ref="Active_MQ" doc:name="ps.request S0" transformer-refs="Logstash-Properties S0-Properties"/>
 					<jms:inbound-endpoint queue="rheticus.processor.ps.s0.reply" connector-ref="Active_MQ" doc:name="ps.reply S0">
 						
 					</jms:inbound-endpoint>
@@ -144,7 +156,7 @@ mapForS1TB.put("data", datasetDataArrayList);
 		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
 
 		<request-reply doc:name="Request-Reply" timeout="60000">
-			<jms:outbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1" transformer-refs="Logstash-Properties"/>
+			<jms:outbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1" transformer-refs="Logstash-Properties S1-Properties"/>
 			<jms:inbound-endpoint queue="rheticus.processor.ps.s1.reply"	connector-ref="Active_MQ" doc:name="ps.reply S1" >
 					
 			</jms:inbound-endpoint>
@@ -161,7 +173,7 @@ mapForS1TB.put("data", datasetDataArrayList);
 		<logger message="******Call PSinSAR " level="INFO" doc:name="Call PSinSAR" />
 
 		<request-reply doc:name="Request-Reply" timeout="60000">
-			<jms:outbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2" transformer-refs="Logstash-Properties"/>
+			<jms:outbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2" transformer-refs="Logstash-Properties S2-Properties"/>
 			<jms:inbound-endpoint queue="rheticus.processor.ps.s2.reply"	connector-ref="Active_MQ" doc:name="ps.reply S2" >
 					
 			</jms:inbound-endpoint>
