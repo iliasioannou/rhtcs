@@ -14,9 +14,6 @@
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
         
-        <Socket name="logstash-socket" host="localhost" port="9500" protocol="tcp">
-        	<SerializedLayout/>
-        </Socket>
     </Appenders>
     
     <Loggers>
@@ -41,11 +38,6 @@
         <!-- Reduce DM verbosity -->
         <AsyncLogger name="org.jetel" level="WARN"/>
         <AsyncLogger name="Tracking" level="WARN"/>
-        
-		<Logger name="it.planetek.rheticus.mule.components.Logstash" level="INFO">
-			<AppenderRef ref="logstash-socket"/>
-	  <!--  <AppenderRef ref="file" /> -->
-		</Logger>        
         
         <Root level="INFO">
             <AppenderRef ref="Console" />
