@@ -29,6 +29,13 @@ body {
 .header {
     border-bottom: 1px solid #e5e5e5;
     margin-bottom: 10px;
+	position: absolute;
+	z-index: 2;
+	top: 2%;
+	left: 3%;
+	width: 80% !important;
+	background: none repeat scroll 0 0 rgba(248, 248, 248, 0.8);  
+	
     /* Make the masthead heading the same height as the navigation */
     h3 {
         margin-top: 0;
