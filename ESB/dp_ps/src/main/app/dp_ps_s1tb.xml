@@ -1,36 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:jms="http://www.mulesoft.org/schema/mule/jms" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
 
-	<http:request-config name="HTTP_Request_S1TB_start" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.request.path}" doc:name="HTTP Request S1TB start"/>
-    <http:request-config name="HTTP_Request_S1TB_polling" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.polling.path}" doc:name="HTTP Request S1TB polling"/>
+	<http:request-config name="HTTP_Request_S1TB" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.path}" doc:name="HTTP Request S1TB"/>
     <flow name="dp_ps_s1tbFlow">
         <jms:inbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1">
         
         </jms:inbound-endpoint>
+        <logger message="STart message: #[message]" level="INFO" doc:name="STart message"/>
+        <logger message="Class: #[message.inboundProperties.getClass()]" level="INFO" doc:name="Logger"/>
+        <copy-properties propertyName="*" doc:name="Copy Props"/>
+        <set-variable variableName="jmsProperties" value="#[message.outboundProperties]" doc:name="save jmsProperties"/>
+        <logger message="jmsProperties #[jmsProperties]" level="INFO" doc:name="Logger"/>
 
-        <set-variable variableName="jmsProperties" value="#[message.inboundProperties]" doc:name="save jmsProperties"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <http:request config-ref="HTTP_Request_S1TB_start" path="/" method="POST" doc:name="request start S1TBX"/>
+        <http:request config-ref="HTTP_Request_S1TB" path="/" method="POST" doc:name="request start S1TBX"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="STATUS AFTER START REQUEST: #[payload]" level="INFO" doc:name="STATUS AFTER START REQUEST"/>
-        <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful" failureExpression="#[!payload.equals('OK')]" millisBetweenRetries="5000">
+        <set-variable variableName="requestStatus" value="#[json:requestStatus]" doc:name="requestStatus"/>
+        <scripting:component doc:name="Check requestStatus">
+            <scripting:script engine="Groovy"><![CDATA[if(flowVars['requestStatus'] != "SUBMITTED")
+	throw new org.apache.commons.httpclient.HttpException("S1TBX did not accept the request")
+return payload]]></scripting:script>
+        </scripting:component>
+        <set-variable variableName="requestId" value="#[json:requestId]" doc:name="requestId"/>
+
+        <logger message="STATUS AFTER START REQUEST: #[requestStatus]" level="INFO" doc:name="STATUS AFTER START REQUEST"/>
+        <until-successful maxRetries="5" synchronous="true" doc:name="Until not COMPLETED or FAILED" failureExpression="#[!requestStatus.equals('COMPLETED') &amp;&amp; !requestStatus.equals('FAILED')]" millisBetweenRetries="5000">
             <processor-chain doc:name="Processor Chain">
-                <http:request config-ref="HTTP_Request_S1TB_polling" path="/" method="GET" doc:name="request polling status S1TBX"/>
+                <http:request config-ref="HTTP_Request_S1TB" path="#[requestId]" method="GET" doc:name="request polling status S1TBX"/>
                 <object-to-string-transformer doc:name="Object to String"/>
-                <logger message="STATUS POLLING: #[payload]" level="INFO" doc:name="STATUS POLLING"/>
+                <set-variable variableName="requestStatus" value="#[json:status]" doc:name="update requestStatus"/>
+
+                <logger message="STATUS POLLING: #[requestStatus] with payload: #[payload]" level="INFO" doc:name="STATUS POLLING"/>
             </processor-chain>
         </until-successful>
-
         <object-to-string-transformer doc:name="Object to String"/>
-        <set-variable variableName="resultPayload" value="#[payload]" doc:name="resultPayload"/>
+        <scripting:component doc:name="Check requestStatus">
+            <scripting:script engine="Groovy"><![CDATA[if(flowVars['requestStatus'] != "COMPLETED")
+	throw new Exception("S1TBX processing failed")
+return payload]]></scripting:script>
+        </scripting:component>
+
         <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="AFTER POLLING"/>
         <scripting:component doc:name="Restore jmsProperties">
             <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
@@ -40,10 +58,10 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 result = payload
 ]]></scripting:script>
         </scripting:component>
-        <set-payload value="#[resultPayload]" doc:name="resultPayload"/>
+        <logger message="end: #[message]" level="INFO" doc:name="Logger"/>
+
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger message="S1TBX flow exception: #[exception]" level="INFO" doc:name="S1TBX flow exception"/>
-            <set-variable variableName="jmsReplyTo" value="#[message.outboundProperties[&quot;JMSReplyTo&quot;].getQueueName()]" doc:name="jmsReplyTo"/>
             <scripting:component doc:name="Restore jmsProperties">
                 <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
@@ -52,7 +70,10 @@ result = payload
 result = payload
 ]]></scripting:script>
             </scripting:component>
-            <set-property propertyName="message_failed" value="#[exception.toString()]" doc:name="message_failed"/>
+            <logger message="Exc message: #[message]" level="INFO" doc:name="Logger"/>
+            <set-variable variableName="jmsReplyTo" value="#[message.outboundProperties[&quot;JMSReplyTo&quot;].getQueueName()]" doc:name="jmsReplyTo"/>
+
+            <set-property propertyName="message_failed" value="#[exception.getCause().toString()]" doc:name="message_failed"/>
             <jms:outbound-endpoint queue="#[jmsReplyTo]" connector-ref="Active_MQ" doc:name="JMS" />
         </catch-exception-strategy>
 
