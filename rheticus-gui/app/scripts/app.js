@@ -50,7 +50,7 @@
 					lat: 38.325,
 					zoom: 14
 				},
-				speedModel: "-20;20",
+				speedModel: "0;20",
 				detailZoom: 17,
 				datasets: [
 					{
@@ -62,15 +62,7 @@
 						selected: false
 					},
 					{
-						name: 'DS3',
-						selected: false
-					},
-					{
-						name: 'DS4',
-						selected: false
-					},
-					{
-						name: 'DS5',
+						name: 'dataset3',
 						selected: false
 					}
 				]

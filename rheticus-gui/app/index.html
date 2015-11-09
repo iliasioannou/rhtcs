@@ -3,6 +3,7 @@
 	<head>
 		<meta charset="utf-8">
 		<title></title>
+		<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
 		<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -17,46 +18,6 @@
 		<link rel="stylesheet" href="styles/main.css">
 		<link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
 		<!-- endbuild -->
-
-		<style>
-			.chart {
-				shape-rendering: crispEdges;
-			}
-			.mini text {
-				font: 9px sans-serif;	
-			}
-			.main text {
-				font: 12px sans-serif;	
-			}
-			.miniItem0 {
-				fill: darksalmon;
-				stroke-width: 6;	
-			}
-			.miniItem1 {
-				fill: darkolivegreen;
-				fill-opacity: .7;
-				stroke-width: 6;	
-			}
-			.miniItem2 {
-				fill: slategray;
-				fill-opacity: .7;
-				stroke-width: 6;	
-			}
-			.brush .extent {
-				stroke: gray;
-				fill: dodgerblue;
-				fill-opacity: .365;
-			}
-			.timeline {
-				bottom: 100px;
-				position: absolute;
-				right: 20px;
-				z-index: 1060;
-				background-color: rgba(255, 255, 255, 0.4);
-				border-radius: 4px;
-				padding: 2px;
-			}
-		</style>
 	</head>
 
 	<body ng-app="workspacePilotApp">
@@ -77,7 +38,7 @@
 							<span class="icon-bar"></span>
 						</button>
 
-						<a class="navbar-brand" href="#/">Rheticus</a>
+						<a class="navbar-brand" href="#/">Rheticus&#x2122; – Sentinel Strategic Infrastructure Mapping Application</a>
 					</div>
 
 					<div class="collapse navbar-collapse navbar-right" id="js-navbar-collapse">
@@ -119,6 +80,10 @@
 									</div>
 									-->
 									<div class="divider" style="border: 1px"></div>
+									<div>
+										spiegare come usare il filtro
+									</div>
+									<!--
 									<label>Opzioni di visualizzazione:</label>
 									<div>
 										<div class="btn-group">
@@ -130,7 +95,8 @@
 										<div class="btn-group">
 											<label class="btn btn-primary" ng-class="{'btn-success': configuration.pinwindow}" ng-model="configuration.pinwindow" btn-checkbox>Pin window</label>
 										</div>  
-									</div>                                
+									</div>   
+									-->									
 								</div>
 							</script>
 
@@ -191,5 +157,9 @@
 		<script src="scripts/controllers/main.js"></script>
 		<script src="scripts/controllers/about.js"></script>
 		<!-- endbuild -->
+		
+		<!-- external -->
+		<script src="scripts/utils/utils.js"></script>
+		<!-- external -->
 	</body>
 </html>
