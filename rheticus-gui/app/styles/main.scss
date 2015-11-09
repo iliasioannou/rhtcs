@@ -138,9 +138,22 @@ body {
 /*ol interface*/
 
 .ol-zoomslider {
-    top: 8em !important;
+    left: 0.65em !important;
+    top: 2.5em !important;
 }
-
+.ol-zoom {
+    height: 18.35em;
+    left: 0.5em;
+    top: 0.5em;
+}
+.ol-zoom .ol-zoom-out {
+    border-radius: 0 0 2px 2px;
+    bottom: 3px;
+    position: absolute;
+}
+.ol-zoomslider-thumb {
+    margin: 0 0 0 1px !important;
+} 
 .ol-scale-line {
     background: none repeat scroll 0 0 rgba(0, 60, 136, 0.3);
     border-radius: 4px;
@@ -154,7 +167,7 @@ body {
     margin-top: 20px;
     position: absolute;
     z-index: 1060;
-    //width: 700px;
+    width: 700px;
     //max-height: 50%;
 }
 
@@ -162,7 +175,7 @@ body {
     position: fixed;
     z-index: 1060;
     bottom: 65px;
-    right: 8px;
+    left: 8px;
     border-radius: 4px;
     padding: 2px;
     background: none repeat scroll 0 0 rgba(0, 60, 136, 0.6);
@@ -177,4 +190,60 @@ body {
 .keepoff {
     top: -10000px;
     position: absolute;
+}
+
+/* timeline chart*/
+
+.chart {
+	shape-rendering: crispEdges;
+}
+
+.mini text {
+	font: 9px sans-serif;	
+}
+
+.main text {
+	font: 12px sans-serif;	
+}
+
+.miniItem {
+	fill: white;
+	fill-opacity: .7;
+	stroke-width: 6;	
+}
+
+.miniItem0 {
+	fill: darksalmon;
+	stroke-width: 6;	
+}
+
+.miniItem1 {
+	fill: darkolivegreen;
+	fill-opacity: .7;
+	stroke-width: 6;	
+}
+
+.miniItem2 {
+	fill: slategray;
+	fill-opacity: .7;
+	stroke-width: 6;	
+}
+
+.brush .extent {
+	stroke: gray;
+	fill: dodgerblue;
+	fill-opacity: .365;
+}
+.axis line, .axis path {
+	stroke: black;
+}
+
+.timeline {
+	bottom: 100px;
+	position: absolute;
+	right: 20px;
+	z-index: 1060;
+	background-color: rgba(255, 255, 255, 0.4);
+	border-radius: 4px;
+	padding: 2px;
 }
