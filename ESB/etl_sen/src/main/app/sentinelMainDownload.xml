@@ -20,7 +20,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
 http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
-http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd" version="CE-3.4.0">
+http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd" >
 
     
     
@@ -41,15 +41,16 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
     <http:endpoint exchange-pattern="request-response" host="localhost" port="9090" path="startupdate" method="GET" name="HTTP" doc:name="HTTP"/>
     <http:endpoint exchange-pattern="request-response" host="localhost" port="9090" path="startupdate" method="GET" name="HTTP1" doc:name="HTTP"/>
     <choice-exception-strategy name="Choice_Exception_Strategy">
-        <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="****************Generic Exception****************" level="WARN" doc:name="Generic Exception"/>
+        <catch-exception-strategy doc:name="Catch Exception Strategy" when="#[exception.causedBy(java.net.SocketTimeoutException)]">
+            <logger message="****************TIMEOUT Exception****************" level="WARN" doc:name="Generic Exception"/>
             <set-payload value="#[savePayload]" doc:name="savePayload"/>
+            <scripting:component doc:name="repeat after 1 min">
+                <scripting:script engine="Groovy"><![CDATA[sleep(180000)]]></scripting:script>
+            </scripting:component>
             <flow-ref name="sentinelDownloadFlow1" doc:name="Call Download Flow"/>
         </catch-exception-strategy>
     </choice-exception-strategy>
- 
-    
-    <flow name="sentinelDownloadFlow1"  doc:description="SLC 1.7gb
+    <flow name="sentinelDownloadFlow1" processingStrategy="synchronous" doc:description="SLC 1.7gb
 {
 &quot;UUID&quot;:&quot;3016488c-721f-451a-b2a0-2a8602334ee2&quot;
 }
@@ -57,8 +58,8 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
 GRD 130mb
 {
 &quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
-}" processingStrategy="synchronous" doc:name="sentinelDownloadFlow1">
-        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" doc:name="HTTP" responseTimeout="4000000"/>
+}">
+        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" responseTimeout="4000000" doc:name="HTTP"/>
         <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
         <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
@@ -68,11 +69,11 @@ GRD 130mb
             <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
             <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
             <logger message="#[id]#[title]#[payload]" level="INFO" doc:name="id&amp; title"/>
-            <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" responseTimeout="400000" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="Manifest request (Deprecated)"/>
+            <until-successful maxRetries="5"  synchronous="true" doc:name="Until Successful">
+                <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" responseTimeout="400000" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="Manifest request (Deprecated)"/>
+            </until-successful>
             <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
             <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
-
-
             <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
             <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
             <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
@@ -129,19 +130,13 @@ qryableMap.put('datasetId',dataset);
 
 ]]></expression-component>
             <logger message="***** LON #[metaCoordinateLon] ***LAT: #[metaCoordinateLat]" level="INFO" doc:name="metacoordinate"/>
-
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
             <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
-
-
             <json:object-to-json-transformer doc:name="Object to JSON"/>
-
-            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/#[id]" method="POST" doc:name="Insert in ElasticSearch" responseTimeout="1000000"/>
+            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/#[id]" method="POST" responseTimeout="1000000" doc:name="Insert in ElasticSearch"/>
         </foreach>
         <set-payload value="#[arrayListData]" doc:name="arrayListData"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
-
-
-
     </flow>
+
 </mule>

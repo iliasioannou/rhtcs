@@ -4,7 +4,7 @@
 	xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-	xmlns:spring="http://www.springframework.org/schema/beans" version="CE-3.4.0"
+	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
@@ -30,7 +30,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 				value="classpath:sentinelclient.properties" />
 		</spring:bean>
 	</spring:beans>
-	<flow name="sentinelMainSearchALTFlow1" doc:name="sentinelMainSearchALTFlow1"
+	<flow name="sentinelMainSearchALTFlow1" 
 		doc:description="{
 &quot;startDate&quot;:&quot;2014-01-01T00:00:00.000Z&quot;,
 &quot;endDate&quot;:&quot;2015-01-28T00:00:00.000Z&quot;,
@@ -69,12 +69,23 @@ return payload]]></scripting:script>
 			contentType="application/json" doc:name="HTTP Response Builder" />
 		<choice-exception-strategy doc:name="Choice Exception Strategy">
 
-			<catch-exception-strategy doc:name="Generic Exception Strategy">
+			<catch-exception-strategy doc:name="IOException" when="#[exception.causedBy(java.io.IOException)]">
 				<logger level="WARN" doc:name="Log Generic Exception"
 					message="Generic Exception: #[exception.getCause().getMessage()]" />
                 <set-payload value="#[saveJson]" doc:name="saveJson"/>
+                <scripting:component doc:name="repeat after 1 min">
+                    <scripting:script engine="Groovy"><![CDATA[sleep(60000)]]></scripting:script>
+                </scripting:component>
                 <flow-ref name="sentinelMainSearchALTFlow1" doc:name="Call search flow"/>
 			</catch-exception-strategy>
+            <catch-exception-strategy when="#[exception.causedBy(org.apache.commons.httpclient.HttpException)]" doc:name="HttpException">
+                <logger message="Sentinel Offline" level="INFO" doc:name="Logger"/>
+                <scripting:component doc:name="repeat after 1 min">
+                    <scripting:script engine="Groovy"><![CDATA[sleep(60000)]]></scripting:script>
+                </scripting:component>
+                <logger message="After 1 min" level="INFO" doc:name="Logger"/>
+                <flow-ref name="sentinelMainSearchALTFlow1" doc:name="Call search flow"/>
+            </catch-exception-strategy>
 		</choice-exception-strategy>
 	</flow>
 </mule>
