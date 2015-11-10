@@ -13,22 +13,22 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
 http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
 
-	<context:property-placeholder location="classpath*:dp_ps.properties"
+	<context:property-placeholder location="classpath*:dp_ps${mule.env:#{null}}.properties"
 		system-properties-mode="OVERRIDE" />
 	<spring:beans>
 		<spring:bean id="psProps"
 			class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<spring:property name="singleton" value="true" />
-			<spring:property name="location" value="classpath:dp_ps.properties" />
+			<spring:property name="location" value="classpath:dp_ps${mule.env:#{null}}.properties" />
 		</spring:bean>
 	</spring:beans>
 
 	<http:listener-config name="HTTP_Listener_Configuration"
 		host="${dp.ps.host}" port="${dp.ps.port}" basePath="${dp.ps.path}"
 		doc:name="HTTP Listener Configuration" />
-	<http:request-config name="HTTP_Request_Configuration"
+	<http:request-config name="HTTP_Request_Elastisearch"
 		host="${elasticsearch.host}" port="${elasticsearch.rest.port}"
-		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Configuration" />
+		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Elastisearch" />
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
     
@@ -40,15 +40,15 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
     <!-- Set specific JMS (and then Logstash) properties depending on the specific processing level -->
     <message-properties-transformer name="S0-Properties" doc:name="Message Properties">
     	<add-message-property key="step" value="S0"/>
-        <add-message-property key="timeToLive" value="5000"/>
+        <add-message-property key="timeToLive" value="${supermaster.timeout}"/>
     </message-properties-transformer>
     <message-properties-transformer name="S1-Properties" doc:name="Message Properties">
     	<add-message-property key="step" value="S1"/>
-        <add-message-property key="timeToLive" value="30000"/>
+        <add-message-property key="timeToLive" value="${s1toolbox.timeout}"/>
     </message-properties-transformer>
     <message-properties-transformer name="S2-Properties" doc:name="Message Properties">
     	<add-message-property key="step" value="S2"/>
-        <add-message-property key="timeToLive" value="30000"/>
+        <add-message-property key="timeToLive" value="${psinsar.timeout}"/>
     </message-properties-transformer>
     
 
@@ -102,7 +102,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		<set-payload
 			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"
 			doc:name="Query getsuperMaster" />
-		<http:request config-ref="HTTP_Request_Configuration"
+		<http:request config-ref="HTTP_Request_Elastisearch"
 			path="/_search" method="POST" doc:name="ElasticSearch" />
 		<set-variable variableName="resSize" value="#[json:hits/total]"
 			doc:name="resSize" />
@@ -129,7 +129,8 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 						
 					</jms:inbound-endpoint>
 				</request-reply>
-                <logger level="INFO" doc:name="Logger"/>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger level="INFO" doc:name="S0 out" message="S0 out: #[payload]"/>
                 <message-filter throwOnUnaccepted="true" doc:name="If not message_failed (else Exception!)">
                     <message-property-filter pattern="message_failed=null" caseSensitive="true" scope="inbound"/>
 
@@ -137,7 +138,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
                 <set-variable variableName="superMasterId" value="#[json:superMasterId]" doc:name="superMasterId"/>
 
                 <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : true    }}" doc:name="Update SM value"/>
-                <http:request config-ref="HTTP_Request_Configuration" path="/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
+                <http:request config-ref="HTTP_Request_Elastisearch" path="/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
 			</otherwise>
 		</choice>
 		<logger message="********superMasterId: #[superMasterId]"
@@ -147,7 +148,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		<set-variable variableName="mapForS1TB" value="#[new java.util.HashMap()]"
 			doc:name="mapForS1TB" />
 		<expression-component doc:name="populate mapForS1TB"><![CDATA[mapForS1TB.put("datasetId", datasetId);
-mapForS1TB.put("superMasterId", superMasterId);
+mapForS1TB.put("supermasterId", superMasterId);
 mapForS1TB.put("data", datasetDataArrayList);
 ]]></expression-component>
 		<set-payload value="#[mapForS1TB]" doc:name="mapForS1TB" />
