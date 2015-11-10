@@ -33,8 +33,8 @@ body {
 	z-index: 2;
 	top: 2%;
 	left: 3%;
-	width: 80% !important;
-	background: none repeat scroll 0 0 rgba(248, 248, 248, 0.8);  
+	width: 90% !important;
+	/*background: none repeat scroll 0 0 rgba(248, 248, 248, 0.8);  */
 	
     /* Make the masthead heading the same height as the navigation */
     h3 {
@@ -43,6 +43,12 @@ body {
         line-height: 40px;
         padding-bottom: 19px;
     }
+}
+.navbar-brand {
+    /*position: fixed;*/
+    width: 100%;
+	margin-left: 0px !important;
+	
 }
 
 
@@ -113,6 +119,10 @@ body {
     cursor: pointer;
 }
 
+.navbar .container {
+	width: 100%;
+}
+
 .popover-inner {
     width: 100%;
 }
@@ -146,12 +156,11 @@ body {
 
 .ol-zoomslider {
     left: 0.65em !important;
-    top: 2.5em !important;
+    top: 8.5em !important;
 }
 .ol-zoom {
     height: 18.35em;
-    left: 0.5em;
-    top: 0.5em;
+    top: 6.5em !important;
 }
 .ol-zoom .ol-zoom-out {
     border-radius: 0 0 2px 2px;
