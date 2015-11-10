@@ -1,0 +1,51 @@
+<div>                                
+	<div>
+		<label>Seleziona i datasets:</label>
+		<div class="btn-group">
+			<label class="btn btn-primary" ng-model="dataset.selected" btn-checkbox ng-repeat="dataset in configuration.datasets">
+				{{dataset.name}}
+			</label>
+		</div>
+	</div>
+	<!--
+	<div>
+		<label>Tempo</label>
+		<div>
+			<input ng-model="timeModel" type="text" slider options="timeOptions" />
+		</div>
+	</div>
+-->
+	<div ng-show="shouldShowDetails()">
+		<label>Velocità media</label>
+		<div>
+			<input ng-model="speedModel" type="text" slider options="speedOptions" />
+		</div>
+	</div>
+<!--
+	<div>
+		<label>Coerenza</label>
+		<div>
+			<input ng-model="coherenceModel" type="text" slider options="coherenceOptions" />
+		</div>
+	</div>
+	-->
+	<div class="divider" style="border: 1px">
+	</div>
+	<div>
+		spiegare come usare il filtro
+	</div>
+	<!--
+	<label>Opzioni di visualizzazione:</label>
+	<div>
+		<div class="btn-group">
+			<label class="btn btn-primary" ng-class="{'btn-success': configuration.autocenter}" ng-model="configuration.autocenter" btn-checkbox>Autocenter</label>
+		</div>
+		<div class="btn-group">
+			<label class="btn btn-primary" ng-class="{'btn-success': configuration.autozoom&&configuration.autocenter}" ng-model="configuration.autozoom" ng-disabled="!configuration.autocenter" btn-checkbox>Autozoom</label>
+		</div>
+		<div class="btn-group">
+			<label class="btn btn-primary" ng-class="{'btn-success': configuration.pinwindow}" ng-model="configuration.pinwindow" btn-checkbox>Pin window</label>
+		</div>  
+	</div>   
+	-->									
+</div>

@@ -8,6 +8,15 @@
 	<ol-marker ol-marker-properties="marker"></ol-marker>
 	
 	
+	
+	
+	<div class="ol-control filter" ng-controller="HeaderController">
+		<button popover-placement="bottom" popover-template="filterPopupTemplateName" type="button" title="Filter">
+			<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>		
+		</button>
+	</div>
+	
+	
     <div class="row" ng-class="{'keepoff': (!show_panel) && (!configuration.pinwindow)}">
         <div class="col-md-4 col-md-offset-1 well psInfo shadowed">
             <nvd3 options="graph_options" data="data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
@@ -56,8 +65,8 @@
 		</div>
 	</div>
 	-->
-    <div>
-        <div class=" legenda" ng-controller="HeaderController">
+    <div class="legenda" ng-controller="HeaderController">
+        <div style ="background-color: rgba(0, 60, 136, 0.6);">
             <label style="color: #fff; display: block; font-size: 12px">{{legendTitle}}</label>
             <img data-ng-src="{{legend}}">
 		</div>

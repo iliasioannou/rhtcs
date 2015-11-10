@@ -27,13 +27,13 @@ body {
 /* Custom page header */
 
 .header {
-    border-bottom: 1px solid #e5e5e5;
+    /*border-bottom: 1px solid #e5e5e5;*/
     margin-bottom: 10px;
 	position: absolute;
 	z-index: 2;
 	top: 2%;
-	left: 3%;
-	width: 90% !important;
+	left: 1%;
+	width: 95% !important;
 	/*background: none repeat scroll 0 0 rgba(248, 248, 248, 0.8);  */
 	
     /* Make the masthead heading the same height as the navigation */
@@ -48,6 +48,8 @@ body {
     /*position: fixed;*/
     width: 100%;
 	margin-left: 0px !important;
+	background-color: #f8f8f8;
+	border-radius: 4px;
 	
 }
 
@@ -115,8 +117,17 @@ body {
 
 /* Overrides */
 
+.navbar-default{
+	background-color: transparent;
+	border-color: transparent;;
+}
+
 .navbar-nav > li > a {
     cursor: pointer;
+}
+.navbar-right {
+	background-color: #f8f8f8;
+	border-radius: 4px;
 }
 
 .navbar .container {
@@ -130,7 +141,8 @@ body {
 .popover {
     width: 350px !important;
     max-width: 350px !important;
-    height: 350px !important
+    height: 350px !important;
+	left: -312.325px !important;
 }
 
 .popover-content {
@@ -140,6 +152,11 @@ body {
 
 .popover-content .ng-scope > div {
     padding-bottom: 6%;
+}
+
+.popover.bottom > .arrow {
+    left: 95%;
+	top: -10px;
 }
 
 .jslider {
@@ -184,6 +201,8 @@ body {
     position: absolute;
     z-index: 1060;
     width: 700px;
+	top: 60px;
+	font-size: 12px;
     //max-height: 50%;
 }
 
@@ -194,7 +213,8 @@ body {
     left: 8px;
     border-radius: 4px;
     padding: 2px;
-    background: none repeat scroll 0 0 rgba(0, 60, 136, 0.6);
+    background-color: rgba(255, 255, 255, 0.4);
+	margin: 1px;
 }
 
 .shadowed {
@@ -262,4 +282,11 @@ body {
 	background-color: rgba(255, 255, 255, 0.4);
 	border-radius: 4px;
 	padding: 2px;
+}
+
+.filter {
+	right:0.5em;
+	top: 8em;
+	z-index:3;
+	font-size: 20px;
 }
