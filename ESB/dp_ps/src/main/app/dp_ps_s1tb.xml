@@ -17,13 +17,16 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
         <jms:inbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1">
         
         </jms:inbound-endpoint>
-        <logger message="STart message: #[message]" level="INFO" doc:name="STart message"/>
-        <logger message="payload #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="S1TBX received payload: #[payload]" level="INFO" doc:name="S1TBX received payload"/>
         <copy-properties propertyName="*" doc:name="Copy Props"/>
         <set-variable variableName="jmsProperties" value="#[message.outboundProperties]" doc:name="save jmsProperties"/>
-        <logger message="jmsProperties #[jmsProperties]" level="INFO" doc:name="Logger"/>
-
-        <http:request config-ref="HTTP_Request_S1TB" path="#[&quot;&quot;]" method="POST" doc:name="request start S1TBX"/>
+        <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful" millisBetweenRetries="10000">
+            <http:request config-ref="HTTP_Request_S1TB" path="#[&quot;&quot;]" method="POST" doc:name="request start S1TBX">
+                <http:request-builder>
+                    <http:header headerName="Content-Type" value="application/json"/>
+                </http:request-builder>
+            </http:request>
+        </until-successful>
         <object-to-string-transformer doc:name="Object to String"/>
         <set-variable variableName="requestStatus" value="#[json:requestStatus]" doc:name="requestStatus"/>
         <scripting:component doc:name="Check requestStatus">
@@ -34,7 +37,7 @@ return payload]]></scripting:script>
         <set-variable variableName="requestId" value="#[json:requestId]" doc:name="requestId"/>
 
         <logger message="STATUS AFTER START REQUEST: #[requestStatus]" level="INFO" doc:name="STATUS AFTER START REQUEST"/>
-        <until-successful maxRetries="5" synchronous="true" doc:name="Until not COMPLETED or FAILED" failureExpression="#[!requestStatus.equals('COMPLETED') &amp;&amp; !requestStatus.equals('FAILED')]" millisBetweenRetries="5000">
+        <until-successful maxRetries="${s1toolbox.polling.retries}" synchronous="true" doc:name="Until not COMPLETED or FAILED" failureExpression="#[!requestStatus.equals('COMPLETED') &amp;&amp; !requestStatus.equals('FAILED')]" millisBetweenRetries="${s1toolbox.polling.wait}">
             <processor-chain doc:name="Processor Chain">
                 <http:request config-ref="HTTP_Request_S1TB" path="#[requestId]" method="GET" doc:name="request polling status S1TBX"/>
                 <object-to-string-transformer doc:name="Object to String"/>
@@ -59,10 +62,10 @@ return payload]]></scripting:script>
 result = payload
 ]]></scripting:script>
         </scripting:component>
-        <logger message="end: #[message]" level="INFO" doc:name="Logger"/>
+        <logger message="S1TBX end payload: #[message]" level="INFO" doc:name="S1TBX end message"/>
 
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="S1TBX flow exception: #[exception]" level="INFO" doc:name="S1TBX flow exception"/>
+            <logger message="S1TBX flow exception: #[exception]" level="ERROR" doc:name="S1TBX flow exception"/>
             <scripting:component doc:name="Restore jmsProperties">
                 <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
@@ -71,8 +74,7 @@ result = payload
 result = payload
 ]]></scripting:script>
             </scripting:component>
-            <object-to-string-transformer doc:name="Object to String"/>
-            <logger message="Exc message: #[message] - #[payload]" level="INFO" doc:name="Logger"/>
+
             <set-variable variableName="jmsReplyTo" value="#[message.outboundProperties[&quot;JMSReplyTo&quot;].getQueueName()]" doc:name="jmsReplyTo"/>
 
             <set-property propertyName="message_failed" value="#[exception.getCause().toString()]" doc:name="message_failed"/>

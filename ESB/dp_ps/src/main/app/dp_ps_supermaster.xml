@@ -16,18 +16,18 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 	<flow name="dp_ps_supermasterFlow">
 		<jms:inbound-endpoint queue="rheticus.processor.ps.s0.request"
 			connector-ref="Active_MQ" doc:name="ps.request S0" />
-		<set-variable variableName="jmsProperties" value="#[message.inboundProperties]"
+        <logger message="SuperMaster received payload: #[payload]" level="INFO" doc:name="SuperMaster received payload"/>
+        <copy-properties propertyName="*" doc:name="Copy Props"/>
+		<set-variable variableName="jmsProperties" value="#[message.outboundProperties]"
 			doc:name="save jmsProperties" />
-		<logger message="Started SM" level="INFO"
-			doc:name="Started SM" />
-		<until-successful maxRetries="5" doc:name="Until Successful" failureExpression="#[!message.inboundProperties['http.status'].equals(200)]" millisBetweenRetries="10000" synchronous="true">
+		<until-successful maxRetries="${supermaster.polling.retries}" doc:name="Until Successful" failureExpression="#[!message.inboundProperties['http.status'].equals(200)]" millisBetweenRetries="${supermaster.polling.wait}" synchronous="true">
             <processor-chain doc:name="Processor Chain">
                 <http:request config-ref="HTTP_Request_SuperMaster" path="/" method="POST" doc:name="Request SM"/>
                 <logger message="SM HTTP return code: #[message.inboundProperties['http.status']]" level="INFO" doc:name="HTTP code"/>
             </processor-chain>
 		</until-successful>
         <object-to-string-transformer doc:name="Object to String"/>
-		<logger level="INFO" doc:name="After Request" message="After Request payload #[payload]"/>
+		<logger level="INFO" doc:name="SuperMaster end payload" message="SuperMaster end payload: #[payload]"/>
 		<scripting:component doc:name="Restore jmsProperties">
 			<scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
@@ -39,7 +39,7 @@ result = payload]]></scripting:script>
 
 
 		<catch-exception-strategy doc:name="Catch Exception Strategy">
-			<logger message="SuperMaster  flow exception: #[exception]" level="INFO"
+			<logger message="SuperMaster  flow exception: #[exception]" level="ERROR"
 				doc:name="SuperMaster flow exception" />
 			<scripting:component doc:name="Restore jmsProperties">
 				<scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
