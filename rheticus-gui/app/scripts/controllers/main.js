@@ -131,7 +131,7 @@ var items = [{"lane": 0, "id": "", "start": "2014-11-31", "end": "2014-12-10"},
 					.enter().append("text")
 					.text(function(d) {return d;})
 					.attr("x", -m[1])
-					.attr("y", function(d, i) {return y2(i + .5);})
+					.attr("y", function(d, i) {return y2(i + 0.5);})
 					.attr("dy", ".5ex")
 					.attr("text-anchor", "end")
 					.attr("class", "laneText");
@@ -146,7 +146,7 @@ var items = [{"lane": 0, "id": "", "start": "2014-11-31", "end": "2014-12-10"},
 					.enter().append("rect")
 					.attr("class", function(d) {return "miniItem" + d.lane;})
 					.attr("x", function(d) {return x(format.parse(d.start));})
-					.attr("y", function(d) {return y2(d.lane + .5) - 5;})
+					.attr("y", function(d) {return y2(d.lane + 0.5) - 5;})
 					.attr("width", function(d) {return x(10);})
 					.attr("height", 10);
 
@@ -259,7 +259,7 @@ var items = [{"lane": 0, "id": "", "start": "2014-11-31", "end": "2014-12-10"},
 	  }])
 	.controller('HeaderController', ['$scope', function ($scope) {
         angular.extend($scope, {
-            filterPopupTemplateName: "filterPopupTemplate.html",
+            filterPopupTemplateName: "views/filterPopupTemplate.html",
             selectableDates: [
 				"dl20110521",
 				"dl20110724",
@@ -378,7 +378,7 @@ var items = [{"lane": 0, "id": "", "start": "2014-11-31", "end": "2014-12-10"},
 				'http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true'
 
             ],
-            legendsTitle: ['Velocità PS [mm/period]', 'Densità PS [ps/100m2]'],
+            legendsTitle: ['Velocità PS \n [mm/period]', 'Densità PS \n [ps/100m2]'],
         });
         angular.extend($scope, {
             rc: {},
