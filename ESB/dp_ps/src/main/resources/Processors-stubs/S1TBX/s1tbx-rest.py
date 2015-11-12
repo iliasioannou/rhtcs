@@ -5,7 +5,7 @@ from urlparse import parse_qs, urlparse
 import random, uuid
 
 HOST_NAME = '0.0.0.0'
-PORT_NUMBER = 9091
+PORT_NUMBER = 5000
 BASE_REST_PATH = "/api/v1.0/sen1interferometricgeneration"
 
 # TEST Query
@@ -24,7 +24,7 @@ class MyHandler(BaseHTTPRequestHandler):
         if(parsedUrl.path.startswith(BASE_REST_PATH)):
             requestId = parsedUrl.path.replace(BASE_REST_PATH, "")
             if(len(requestId) > 1):
-                requestStatus = random.choice(["ADDED", "RUNNING", "PARTIALLY_COMPLETED", "COMPLETED", "FAILED"])   
+                requestStatus = random.choice(["COMPLETED", "ADDED", "RUNNING", "PARTIALLY_COMPLETED", "FAILED"])   
                 processingStatus = random.choice(["ADDED","DOWNLOADING","DOWNLOADED","PROCESSING","PROCESSED","FAILED"])
                 s.send_response(200)
                 s.send_header("Content-type", "application/json")

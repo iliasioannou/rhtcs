@@ -14,17 +14,20 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         <jms:inbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2">
         
         </jms:inbound-endpoint>
+        <logger message="PSinSAR received payload: #[payload]" level="INFO" doc:name="PSinSAR received payload"/>
+        <copy-properties propertyName="*" doc:name="Copy Props"/>
         
-        <set-variable variableName="jmsProperties" value="#[message.inboundProperties]" doc:name="save jmsProperties"/>
+        <set-variable variableName="jmsProperties" value="#[message.outboundProperties]" doc:name="save jmsProperties"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <http:request config-ref="HTTP_Request_PSinSAR" path="${psinsar.request}?USERNAME=${psinsar.usr}&amp;PASSWORD=${psinsar.pwd}&amp;NAME=PSinSar&amp;arguments=argsss" method="GET" doc:name="request start PSinSAR">
-        </http:request>
+        <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful" millisBetweenRetries="10000">
+            <http:request config-ref="HTTP_Request_PSinSAR" path="${psinsar.request}?USERNAME=${psinsar.usr}&amp;PASSWORD=${psinsar.pwd}&amp;NAME=PSinSar&amp;arguments=argsss" method="GET" doc:name="request start PSinSAR"/>
+        </until-successful>
         <object-to-string-transformer doc:name="Object to String"/>
-        <set-variable variableName="jobId" value="#[xpath3(&quot;//Job/JobsID/JobId&quot;)]" doc:name="jobId"/>
         <logger message="STATUS AFTER START REQUEST: #[payload]" level="INFO" doc:name="Request returned Payload"/>
+        <set-variable variableName="jobId" value="#[xpath3(&quot;//Job/JobsID/JobId&quot;)]" doc:name="jobId"/>
         <logger message="Request jobId: #[jobId]" level="INFO" doc:name="Request jobId"/>
         <set-variable variableName="jobStatus" value="" doc:name="jobStatus"/>
-        <until-successful maxRetries="10" synchronous="true" doc:name="Until Successful" failureExpression="#[!jobStatus.equals('done') &amp;&amp; !jobStatus.equals('error')]" millisBetweenRetries="5000">
+        <until-successful maxRetries="${psinsar.polling.retries}" synchronous="true" doc:name="Until Successful" failureExpression="#[!jobStatus.equals('done') &amp;&amp; !jobStatus.equals('error')]" millisBetweenRetries="${psinsar.polling.wait}">
             <processor-chain doc:name="Processor Chain">
                 <http:request config-ref="HTTP_Request_PSinSAR" path="${psinsar.status}?USERNAME=${psinsar.usr}&amp;PASSWORD=${psinsar.pwd}&amp;IdJob=#[jobId]" method="GET" doc:name="request polling status PSinSAR">
                     <http:request-builder>
@@ -38,15 +41,17 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         </until-successful>
 
         <object-to-string-transformer doc:name="Object to String"/>
-        <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="Logger"/>
+        <logger message="AFTER POLLING: #[payload]" level="INFO" doc:name="AFTER POLLING"/>
         <choice doc:name="Error or Done?">
             <when expression="jobStatus==&quot;done&quot;">
                 <logger message="PSinSAR succedeed #[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" level="INFO" doc:name="Done"/>
             </when>
             <otherwise>
-                <set-property propertyName="message_failed" value="errore" doc:name="Set message_failed"/>
+                <set-property propertyName="message_failed" value="#[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" doc:name="Set message_failed"/>
+                <logger message="PSinSAR failed, exc: #[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" level="ERROR" doc:name="PSinSAR failed"/>
             </otherwise>
         </choice>
+        <logger message="PSinSAR end payload: #[payload]" level="INFO" doc:name="PSinSAR end payload"/>
         <scripting:component doc:name="Restore jmsProperties">
             <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
@@ -55,7 +60,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 result = payload]]></scripting:script>
         </scripting:component>
         <catch-exception-strategy doc:name="Catch Exception Strategy">
-            <logger message="PSinSAR flow exception: #[exception]" level="INFO" doc:name="PsInSAR flow exception"/>
+            <logger message="PSinSAR flow exception: #[exception]" level="ERROR" doc:name="PsInSAR flow exception"/>
             <scripting:component doc:name="Restore jmsProperties">
                 <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {

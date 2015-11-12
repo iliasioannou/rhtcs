@@ -1,5 +1,0 @@
-pip install stompest
-pip install stompest.async
-pip install pyyaml
-pip install pypiwin32
-pip install python-dateutil
