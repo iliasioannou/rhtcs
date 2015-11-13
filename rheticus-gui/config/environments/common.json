@@ -1,0 +1,137 @@
+{
+	"rheticusHeaderTitle" : "Rheticus\u2122",
+	
+	"legends" : {
+		"_comment": "Barritteri legend style",
+		"velocity":{
+			"title":"Velocit\u00E0 PS ",
+			"uom":"[mm/period]",
+			"url":"http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster_vel&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
+		},
+		"density":{
+			"title":"Densit\u00E0 PS ",
+			"uom":"[ps/100\u33A1]",
+			"url":"http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
+		},
+		"ps":{
+			"title":"Velocit\u00E0 PS ",
+			"uom":"[mm/period]",
+			"url":"http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_view&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true&STYLE=pkt284:ps_legend_style"
+		}
+	},
+	
+	"maps": {
+		"center" : {
+			"lon": 15.85,
+			"lat": 38.325
+		},
+		"zoom": 14,
+		"baseLayers": [
+			{
+				"name": "e-Geos Ortofoto RealVista 1.0",
+				"id": "rv1",
+				"visible": true,
+				"opacity": 1,
+				"source": {
+					"type": "TileWMS",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					],
+					"params": {
+						"LAYERS": "pkt284:rv1",
+						"VERSION": "1.3.0",
+						"SRS": "EPSG:3857",
+						"TILED": true
+					}
+				}
+			}
+		],
+		"overlays": [
+			{
+				"name": "Barritteri HeatMap Densità",
+				"id": "ps_barritteri_raster",
+				"visible": true,
+				"opacity": 0.8,
+				"source": {
+					"type": "TileWMS",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					],
+					"minScale": 10000,
+					"params": {
+						"LAYERS": "pkt284:ps_barritteri_raster",
+						"VERSION": "1.3.0",
+						"SRS": "EPSG:3857",
+						"TILED": true
+					},
+					"serverType": "geoserver"
+				}
+			},
+			{
+				"name": "Barritteri PS",
+				"id": "ps_barritteri_view",
+				"visible": true,
+				"opacity": 0.8,
+				"source": {
+					"type": "TileWMS",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					],
+					"maxScale": 10000,
+					"params": {
+						"LAYERS": "pkt284:ps_barritteri_view",
+						"VERSION": "1.3.0",
+						"SRS": "EPSG:3857",
+						"TILED": true
+					},
+					"serverType": "geoserver"
+				}
+			},
+			{
+				"name": "Barritteri PS Query",
+				"id": "ps_barritteri",
+				"visible": false,
+				"source": {
+					"type": "TileWMS",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/pkt284/wms"
+					],
+					"params": {
+						"LAYERS": "pkt284:ps_barritteri",
+						"VERSION": "1.3.0"
+					},
+					"serverType": "geoserver"
+				}
+			},
+			{
+				"name": "Sentinel 1 Datasets",
+				"id": "dati_sentinel",
+				"visible": false,
+				"source": {
+					"type": "TileWMS",
+					"urls": [
+						"http://kim.planetek.it:9080/geoserver/rheticus/wms"
+					],
+					"params": {
+						"LAYERS": "rheticus:dati_sentinel",
+						"VERSION": "1.3.0",
+						"SRS": "EPSG:3857",
+						"TILED": true
+					},
+					"serverType": "geoserver"
+				}
+			}
+		]
+	},
+	
+	"timeSlider": {
+		"domain": {
+			"start" : "2014-01-01T00:00:00Z",
+			"end" : "2016-01-01T00:00:00Z"
+		},
+		"brush": {
+			"start" : "2015-01-10T00:00:00Z",
+			"end" : "2015-06-10T00:00:00Z"
+		}
+	}
+}

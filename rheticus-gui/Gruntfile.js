@@ -11,7 +11,7 @@ module.exports = function (grunt) {
 
   // Time how long tasks take. Can help when optimizing build times
   require('time-grunt')(grunt);
-
+  
   // Automatically load required Grunt tasks
   require('jit-grunt')(grunt, {
     useminPrepare: 'grunt-usemin',
@@ -283,7 +283,44 @@ module.exports = function (grunt) {
         }
       }
     },
-
+    
+    replace: {
+        development: {
+          options: {
+            patterns: [
+            {
+              json: grunt.file.readJSON('./config/environments/common.json')
+            },
+            {
+              json: grunt.file.readJSON('./config/environments/development.json')
+            }]
+          },
+          files: [{
+            expand: true,
+            flatten: true,
+            src: ['./config/config.js'],
+            dest: '<%= yeoman.app %>/scripts/services/'
+          }]
+        },
+        production: {
+          options: {
+            patterns: [
+            {
+              json: grunt.file.readJSON('./config/environments/common.json')
+            },
+            {
+              json: grunt.file.readJSON('./config/environments/production.json')
+            }]
+          },
+          files: [{
+            expand: true,
+            flatten: true,
+            src: ['./config/config.js'],
+            dest: '<%= yeoman.app %>/scripts/services/'
+          }]
+        }        
+    },
+    
     // The following *-min tasks will produce minified files in the dist folder
     // By default, your `index.html`'s <!-- Usemin block --> will take care of
     // minification. These next options are pre-configured if you do not wish
@@ -352,12 +389,13 @@ module.exports = function (grunt) {
     ngtemplates: {
       dist: {
         options: {
-          module: 'workspacePilotApp',
+          module: 'rheticus',
           htmlmin: '<%= htmlmin.dist.options %>',
           usemin: 'scripts/scripts.js'
         },
         cwd: '<%= yeoman.app %>',
-        src: 'views/{,*/}*.html',
+        //src: 'views/{,*/}*.html',
+		src: 'scripts/{,*/}*.html',
         dest: '.tmp/templateCache.js'
       }
     },
@@ -471,23 +509,26 @@ module.exports = function (grunt) {
     'karma'
   ]);
 
-  grunt.registerTask('build', [
-    'clean:dist',
-    'wiredep',
-    'useminPrepare',
-    'concurrent:dist',
-    'autoprefixer',
-    'ngtemplates',
-    'concat',
-    'ngAnnotate',
-    'copy:dist',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    'filerev',
-    'usemin',
-    'htmlmin'
-  ]);
+  grunt.registerTask('build', function(target){
+    grunt.task.run([
+        'clean:dist',
+        'replace:' + (target==='dist' ? 'production' : 'development'),
+        'wiredep',
+        'useminPrepare',
+        'concurrent:dist',
+        'autoprefixer',
+        'ngtemplates',
+        'concat',
+        'ngAnnotate',
+        'copy:dist',
+        'cdnify',
+        'cssmin',
+        'uglify',
+        'filerev',
+        'usemin',
+        'htmlmin'
+        ]);
+  });
 
   grunt.registerTask('default', [
     'newer:jshint',
@@ -495,3 +536,4 @@ module.exports = function (grunt) {
     'build'
   ]);
 };
+    
