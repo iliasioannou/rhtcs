@@ -55,7 +55,11 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 			path="/" allowedMethods="POST" doc:name="Receive new Sen1 acquisitions">
 			<http:response-builder statusCode="200" />
 		</http:listener>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
 		<async doc:name="Async">
+            <set-payload value="#[savePayload]" doc:name="Set Payload"/>
+            <logger message="New Sen1 acquisitions: #[payload]" level="INFO" doc:name="New Sen1 acquisitions"/>
 			<json:json-to-object-transformer
 				returnClass="java.util.ArrayList" doc:name="JSON to ArrayList" />
 			<set-variable variableName="datasetSet" value="#[new java.util.HashSet()]"
@@ -79,11 +83,11 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
         <choice-exception-strategy doc:name="Choice Exception Strategy">
             <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.filter.FilterUnacceptedException)" enableNotifications="false" doc:name="Catch JMS message-failed">
                 <logger message="Processor failure from orchestratorId &quot;#[orchestratorId]&quot; for dataset &quot;#[datasetId]&quot;, cause: &quot;#[message.inboundProperties.'message_failed']&quot;" level="ERROR" doc:name="Processor failure from JMS"/>
-                <logger level="ERROR" doc:name="Full Message" message="Full message: #[message]"/>
+                <logger level="DEBUG" doc:name="Full Message" message="Full message: #[message]"/>
             </catch-exception-strategy>
             <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.ResponseTimeoutException)" doc:name="Catch JMS reply timeout">
                 <logger message="JMS reply timed out for request in &quot;#[message.outboundProperties['MULE_ENDPOINT']]&quot;  from orchestratorId &quot;#[orchestratorId]&quot; for dataset &quot;#[datasetId]&quot;" level="ERROR" doc:name="JMS Reply Timeout (managed by activeMQ DLQ)"/>
-                <logger message="Full message: #[message]" level="ERROR" doc:name="Full Message"/>
+                <logger message="Full message: #[message]" level="DEBUG" doc:name="Full Message"/>
             </catch-exception-strategy>
         </choice-exception-strategy>
 	</flow>
@@ -95,7 +99,7 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		<set-variable variableName="datasetDataArrayList" value="#[payload]"
 			doc:name="save datasetDataArrayList" />
         <set-variable variableName="orchestratorId" value="#[java.util.UUID.randomUUID().toString().replaceAll(&quot;-&quot;, &quot;&quot;)]" doc:name="orchestratorId"/>
-        <logger message="#[orchestratorId]" level="INFO" doc:name="orchestratorId"/>
+        <logger message="orchestratorId: #[orchestratorId]" level="INFO" doc:name="orchestratorId"/>
 
 		<set-payload
 			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"

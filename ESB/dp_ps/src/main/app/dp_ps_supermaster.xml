@@ -16,7 +16,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 	<flow name="dp_ps_supermasterFlow">
 		<jms:inbound-endpoint queue="rheticus.processor.ps.s0.request"
 			connector-ref="Active_MQ" doc:name="ps.request S0" />
-        <logger message="SuperMaster received payload: #[payload]" level="INFO" doc:name="SuperMaster received payload"/>
+        <logger message="SuperMaster received request" level="INFO" doc:name="SuperMaster received request"/>
+        <logger message="Supermaster request payload: #[payload]" level="DEBUG" doc:name="Supermaster request payload"/>
         <copy-properties propertyName="*" doc:name="Copy Props"/>
 		<set-variable variableName="jmsProperties" value="#[message.outboundProperties]"
 			doc:name="save jmsProperties" />
@@ -27,7 +28,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
             </processor-chain>
 		</until-successful>
         <object-to-string-transformer doc:name="Object to String"/>
-		<logger level="INFO" doc:name="SuperMaster end payload" message="SuperMaster end payload: #[payload]"/>
+		<logger level="INFO" doc:name="SuperMaster end" message="SuperMaster end"/>
+        <logger message="Supermaster end payload: #[payload]" level="DEBUG" doc:name="Supermaster end payload"/>
 		<scripting:component doc:name="Restore jmsProperties">
 			<scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
