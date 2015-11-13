@@ -20,7 +20,7 @@
 		}
 	},
 	
-	"map": {
+	"maps": {
 		"center" : {
 			"lon": 15.85,
 			"lat": 38.325
@@ -34,7 +34,9 @@
 				"opacity": 1,
 				"source": {
 					"type": "TileWMS",
-					"url": "http://morgana.planetek.it:8080/geoserver/gwc/service/wms",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					],
 					"params": {
 						"LAYERS": "pkt284:rv1",
 						"VERSION": "1.3.0",
@@ -52,7 +54,9 @@
 				"opacity": 0.8,
 				"source": {
 					"type": "TileWMS",
-					"url": "http://morgana.planetek.it:8080/geoserver/gwc/service/wms",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					],
 					"minScale": 10000,
 					"params": {
 						"LAYERS": "pkt284:ps_barritteri_raster",
@@ -70,7 +74,9 @@
 				"opacity": 0.8,
 				"source": {
 					"type": "TileWMS",
-					"url": "http://morgana.planetek.it:8080/geoserver/gwc/service/wms",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					],
 					"maxScale": 10000,
 					"params": {
 						"LAYERS": "pkt284:ps_barritteri_view",
@@ -87,7 +93,9 @@
 				"visible": false,
 				"source": {
 					"type": "TileWMS",
-					"url": "http://morgana.planetek.it:8080/geoserver/pkt284/wms",
+					"urls": [
+						"http://morgana.planetek.it:8080/geoserver/pkt284/wms"
+					],
 					"params": {
 						"LAYERS": "pkt284:ps_barritteri",
 						"VERSION": "1.3.0"
@@ -101,7 +109,9 @@
 				"visible": false,
 				"source": {
 					"type": "TileWMS",
-					"url": "http://kim.planetek.it:9080/geoserver/rheticus/wms",
+					"urls": [
+						"http://kim.planetek.it:9080/geoserver/rheticus/wms"
+					],
 					"params": {
 						"LAYERS": "rheticus:dati_sentinel",
 						"VERSION": "1.3.0",

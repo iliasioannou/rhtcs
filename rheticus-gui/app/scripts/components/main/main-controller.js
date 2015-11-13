@@ -13,7 +13,7 @@ angular.module('rheticus')
 	function ($rootScope, $scope, $http, olData, default_graph_options, configuration) {
 
 	angular.extend($scope, {
-		configurationLegend: angular.fromJson(configuration.legends)
+		configurationLegend: configuration.legends
 	});
 
     angular.extend($scope, {

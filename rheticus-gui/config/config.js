@@ -3,5 +3,7 @@
 angular.module('services.config', [])
   .constant('configuration', {
     rheticusHeaderTitle:'@@rheticusHeaderTitle',
-	legend:'@@legend'
+	legends:@@legends,
+	maps:@@maps,
+	timeSlider:@@timeSlider
   });
