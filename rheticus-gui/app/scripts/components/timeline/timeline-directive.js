@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-.directive('d3Bars', [function() {
+	.directive('d3Bars', [function() {
 		return {
 			restrict: 'EA',
 			replace: true,
@@ -203,47 +203,8 @@ angular.module('rheticus')
 				display();
 
 				function display() {
-					/*
-					var rects, labels,
-						minExtent = brush.extent()[0],
-						maxExtent = brush.extent()[1],
-						visItems = items.filter(function(d) {return d.start < maxExtent && d.end > minExtent;});
-
-					mini.select(".brush")
-						.call(brush.extent([minExtent, maxExtent]));
-
-					x1.domain([minExtent, maxExtent]);
-
-					//update main item rects
-					rects = itemRects.selectAll("rect")
-							.data(visItems, function(d) { return d.id; })
-						.attr("x", function(d) {return x1(d.start);})
-						.attr("width", function(d) {return x1(d.end) - x1(d.start);});
-					
-					rects.enter().append("rect")
-						.attr("class", function(d) {return "miniItem" + d.lane;})
-						.attr("x", function(d) {return x1(d.start);})
-						.attr("y", function(d) {return y1(d.lane) + 10;})
-						.attr("width", function(d) {return x1(d.end) - x1(d.start);})
-						.attr("height", function(d) {return .8 * y1(1);});
-
-					rects.exit().remove();
-
-					//update the item labels
-					labels = itemRects.selectAll("text")
-						.data(visItems, function (d) { return d.id; })
-						.attr("x", function(d) {return x1(Math.max(d.start, minExtent) + 2);});
-
-					labels.enter().append("text")
-						.text(function(d) {return d.id;})
-						.attr("x", function(d) {return x1(Math.max(d.start, minExtent));})
-						.attr("y", function(d) {return y1(d.lane + .5);})
-						.attr("text-anchor", "start");
-
-					labels.exit().remove();
-	*/
+					//TODO
 				}
-
 			}
 		};
-	  }])
+	}])

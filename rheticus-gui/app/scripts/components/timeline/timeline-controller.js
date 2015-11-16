@@ -9,8 +9,7 @@
  */
 
 angular.module('rheticus')
-
-.controller('TimelineCtrl', ['$scope', function($scope){
-    $scope.title = "Timeline using d3.js";
-    $scope.data = [];
-}]);
+	.controller('TimelineCtrl', ['$scope', function($scope){
+		$scope.title = "Sentinel 1 Dataset Timeline";
+		$scope.data = [];
+	}]);
