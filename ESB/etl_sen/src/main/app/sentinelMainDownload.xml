@@ -61,7 +61,7 @@ GRD 130mb
             <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
             <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
             <logger message="*** Now downloading product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
-            <until-successful maxRetries="10"  synchronous="true" doc:name="Until Successful">
+            <until-successful maxRetries="20"  synchronous="true" doc:name="Until Successful" millisBetweenRetries="30000">
                 <http:request config-ref="ManifestDownload" path="/" method="GET" doc:name="Manifest request"/>
 
             </until-successful>

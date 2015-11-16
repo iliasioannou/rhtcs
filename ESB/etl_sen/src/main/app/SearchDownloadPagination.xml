@@ -78,7 +78,9 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
 return prettyPrint(payload);]]></scripting:script>
                 </scripting:component>
                 <logger message="*** Process terminated" level="INFO" doc:name="Flow end"/>
-                <http:request config-ref="Orchestrator" path="/" method="POST" doc:name="Call orchestrator"/>
+                <until-successful maxRetries="20" synchronous="true" doc:name="Until Successful">
+                    <http:request config-ref="Orchestrator" path="/" method="POST" doc:name="Call orchestrator"/>
+                </until-successful>
 
             </otherwise>
         </choice>

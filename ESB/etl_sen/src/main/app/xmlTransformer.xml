@@ -15,7 +15,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         <foreach collection="#[app.registry.sentinelProps]" doc:name="For Each sentinelProps">
             <choice doc:name="Choice">
                 <when expression="#[key.startsWith(&quot;sentinel.metadata&quot;)]">
-                    <logger message="Sentinel metadata xpath prop found: #[key] = #[payload]" level="INFO" doc:name="Sentinel.metadata prop"/>
+
                     <scripting:component doc:name="Props XPath evaluator">
                         <scripting:script engine="Groovy"><![CDATA[import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathFactory;
