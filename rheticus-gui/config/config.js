@@ -1,9 +1,16 @@
 'use strict';
 
-angular.module('services.config', [])
-  .constant('configuration', {
-    rheticusHeaderTitle:'@@rheticusHeaderTitle',
-	legends:@@legends,
-	maps:@@maps,
-	timeSlider:@@timeSlider
-  });
+angular
+	
+	.module('services.config', [])
+	
+	.constant('configuration', {
+		//common environment configuration
+		rheticusHeaderTitle : '@@rheticusHeaderTitle',
+		timeSlider : @@timeSlider,
+		filters : @@filters,
+		datasets : @@datasets,
+		//custom environment configuration
+		legends : @@legends,
+		maps : @@maps
+	});

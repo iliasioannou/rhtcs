@@ -1,21 +1,16 @@
-<openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" custom-layers="true" ol-defaults="defaults">
-    <ol-control name="{{ control.name }}" ng-repeat="control in controls|filter: {active: true}"></ol-control>
-    <ol-layer ol-layer-properties="wms_basemap"></ol-layer>
-    <ol-layer ol-layer-properties="wms"></ol-layer>
-	<!--
-	<ol-layer ol-layer-properties="wms_vector_sentinel"></ol-layer>
-    -->
+<openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" custom-layers="true" ol-defaults="olDefaults">
+	<ol-control name="{{control.name}}" ng-repeat="control in controls|filter:{active: true}"></ol-control>
+	<layer-switcher></layer-switcher>
+	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers"></ol-layer>
+	<ol-layer name="{{wms.name}}" ol-layer-properties="wms"></ol-layer>
+	<!--ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays"></ol-layer-->
+	<!--ol-layer ol-layer-properties="sentinel"></ol-layer-->
 	<ol-marker ol-marker-properties="marker"></ol-marker>
 	
-	
 	<div ng-include src="'scripts/components/header/header-view.html'"></div>
-	
-	<div class="ol-control filter" ng-controller="HeaderCtrl">
-		<button popover-placement="bottom" popover-template="filterPopupTemplateName" type="button" title="Filter">
-			<span class="glyphicon glyphicon-cog" aria-hidden="true"></span>		
-		</button>
-	</div>
-		
+	<div ng-include src="'scripts/components/timeline/timeline-view.html'"></div>
+	<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
+
     <div class="row" ng-show="show_trends">
         <div class="col-md-4 col-md-offset-1 well psInfo shadowed">
             <a ng-click="show_trends=false">x</a>
@@ -58,19 +53,13 @@
             </div>
         </div>
     </div>
-	
-	<div class="timeline">
-		<div ng-controller="TimelineCtrl">
-			<d3-bars data="data" ng-model="data[1].score" label="title"></d3-bars>
-		</div>
-	</div>
-	
-    <div class="legenda" ng-controller="HeaderCtrl">
+
+	<div class="legenda" ng-controller="HeaderCtrl">
         <div style ="background-color: rgba(0, 60, 136, 0.6);">
             <label style="color: #fff; display: block; font-size: 12px">
 			{{legendTitle}}<br/>{{legendUom}}
 			</label>
-            <img data-ng-src="{{legend}}">
+            <img data-ng-src="{{legendUrl}}">
 		</div>
     </div>
 </openlayers>

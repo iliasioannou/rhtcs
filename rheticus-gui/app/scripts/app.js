@@ -10,6 +10,7 @@
  */
 
 angular
+
 	.module('rheticus', [
 		'ngAnimate',
 		'ngCookies',
@@ -18,14 +19,49 @@ angular
 		'ngSanitize',
 		'ngTouch',
 		'openlayers-directive',
+		'openlayers-layerswitcher',
 		'ui.bootstrap',
 		'angularAwesomeSlider',
 		'nvd3',
 		'smart-table',
         'services.config'
 	])
-    .constant('default_graph_options',
-    {
+	
+	.config(function ($routeProvider) {
+		$routeProvider
+			.when('/', {
+				templateUrl: 'scripts/components/main/main-view.html',
+				controller: 'MainCtrl',
+				controllerAs: 'main'
+			})
+			.when('/about', {
+				templateUrl: 'scripts/components/about/about-view.html',
+				controller: 'AboutCtrl',
+				controllerAs: 'about'
+			})
+			.otherwise({
+				redirectTo: '/'
+			});
+	})
+
+	.run(function ($rootScope,configuration) {
+		angular.extend($rootScope, {
+			autozoom: false,
+			autocenter: false,
+			speedModel: configuration.filters.speedSlider.init,
+			center: {
+				lon: configuration.maps.center.lon,
+				lat: configuration.maps.center.lat,
+				zoom: configuration.maps.zoom.center
+			},
+			datasets: configuration.datasets,
+			shouldShowDetails: function() {
+				return $rootScope.center.zoom>=configuration.maps.zoom.detail;
+			}
+		});
+	});
+/*
+    .constant('default_graph_options', {
         chart: {
             type: 'lineChart',
             width: 650,
@@ -67,57 +103,4 @@ angular
             enable: false
         }
     })
-	.config(function ($routeProvider) {
-		$routeProvider
-			.when('/', {
-				templateUrl: 'scripts/components/main/main-view.html',
-				controller: 'MainCtrl',
-				controllerAs: 'main'
-			})
-			.when('/header', {
-				templateUrl: 'scripts/components/header/header-view.html',
-				controller: 'HeaderCtrl',
-				controllerAs: 'header'
-			})
-			.when('/about', {
-				templateUrl: 'scripts/components/about/about-view.html',
-				controller: 'AboutCtrl',
-				controllerAs: 'about'
-			})
-			.otherwise({
-				redirectTo: '/'
-			});
-	})
-	.run(function ($rootScope) {
-		angular.extend($rootScope, {
-			configuration: {
-				autozoom: false,
-				autocenter: false,
-				pinwindow: false,
-				center: {
-					lon: 15.85,
-					lat: 38.325,
-					zoom: 14
-				},
-				speedModel: "0;20",
-				detailZoom: 17,
-				datasets: [
-					{
-						name: 'dataset1',
-						selected: true
-					},
-					{
-						name: 'dataset2',
-						selected: false
-					},
-					{
-						name: 'dataset3',
-						selected: false
-					}
-				]
-			},
-			shouldShowDetails: function() {
-				return $rootScope.configuration.center.zoom>=$rootScope.configuration.detailZoom;
-			}
-		});
-	});
+*/

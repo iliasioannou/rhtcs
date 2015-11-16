@@ -2,7 +2,7 @@
 <html debug="true">
 	<head>
 		<meta charset="utf-8">
-		<title></title>
+		<title>Rheticus GUI</title>
 		<meta http-equiv="X-UA-Compatible" content="IE=EDGE">
 		<meta name="description" content="">
 		<meta name="viewport" content="width=device-width">
@@ -19,8 +19,9 @@
 		<!-- build:css(.tmp) styles/main.css -->
 		<link rel="stylesheet" href="styles/main.css">
 		<link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
+		<!--link rel="stylesheet" href="bower_components/angular-openlayers-directive/dist/angular-openlayers-directive.css" /-->
+		<link rel="stylesheet" href="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.css" />
 		<!-- endbuild -->
-		
 	</head>
 
 	<body ng-app="rheticus">
@@ -71,6 +72,7 @@
 		<script src="bower_components/nvd3/build/nv.d3.js"></script>
 		<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
 		<script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
+		<script src="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.js"></script>
 		<!-- endbower -->
 		<!-- endbuild -->
 
@@ -78,9 +80,10 @@
 		<script src="scripts/app.js"></script>
         <script src="scripts/services/config.js"></script>
         <script src="scripts/components/header/header-controller.js"></script>
-		<script src="scripts/components/main/main-controller.js"></script>
 		<script src="scripts/components/timeline/timeline-directive.js"></script>
 		<script src="scripts/components/timeline/timeline-controller.js"></script>
+		<script src="scripts/components/filter/filter-controller.js"></script>
+		<script src="scripts/components/main/main-controller.js"></script>
         <script src="scripts/components/about/about-controller.js"></script>
 		<!-- endbuild -->
 	</body>
