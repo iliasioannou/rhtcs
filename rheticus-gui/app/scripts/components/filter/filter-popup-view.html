@@ -7,6 +7,17 @@
 			</label>
 		</div>
 	</div>
+	<div ng-show="shouldShowDetails()">
+		<label>Velocità media</label>
+		<div>
+			<input ng-model="speedModel" type="text" slider options="speedOptions" />
+		</div>
+	</div>
+	<div class="divider" style="border: 1px">
+	</div>
+	<div>
+		<i>spiegare come usare il filtro</i>
+	</div>
 	<!--
 	<div>
 		<label>Tempo</label>
@@ -14,27 +25,12 @@
 			<input ng-model="timeModel" type="text" slider options="timeOptions" />
 		</div>
 	</div>
--->
-	<div ng-show="shouldShowDetails()">
-		<label>Velocità media</label>
-		<div>
-			<input ng-model="speedModel" type="text" slider options="speedOptions" />
-		</div>
-	</div>
-<!--
 	<div>
 		<label>Coerenza</label>
 		<div>
 			<input ng-model="coherenceModel" type="text" slider options="coherenceOptions" />
 		</div>
 	</div>
-	-->
-	<div class="divider" style="border: 1px">
-	</div>
-	<div>
-		spiegare come usare il filtro
-	</div>
-	<!--
 	<label>Opzioni di visualizzazione:</label>
 	<div>
 		<div class="btn-group">

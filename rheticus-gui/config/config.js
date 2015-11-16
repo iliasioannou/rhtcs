@@ -1,9 +1,7 @@
 'use strict';
 
 angular
-	
-	.module('services.config', [])
-	
+	.module('services.config',[])
 	.constant('configuration', {
 		//common environment configuration
 		rheticusHeaderTitle : '@@rheticusHeaderTitle',
