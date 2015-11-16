@@ -25,29 +25,21 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
     
     
 	<!-- Hide MULE Headers in the HTTP packets -->
-	<http:connector name="NoMuleHeadersConnector" doc:name="HTTP\HTTPS">
-		<service-overrides sessionHandler="org.mule.session.NullSessionHandler" />
-	</http:connector>
-	<queued-asynchronous-processing-strategy
-		name="Queued_Asynchronous_Processing_Strategy" maxThreads="3"
-		poolExhaustedAction="WAIT"
-		doc:name="Queued Asynchronous Processing Strategy" />
-	<ftp:connector name="createPathFtpConnector" doc:name="FTP">
-		<dispatcher-threading-profile
-			doThreading="false" />
-		<service-overrides
-			dispatcherFactory="org.mule.transport.customftp.CreatePathFtpMessageDispatcherFactory"></service-overrides>
-	</ftp:connector>
-    <http:endpoint exchange-pattern="request-response" host="localhost" port="9090" path="startupdate" method="GET" name="HTTP" doc:name="HTTP"/>
-    <http:endpoint exchange-pattern="request-response" host="localhost" port="9090" path="startupdate" method="GET" name="HTTP1" doc:name="HTTP"/>
+    <http:request-config name="ManifestDownload" protocol="HTTPS" host="${sentinel.host}" port="${sentinel.port}" basePath="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" doc:name="HTTP Request Configuration">
+        <http:basic-authentication username="${sentinel.usr}" password="${sentinel.pwd}"/>
+    </http:request-config>
+    <http:request-config name="InsertElastic" host="${elastic.host}" port="${elastic.port}" basePath="${elastic.index}/${elastic.type}/#[id]" doc:name="HTTP Request Configuration"/>
     <choice-exception-strategy name="Choice_Exception_Strategy">
         <catch-exception-strategy doc:name="Catch Exception Strategy" when="#[exception.causedBy(java.net.SocketTimeoutException)]">
             <logger message="****************TIMEOUT Exception****************" level="WARN" doc:name="Generic Exception"/>
-            <set-payload value="#[savePayload]" doc:name="savePayload"/>
+            <set-payload value="#[flowVars.savePayload]" doc:name="savePayload" mimeType="application/json"/>
+            <logger message="*** Waiting 1 min before retry download. Payload is : #[payload]" level="INFO" doc:name="waitint log"/>
             <scripting:component doc:name="repeat after 1 min">
                 <scripting:script engine="Groovy"><![CDATA[sleep(180000)]]></scripting:script>
             </scripting:component>
-            <flow-ref name="sentinelDownloadFlow1" doc:name="Call Download Flow"/>
+            <flow-ref name="sentinelDownloadFlow1" doc:name="sentinelDownloadFlow1"/>
+
+
         </catch-exception-strategy>
     </choice-exception-strategy>
     <flow name="sentinelDownloadFlow1" processingStrategy="synchronous" doc:description="SLC 1.7gb
@@ -59,7 +51,7 @@ GRD 130mb
 {
 &quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
 }">
-        <http:inbound-endpoint exchange-pattern="request-response" host="0.0.0.0" port="9090" path="download" responseTimeout="4000000" doc:name="HTTP"/>
+
         <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
         <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
@@ -68,21 +60,19 @@ GRD 130mb
             <set-variable variableName="title" value="#[json:title]" doc:name="title"/>
             <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
             <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
-            <logger message="#[id]#[title]#[payload]" level="INFO" doc:name="id&amp; title"/>
-            <until-successful maxRetries="5"  synchronous="true" doc:name="Until Successful">
-                <https:outbound-endpoint exchange-pattern="request-response" host="${sentinel.host}" port="${sentinel.port}" path="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" method="GET" responseTimeout="400000" user="${sentinel.usr}" password="${sentinel.pwd}" doc:name="Manifest request (Deprecated)"/>
+            <logger message="*** Now downloading product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
+            <until-successful maxRetries="20"  synchronous="true" doc:name="Until Successful" millisBetweenRetries="30000">
+                <http:request config-ref="ManifestDownload" path="/" method="GET" doc:name="Manifest request"/>
+
             </until-successful>
-            <logger message="Manifest download request " level="INFO" doc:name="Download manifest"/>
-            <flow-ref name="xmlTransformerFlow1" doc:name="XML transform Flow"/>
+            <logger message="*** Download terminated *** parsing value..." level="INFO" doc:name="Download manifest"/>
+            <flow-ref name="xmlTransformerFlow1" doc:name="xmlTransformerFlow1"/>
             <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
             <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
             <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
 Double CoordinateLon;
 Double CoordinateLat;
-qryableMap.put('uuid',id);
-qryableMap.put('filename',title);
-qryableMap.put('linkDownload',link);
-qryableMap.put('superMaster','false');
+
 java.util.HashMap location = new java.util.HashMap();
 location.put('type' , 'Polygon');
 java.util.ArrayList coordinatefinal = new java.util.ArrayList();
@@ -90,7 +80,6 @@ java.util.ArrayList coordinate = new java.util.ArrayList();
 java.util.ArrayList coordinate2 = new java.util.ArrayList();
 java.util.ArrayList coordinate3 = new java.util.ArrayList();
 java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(coordinates," ");
-int i =0;
 int j=0;
 while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 {
@@ -101,31 +90,39 @@ while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
     {
 		metaCoordinateLon=(Math.round(CoordinateLon)) ;
 		metaCoordinateLat=(Math.round(CoordinateLat*10.0))/10.0 ;
+        coordinate3 = coordinate2;
         j++;
 	}
-	
-	
 	coordinate2.add(CoordinateLon);
 	coordinate2.add(CoordinateLat);
-	if (i==0)
-	{
-		coordinate3 = coordinate2;
-	}
 	coordinate.add(coordinate2);
 	coordinate2=new java.util.ArrayList();
-	i++;
 }
 coordinate.add(coordinate3);
 coordinatefinal.add(coordinate);
 location.put('coordinates' , coordinatefinal);
+
+qryableMap.put('uuid',id);
+qryableMap.put('filename',title);
+qryableMap.put('linkDownload',link);
+qryableMap.put('superMaster','false');
 qryableMap.put('location',location);
 qryableMap.put('ingestion',ingestion);
 
+String transmitterReceiverPolarisation = transmitterReceiverPolarisation1+'-'+transmitterReceiverPolarisation2;
+qryableMap.put('transmitterReceiverPolarisation',transmitterReceiverPolarisation);
 
-
-String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+transmitterReceiverPolarisation1+transmitterReceiverPolarisation2+productClass+productType+metaCoordinateLon+metaCoordinateLat;
-
+String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+transmitterReceiverPolarisation+productClass+productType+metaCoordinateLon+metaCoordinateLat;
 qryableMap.put('datasetId',dataset);
+
+qryableMap.remove('coordinates');
+qryableMap.remove('transmitterReceiverPolarisation1');
+qryableMap.remove('transmitterReceiverPolarisation2');
+
+
+
+
+
 
 
 ]]></expression-component>
@@ -133,7 +130,12 @@ qryableMap.put('datasetId',dataset);
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
             <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
             <json:object-to-json-transformer doc:name="Object to JSON"/>
-            <http:outbound-endpoint exchange-pattern="request-response" host="${elastic.host}" port="${elastic.port}" path="${elastic.index}/${elastic.type}/#[id]" method="POST" responseTimeout="1000000" doc:name="Insert in ElasticSearch"/>
+            <logger message="*** Insert into ElasticSearch" level="INFO" doc:name="Log status"/>
+            <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
+                <http:request config-ref="InsertElastic" path="/" method="POST" doc:name="Insert in ElasticSearch"/>
+            </until-successful>
+
+
         </foreach>
         <set-payload value="#[arrayListData]" doc:name="arrayListData"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>

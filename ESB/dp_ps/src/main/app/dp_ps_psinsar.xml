@@ -14,7 +14,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         <jms:inbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2">
         
         </jms:inbound-endpoint>
-        <logger message="PSinSAR received payload: #[payload]" level="INFO" doc:name="PSinSAR received payload"/>
+        <logger message="PSinSAR received request" level="INFO" doc:name="PSinSAR received request"/>
+        <logger message="PSinSAR received payload: #[payload]" level="DEBUG" doc:name="PSinSAR received payload"/>
         <copy-properties propertyName="*" doc:name="Copy Props"/>
         
         <set-variable variableName="jmsProperties" value="#[message.outboundProperties]" doc:name="save jmsProperties"/>
@@ -51,7 +52,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
                 <logger message="PSinSAR failed, exc: #[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" level="ERROR" doc:name="PSinSAR failed"/>
             </otherwise>
         </choice>
-        <logger message="PSinSAR end payload: #[payload]" level="INFO" doc:name="PSinSAR end payload"/>
+        <logger message="PSinSAR end" level="INFO" doc:name="PSinSAR end"/>
+        <logger message="PSinSAR end payload: #[payload]" level="DEBUG" doc:name="PSinSAR end payload: #[payload]"/>
         <scripting:component doc:name="Restore jmsProperties">
             <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {

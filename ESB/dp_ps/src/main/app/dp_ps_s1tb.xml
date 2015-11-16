@@ -17,7 +17,8 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
         <jms:inbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1">
         
         </jms:inbound-endpoint>
-        <logger message="S1TBX received payload: #[payload]" level="INFO" doc:name="S1TBX received payload"/>
+        <logger message="S1TBX received request" level="INFO" doc:name="S1TBX received request"/>
+        <logger message="S1TBX received payload: #[payload]" level="DEBUG" doc:name="S1TBX received payload"/>
         <copy-properties propertyName="*" doc:name="Copy Props"/>
         <set-variable variableName="jmsProperties" value="#[message.outboundProperties]" doc:name="save jmsProperties"/>
         <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful" millisBetweenRetries="10000">
@@ -62,7 +63,8 @@ return payload]]></scripting:script>
 result = payload
 ]]></scripting:script>
         </scripting:component>
-        <logger message="S1TBX end payload: #[message]" level="INFO" doc:name="S1TBX end message"/>
+        <logger message="S1TBX end" level="INFO" doc:name="S1TBX end"/>
+        <logger message="S1TBX end payload: #[payload]" level="DEBUG" doc:name="S1TBX end payload"/>
 
         <catch-exception-strategy doc:name="Catch Exception Strategy">
             <logger message="S1TBX flow exception: #[exception]" level="ERROR" doc:name="S1TBX flow exception"/>

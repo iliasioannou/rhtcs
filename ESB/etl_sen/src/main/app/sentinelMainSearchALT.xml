@@ -35,11 +35,10 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 &quot;startDate&quot;:&quot;2014-01-01T00:00:00.000Z&quot;,
 &quot;endDate&quot;:&quot;2015-01-28T00:00:00.000Z&quot;,
 &quot;AOI&quot;:&quot;POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85))&quot;
-}">
-		<http:inbound-endpoint exchange-pattern="request-response"
-			host="0.0.0.0" port="9090" doc:name="HTTP" path="zearch" responseTimeout="1000000"/>
-        <set-variable variableName="saveJson" value="#[payload]" doc:name="save Json"/>
-		<logger message="ALT SEARCH FLOW CONNECTION" level="INFO"
+}" processingStrategy="synchronous">
+        <set-variable variableName="saveJson" value="#[payload]" doc:name="save Json" mimeType="application/json"/>
+
+		<logger message="SEARCH FLOW CONNECTION with payload: #[payload]" level="INFO"
 			doc:name="ALT SEARCH FLOW" />
 		<json:json-to-object-transformer
 			returnClass="java.util.HashMap" doc:name="JSON to HashMap" />
@@ -54,38 +53,21 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<set-variable variableName="querystr"
 			value="#[typeFilter]+AND+#[aoiFilter]+AND+beginPosition:#[dateFilter]+AND+endPosition:#[dateFilter]${sentinel.queryoptions}&amp;#[startRows]"
 			doc:name="querystr" />
-		<component class="org.mule.transformers.sentinelHTTPSearch"
-			doc:name="sentinelHTTPSearch" />
-		<scripting:component doc:name="HTTP Status Check">
-			<scripting:script engine="Groovy"><![CDATA[httpStatus = message.getInboundProperty('http.status');
+        <until-successful maxRetries="60" synchronous="true" doc:name="Until Successful">
+            <processor-chain doc:name="Processor Chain">
+                <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
+                <scripting:component doc:name="HTTP Status Check">
+                    <scripting:script engine="Groovy"><![CDATA[httpStatus = message.getInboundProperty('http.status');
 if(httpStatus != 200)
 	throw new org.apache.commons.httpclient.HttpException("Sentinel DataHub returned an HTTP error code: "+httpStatus)
 return payload]]></scripting:script>
-		</scripting:component>
+                </scripting:component>
+            </processor-chain>
+        </until-successful>
+
 		<logger
 			message="CODE: #[message.inboundProperties['http.status']] BODY: #[payload.substring(0, 500)]..."
 			level="INFO" doc:name="HTTP 200 OK" />
-		<http:response-builder status="#[message.inboundProperties['http.status']]"
-			contentType="application/json" doc:name="HTTP Response Builder" />
-		<choice-exception-strategy doc:name="Choice Exception Strategy">
 
-			<catch-exception-strategy doc:name="IOException" when="#[exception.causedBy(java.io.IOException)]">
-				<logger level="WARN" doc:name="Log Generic Exception"
-					message="Generic Exception: #[exception.getCause().getMessage()]" />
-                <set-payload value="#[saveJson]" doc:name="saveJson"/>
-                <scripting:component doc:name="repeat after 1 min">
-                    <scripting:script engine="Groovy"><![CDATA[sleep(60000)]]></scripting:script>
-                </scripting:component>
-                <flow-ref name="sentinelMainSearchALTFlow1" doc:name="Call search flow"/>
-			</catch-exception-strategy>
-            <catch-exception-strategy when="#[exception.causedBy(org.apache.commons.httpclient.HttpException)]" doc:name="HttpException">
-                <logger message="Sentinel Offline" level="INFO" doc:name="Logger"/>
-                <scripting:component doc:name="repeat after 1 min">
-                    <scripting:script engine="Groovy"><![CDATA[sleep(60000)]]></scripting:script>
-                </scripting:component>
-                <logger message="After 1 min" level="INFO" doc:name="Logger"/>
-                <flow-ref name="sentinelMainSearchALTFlow1" doc:name="Call search flow"/>
-            </catch-exception-strategy>
-		</choice-exception-strategy>
 	</flow>
 </mule>
