@@ -10,9 +10,10 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd">
 
-	<http:request-config name="HTTP_Request_S1TB" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.path}" doc:name="HTTP Request S1TB">
-        <http:basic-authentication username="${s1toolbox.usr}" password="${s1toolbox.pwd}"/>
+	<http:request-config name="HTTP_Request_S1TB" host="${s1toolbox.host}" port="${s1toolbox.port}" basePath="${s1toolbox.path}" doc:name="HTTP Request S1TB" >
+        <http:basic-authentication username="${s1toolbox.usr}" password="${s1toolbox.pwd}" preemptive="true"/>
     </http:request-config>
+    
     <flow name="dp_ps_s1tbFlow">
         <jms:inbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1">
         
@@ -40,7 +41,11 @@ return payload]]></scripting:script>
         <logger message="STATUS AFTER START REQUEST: #[requestStatus]" level="INFO" doc:name="STATUS AFTER START REQUEST"/>
         <until-successful maxRetries="${s1toolbox.polling.retries}" synchronous="true" doc:name="Until not COMPLETED or FAILED" failureExpression="#[!requestStatus.equals('COMPLETED') &amp;&amp; !requestStatus.equals('FAILED')]" millisBetweenRetries="${s1toolbox.polling.wait}">
             <processor-chain doc:name="Processor Chain">
-                <http:request config-ref="HTTP_Request_S1TB" path="#[requestId]" method="GET" doc:name="request polling status S1TBX"/>
+                <http:request config-ref="HTTP_Request_S1TB" path="#[requestId]" method="GET" doc:name="request polling status S1TBX">
+                    <http:request-builder>
+                        <http:header headerName="Content-Type" value="application\json"/>
+                    </http:request-builder>
+                </http:request>
                 <object-to-string-transformer doc:name="Object to String"/>
                 <set-variable variableName="requestStatus" value="#[json:status]" doc:name="update requestStatus"/>
 

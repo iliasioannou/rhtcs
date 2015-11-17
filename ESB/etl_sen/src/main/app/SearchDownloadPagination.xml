@@ -77,7 +77,7 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
                     <scripting:script engine="Groovy"><![CDATA[import static groovy.json.JsonOutput.*;
 return prettyPrint(payload);]]></scripting:script>
                 </scripting:component>
-                <logger message="*** Process terminated" level="INFO" doc:name="Flow end"/>
+                <logger message="*** Process terminated. Call Orchestrator ***" level="INFO" doc:name="Flow end"/>
                 <until-successful maxRetries="20" synchronous="true" doc:name="Until Successful">
                     <http:request config-ref="Orchestrator" path="/" method="POST" doc:name="Call orchestrator"/>
                 </until-successful>
