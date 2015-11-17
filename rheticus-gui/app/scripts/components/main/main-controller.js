@@ -10,19 +10,15 @@
 
 angular.module('rheticus')
 	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration',function ($rootScope,$scope,$http,olData,configuration) {
-		angular.extend($scope,{ //scope variables
-			//basemap list
-			"baselayers" : configuration.maps.baselayers,
-			//barritteri datasets
-			"overlays" : [
+		angular.extend($scope,{ // scope variables
+			"baselayers" : configuration.maps.baselayers, // basemap list
+			"overlays" : [ // barritteri overlay datasets
 				configuration.maps.overlays.barritteri.heatmap,
 				configuration.maps.overlays.barritteri.view
 			],
-			"psQueryLayer": configuration.maps.overlays.barritteri.query,
-			//from root scope
-			"center": $rootScope.center,
-			//OpenLayers Default Events
-			"olDefaults" : {
+			"psQueryLayer": configuration.maps.overlays.barritteri.query, // barritteri query overlay layer
+			"center": $rootScope.center, // OpenLayers Center zoom
+			"olDefaults" : { // OpenLayers Default Events
 				"events" : { 
 					"map" : ["moveend", "click"],
 					"layers" : ["click"]
@@ -31,8 +27,7 @@ angular.module('rheticus')
 					"mouseWheelZoom": true
 				}
 			},
-			//Openlayers controls
-			"controls" : [
+			"controls" : [ // Openlayers controls
 				{"name" : 'zoom' , "active" : true},
 				{"name" : 'rotate' , "active" : true},
 				{"name" : 'zoomtoextent' , "active" : false},
@@ -43,18 +38,16 @@ angular.module('rheticus')
 				{"name" : 'mousePosition' , active:true},
 				{"name" : 'layerSwitcher' , active:true}*/
 			],
-			//Openlayers view
-			"view" : {},
-			//OpenLayers Sentinel Dataset query
-			//sentinel: configuration.maps.overlays.sentinel,
-			//OpenLayers Marker for PS query
-			marker: {}
+			"view" : {}, // Openlayers view
+			//sentinel: configuration.maps.overlays.sentinel, // OpenLayers Sentinel Dataset query overlay layer
+			marker: {} // OpenLayers Marker layer for PS query
 		});
 
 		/**
 		 * datasets watcher for adjusting CQL_FILTER view source parameter
 		 */
-		$scope.$watch("datasets", function (datasets) {
+		$rootScope.$watch("datasets", function (datasets) {
+			//console.log("main controller - datasets watcher : "+datasets);
 			var selected = [];
 			for (var key in datasets) {
 				if (datasets[key].selected){
@@ -64,7 +57,7 @@ angular.module('rheticus')
 			var cql = selected.join(' OR ');
 			if (cql) {
 				cql = "("+cql+") AND ";
-				cql += "(abs_4(average_speed)>="+$scope.speedModel.split(";")[0]+" AND abs_4(average_speed)<="+$scope.speedModel.split(";")[1]+")";
+				cql += "(abs_4(average_speed)>="+$rootScope.speedModel.split(";")[0]+" AND abs_4(average_speed)<="+$rootScope.speedModel.split(";")[1]+")";
 				$scope.overlays[1].source.params.CQL_FILTER = cql;
 			} else {
 				delete $scope.overlays[1].source.params.CQL_FILTER;
@@ -74,13 +67,21 @@ angular.module('rheticus')
 		/**
 		 * speedModel watcher for adjusting CQL_FILTER view source parameter
 		 */
-		$scope.$watch("speedModel", function (speedModel) {
-			//console.log("watcher: "+speedModel);
+		$rootScope.$watch("speedModel", function (speedModel) {
 			var cql = $scope.overlays[1].source.params.CQL_FILTER;
 			if (cql) {
 				cql = cql.split("(abs_4(average_speed)>=")[0];
 				cql += "(abs_4(average_speed)>="+speedModel.split(";")[0]+" AND abs_4(average_speed)<="+speedModel.split(";")[1]+")";
 				$scope.overlays[1].source.params.CQL_FILTER = cql;
+			}
+		});
+
+		/**
+		 * delete marker when status changes to false
+		 */
+		$rootScope.$watch("marker", function (marker) {
+			if (!marker){
+				$scope.marker = {};	
 			}
 		});
 
@@ -100,6 +101,10 @@ angular.module('rheticus')
 						that.psTrendsData = {
 							"point" : ol.proj.toLonLat(evt.coordinate, "EPSG:3857"),
 							"features" : (response.features && (response.features.length>0)) ? response.features : null
+						};
+						that.marker = {
+							"lat" : that.psTrendsData.point[1],
+							"lon" : that.psTrendsData.point[0]
 						};
 					});
 				} else {
