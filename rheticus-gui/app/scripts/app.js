@@ -37,6 +37,13 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
+		/*
+		.when('/timeline', {
+			"templateUrl": "scripts/components/timeline/timeline-view.html",
+			"controller": "TimelineCtrl",
+			"controllerAs": "timeline"
+		})
+		*/
 		.otherwise({
 			"redirectTo": "/"
 		});
@@ -54,6 +61,7 @@ angular
 				"point" : null,
 				"features" : null
 			},
+			"marker" : false,
 			"shouldShowDetails" : function() {
 				return $rootScope.center.zoom>=configuration.maps.zoom.detail;
 			}

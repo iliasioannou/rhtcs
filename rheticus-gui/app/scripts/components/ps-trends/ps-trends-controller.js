@@ -9,10 +9,9 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$scope','configuration',function ($scope,configuration) {
+	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration',function ($rootScope,$scope,configuration) {
 		angular.extend($scope,{
-			// PS Line chart options
-			"graph_options" : {
+			"graph_options" : { // PS Line chart options
 				"chart" : {
 					"type" : "lineChart",
 					"width" : 650,
@@ -53,14 +52,21 @@ angular.module('rheticus')
 					"enable":false
 				}
 			},
-			// PS line chart data
-			"chartData" : [],
-			// PS feature details
-			"tableInfo" : [],
-			//dialog box closure
-			"show_trends" : false
+			"chartData" : [], // PS line chart data
+			"tableInfo" : [], // PS feature details
+			"show_trends" : false // dialog box closure
 		});
 
+		/**
+		 * showTrends hides this view and deletes OLs marker
+		 */
+		angular.extend($scope,{
+			"showTrends" : function (show){
+				$scope.show_trends = show;
+				$rootScope.marker = show;
+			},
+		});
+		
 		/**
 		 * psTrendsData watcher for rendering chart line data
 		 */
@@ -87,7 +93,7 @@ angular.module('rheticus')
 					return this.colors(this.index++)
 				}
 			};
-			$scope.show_trends = true;
+			$scope.showTrends(true);
 			if (psTrendsData.features!=null) {
 				$scope.graph_options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(psTrendsData.point[1]*10000)/10000+"; LON: "+Math.round(psTrendsData.point[0]*10000)/10000+"]";
 				for (var i=0; i<psTrendsData.features.length; i++) {
@@ -111,14 +117,9 @@ angular.module('rheticus')
 						"color" : autoColor.getColor() //color - optional: choose your own line color.
 					});
 					tableInfo.push(featureInfo);
-					$scope.marker = {
-						"lat" : psTrendsData.point[1],
-						"lon" : psTrendsData.point[0],
-						"label" : psTrendsData.features[0].properties.code
-					};
 				}
 			} else {
-				$scope.show_trends = false;
+				$scope.showTrends(false);
 			}
 			//Line chart data should be sent as an array of series objects.                
 			$scope.chartData = chartData;
