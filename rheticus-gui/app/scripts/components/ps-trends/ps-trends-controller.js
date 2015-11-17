@@ -72,26 +72,12 @@ angular.module('rheticus')
 		 * ps watcher for rendering chart line data
 		 */
 		$scope.$watch("ps", function (ps) {
-			if (ps!=null){
-				//For IE :: creating "startsWith" and "splice" methods for String Class - START
-				if (typeof String.prototype.startsWith != "function") {
-					String.prototype.startsWith = function (str) {
-						return this.slice(0, str.length) == str;
-					};
-				}
-				if (typeof String.prototype.splice != "function") {
-					String.prototype.splice = function (idx, rem, s) {
-						return this.slice(0, idx) + s + this.slice(idx + Math.abs(rem));
-					};
-				}
-				//For IE :: creating "startsWith" and "splice" methods for String Class - END
-
+			if ((ps!=null) && (ps.features!=null) && (ps.features.length>0)) {
 				var chartData = []; //Data is represented as an array of {x,y} pairs.
 				var tableInfo = [];
-				$scope.showTrends(true);
-				if (ps.features!=null) {
-					$scope.graph_options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
-					for (var i=0; i<ps.features.length; i++) {
+				$scope.graph_options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
+				for (var i=0; i<ps.features.length; i++) {
+					if (ps.features[i].properties){
 						var featureData = [],
 							featureInfo = {};
 						for (var key in ps.features[i].properties) {
@@ -112,8 +98,6 @@ angular.module('rheticus')
 						});
 						tableInfo.push(featureInfo);
 					}
-				} else {
-					$scope.showTrends(false);
 				}
 				//Line chart data should be sent as an array of series objects.                
 				$scope.chartData = chartData;
@@ -121,6 +105,10 @@ angular.module('rheticus')
 				if(!$scope.$$phase) {
 					$scope.$apply();
 				}
+				$scope.showTrends(true);
+			} else {
+				$scope.showTrends(false);
+				return false;
 			}
 		});
 	}]);

@@ -57,7 +57,7 @@ angular.module('rheticus')
 						"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
 						"features" : (response.features && (response.features.length>0)) ? response.features : null
 					};
-					eval("that."+entity+"=obj;");
+					eval("that."+entity+" = obj;");
 					if (callback!=null){
 						callback();
 					}
@@ -132,15 +132,17 @@ angular.module('rheticus')
 				}
 				// Sentinel 1 Datatset and timeline management
 				$scope.sentinel = {};
-				/*$scope.getFeatureInfo(
+				var startDate = (configuration.timeSlider.domain.start!="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+				var endDate = (configuration.timeSlider.domain.end!="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
+				$scope.getFeatureInfo(
 					map,
 					evt.coordinate,
 					$scope.sentinelQueryLayer.source,
 					1000,
-					"",
+					"(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))",
 					"timeline",
 					null
-				);*/
+				);
 			});
 		});
 	}]);
