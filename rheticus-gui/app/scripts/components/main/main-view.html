@@ -3,7 +3,7 @@
 	<layer-switcher></layer-switcher>
 	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers|filter:{active: true}"></ol-layer>
 	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays"></ol-layer>
-	<!--ol-layer ol-layer-properties="sentinel"></ol-layer-->
+	<ol-layer ol-layer-properties="sentinel"></ol-layer>
 	<ol-marker ol-marker-properties="marker"></ol-marker>
 	
 	<div ng-include src="'scripts/components/header/header-view.html'"></div>

@@ -9,4 +9,5 @@
  */
 angular.module('rheticus')
     .controller('AboutCtrl', function () {
+		// do nothing
     });

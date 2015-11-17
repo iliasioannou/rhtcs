@@ -8,7 +8,8 @@ angular
 		timeSlider : @@timeSlider,
 		filters : @@filters,
 		datasets : @@datasets,
+		map : @@map,
 		//custom environment configuration
 		legends : @@legends,
-		maps : @@maps
+		layers : @@layers
 	});

@@ -9,8 +9,8 @@
  */
 
 angular.module('rheticus')
-	.controller('HeaderCtrl',['$scope','configuration',function ($scope,configuration) {
+	.controller('HeaderCtrl',['$scope','configuration', function ($scope,configuration) {
 		angular.extend($scope,{
-			"rheticusHeaderTitle": configuration.rheticusHeaderTitle
+			"rheticusHeaderTitle" : configuration.rheticusHeaderTitle
 		});
 	}]);

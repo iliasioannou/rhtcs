@@ -20,11 +20,11 @@ angular.module('rheticus')
 				"dimension" : configuration.filters.speedSlider.dimension,
 				"scale" : configuration.filters.speedSlider.scale,
 				"css" : {
-					"background" : {"background-color": "silver"},
-					"before" : {"background-color": "purple"},
-					"default" : {"background-color": "white"},
-					"after" : {"background-color": "green"},
-					"pointer" : {"background-color": "red"}
+					"background" : {"background-color" : "silver"},
+					"before" : {"background-color" : "purple"},
+					"default" : {"background-color" : "white"},
+					"after" : {"background-color" : "green"},
+					"pointer" : {"background-color" : "red"}
 				},
 				"callback" : function(value, released) { // released it triggered on mouse up
 					$rootScope.speedModel = value;

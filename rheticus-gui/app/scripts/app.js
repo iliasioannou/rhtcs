@@ -37,13 +37,6 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
-		/*
-		.when('/timeline', {
-			"templateUrl": "scripts/components/timeline/timeline-view.html",
-			"controller": "TimelineCtrl",
-			"controllerAs": "timeline"
-		})
-		*/
 		.otherwise({
 			"redirectTo": "/"
 		});
@@ -51,19 +44,13 @@ angular
 	.run(function ($rootScope,configuration) {
 		angular.extend($rootScope,{
 			"speedModel" : configuration.filters.speedSlider.init,
-			"center" : {
-				"lon" : configuration.maps.center.lon,
-				"lat" : configuration.maps.center.lat,
-				"zoom" : configuration.maps.zoom.center
-			},
+			"center" : configuration.map.center,
 			"datasets" : configuration.datasets,
-			"psTrendsData" : {
-				"point" : null,
-				"features" : null
-			},
+			"ps" : null,
 			"marker" : false,
-			"shouldShowDetails" : function() {
-				return $rootScope.center.zoom>=configuration.maps.zoom.detail;
+			"timeline" : null,
+			"showDetails" : function() {
+				return $rootScope.center.zoom>=configuration.map.query.zoom;
 			}
 		});
 	});

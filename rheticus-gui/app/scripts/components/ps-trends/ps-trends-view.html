@@ -1,5 +1,5 @@
-<div class="row" ng-show="show_trends" ng-controller="PsTrendsCtrl">
-	<div class="col-md-4 col-md-offset-1 well psInfo shadowed">
+<div class="psTrends" ng-show="show_trends" ng-controller="PsTrendsCtrl">
+	<!--div class="col-md-4 col-md-offset-1 well psInfo shadowed"-->
 		<a style="cursor:pointer" ng-click="showTrends(false);">X</a>
 		<nvd3 options="graph_options" data="chartData" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
 		</br>
@@ -38,5 +38,5 @@
 				</tfoot>
 			</table>
 		</div>
-	</div>
+	<!--/div-->
 </div>

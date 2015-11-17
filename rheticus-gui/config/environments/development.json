@@ -18,15 +18,7 @@
 		}
 	},
 	
-	"maps" : {
-		"center" : {
-			"lon" : 15.85,
-			"lat" : 38.325
-		},
-		"zoom" : {
-			"center" : 14,
-			"detail" : 16
-		},
+	"layers" : {
 		"baselayers" : [{
 			"name" : "OpenStreetMap",
 			"source" : {

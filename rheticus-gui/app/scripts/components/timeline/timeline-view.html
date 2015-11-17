@@ -1,5 +1,4 @@
-<div class="timeline">
-	<div ng-controller="TimelineCtrl">
-		<nvd3 options="options" data="data"></nvd3>
-	</div>
+<div class="timeline" ng-show="show_timeline" ng-controller="TimelineCtrl">
+	<a style="cursor:pointer" ng-click="showTimeline(false);">X</a>
+	<nvd3 options="options" data="data"></nvd3>
 </div>

@@ -45,5 +45,17 @@
 			"name": "dataset3",
 			"selected": false
 		}
-	]
+	],
+	
+	"map" : {
+		"center" : {
+			"lon" : 15.85,
+			"lat" : 38.325,
+			"zoom" : 14
+		},
+		"query" : {
+			"zoom" : 16
+		},
+		"crs" : "EPSG:3857"
+	}
 }
