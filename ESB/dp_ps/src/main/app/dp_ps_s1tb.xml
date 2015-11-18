@@ -68,6 +68,7 @@ return payload]]></scripting:script>
 result = payload
 ]]></scripting:script>
         </scripting:component>
+
         <logger message="S1TBX end" level="INFO" doc:name="S1TBX end"/>
         <logger message="S1TBX end payload: #[payload]" level="DEBUG" doc:name="S1TBX end payload"/>
 
