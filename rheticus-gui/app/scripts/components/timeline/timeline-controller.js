@@ -20,15 +20,19 @@ angular.module('rheticus')
 					"color" : d3.scale.category20().range(),
 					"xAxis" : {
 						"axisLabel" : "Date",
-						"tickFormat" : function(d) {
-						return d3.time.format('%x')(new Date(d))
+						"tickFormat" : function (d) {
+							return d3.time.format("%x")(new Date(d));
+						}
 					},
 					"yAxis" : {
-						"axisLabel" : "Dataset"/*,
-						"axisLabelDistance" : 35,
-						"tickFormat" : function(d){
-							return d3.format(',.1f')(d);
-						}*/
+						"axisLabel" : "Dataset",
+						"axisLabelDistance" : -5,
+						"tickFormat" : function (y) {
+							var scale = d3.scale.ordinal()
+								.domain(["A","B","C","D","E","F","G","H"])
+								.rangePoints([0,8],1);
+							return scale(y);
+						}
 					},
 					"zoom" : {
 						"enabled" : true,
@@ -36,10 +40,9 @@ angular.module('rheticus')
 						"useFixedDomain" : false,
 						"useNiceScale" : false,
 						"horizontalOff" : false,
-						"verticalOff" : true,
-						"unzoomEventType" : "dblclick.zoom"
+						"verticalOff" : true/*,
+						"unzoomEventType" : "dblclick.zoom"*/
 					},
-					
 					"showDistX" : true,
 					"showDistY" : true,
 					"tooltipContent" : function(key) {
@@ -53,8 +56,8 @@ angular.module('rheticus')
 					},*/
 					"transitionDuration" : 250,
 					//"rotateLabels" : 50,
-					"showMaxMin" : false
-					}
+					"showMaxMin" : false/*,
+					"noData" : "I'm sorry ... No Data Available."*/
 				},
 				"title" : {
 					enable : true,
@@ -67,29 +70,59 @@ angular.module('rheticus')
 					"enable" : false
 				}
 			},
-			//"data" : [], // Chart data
-			"data" : [
-				{
-					"key" : "Sentinel" ,
-					"bar" : true,
-					"values" : [ {x: 1136005200000 , y:1 , label:"sentinel1"} , { x:1138683600000 , y:1,label:"sentinel1" }, { x:1141102800000 , y:1,label:"sentinel1"}]
-				},
-				{
-					"key" : "Sentinel2" ,
-					"bar" : true,
-					"values" : [ {x: 1136005200000 , y:2 , label:"sentinel2"} , { x:1138683600000 , y:2,label:"sentinel2"}, {x:1141102800000 , y:2,label:"sentinel2"}]
-				}
-			],
+			"config" : {
+				visible: true, // default: true
+				extended: false, // default: false
+				disabled: false, // default: false
+				autorefresh: true, // default: true
+				refreshDataOnly: true, // default: true
+				deepWatchOptions: true, // default: true
+				deepWatchData: false, // default: false
+				deepWatchConfig: true, // default: true
+				debounce: 10 // default: 10
+			},
+			"events" : {},
+			"data" : [], // Chart data
 			"show_timeline" : false, // dialog box closure
-			"datasetIdAttribute" : configuration.timeSlider.attributes.datasetIdentifier
+			"datasetIdAttribute" : configuration.timeSlider.attributes.datasetIdentifier,
+			"datasetList" : [] // datasets
 		});
-
+/*
+		$scope.$watch('data', function(data) {
+			if (data.length>0){
+				$scope.data = [
+					{
+						"key" : "Sentinel" ,
+						"bar" : true,
+						"values" : [ {x: 1136005200000 , y:1 , label:"sentinel1"} , { x:1138683600000 , y:1,label:"sentinel1" }, { x:1141102800000 , y:1,label:"sentinel1"}]
+					},
+					{
+						"key" : "Sentinel2" ,
+						"bar" : true,
+						"values" : [ {x: 1136005200000 , y:2 , label:"sentinel2"} , { x:1138683600000 , y:2,label:"sentinel2"}, {x:1141102800000 , y:2,label:"sentinel2"}]
+					}
+				];
+				if(!$scope.$$phase) {
+					$scope.$apply();
+				}
+			}
+		});
+		*/
 		/**
 		 * showTimeline hides this view
 		 */
 		angular.extend($scope,{
+			/**
+			 * Parameters:
+			 * show - {boolean}
+			 * 
+			 * Returns:
+			 */
 			"showTimeline" : function (show){
 				$scope.show_timeline = show;
+				if (!show){
+					$scope.data = [];
+				}
 			},
 			/**
 			 * Parameters:
@@ -101,13 +134,30 @@ angular.module('rheticus')
 			 * {Integer} - Position in list
 			 */
 			"getIndexByAttributeValue" : function(list,attribute,idValue) {
-				if (list!=null){
-					for (var i=0; i<list.length; i++){
-						if (eval("list[i]."+attribute)==idValue)
-							return i;
+				var res = -1;
+				try {
+					if ((list!=null) && (list.length>0)) {
+						if (attribute!=""){
+							for (var i=0; i<list.length; i++){
+								if (eval("list[i]."+attribute)==idValue){
+									res = i;
+									break;
+								}
+							}
+						} else {
+							for (var i=0; i<list.length; i++){
+								if (list[i]==idValue){
+									res = i;
+									break;
+								}
+							}
+						}
 					}
+				} catch (e) {
+					console.log("[timeline-controller :: getIndexByAttributeValue] EXCEPTION : '"+e);
+				} finally {
+					return(res);
 				}
-				return(-1);
 			},
 			/**
 			 * Parameters:
@@ -117,34 +167,148 @@ angular.module('rheticus')
 			 * {Object} - Bounding Box Coordinates
 			 */
 			"boundingBoxAroundPolyCoords" : function(coords) {
-				var xAll = [], yAll = [];
-				for (var i=0; i<coords[0].length; i++) {
-					xAll.push(coords[0][i][1]);
-					yAll.push(coords[0][i][0]);
+				var res = null;
+				try {
+					if ((coords!=null) && (coords.length>0)){
+						var xAll = [], yAll = [];
+						for (var i=0; i<coords[0].length; i++) {
+							xAll.push(coords[0][i][1]);
+							yAll.push(coords[0][i][0]);
+						}
+						xAll = xAll.sort(function (a,b) { return a - b });
+						yAll = yAll.sort(function (a,b) { return a - b });
+						res = {
+							"left" : xAll[0],
+							"bottom" : yAll[0],
+							"right" : xAll[xAll.length-1],
+							"top" : yAll[yAll.length-1]
+						};
+					}
+				} catch (e) {
+					console.log("[timeline-controller :: boundingBoxAroundPolyCoords] EXCEPTION : '"+e);
+				} finally {
+					return(res);
 				}
-				xAll = xAll.sort(function (a,b) { return a - b });
-				yAll = yAll.sort(function (a,b) { return a - b });
-				return({
-					"left" : xAll[0],
-					"bottom" : yAll[0],
-					"right" : xAll[xAll.length-1],
-					"top" : yAll[yAll.length-1]
-				});
 			},
 			/**
 			 * Parameters:
-			 * coords - {Object}
+			 * current - {Object}
+			 * feature - {Object}
 			 * 
 			 * Returns:
 			 * {Object} - Bounding Box Coordinates
 			 */
 			"updateDatasetBoundingBox" : function(current,feature) {
-				return {
-					"left" : (feature.left<current.left) ? feature.left : current.left,
-					"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
-					"right" : (feature.right>current.right) ? feature.right : current.right,
-					"top" : (feature.top>current.top) ? feature.top : current.top
-				};
+				if ((current!=null) && (feature!=null)){
+					return {
+						"left" : (feature.left<current.left) ? feature.left : current.left,
+						"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
+						"right" : (feature.right>current.right) ? feature.right : current.right,
+						"top" : (feature.top>current.top) ? feature.top : current.top
+					};
+				}
+			},
+			/**
+			 * Parameters:
+			 * timeline - {Object}
+			 * 
+			 * Returns:
+			 * Array<{Object}> - Dataset list
+			 */
+			"normalizeDatasetList" : function(timeline){
+				var datasetList = [];
+				try {
+					for (var i=0; i<timeline.features.length; i++) {
+						if (timeline.features[i].properties){
+							var featureData = [];
+							for (var key in timeline.features[i].properties) {
+								var datasetValue = "";
+								try {
+									eval("datasetValue = timeline.features[i].properties."+$scope.datasetIdAttribute);
+									if (datasetValue!=""){ // dataset exists
+										var index = $scope.getIndexByAttributeValue(datasetList,"id",datasetValue);
+										if (index==-1){ // add new dataset
+											datasetList.push({
+												"id" : datasetValue,
+												"bbox" : $scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
+												"features" : [timeline.features[i]]
+											});
+											//console.log("[timeline-controller] adding dataset id = '"+datasetList[datasetList.length-1].id+"'");
+											//console.log("[timeline-controller] adding dataset bbox = '"+JSON.stringify(datasetList[datasetList.length-1].bbox)+"'");
+										} else { // update bbox of existing dataset
+											datasetList[index].bbox = $scope.updateDatasetBoundingBox(datasetList[index].bbox,$scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
+											datasetList[index].features.push(timeline.features[i]);
+											//console.log("[timeline-controller] updating dataset id = '"+datasetList[index].id+"'");
+											//console.log("[timeline-controller] updating dataset bbox = '"+JSON.stringify(datasetList[index].bbox)+"'");
+										}
+									}
+								} catch (e) {
+									console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+$scope.datasetIdAttribute+"' attribute doesn't exists!");
+								} finally {
+									// do nothing ... continue parsing other features!
+								}
+							}
+						}
+					}
+				} catch (e) {
+					console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+e);
+					datasetList = []; // this empties the list if dirty
+				} finally {
+					return(datasetList);
+				}
+			},
+			/**
+			 * Parameters:
+			 * 
+			 * Returns:
+			 */
+			"generateChartData" : function(){
+				var res = false;
+				try {
+					if (($scope.datasetList!=null) && ($scope.datasetList.length>0)){
+						//Line chart data should be sent as an array of series objects.                
+						var chartData = []; //Data is represented as an array of {x,y} pairs.
+						for (var i=0; i<$scope.datasetList.length; i++) {
+							try {
+								var imageryList = []; // necessary to filter unique imagery ID 
+								chartData.push({
+									"key" : $scope.datasetList[i].id, // dataset ID value
+									"values" : [] // values - represents the array of {x,y} data points
+								});
+								for (var j=0; j<$scope.datasetList[i].features.length; j++) {
+									try {
+										var featureStartTime = new Date($scope.datasetList[i].features[j].properties.startTime);
+										if ((featureStartTime instanceof Date) && ($scope.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)==-1) ) {
+											imageryList.push($scope.datasetList[i].features[j].id);
+											chartData[i].values.push({
+												"x" : featureStartTime,
+												"y" : i,
+												"label" : $scope.datasetList[i].features[j].id,
+												"size" : 3,
+												"shape" : "circle"
+											});
+										}
+									} catch (e) {
+										console.log("[timeline-controller :: generateChartData] EXCEPTION parsing S1 startTime: "+e);
+									} finally {
+										// do nothing and continue
+									}
+								}
+							} catch (e) {
+								console.log("[timeline-controller :: generateChartData] EXCEPTION adding data to chart: "+e);
+							} finally {
+								// do nothing and continue
+							}
+						}
+						$scope.api.refresh();
+						$scope.api.updateWithData(chartData);
+						res = true;
+					}
+				} catch (e) {
+					console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
+				} finally {
+					return(res);
+				}
 			}
 		});
 
@@ -153,54 +317,12 @@ angular.module('rheticus')
 		 */
 		$scope.$watch("timeline", function (timeline) {
 			if ((timeline!=null) && (timeline.features!=null) && (timeline.features.length)) {
-				var datasetList = [];
-				for (var i=0; i<timeline.features.length; i++) {
-					if (timeline.features[i].properties){
-						var featureData = [];
-						for (var key in timeline.features[i].properties) {
-							var datasetValue = "";
-							try {
-								eval("datasetValue = response.features[i].properties."+datasetIdAttribute);
-								if (datasetValue!=""){ // dataset exists
-									var index = $scope.getIndexByAttributeValue(datasetList,"id",datasetValue);
-									if (index==-1){ // add new dataset
-										datasetList.push({
-											"id" : datasetValue,
-											"bbox" : $scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
-											"features" : [timeline.features[i]]
-										});
-										console.log("[timeline-controller] adding dataset id = '"+datasetList[datasetList.length-1].id+"'");
-										console.log("[timeline-controller] adding dataset bbox = '"+datasetList[datasetList.length-1].bbox+"'");
-									} else { // update bbox of existing dataset
-										datasetList[index].bbox = $scope.updateDatasetBoundingBox(datasetList[index].bbox,$scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
-										datasetList[index].features.push(timeline.features[i]);
-										console.log("[timeline-controller] updating dataset id = '"+datasetList[index].id+"'");
-										console.log("[timeline-controller] updating dataset bbox = '"+datasetList[index].bbox+"'");
-									}
-								}
-							} catch (e) {
-								console.log("[timeline-controller] EXCEPTION : '"+datasetIdAttribute+"' attribute doesn't exists!");
-							}
-						}
-					}
-				}
-				
-				if (datasetList.length>0){
-					//Line chart data should be sent as an array of series objects.                
-					var chartData = []; //Data is represented as an array of {x,y} pairs.
-					/*chartData.push({
-						"values" : featureData, //values - represents the array of {x,y} data points
-						"key" : ps.features[i].properties["code"]
-					});*/
-					$scope.data = chartData;
-					if(!$scope.$$phase) {
-						$scope.$apply();
-					}
-					$scope.showTimeline(true);
-				}
+				$scope.datasetList = $scope.normalizeDatasetList(timeline);
+				$scope.showTimeline(
+					$scope.generateChartData()
+				);
 			} else {
 				$scope.showTimeline(false);
-				return false;
 			}
 		});
 	}]);

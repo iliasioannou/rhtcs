@@ -4,7 +4,7 @@
 		"velocity" : {
 			"title" : "Velocit\u00E0 PS ",
 			"uom" : "[mm/period]",
-			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster_vel&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
+			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
 		},
 		"density" : {
 			"title" : "Densit\u00E0 PS ",
@@ -14,7 +14,7 @@
 		"ps" : {
 			"title" : "Velocit\u00E0 PS ",
 			"uom" : "[mm/period]",
-			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_view&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true&STYLE=pkt284:ps_legend_style"
+			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_view&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true&STYLE=pkt284:ps_legend_style_v2"
 		}
 	},
 	
@@ -185,17 +185,16 @@
 			},
 			"sentinel" : {
 				"view" : {
-					"name" : "Sentinel 1 Datasets Query",
+					"name" : "Sentinel 1 Datasets GeoJSON",
 					"source" : {
 						"type" : "GeoJSON",
-						"url" : "jsonData/FeatureCollection.json",
-						"SRS" : "EPSG:3857"
+						"geojson" : {}
 					},
 					"active" : true,
 					"visible" : true
 				},
 				"query" : {
-					"name" : "Sentinel 1 Datasets",
+					"name" : "Sentinel 1 Datasets Query",
 					"source" : {
 						"type" : "TileWMS",
 						"urls" : [

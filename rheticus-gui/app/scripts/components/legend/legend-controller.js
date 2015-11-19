@@ -11,13 +11,13 @@
 angular.module('rheticus')
 .controller('LegendCtrl',['$scope','configuration', function ($scope,configuration) {
 	angular.extend($scope,{
-		"legendUrl" : configuration.legends.density.url,
-		"legendTitle" : configuration.legends.density.title,
-		"legendUom" : configuration.legends.density.uom
+		"legendUrl" : configuration.legends.velocity.url,
+		"legendTitle" : configuration.legends.velocity.title,
+		"legendUom" : configuration.legends.velocity.uom
 	});
 	$scope.$watch("center.zoom", function (zoom) { //legend visibility Heatmap/PS
-		$scope.legendUrl = configuration.legends[$scope.showDetails() ? "ps" : "density"].url;
-		$scope.legendTitle = configuration.legends[$scope.showDetails() ? "ps" : "density"].title;
-		$scope.legendUom = configuration.legends[$scope.showDetails() ? "ps" : "density"].uom;
+		$scope.legendUrl = configuration.legends[$scope.showDetails() ? "ps" : "velocity"].url;
+		$scope.legendTitle = configuration.legends[$scope.showDetails() ? "ps" : "velocity"].title;
+		$scope.legendUom = configuration.legends[$scope.showDetails() ? "ps" : "velocity"].uom;
 	});
 }]);

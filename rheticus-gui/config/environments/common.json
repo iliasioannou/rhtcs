@@ -38,22 +38,7 @@
 			"scale" : [75, "|", 90, "|", 100]
 		}
 	},
-	
-	"datasets" : [
-		{
-			"name": "dataset1",
-			"selected": true
-		},
-		{
-			"name": "dataset2",
-			"selected": false
-		},
-		{
-			"name": "dataset3",
-			"selected": false
-		}
-	],
-	
+
 	"map" : {
 		"center" : {
 			"lon" : 15.85,
@@ -64,5 +49,18 @@
 			"zoom" : 16
 		},
 		"crs" : "EPSG:3857"
-	}
+	},
+	
+	"aoi" : [
+		{
+			"name" : "Demo Barritteri",
+			"bbox" : {},
+			"selected": true
+		},
+		{
+			"name" : "Demo Trento",
+			"bbox" : {},
+			"selected": false
+		}
+	]
 }

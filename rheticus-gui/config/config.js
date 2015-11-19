@@ -7,8 +7,8 @@ angular
 		rheticusHeaderTitle : '@@rheticusHeaderTitle',
 		timeSlider : @@timeSlider,
 		filters : @@filters,
-		datasets : @@datasets,
 		map : @@map,
+		aoi : @@aoi,
 		//custom environment configuration
 		legends : @@legends,
 		layers : @@layers

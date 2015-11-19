@@ -37,6 +37,11 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
+		.when('/timeline', {
+			"templateUrl": "scripts/components/timeline/timeline-view.html",
+			"controller": "TimelineCtrl",
+			"controllerAs": "timeline"
+		})
 		.otherwise({
 			"redirectTo": "/"
 		});
@@ -45,10 +50,10 @@ angular
 		angular.extend($rootScope,{
 			"speedModel" : configuration.filters.speedSlider.init,
 			"center" : configuration.map.center,
-			"datasets" : configuration.datasets,
 			"ps" : null,
 			"marker" : false,
 			"timeline" : null,
+			"aoi" : configuration.aoi,
 			"showDetails" : function() {
 				return $rootScope.center.zoom>=configuration.map.query.zoom;
 			}
