@@ -29,10 +29,10 @@ angular.module('rheticus')
 				}
 			},
 			"controls" : [ // Openlayers controls
-				{"name" : 'zoom', "active" : true},
+				//{"name" : 'zoom', "active" : true}, // ?? ..duplicate in view
 				{"name" : 'rotate', "active" : true},
 				{"name" : 'zoomtoextent', "active" : false},
-				{"name" : 'zoomslider', "active" : true},
+				//{"name" : 'zoomslider', "active" : true},
 				{"name" : 'scaleline', "active" : true},
 				{"name" : 'attribution', "active" : false},
 				{"name" : 'fullscreen', "active" : true}

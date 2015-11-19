@@ -35,7 +35,7 @@ body {
 	z-index: 2;
 	top: 2%;
 	left: 1%;
-	width: 95% !important;
+	/*width: 95% !important;*/
 	/*background: none repeat scroll 0 0 rgba(248, 248, 248, 0.8);  */
 	
     /* Make the masthead heading the same height as the navigation */
@@ -46,12 +46,13 @@ body {
         padding-bottom: 19px;
     }
 }
-.navbar-brand {
+.brand {
     /*position: fixed;*/
     width: 100%;
 	margin-left: 0px !important;
 	background-color: #f8f8f8;
 	border-radius: 4px;
+	padding: 5px;
 	
 }
 
@@ -144,8 +145,12 @@ body {
     width: 350px !important;
     max-width: 350px !important;
     height: 350px !important;
-	left: -312.325px !important;
+	/*top: -60px !important;*/
 }
+/*
+.popover.left > .arrow {    
+	top: 20%;
+}*/
 
 .popover-content {
     width: 100%;
@@ -156,10 +161,6 @@ body {
     padding-bottom: 6%;
 }
 
-.popover.bottom > .arrow {
-    left: 95%;
-	top: -10px;
-}
 
 .jslider {
     width: 97%;
@@ -177,10 +178,14 @@ body {
     left: 0.65em !important;
     top: 8.5em !important;
 }
-.ol-zoom {
-    height: 18.35em;
-    top: 6.5em !important;
+.ol-overlaycontainer-stopevent .ol-zoom{
+    height: 3.85em;
+    top: 3em !important;
+	right: 0.5em !important;
+	left: auto !important;
+
 }
+
 .ol-zoom .ol-zoom-out {
     border-radius: 0 0 2px 2px;
     bottom: 3px;
@@ -304,10 +309,37 @@ body {
 	width: 75%;
 }
 
+.map-control-panel {
+	z-index:3;
+	top:9.5em;
+	right:.5em;
+}
+
 .filter {
-    font-size: 20px;
-    right: 0.25em;
-    top: 1.9em;
+    /*font-size: 20px;*/
+    right: 0.5em;
+    top: 14.5em;
+    z-index: 3;
+}
+.login {
+    /*font-size: 20px;*/
+    right: 0.5em;
+    top: 12em;
+    z-index: 3;
+}
+
+.maps {
+    /*font-size: 20px;*/
+    right: 0.5em;
+    top: 9.5em;
+    z-index: 3;
+}
+
+.about {
+    float: right;
+    margin-left: 10px;
+    position: relative !important;
+    top: -4px;
     z-index: 3;
 }
 
@@ -315,5 +347,5 @@ body {
     position: absolute;
     right: 0.5em;
     text-align: left;
-    top: 5.5em !important;
+    top: 7.2em !important;
 }

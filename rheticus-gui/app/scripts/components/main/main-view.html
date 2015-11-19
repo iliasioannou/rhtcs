@@ -6,9 +6,15 @@
 	<ol-layer ol-layer-properties="sentinel"></ol-layer>
 	<ol-marker ol-marker-properties="marker"></ol-marker>
 	
-	<div ng-include src="'scripts/components/header/header-view.html'"></div>
+	<div class="ol-control map-control-panel">
+		<div><layer-switcher></layer-switcher></div>
+		<div ng-include src="'scripts/components/maps/map-button-view.html'"></div>
+		<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
+		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>		
+		
+	</div>
 	<div ng-include src="'scripts/components/timeline/timeline-view.html'"></div>
-	<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
+	
 	<div ng-include src="'scripts/components/legend/legend-view.html'"></div>
 	<div ng-include src="'scripts/components/ps-trends/ps-trends-view.html'"></div>
-</openlayers>
+	</openlayers>
