@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+<mule xmlns:mulerequester="http://www.mulesoft.org/schema/mule/mulerequester" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	
 	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
-http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd">
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/mulerequester http://www.mulesoft.org/schema/mule/mulerequester/current/mule-mulerequester.xsd">
 
 	<context:property-placeholder location="classpath*:dp_ps${mule.env:#{null}}.properties"
 		system-properties-mode="OVERRIDE" />
@@ -31,6 +35,12 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
 		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Elastisearch" />
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
+	
+	<mulerequester:config name="Mule_FTP_Requester" doc:name="Mule Requester"/>
+    <!-- FtpConnector with streaming=true to avoid original file deletion! (created to be used with mulerequester) -->
+    <ftp:connector name="nonDeletingFtpConn" doc:name="FTP Connector with streaming set to true to avoid original file deletion! (created to be used with mulerequester)" pollingFrequency="1000" validateConnections="true" streaming="true">	
+    	<!-- <dispatcher-threading-profile doThreading="false"/> -->
+    </ftp:connector>
     
     <!-- Add needed orchestrator properties to the JMS message to pass them to LogStash -->
     <message-properties-transformer name="Logstash-Properties" doc:name="Message Properties">
@@ -59,7 +69,8 @@ http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/
         <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
 		<async doc:name="Async">
             <set-payload value="#[savePayload]" doc:name="Set Payload"/>
-            <logger message="New Sen1 acquisitions: #[payload]" level="INFO" doc:name="New Sen1 acquisitions"/>
+            <logger message="New Sen1 acquisitions" level="INFO" doc:name="New Sen1 acquisitions"/>
+            <logger message="Acquisitions payload: #[payload]" level="DEBUG" doc:name="Acquisitions payload"/>
 			<json:json-to-object-transformer
 				returnClass="java.util.ArrayList" doc:name="JSON to ArrayList" />
 			<set-variable variableName="datasetSet" value="#[new java.util.HashSet()]"
@@ -187,8 +198,18 @@ mapForS1TB.put("data", datasetDataArrayList);
         </message-filter>
 		<object-to-string-transformer doc:name="Object to String" />
 
-		<logger message="PSinSAR Request response:  #[payload]" level="INFO"
-			doc:name="Result PSinSAR" />
+		<logger message="PSinSAR Request response:  #[payload]" level="INFO" doc:name="Result PSinSAR" />
+		<json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to ArrayList"/>
+        <foreach doc:name="For Each">
+            <set-variable variableName="fileName" value="#[payload.substring(payload.lastIndexOf(&quot;/&quot;))]" doc:name="fileName"/>
+            <mulerequester:request config-ref="Mule_FTP_Requester" resource="#[payload]?connector=nonDeletingFtpConn" doc:name="Download PS map from FTP"/>
+            <logger message="Requester: #[message]" level="INFO" doc:name="Logger"/>
+            <file:outbound-endpoint path="${import.shapefile.folder}" outputPattern="#[fileName]" responseTimeout="10000" doc:name="Download to import dir"/>
+            <expression-filter expression="#[fileName.endsWith(&quot;.shp&quot;)]" doc:name="is .shp?"/>
+            <set-variable variableName="shapefileName" value="#[fileName]" doc:name="shapefileName"/>
+        </foreach>
+		<component class="it.planetek.rheticus.mule.components.LauncherKettleJob" doc:name="Load shape through Geokettle"/>
+        <logger message="Geokettle output: #[payload]" level="INFO" doc:name="Geokettle output"/>
         <logger message="END Orchestrator dp_ps" level="INFO" doc:name="End dp_ps"/>
 	</sub-flow>
 </mule>

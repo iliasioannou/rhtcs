@@ -10,6 +10,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
 
 	<http:request-config name="HTTP_Request_PSinSAR" host="${psinsar.host}" port="${psinsar.port}" basePath="${psinsar.path}" doc:name="HTTP Request PSinSAR start"/>
+	    
     <flow name="dp_ps_psinsarFlow">
         <jms:inbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2">
         
@@ -46,6 +47,8 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         <choice doc:name="Error or Done?">
             <when expression="jobStatus==&quot;done&quot;">
                 <logger message="PSinSAR succedeed #[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" level="INFO" doc:name="Done"/>
+                <set-payload value="#[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" doc:name="PS shape files FTP urls"/>
+
             </when>
             <otherwise>
                 <set-property propertyName="message_failed" value="#[xpath3(&quot;//Jobs/Job/Output/text()&quot;)]" doc:name="Set message_failed"/>
@@ -53,7 +56,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
             </otherwise>
         </choice>
         <logger message="PSinSAR end" level="INFO" doc:name="PSinSAR end"/>
-        <logger message="PSinSAR end payload: #[payload]" level="DEBUG" doc:name="PSinSAR end payload: #[payload]"/>
+        <logger message="PSinSAR end payload: #[payload]" level="DEBUG" doc:name="PSinSAR end payload"/>
         <scripting:component doc:name="Restore jmsProperties">
             <scripting:script engine="Groovy"><![CDATA[for( key in jmsProperties.keySet() )
 {
