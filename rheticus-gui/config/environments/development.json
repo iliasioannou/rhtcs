@@ -185,17 +185,16 @@
 			},
 			"sentinel" : {
 				"view" : {
-					"name" : "Sentinel 1 Datasets Query",
+					"name" : "Sentinel 1 Datasets GeoJSON",
 					"source" : {
 						"type" : "GeoJSON",
-						"url" : "jsonData/FeatureCollection.json",
-						"SRS" : "EPSG:3857"
+						"geojson" : {}
 					},
 					"active" : true,
 					"visible" : true
 				},
 				"query" : {
-					"name" : "Sentinel 1 Datasets",
+					"name" : "Sentinel 1 Datasets Query",
 					"source" : {
 						"type" : "TileWMS",
 						"urls" : [

@@ -18,6 +18,7 @@ angular.module('rheticus')
 			],
 			"psQueryLayer" : configuration.layers.overlays.barritteri.query, // PS query overlay layer
 			"sentinelQueryLayer" : configuration.layers.overlays.sentinel.query, // Sentinel query overlay layer
+			//"sentinelView" : configuration.layers.overlays.sentinel.query, //TODO: To Be Comment ... only for test!
 			"center" : $rootScope.center, // OpenLayers Center zoom
 			"olDefaults" : { // OpenLayers Default Events
 				"events" : { 
@@ -38,7 +39,7 @@ angular.module('rheticus')
 				{"name" : 'fullscreen', "active" : true}
 			],
 			"view" : {}, // Openlayers view
-			"sentinel" : {}, // OpenLayers Sentinel Dataset query overlay layer
+			"sentinelGeoJson" : {}, // OpenLayers Sentinel Dataset query overlay layer
 			"marker" : {} // OpenLayers Marker layer for PS query
 		});
 
@@ -68,22 +69,22 @@ angular.module('rheticus')
 		/**
 		 * datasets watcher for adjusting CQL_FILTER view source parameter
 		 */
-		$rootScope.$watch("datasets", function (datasets) {
-			//console.log("main controller - datasets watcher : "+datasets);
-			var selected = [];
-			for (var key in datasets) {
-				if (datasets[key].selected){
-					selected.push("dataset_id='" + datasets[key].name + "'");
+		$rootScope.$watch("aoi", function (area) {
+			/*var selected = [];
+			for (var key in area) {
+				if (area[key].selected){
+					selected.push("dataset_id='" + area[key].name + "'");
 				}
 			}
-			var cql = selected.join(' OR ');
-			if (cql) {
-				cql = "("+cql+") AND ";
+			var cql = selected.join(' OR ');*/
+			var cql = "";
+			/*if (cql) {
+				cql = "("+cql+") AND ";*/
 				cql += "(abs_4(average_speed)>="+$rootScope.speedModel.split(";")[0]+" AND abs_4(average_speed)<="+$rootScope.speedModel.split(";")[1]+")";
 				$scope.overlays[1].source.params.CQL_FILTER = cql;
-			} else {
+			/*} else {
 				delete $scope.overlays[1].source.params.CQL_FILTER;
-			}
+			}*/
 		}, true);
 
 		/**
@@ -131,7 +132,7 @@ angular.module('rheticus')
 					);
 				}
 				// Sentinel 1 Datatset and timeline management
-				$scope.sentinel = {};
+				$scope.sentinelGeoJson = {};
 				var startDate = (configuration.timeSlider.domain.start!="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
 				var endDate = (configuration.timeSlider.domain.end!="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
 				$scope.getFeatureInfo(
@@ -143,6 +144,15 @@ angular.module('rheticus')
 					"timeline",
 					null
 				);
+				//STUB - START
+				/*var that = $scope;
+				$http.get("stub/FeatureCollection.json").success(function (response) {
+					that.timeline = {
+						"point" : point,
+						"features" : (response.features && (response.features.length>0)) ? response.features : null
+					};
+				});*/
+				//STUB - END
 			});
 		});
 	}]);

@@ -2,15 +2,15 @@
 	<div>
 		<label>Seleziona i datasets:</label>
 		<div class="btn-group">
-			<label class="btn btn-primary" ng-model="dataset.selected" btn-checkbox ng-repeat="dataset in datasets">
-				{{dataset.name}}
+			<label class="btn btn-primary" ng-model="area.selected" btn-checkbox ng-repeat="area in aoi">
+				{{area.name}}
 			</label>
 		</div>
 	</div>
-	<div ng-show="shouldShowDetails()">
+	<div ng-show="showDetails()">
 		<label>Velocit&agrave; media</label>
 		<div>
-			<input ng-model="speedModel" type="text" slider options="speedOptions" />
+			<input slider type="text" ng-model="speedModel" options="speedOptions" />
 		</div>
 	</div>
 	<div class="divider" style="border: 1px">
