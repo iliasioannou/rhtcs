@@ -1,7 +1,0 @@
-- Install python 2.7.* (32bit??)
-- Create slave pyServer containing folder (eg C:\DFC Slave)
-- Copy in this dir the slaveflow package content
-- Add the "Processors" folder path (part of the slaveflow package) to the env variable "PYTHONPATH"
-- Check if everything is ok, by opening a python console and running "import flood.validator" for example
-
-TODO: Convert the python script in a service! (for *win* and unix)
