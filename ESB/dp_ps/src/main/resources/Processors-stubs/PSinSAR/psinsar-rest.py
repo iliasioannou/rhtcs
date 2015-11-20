@@ -35,7 +35,11 @@ class MyHandler(BaseHTTPRequestHandler):
                 jobId = parsedQueryString["IdJob"][0]
                 jobStatus = random.choice(['done', 'progress', 'started', 'error', 'queued'])
                 print "Requested status of job with ID="+jobId+", sending status: "+jobStatus
-                replyXml = "<Jobs> <Job> <Id>"+jobId+"</Id> <Arguments>Arg4</Arguments> <Comment>local</Comment> <CPUs>1</CPUs> <Flag>123</Flag> <LastCheck>2012-02-1410:54:58.0</LastCheck> <Name>PSinSar</Name> <Output>Output exception error caused by Davide Nitti</Output> <Provenance/>  <Status>"+jobStatus+"</Status> </Job> </Jobs>"
+                if(jobStatus=="done"):
+                    outputMessage = '["/ps/psmap.shp", "/ps/psmap.dbf", "/ps/psmap.prj", "/ps/psmap.shx", "/ps/psmap.qpj"]'
+                else:
+                    outputMessage = "Output exception error caused by Davide Nitti"
+                replyXml = "<Jobs> <Job> <Id>"+jobId+"</Id> <Arguments>Arg4</Arguments> <Comment>local</Comment> <CPUs>1</CPUs> <Flag>123</Flag> <LastCheck>2012-02-1410:54:58.0</LastCheck> <Name>PSinSar</Name> <Output>"+outputMessage+"</Output> <Provenance/>  <Status>"+jobStatus+"</Status> </Job> </Jobs>"
         
         s.send_response(200)
         s.send_header("Content-type", "text/xml")
