@@ -1,6 +1,6 @@
 <div class="psTrends" ng-show="show_trends" ng-controller="PsTrendsCtrl">
 	<div data-intro="Overlays" data-position="right">
-		<a style="cursor:pointer" ng-click="showPsTrends(false);">X</a>
+		<a class="close" ng-click="showPsTrends(false);">&times;</a>
 		<nvd3 options="options" data="data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
 		</br>
 		<div class="table-responsive" style="overflow:auto;">

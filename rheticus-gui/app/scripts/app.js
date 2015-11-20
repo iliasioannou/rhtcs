@@ -38,7 +38,7 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
-		})
+		
 		.otherwise({
 			"redirectTo": "/"
 		});

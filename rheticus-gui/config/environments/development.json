@@ -14,7 +14,7 @@
 		"ps" : {
 			"title" : "Velocit\u00E0 PS ",
 			"uom" : "[mm/year]",
-			url" : "./images/legend_vel_ps.png"
+			"url" : "./images/legend_vel_ps.png"
 		}
 	},
 	
