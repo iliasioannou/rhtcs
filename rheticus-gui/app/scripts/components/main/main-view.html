@@ -6,10 +6,16 @@
 	<!--ol-layer name="{{sentinelView.name}}" ol-layer-properties="sentinelView"></ol-layer-->
 	<ol-layer ol-layer-properties="sentinelGeoJson"></ol-layer>
 	<ol-marker ol-marker-properties="marker"></ol-marker>
-	
-	<div ng-include src="'scripts/components/header/header-view.html'"></div>
+	<div ng-include src="'scripts/components/header/header-view.html'"></div>	
+	<div class="ol-control map-control-panel">
+		<div ng-include src="'scripts/components/maps/map-button-view.html'"></div>
+		<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
+		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>
+	</div>
 	<div ng-include src="'scripts/components/timeline/timeline-view.html'"></div>
-	<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
 	<div ng-include src="'scripts/components/legend/legend-view.html'"></div>
 	<div ng-include src="'scripts/components/ps-trends/ps-trends-view.html'"></div>
 </openlayers>
+<div class="FullScreenHelp" data-intro="Full screen" data-position="left"></div>
+<div class="ZoomControlsHelp" data-intro="Zoom Controls" data-position="left"></div>
+<div class="BasemapHelp" data-intro="Basemap selection" data-position="left"></div>

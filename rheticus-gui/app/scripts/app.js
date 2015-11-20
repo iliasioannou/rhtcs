@@ -23,7 +23,8 @@ angular
 		'angularAwesomeSlider',
 		'nvd3',
 		'smart-table',
-        'services.config'
+        'services.config',
+		'angularHelpOverlay'
 	])
 	.config(function ($routeProvider) {
 		$routeProvider
@@ -36,11 +37,6 @@ angular
 			"templateUrl": "scripts/components/about/about-view.html",
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
-		})
-		.when('/timeline', {
-			"templateUrl": "scripts/components/timeline/timeline-view.html",
-			"controller": "TimelineCtrl",
-			"controllerAs": "timeline"
 		})
 		.otherwise({
 			"redirectTo": "/"

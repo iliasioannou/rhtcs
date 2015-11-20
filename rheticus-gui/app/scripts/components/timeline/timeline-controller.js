@@ -21,22 +21,22 @@ angular.module('rheticus')
 					"xAxis" : {
 						"axisLabel" : "Date",
 						"tickFormat" : function (d) {
-							return d3.time.format("%x")(new Date(d));
+							return d3.time.format("%d/%m/%Y")(new Date(d));
 						}
 					},
 					"yAxis" : {
 						"axisLabel" : "Dataset",
-						"axisLabelDistance" : -5,
+						"axisLabelDistance" : -5/*,
 						"tickFormat" : function (y) {
 							var scale = d3.scale.ordinal()
 								.domain(["A","B","C","D","E","F","G","H"])
 								.rangePoints([0,8],1);
 							return scale(y);
-						}
+						}*/
 					},
 					"zoom" : {
 						"enabled" : true,
-						"scaleExtent" : [1,10],
+						"scaleExtent" : [1,5],
 						"useFixedDomain" : false,
 						"useNiceScale" : false,
 						"horizontalOff" : false,
@@ -45,8 +45,11 @@ angular.module('rheticus')
 					},
 					"showDistX" : true,
 					"showDistY" : true,
-					"tooltipContent" : function(key) {
-						return "<h3>" + key + "</h3>";
+					"useInteractiveGuideline" : false,
+					"interactive" : true,
+					"tooltips" : true,
+					"tooltipContent" : function(key, x, y, e, graph){
+						return '<h3>' + key + '</h3>' + '<p>' +  y + ' on ' + x + '</p>';
 					},
 					"scatter" : {
 						"onlyCircles" : true
@@ -61,7 +64,7 @@ angular.module('rheticus')
 				},
 				"title" : {
 					enable : true,
-					html : "<b>Sentinel 1 Datasets</b>"
+					html : "<b>Sentinel 1 Datasets Identifier</b>"
 				},
 				"subtitle" : {
 					"enable" : false
@@ -71,15 +74,15 @@ angular.module('rheticus')
 				}
 			},
 			"config" : {
-				visible: true, // default: true
-				extended: false, // default: false
-				disabled: false, // default: false
-				autorefresh: true, // default: true
-				refreshDataOnly: true, // default: true
-				deepWatchOptions: true, // default: true
-				deepWatchData: false, // default: false
-				deepWatchConfig: true, // default: true
-				debounce: 10 // default: 10
+				"visible": true, // default: true
+				"extended": false, // default: false
+				"disabled": false, // default: false
+				"autorefresh": true, // default: true
+				"refreshDataOnly": true, // default: true
+				"deepWatchOptions": true, // default: true
+				"deepWatchData": false, // default: false
+				"deepWatchConfig": true, // default: true
+				"debounce": 10 // default: 10
 			},
 			"events" : {},
 			"data" : [], // Chart data
@@ -87,27 +90,6 @@ angular.module('rheticus')
 			"datasetIdAttribute" : configuration.timeSlider.attributes.datasetIdentifier,
 			"datasetList" : [] // datasets
 		});
-/*
-		$scope.$watch('data', function(data) {
-			if (data.length>0){
-				$scope.data = [
-					{
-						"key" : "Sentinel" ,
-						"bar" : true,
-						"values" : [ {x: 1136005200000 , y:1 , label:"sentinel1"} , { x:1138683600000 , y:1,label:"sentinel1" }, { x:1141102800000 , y:1,label:"sentinel1"}]
-					},
-					{
-						"key" : "Sentinel2" ,
-						"bar" : true,
-						"values" : [ {x: 1136005200000 , y:2 , label:"sentinel2"} , { x:1138683600000 , y:2,label:"sentinel2"}, {x:1141102800000 , y:2,label:"sentinel2"}]
-					}
-				];
-				if(!$scope.$$phase) {
-					$scope.$apply();
-				}
-			}
-		});
-		*/
 		/**
 		 * showTimeline hides this view
 		 */
@@ -284,8 +266,8 @@ angular.module('rheticus')
 												"x" : featureStartTime,
 												"y" : i,
 												"label" : $scope.datasetList[i].features[j].id,
-												"size" : 3,
-												"shape" : "circle"
+												"size" : 5,
+												"shape" : "square"
 											});
 										}
 									} catch (e) {
@@ -294,6 +276,7 @@ angular.module('rheticus')
 										// do nothing and continue
 									}
 								}
+								chartData[chartData.length-1].key += " ("+imageryList.length+")";
 							} catch (e) {
 								console.log("[timeline-controller :: generateChartData] EXCEPTION adding data to chart: "+e);
 							} finally {
@@ -309,7 +292,14 @@ angular.module('rheticus')
 				} finally {
 					return(res);
 				}
-			}
+			}/*,
+			"toolTipContentFunction" : function(){
+				return function(key, x, y, e, graph) {
+					return  'Super New Tooltip' +
+						'<h1>' + key + '</h1>' +
+						'<p>' +  y + ' at ' + x + '</p>'
+				}
+			}*/
 		});
 
 		/**

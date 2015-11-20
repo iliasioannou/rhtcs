@@ -1,6 +1,6 @@
-<div>                                
+<div data-intro="Area Of Interests" data-position="left">
 	<div>
-		<label>Seleziona i datasets:</label>
+		<label>Select Area Of Interest </label>	
 		<div class="btn-group">
 			<label class="btn btn-primary" ng-model="area.selected" btn-checkbox ng-repeat="area in aoi">
 				{{area.name}}
@@ -8,7 +8,7 @@
 		</div>
 	</div>
 	<div ng-show="showDetails()">
-		<label>Velocit&agrave; media</label>
+		<label>Velocity media</label>
 		<div>
 			<input slider type="text" ng-model="speedModel" options="speedOptions" />
 		</div>
@@ -16,7 +16,7 @@
 	<div class="divider" style="border: 1px">
 	</div>
 	<div>
-		<i>spiegare come usare il filtro</i>
+		<i>Move slider bounds to select velocity range for Persistent Scatterers Map filtering</i>
 	</div>
 	<!--
 	<div>
