@@ -1,5 +1,5 @@
 <!doctype html>
-<html debug="true">
+<html debug="true" ng-app="rheticus">
 	<head>
 		<meta charset="utf-8">
 		<title>Rheticus GUI</title>
@@ -21,26 +21,27 @@
 		<link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
 		<!--link rel="stylesheet" href="bower_components/angular-openlayers-directive/dist/angular-openlayers-directive.css" /-->
 		<link rel="stylesheet" href="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.css" />
+		<link rel="stylesheet" href="bower_components/chardin.js/chardinjs.css" />
 		<!-- endbuild -->
 	</head>
 
-	<body ng-app="rheticus">
-		<!--[if lte IE 8]>
+	<body ng-controller="HelpCtrl">
+		<!--[if lte IE 8]>l
 		  <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 		<![endif]-->
-		<div ng-include src="'scripts/components/header/header-view.html'"></div>
 
-		<!-- Add your site or application content here -->
-		<div class="container">
-			<div ng-view></div>
-		</div>
-
-		<div class="footer">
+		<div help-overlay="showHelp" overlay-start-callback="onStart(event)" overlay-stop-callback="onStop(event)">
+			<!-- Add your site or application content here -->
 			<div class="container">
-				<p>Rheticus Planetek Italia 2015 <span class="glyphicon glyphicon-copyright-mark"></span></p>
+				<div ng-view></div>
+			</div>
+			<div class="footer" data-intro="Footer Description" data-position="top">
+				<div class="container">
+					<p>Rheticus Planetek Italia 2015 <span class="glyphicon glyphicon-copyright-mark"></span></p>
+				</div>
 			</div>
 		</div>
-
+		
 		<!-- Google Analytics: change UA-XXXXX-X to be your site's ID -->
 		<script>
 		/*
@@ -76,21 +77,24 @@
 		<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
 		<script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
 		<script src="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.js"></script>
+		<script src="bower_components/angular-help-overlay/lib/angular-help-overlay.js"></script>
 		<!-- endbower -->
 		<!-- endbuild -->
 
 		<!-- build:js({.tmp,app}) scripts/scripts.js -->
+		<script src="bower_components/chardin.js/chardinjs.min.js"></script>
 		<script src="scripts/app.js"></script>
-        <script src="scripts/services/config.js"></script>
+		<script src="scripts/services/config.js"></script>
 		<script src="scripts/services/utils.js"></script>
-        <script src="scripts/components/header/header-controller.js"></script>
+		<script src="scripts/components/help/help-controller.js"></script>
+		<script src="scripts/components/header/header-controller.js"></script>
 		<script src="scripts/components/filter/filter-controller.js"></script>
 		<script src="scripts/components/maps/map-controller.js"></script>
 		<script src="scripts/components/legend/legend-controller.js"></script>
 		<script src="scripts/components/ps-trends/ps-trends-controller.js"></script>
 		<script src="scripts/components/timeline/timeline-controller.js"></script>
 		<script src="scripts/components/main/main-controller.js"></script>
-        <script src="scripts/components/about/about-controller.js"></script>
+		<script src="scripts/components/about/about-controller.js"></script>
 		<!-- endbuild -->
 	</body>
 </html>

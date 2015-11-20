@@ -1,8 +1,9 @@
 <div class="header" ng-controller="HeaderCtrl">
-	<a class="brand" href="#/">{{rheticusHeaderTitle}}</a>
-	<div class="ol-control about" >
-		<button type="button" title="About">
-			<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>		
+	<a data-intro="Plantek Rheticus GUI is a Sentinel Strategic Infrastructure Mapping Application" data-position="bottom" class="brand" href="#/">{{rheticusHeaderTitle}}</a>	
+	<div class="ol-control about">
+		<button type="button" title="About" data-toggle="showHelp" ng-click="toggleHelp()">
+			<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
 		</button>
 	</div>
 </div>
+<div class="AboutHelp" data-intro="Hints" data-position="bottom"></div>

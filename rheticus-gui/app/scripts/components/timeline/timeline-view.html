@@ -1,4 +1,6 @@
 <div class="timeline" ng-show="show_timeline" ng-controller="TimelineCtrl">
-	<a class="close" ng-click="showTimeline(false);">&times;</a>
-	<nvd3 options="options" data="data" config="config" events="events" api="api"></nvd3>
+	<div data-intro="Sentinel 1 Datasets Identifiers" data-position="top">
+		<a style="cursor:pointer;font-size:10px;" ng-click="showTimeline(false);">X</a>
+		<nvd3 options="options" data="data" config="config" events="events" api="api"></nvd3>
+	</div>
 </div>

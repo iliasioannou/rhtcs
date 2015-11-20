@@ -1,23 +1,23 @@
 <openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" custom-layers="true" ol-defaults="olDefaults">
 	<ol-control name="{{control.name}}" ng-repeat="control in controls|filter:{active: true}"></ol-control>
-	<layer-switcher title="tipLabel"></layer-switcher>
+	<layer-switcher></layer-switcher>
 	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers|filter:{active:true}"></ol-layer>
 	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays"></ol-layer>
 	<!--ol-layer name="{{sentinelView.name}}" ol-layer-properties="sentinelView"></ol-layer-->
 	<ol-layer ol-layer-properties="sentinelGeoJson"></ol-layer>
 	<ol-marker ol-marker-properties="marker"></ol-marker>
-	
+	<div ng-include src="'scripts/components/header/header-view.html'"></div>	
 	<div ng-include src="'scripts/components/geocoder/geo-button-view.html'"></div>
 	
-	<div class="ol-control map-control-panel">
-		
+	<div class="ol-control map-control-panel">		
 		<div ng-include src="'scripts/components/maps/map-button-view.html'"></div>
 		<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
-		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>		
-		
+		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>
 	</div>
 	<div ng-include src="'scripts/components/timeline/timeline-view.html'"></div>
-	
 	<div ng-include src="'scripts/components/legend/legend-view.html'"></div>
 	<div ng-include src="'scripts/components/ps-trends/ps-trends-view.html'"></div>
 </openlayers>
+<div class="FullScreenHelp" data-intro="Full screen" data-position="left"></div>
+<div class="ZoomControlsHelp" data-intro="Zoom Controls" data-position="left"></div>
+<div class="BasemapHelp" data-intro="Basemap selection" data-position="left"></div>

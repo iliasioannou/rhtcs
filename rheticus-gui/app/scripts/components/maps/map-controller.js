@@ -11,6 +11,6 @@
 angular.module('rheticus')
 	.controller('MapCtrl',['$rootScope','$scope','configuration', function ($rootScope,$scope,configuration) {
 		angular.extend($scope,{
-			"mapPopup" : "scripts/components/maps/map-popup-view.html"
+			"mapPopup" : ""//""scripts/components/maps/map-popup-view.html"
 		});
 	}]);
