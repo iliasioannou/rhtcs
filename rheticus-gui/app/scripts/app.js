@@ -42,6 +42,11 @@ angular
 			"controller": "TimelineCtrl",
 			"controllerAs": "timeline"
 		})
+		.when('/timeline', {
+			"templateUrl": "scripts/components/timeline/timeline-view.html",
+			"controller": "Controller",
+			"controllerAs": "controller"
+		})
 		.otherwise({
 			"redirectTo": "/"
 		});

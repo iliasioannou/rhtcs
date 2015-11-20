@@ -3,7 +3,7 @@
 		"_comment" : "Barritteri legend style",
 		"velocity" : {
 			"title" : "Velocit\u00E0 PS ",
-			"uom" : "[mm/period]",
+			"uom" : "[mm/year]",
 			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
 		},
 		"density" : {
@@ -13,13 +13,13 @@
 		},
 		"ps" : {
 			"title" : "Velocit\u00E0 PS ",
-			"uom" : "[mm/period]",
+			"uom" : "[mm/year]",
 			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_view&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true&STYLE=pkt284:ps_legend_style_v2"
 		}
 	},
 	
 	"layers" : {
-		"baselayers" : [{
+		"Base" : [{
 			"name" : "OpenStreetMap",
 			"source" : {
 				"type" : "OSM"
@@ -64,7 +64,7 @@
 			"visible" : true,
 			"opacity" : 1
 		}],
-		"overlays" : {
+		"Overlays" : {
 			"barritteri" : {
 				"heatmap" : { 
 					"name" : "Barritteri Heat Map",

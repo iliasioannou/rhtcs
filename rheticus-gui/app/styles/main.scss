@@ -139,12 +139,13 @@ body {
 
 .popover-inner {
     width: 100%;
+	padding: 5px;
 }
 
 .popover {
     width: 350px !important;
-    max-width: 350px !important;
-    height: 350px !important;
+    /*max-width: 350px !important;
+	height: 350px !important;*/
 	/*top: -60px !important;*/
 }
 /*
@@ -301,7 +302,7 @@ body {
 	position: absolute;
 	right: 10px;
 	z-index: 1060;
-	background-color: rgba(255, 255, 255, 0.4);
+	background-color: rgba(255, 255, 255, 0.8);
 	border-radius: 4px;
 	padding: 2px;
 	min-height: 50px;
@@ -311,8 +312,11 @@ body {
 
 .map-control-panel {
 	z-index:3;
-	top:9.5em;
+	top:7em;
 	right:.5em;
+}
+.close {
+	margin:5px;
 }
 
 .filter {
@@ -347,5 +351,11 @@ body {
     position: absolute;
     right: 0.5em;
     text-align: left;
-    top: 7.2em !important;
+    top: 13em !important;
+}
+
+.geocoder {
+    right: 3em;
+    top: 0.5em;
+    z-index: 3;
 }

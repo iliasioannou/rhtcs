@@ -16,6 +16,7 @@ angular.module('rheticus')
 				configuration.layers.overlays.barritteri.heatmap,
 				configuration.layers.overlays.barritteri.view
 			],
+			"tipLabel" : 'Base Map',
 			"psQueryLayer" : configuration.layers.overlays.barritteri.query, // PS query overlay layer
 			"sentinelQueryLayer" : configuration.layers.overlays.sentinel.query, // Sentinel query overlay layer
 			//"sentinelView" : configuration.layers.overlays.sentinel.query, //TODO: To Be Comment ... only for test!

@@ -13,6 +13,7 @@ angular.module('rheticus')
 		angular.extend($scope,{
 			"options" : { // Chart options
 				"chart" : {
+					"showLegend": false,
 					"type" : "scatterChart",
 					"x" : function(d){return d.x;},
 					"y" : function(d){return d.y;},
