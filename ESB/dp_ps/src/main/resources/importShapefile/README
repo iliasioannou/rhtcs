@@ -1,0 +1,53 @@
+======================================
+Import dello shapefile dei PS 
+======================================
+
+L'import dello shapefile fa uso di un job, che richiama due trasformation, di GeoKettle (ver 3.5).
+Il job (kjb) e le trasformation (ktr) si trovano nella cartella geokettle e sono:
+- rheticus_ps_import.kjb
+- rheticus_ps_import_ps_into_db.ktr
+- rheticus_ps_import_measure_into_db.ktr
+
+L'esecuzione del job avviene tramite la classe:
+it.planetek.rheticus.mule.components.LauncherKettleJob
+
+Tale classe fa uso di due parametri:
+- datasetId: id del dataset a cui si riferiscono i PS
+- shapefileName: nome dello shapefile (con estensione .shp) dei PS
+
+Tali parametri vanno impostati nel flusso Mule prima di richiamare la classe java:
+
+    <set-variable doc:name="datasetId" variableName="datasetId" value="XXXXXXXXXXX"/>
+    <set-variable doc:name="shapefileName" variableName="shapefileName" value="XXXXXXXXXXX"/>
+    <component class="it.planetek.rheticus.mule.components.LauncherKettleJob" doc:name="Java"/>
+
+I parametri di configurazione per il lancio del job GeoKettle vengono impostati nel file di configurazione dp_ps.properties
+
+
+#--------------------------------------------
+#Import PS shapefile
+#NB: change path separator for Linux/Windows OS
+
+#import.shapefile.kettle.app.folder=C:\\geokettle-2.5
+import.shapefile.kettle.app.folder=/usr/local/geokettle-2.5
+import.shapefile.kettle.app.name=kitchen
+#directory that contains the job to run
+#import.shapefile.kettle.job.folder=C:\\rheticus\\import_PS
+import.shapefile.kettle.job.folder=/var/pkt284/importPS/geokettle
+#name of job to run
+import.shapefile.kettle.job.name=rheticus_ps_import.kjb
+#LogLevel: Error, Nothing, Minimal, Basic, Detailed, Debug, Rowlevel
+import.shapefile.kettle.job.log.level=Basic
+
+#import.shapefile.db.host=localhost
+import.shapefile.db.host=kim.planetek.it
+import.shapefile.db.port=5432
+import.shapefile.db.name=RHETICUS
+import.shapefile.db.user=postgres
+import.shapefile.db.password=postgres
+import.shapefile.db.table.ps=ps
+import.shapefile.db.table.ps_measure=ps_measure
+#folder where find the shapefile to import. The name of shapefile to import (with .shp extention) is setted into VAR_SHP_NAME variable
+#import.shapefile.folder=C:\\rheticus\\import_PS\\files
+import.shapefile.folder=/var/pkt284/importPS
+import.shapefile.db.table_commit_size=5000     

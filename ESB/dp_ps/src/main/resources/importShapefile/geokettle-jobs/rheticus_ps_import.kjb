@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<job>
+  <name>rheticus_ps_import.kjb</name>
+    <description/>
+    <extended_description/>
+    <job_version/>
+    <job_status>1</job_status>
+  <directory>&#47;</directory>
+  <created_user>-</created_user>
+  <created_date>2015&#47;11&#47;02 17:31:49.884</created_date>
+  <modified_user>-</modified_user>
+  <modified_date>2015&#47;11&#47;02 17:31:49.884</modified_date>
+    <parameters>
+        <parameter>
+            <name>VAR_DATASETID</name>
+            <default_value>X</default_value>
+            <description>Chiave del Dataset per il quale effettuare l'import dei PS</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_HOST</name>
+            <default_value>localhost</default_value>
+            <description>Host Db Postgres</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_NAME</name>
+            <default_value>ps</default_value>
+            <description>Postgres database name</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_PASSWORD</name>
+            <default_value>pkadmin123</default_value>
+            <description>Postgres database user's password</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_PORT</name>
+            <default_value>5432</default_value>
+            <description>DB Port Postgres</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_TABLE_COMMIT_SIZE</name>
+            <default_value>5000</default_value>
+            <description>Table commit size</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_TABLE_PS</name>
+            <default_value>ps</default_value>
+            <description>PS table</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_TABLE_PS_MEASURE</name>
+            <default_value>ps_measure</default_value>
+            <description>PS MEASURE table</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_DB_USER</name>
+            <default_value>postgres</default_value>
+            <description>Postgres database user</description>
+        </parameter>
+        <parameter>
+            <name>VAR_RHETICUS_IMPORT_PS_FOLDER</name>
+            <default_value>C:\\rheticus\\import_PS\\files</default_value>
+            <description>Import folder</description>
+        </parameter>
+        <parameter>
+            <name>VAR_SENSORID</name>
+            <default_value>S01</default_value>
+            <description>Chiave (codice) del sensore</description>
+        </parameter>
+        <parameter>
+            <name>VAR_SHP_NAME</name>
+            <default_value>PS_Sample.shp</default_value>
+            <description>Nome dello shapefile dei PS da importare</description>
+        </parameter>
+    </parameters>
+  <connection>
+    <name>rheticus</name>
+    <server>${VAR_RHETICUS_DB_HOST}</server>
+    <type>POSTGRESQL</type>
+    <access>Native</access>
+    <database>${VAR_RHETICUS_DB_NAME}</database>
+    <port>${VAR_RHETICUS_DB_PORT}</port>
+    <username>${VAR_RHETICUS_DB_USER}</username>
+    <password>${VAR_RHETICUS_DB_PASSWORD}</password>
+    <servername/>
+    <data_tablespace/>
+    <index_tablespace/>
+    <attributes>
+      <attribute><code>FORCE_IDENTIFIERS_TO_LOWERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>FORCE_IDENTIFIERS_TO_UPPERCASE</code><attribute>N</attribute></attribute>
+      <attribute><code>IS_CLUSTERED</code><attribute>N</attribute></attribute>
+      <attribute><code>PORT_NUMBER</code><attribute>${VAR_RHETICUS_DB_PORT}</attribute></attribute>
+      <attribute><code>QUOTE_ALL_FIELDS</code><attribute>N</attribute></attribute>
+      <attribute><code>SUPPORTS_BOOLEAN_DATA_TYPE</code><attribute>N</attribute></attribute>
+      <attribute><code>USE_POOLING</code><attribute>N</attribute></attribute>
+    </attributes>
+  </connection>
+    <slaveservers>
+    </slaveservers>
+  <logconnection/>
+  <logtable/>
+  <size_limit_lines/>
+   <use_batchid>Y</use_batchid>
+   <pass_batchid>N</pass_batchid>
+   <use_logfield>Y</use_logfield>
+   <shared_objects_file/>
+  <entries>
+    <entry>
+      <name>START</name>
+      <description>Special entries</description>
+      <type>SPECIAL</type>
+      <start>Y</start>
+      <dummy>N</dummy>
+      <repeat>N</repeat>
+      <schedulerType>0</schedulerType>
+      <intervalSeconds>0</intervalSeconds>
+      <intervalMinutes>60</intervalMinutes>
+      <hour>12</hour>
+      <minutes>0</minutes>
+      <weekDay>1</weekDay>
+      <DayOfMonth>1</DayOfMonth>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>38</xloc>
+      <yloc>28</yloc>
+      </entry>
+    <entry>
+      <name>Write To Log datasetId</name>
+      <description>Write To Log</description>
+      <type>WRITE_TO_LOG</type>
+      <logmessage>Input datesetId = &apos;${VAR_DATASETID}&apos; - Input shapefile name  = &apos;${VAR_SHP_NAME}&apos;</logmessage>
+      <loglevel>Minimal</loglevel>
+      <logsubject>${Internal.Job.Name}</logsubject>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>179</xloc>
+      <yloc>35</yloc>
+      </entry>
+    <entry>
+      <name>Clear PS for dataset</name>
+      <description>SQL</description>
+      <type>SQL</type>
+      <sql>DELETE FROM ${VAR_RHETICUS_DB_TABLE_PS} WHERE datasetid = &apos;${VAR_DATASETID}&apos;</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <connection>rheticus</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>357</xloc>
+      <yloc>144</yloc>
+      </entry>
+    <entry>
+      <name>Success</name>
+      <description>Success</description>
+      <type>SUCCESS</type>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>1176</xloc>
+      <yloc>275</yloc>
+      </entry>
+    <entry>
+      <name>rheticus_ps_import_ps_into_db</name>
+      <description>Transformation</description>
+      <type>TRANS</type>
+      <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_ps_into_db.ktr</filename>
+      <transname/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <cluster>N</cluster>
+      <slave_server_name/>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <parameters>        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>482</xloc>
+      <yloc>269</yloc>
+      </entry>
+    <entry>
+      <name>rheticus_ps_import_measure_into_db</name>
+      <description>Transformation</description>
+      <type>TRANS</type>
+      <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_measure_into_db.ktr</filename>
+      <transname/>
+      <arg_from_previous>N</arg_from_previous>
+      <exec_per_row>N</exec_per_row>
+      <clear_rows>N</clear_rows>
+      <clear_files>N</clear_files>
+      <set_logfile>N</set_logfile>
+      <logfile/>
+      <logext/>
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <loglevel>Nothing</loglevel>
+      <cluster>N</cluster>
+      <slave_server_name/>
+      <set_append_logfile>N</set_append_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <follow_abort_remote>N</follow_abort_remote>
+      <parameters>        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>673</xloc>
+      <yloc>268</yloc>
+      </entry>
+    <entry>
+      <name>Check PS File Exists</name>
+      <description>File Exists</description>
+      <type>FILE_EXISTS</type>
+      <filename>${VAR_RHETICUS_IMPORT_PS_FOLDER}\${VAR_SHP_NAME}</filename>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>186</xloc>
+      <yloc>147</yloc>
+      </entry>
+    <entry>
+      <name>Shapefile PS non esiste</name>
+      <description>Abort job</description>
+      <type>ABORT</type>
+      <message/>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>181</xloc>
+      <yloc>288</yloc>
+      </entry>
+    <entry>
+      <name>Update Velocity Field</name>
+      <description>SQL</description>
+      <type>SQL</type>
+      <sql>UPDATE ${VAR_RHETICUS_DB_TABLE_PS} AS PS_TABLE 
+SET velocity = SUB.AvgVal 
+FROM ( 
+	SELECT datasetid, psid, AVG(measure) AS AvgVal 
+	FROM ${VAR_RHETICUS_DB_TABLE_PS_MEASURE} 
+	WHERE type = &apos;VAL&apos; AND datasetid = &apos;${VAR_DATASETID}&apos; 
+	GROUP BY datasetid, psid 
+) AS SUB 
+WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
+      <useVariableSubstitution>T</useVariableSubstitution>
+      <sqlfromfile>F</sqlfromfile>
+      <sqlfilename/>
+      <connection>rheticus</connection>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>888</xloc>
+      <yloc>266</yloc>
+      </entry>
+    <entry>
+      <name>Log after clear</name>
+      <description>Write To Log</description>
+      <type>WRITE_TO_LOG</type>
+      <logmessage>Table &apos;${VAR_RHETICUS_DB_TABLE_PS}&apos; purged</logmessage>
+      <loglevel>Minimal</loglevel>
+      <logsubject/>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>479</xloc>
+      <yloc>149</yloc>
+      </entry>
+    <entry>
+      <name>Log after update velocity</name>
+      <description>Write To Log</description>
+      <type>WRITE_TO_LOG</type>
+      <logmessage>Field velocity update into table &apos;${VAR_RHETICUS_DB_TABLE_PS}&apos;</logmessage>
+      <loglevel>Minimal</loglevel>
+      <logsubject/>
+      <parallel>N</parallel>
+      <draw>Y</draw>
+      <nr>0</nr>
+      <xloc>1025</xloc>
+      <yloc>266</yloc>
+      </entry>
+  </entries>
+  <hops>
+    <hop>
+      <from>rheticus_ps_import_ps_into_db</from>
+      <to>rheticus_ps_import_measure_into_db</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check PS File Exists</from>
+      <to>Clear PS for dataset</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Check PS File Exists</from>
+      <to>Shapefile PS non esiste</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>rheticus_ps_import_measure_into_db</from>
+      <to>Update Velocity Field</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>START</from>
+      <to>Write To Log datasetId</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
+    </hop>
+    <hop>
+      <from>Write To Log datasetId</from>
+      <to>Check PS File Exists</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Clear PS for dataset</from>
+      <to>Log after clear</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log after clear</from>
+      <to>rheticus_ps_import_ps_into_db</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Update Velocity Field</from>
+      <to>Log after update velocity</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Log after update velocity</from>
+      <to>Success</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+  </hops>
+  <notepads>
+  </notepads>
+</job>
