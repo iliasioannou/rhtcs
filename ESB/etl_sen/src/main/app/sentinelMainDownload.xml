@@ -89,7 +89,7 @@ while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
     if (j==0)
     {
 		metaCoordinateLon=(Math.round(CoordinateLon)) ;
-		metaCoordinateLat=(Math.round(CoordinateLat*10.0))/10.0 ;
+		metaCoordinateLat=(Math.ceil(CoordinateLat*2))/2 ;
         coordinate3 = coordinate2;
         j++;
 	}
