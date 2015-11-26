@@ -2,10 +2,20 @@
 	<ol-control name="{{control.name}}" ng-repeat="control in controls|filter:{active: true}"></ol-control>
 	<layer-switcher></layer-switcher>
 	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers|filter:{active:true}"></ol-layer>
-	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays"></ol-layer>
+	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays|filter:{active:true}"></ol-layer>
 	<!--ol-layer name="{{sentinelView.name}}" ol-layer-properties="sentinelView"></ol-layer-->
 	<ol-layer ol-layer-properties="sentinelGeoJson"></ol-layer>
 	<ol-marker ol-marker-properties="marker"></ol-marker>
+	
+	<div class="ol-control functionSwitcher" ng-controller="ViewSwitcherCtrl">
+		<label>Mouse controller: {{radioModel}}</label>
+		<div class="btn-group">
+			<label class="btn btn-primary" ng-model="radioModel" uib-btn-radio=views_type.ps_view>PS Viewer</label>
+			<label class="btn btn-primary" ng-model="radioModel" uib-btn-radio=views_type.S1_identifier>S1 Identifier</label>
+		</div >
+		
+    </div>
+	
 	<div ng-include src="'scripts/components/header/header-view.html'"></div>	
 	<div ng-include src="'scripts/components/geocoder/geo-button-view.html'"></div>
 	
