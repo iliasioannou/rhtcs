@@ -13,7 +13,7 @@ angular.module('rheticus')
 		angular.extend($scope,{ // scope variables
 			"baselayers" : configuration.layers.baselayers, // basemap list
 			"overlays" : [ // barritteri overlay datasets
-				configuration.layers.overlays.ps.heatmap,
+				//configuration.layers.overlays.ps.heatmap,
 				configuration.layers.overlays.ps.view,
 				configuration.layers.overlays.iffi.view
 			],

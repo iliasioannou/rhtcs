@@ -11,6 +11,11 @@
 angular.module('rheticus')
 	.controller('MapCtrl',['$rootScope','$scope','configuration', function ($rootScope,$scope,configuration) {
 		angular.extend($scope,{
-			"geoPopup" : "scripts/components/geocoder/geo-popup-view.html"
+			"geoPopup" : "scripts/components/geocoder/geo-popup-view.html",			
+			"geoFocus": {
+				"lat": "",
+				"lng": "",
+				"zoom": 12
+			}
 		});
 	}]);

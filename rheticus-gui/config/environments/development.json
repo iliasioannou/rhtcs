@@ -19,13 +19,14 @@
 		"iffi" : {
 			"title" : "Frane",
 			"uom" : "",
-			"url" : ["./images/Aree_frane_diffuse.png","./images/Frane.png"]
+			"url" : ["./images/Aree_frane_diffuse.png","./images/Frane.png","./images/Punto_identificativo_frana.png"]
 		}
 	},
 	
 	"layers" : {
 		"baselayers" : [{
 			"name" : "OpenStreetMap",
+			"group" : "base",
 			"source" : {
 				"type" : "OSM"
 			},
@@ -34,6 +35,7 @@
 			"opacity" : 1
 		},{
 			"name" : "Ortofoto RealVista 1.0",
+			"group" : "base",
 			"source" : {
 				"type" : "TileWMS",
 				"urls" : [
@@ -52,9 +54,11 @@
 			"opacity" : 1
 		}],
 		"overlays" : {
+			
 			"ps" : {
 				"heatmap" : { 
 					"name" : "Persistent Scatterers Heat Map",
+					"group" : "Overlays",
 					"source" : {
 						"type" : "TileWMS",
 						"urls" : [
@@ -75,6 +79,7 @@
 				},
 				"view" : {
 					"name" : "Persistent Scatterers Map",
+					"group" : "Overlays",
 					"source" : {
 						"type" : "TileWMS",
 						"urls" : [
@@ -82,7 +87,7 @@
 						],
 						"maxScale" : 10000,
 						"params" : {
-							"LAYERS" : "rheticus:ps",
+							"LAYERS" : "rheticus:ps,rheticus:ps_barritteri_raster",
 							"VERSION" : "1.3.0",
 							"SRS" : "EPSG:3857",
 							"TILED" : true
@@ -110,51 +115,13 @@
 					"active" : true,
 					"visible" : false
 				}
-			},		
-			"iffi" : {
-				"heatmap" : { 
-				},
-				"view" : {
-					"name" : "Aree a rischio frana",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
-						],
-						"params" : {
-							"LAYERS" : "rheticus:97,rheticus:98,rheticus:99",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						}
-					},
-					"active" : true,
-					"visible" : false,
-					"opacity" : 0.8
-				},
-				"query" : {
-					"name" : "Aree a rischio frana",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer"
-						],
-						"params" : {
-							"LAYERS" : "97,98",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						}						
-					},
-					"active" : true,
-					"visible" : false
-				}
 			},
 			"sentinel" : {
 				"heatmap" : { 
 				},
 				"view" : {
 					"name" : "Sentinel 1 Datasets GeoJSON",
+					"group" : "Overlays",
 					"source" : {
 						"type" : "GeoJSON",
 						"geojson" : {}
@@ -176,6 +143,46 @@
 							"TILED" : true
 						},
 						"serverType" : "geoserver"
+					},
+					"active" : true,
+					"visible" : false
+				}
+			},
+			"iffi" : {
+				"heatmap" : { 
+				},
+				"view" : {
+					"name" : "Aree a rischio frana",
+					"group" : "Overlays",
+					"source" : {
+						"type" : "TileWMS",
+						"urls" : [
+							"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
+						],
+						"params" : {
+							"LAYERS" : "rheticus:97,rheticus:98,rheticus:99",
+							"VERSION" : "1.3.0",
+							"SRS" : "EPSG:3857",
+							"TILED" : true
+						}
+					},
+					"active" : true,
+					"visible" : false,
+					"opacity" : 0.2
+				},
+				"query" : {
+					"name" : "Aree a rischio frana",
+					"source" : {
+						"type" : "TileWMS",
+						"urls" : [
+							"http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer"
+						],
+						"params" : {
+							"LAYERS" : "97,98",
+							"VERSION" : "1.3.0",
+							"SRS" : "EPSG:3857",
+							"TILED" : true
+						}						
 					},
 					"active" : true,
 					"visible" : false
