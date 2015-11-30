@@ -4,7 +4,7 @@ angular
 	.module('services.config',[])
 	.constant('configuration', {
 		//common environment configuration
-		rheticusHeaderTitle : 'Rheticus™',
+		rheticusHeaderTitle : './images/RheticusLogo.png',
 		timeSlider : {"domain":{"start":"2014-10-01T00:00:00Z","end":""},"brush":{"start":"2014-10-01T00:00:00Z","end":""},"attributes":{"CQL_FILTER":{"startDate":"startTime","endDate":"stopTime"},"datasetIdentifier":"datasetId"}},
 		filters : {"speedSlider":{"init":"0;20","from":0,"to":20,"step":0.5,"dimension":"mm/year","scale":[0,"|",5,"|",10,"|",15,"|",20]},"coherenceSlider":{"_comment":"NOT YET IMPLEMENTED","init":"75;100","from":75,"to":100,"step":0.5,"dimension":"%","scale":[75,"|",90,"|",100]}},
 		map : {"center":{"lon":15.85,"lat":38.325,"zoom":14},"query":{"zoom":16},"crs":"EPSG:3857"},

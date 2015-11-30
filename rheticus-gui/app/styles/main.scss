@@ -47,13 +47,12 @@ body {
     }
 }
 .brand {
-    /*position: fixed;*/
-    width: 100%;
+    width: 100px;
 	margin-left: 0px !important;
 	background-color: #f8f8f8;
 	border-radius: 4px;
 	padding: 5px;
-	
+	fill-opacity: .8;
 }
 
 
@@ -355,11 +354,9 @@ body {
 }
 
 .about {
-    float: right;
-    margin-left: 10px;
-    position: relative !important;
-    top: -4px;
-    z-index: 3;
+    right: 0.5em;
+    top: 15em;
+	z-index: 3;
 }
 
 .layer-switcher {
