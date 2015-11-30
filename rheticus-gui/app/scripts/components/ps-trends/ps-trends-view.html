@@ -19,14 +19,14 @@
 				<tbody>
 					<ul lr-infinite-scroll="myEventHandler">
 					<tr ng-repeat="record in displayed">
-						<!--{{record.dataset_id}}-->
+						<!--{{record.id}}-->
 						<td>SENTINEL-1IWIW14444ASCENDINGVV-VHSSLC1340.0</td>
-						<td>{{record.code}}</td>
+						<td>{{record.sensorid}}</td>
 						<td>{{record.lon}}</td>
 						<td>{{record.lat}}</td>
 						<td>{{record.height}}</td>
-						<td>{{record.coh}}</td>
-						<td>{{record.average_speed}}</td>
+						<td>{{record.coherence}}</td>
+						<td>{{record.velocity}}</td>
 					</tr>
 					</ul>
 				</tbody>

@@ -13,11 +13,12 @@ angular.module('rheticus')
 		angular.extend($scope,{ // scope variables
 			"baselayers" : configuration.layers.baselayers, // basemap list
 			"overlays" : [ // barritteri overlay datasets
-				configuration.layers.overlays.barritteri.heatmap,
-				configuration.layers.overlays.barritteri.view
+				//configuration.layers.overlays.ps.heatmap,
+				configuration.layers.overlays.ps.view,
+				configuration.layers.overlays.iffi.view
 			],
 			"tipLabel" : 'Base Map',
-			"psQueryLayer" : configuration.layers.overlays.barritteri.query, // PS query overlay layer
+			"psQueryLayer" : configuration.layers.overlays.ps.query, // PS query overlay layer
 			"sentinelQueryLayer" : configuration.layers.overlays.sentinel.query, // Sentinel query overlay layer
 			//"sentinelView" : configuration.layers.overlays.sentinel.query, //TODO: To Be Comment ... only for test!
 			"center" : $rootScope.center, // OpenLayers Center zoom
@@ -81,7 +82,7 @@ angular.module('rheticus')
 			var cql = "";
 			/*if (cql) {
 				cql = "("+cql+") AND ";*/
-				cql += "(abs_4(average_speed)>="+$rootScope.speedModel.split(";")[0]+" AND abs_4(average_speed)<="+$rootScope.speedModel.split(";")[1]+")";
+				cql += "(abs_4(velocity)>="+$rootScope.speedModel.split(";")[0]+" AND abs_4(velocity)<="+$rootScope.speedModel.split(";")[1]+")";
 				$scope.overlays[1].source.params.CQL_FILTER = cql;
 			/*} else {
 				delete $scope.overlays[1].source.params.CQL_FILTER;
@@ -94,8 +95,8 @@ angular.module('rheticus')
 		$rootScope.$watch("speedModel", function (speedModel) {
 			var cql = $scope.overlays[1].source.params.CQL_FILTER;
 			if (cql) {
-				cql = cql.split("(abs_4(average_speed)>=")[0];
-				cql += "(abs_4(average_speed)>="+speedModel.split(";")[0]+" AND abs_4(average_speed)<="+speedModel.split(";")[1]+")";
+				cql = cql.split("(abs_4(velocity)>=")[0];
+				cql += "(abs_4(velocity)>="+speedModel.split(";")[0]+" AND abs_4(velocity)<="+speedModel.split(";")[1]+")";
 				$scope.overlays[1].source.params.CQL_FILTER = cql;
 			}
 		});

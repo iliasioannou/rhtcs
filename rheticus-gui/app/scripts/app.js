@@ -38,7 +38,11 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
-		
+		.when('/vs', {
+			"templateUrl": "scripts/components/view-switcher/view-switcher-view.html",
+			"controller": "ViewSwitcherCtrl",
+			"controllerAs": "view-switcher"
+		})
 		.otherwise({
 			"redirectTo": "/"
 		});
@@ -53,6 +57,9 @@ angular
 			"aoi" : configuration.aoi,
 			"showDetails" : function() {
 				return $rootScope.center.zoom>=configuration.map.query.zoom;
+			},
+			"showLegends" : function(mapDir) {
+				return configuration.layers.overlays[mapDir].view.visible;
 			}
 		});
 	});

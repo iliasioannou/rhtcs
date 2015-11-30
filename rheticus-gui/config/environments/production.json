@@ -28,25 +28,7 @@
 			"visible" : false,
 			"opacity" : 1
 		},{
-			"name" : "MapBox Night",
-			"source" : {
-				"type" : "TileJSON",
-				"url" : "https://api.tiles.mapbox.com/v3/examples.map-0l53fhk2.jsonp"
-			},
-			"active" : true,
-			"visible" : false,
-			"opacity" : 1
-		},{
-			"name" : "Mapbox Geography",
-			"source" : {
-				"type" : "TileJSON",
-				"url" : "http://api.tiles.mapbox.com/v3/mapbox.geography-class.jsonp"
-			},
-			"active" : true,
-			"visible" : false,
-			"opacity" : 1
-		},{
-			"name" : "e-Geos Ortofoto RealVista 1.0",
+			"name" : "Ortofoto RealVista 1.0",
 			"source" : {
 				"type" : "TileWMS",
 				"urls" : [

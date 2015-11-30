@@ -47,13 +47,12 @@ body {
     }
 }
 .brand {
-    /*position: fixed;*/
-    width: 100%;
+    width: 100px;
 	margin-left: 0px !important;
 	background-color: #f8f8f8;
 	border-radius: 4px;
 	padding: 5px;
-	
+	fill-opacity: .8;
 }
 
 
@@ -210,10 +209,18 @@ body {
     z-index: 1060;
     width: 700px;
 	top: 60px;
-	font-size: 12px;
+	font-size: 11px;
     //max-height: 50%;
 }
 */
+
+.pagination {
+	margin:0;
+}
+
+.table {
+	margin-bottom : 1px;
+}
 .legenda {
     position: fixed;
     z-index: 1060;
@@ -294,7 +301,7 @@ body {
 	height: auto;
 	width: 50%;
 	margin-top: 20px;
-	font-size: 12px;
+	font-size: 11px;
 }
 
 .timeline {
@@ -309,6 +316,12 @@ body {
 	min-height: 50px;
 	height: auto;
 	width: 75%;
+}
+
+.functionSwitcher {
+	z-index:3;
+	top : 0.5em;
+	right: 4em;
 }
 
 .map-control-panel {
@@ -341,24 +354,22 @@ body {
 }
 
 .about {
-    float: right;
-    margin-left: 10px;
-    position: relative !important;
-    top: -4px;
-    z-index: 3;
+    right: 0.5em;
+    top: 15em;
+	z-index: 3;
 }
 
 .layer-switcher {
     position: absolute;
     right: 0.5em;
     text-align: left;
-	top: 7.2em !important;
+	top: 17.2em !important;
     
 }
 
 .geocoder {
-    right: 3em;
-    top: 0.5em;
+    right: 0.5em;
+    top: 7.2em;
     z-index: 3;
 }
 

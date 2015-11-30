@@ -85,7 +85,7 @@ angular.module('rheticus')
 					for (var i=0; i<ps.features.length; i++) {
 						if (ps.features[i].properties){
 							chartData.push({
-								"key" : ps.features[i].properties["code"],
+								"key" : ps.features[i].properties["sensorid"],
 								"values" : [] //values - represents the array of {x,y} data points
 								
 							});

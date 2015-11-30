@@ -1,8 +1,17 @@
 <div class="legenda" ng-controller="LegendCtrl">
 	<div style ="background-color: rgba(0, 60, 136, 0.6);" data-intro="Legend" data-position="right">
-		<label style="color: #fff; display: block; font-size: 12px">
-		{{legendTitle}}<br/>{{legendUom}}
-		</label>
-		<img data-ng-src="{{legendUrl}}">
+		<div>
+			<label style="color: #fff; display: block; font-size: 12px">
+			{{legendTitleFrane}}<br/>{{legendUomFrane}}
+			</label>
+			<div ng-repeat= "img in legendUrlFrane">
+			<img data-ng-src="{{img}}">
+		</div>
+		<div>
+			<label style="color: #fff; display: block; font-size: 12px">
+			{{legendTitle}}<br/>{{legendUom}}
+			</label>
+			<img data-ng-src="{{legendUrl}}">
+		</div>
 	</div>
 </div>
