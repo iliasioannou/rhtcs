@@ -35,7 +35,9 @@ stop () {
 
 status () {
         status_of_proc -p $pid_file $exec_bin "$name"
-	log_daemon_msg "Process id: $(cat $pid_file)\n"
+        scode="$?"
+        if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
+        return $scode
 }
 
 case $1 in

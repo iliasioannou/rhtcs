@@ -28,6 +28,7 @@ start () {
         echo
         echo -e "\e[44m[KIBANA]\e[0m"
 	init-rheticus/kibana-as-daemon start
+	echo
 	echo -e "\e[32m*********  Starting  Rheticus System Services  ***********\e[0m"
 }
  

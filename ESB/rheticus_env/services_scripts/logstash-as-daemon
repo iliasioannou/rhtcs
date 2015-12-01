@@ -20,7 +20,7 @@ pid_file="/var/run/logstash.pid"
 command_opts="-f ${logstash_conf} -l ${logstash_log}"
 
 start () {
-        log_daemon_msg "Starting $name" "$name"
+        log_daemon_msg "Starting $name"
         if start-stop-daemon --quiet --oknodo --pidfile "$pid_file" -b -m --exec $exec_bin --start -- $command_opts; then
                 log_end_msg 0
         else
@@ -36,7 +36,9 @@ stop () {
 
 status () {
         status_of_proc -p $pid_file $exec_bin "$name"
-	log_daemon_msg "Process id: $(cat $pid_file)\n"
+        scode="$?"
+        if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
+        return $scode
 }
 
 case $1 in
