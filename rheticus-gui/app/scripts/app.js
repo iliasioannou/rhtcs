@@ -38,10 +38,10 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
-		.when('/vs', {
-			"templateUrl": "scripts/components/view-switcher/view-switcher-view.html",
-			"controller": "ViewSwitcherCtrl",
-			"controllerAs": "view-switcher"
+		.when('/sp', {
+			"templateUrl": "scripts/components/switch-panel/switch-panel-view.html",
+			"controller": "SwitchPanelCtrl",
+			"controllerAs": "switch-panel"
 		})
 		.otherwise({
 			"redirectTo": "/"
