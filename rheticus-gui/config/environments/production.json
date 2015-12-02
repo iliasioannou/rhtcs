@@ -63,7 +63,7 @@
 						"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:ps_barritteri_raster",
+						"LAYERS" : "rheticus:ps_barritteri_heatmap",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -111,7 +111,7 @@
 					}
 				},
 				"custom" : {
-					"heatmap" : "rheticus:ps_barritteri_raster",
+					"heatmap" : "rheticus:ps_barritteri_heatmap",
 					"detail" : "rheticus:ps",
 					"datasetid" : "datasetid",
 					"psid" : "psid",
