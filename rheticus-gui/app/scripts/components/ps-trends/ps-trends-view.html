@@ -9,22 +9,17 @@
 					<tr>
 						<th>Dataset&nbsp;ID</th>
 						<th>PS&nbsp;ID</th>
-						<th>Longitudine</th>
-						<th>Latitudine</th>
-						<th>Altitudine</th>
-						<th>Coerenza</th>
-						<th>Velocit&agrave;&nbsp;Media</th>
+						<th>Sensor&nbsp;ID</th>
+						<th>Coherence</th>
+						<th>Velocity</th>
 					</tr>
 				</thead>
 				<tbody>
 					<ul lr-infinite-scroll="myEventHandler">
 					<tr ng-repeat="record in displayed">
-						<!--{{record.id}}-->
-						<td>SENTINEL-1IWIW14444ASCENDINGVV-VHSSLC1340.0</td>
+						<td>{{record.datasetid}}</td>
+						<td>{{record.psid}}</td>
 						<td>{{record.sensorid}}</td>
-						<td>{{record.lon}}</td>
-						<td>{{record.lat}}</td>
-						<td>{{record.height}}</td>
 						<td>{{record.coherence}}</td>
 						<td>{{record.velocity}}</td>
 					</tr>

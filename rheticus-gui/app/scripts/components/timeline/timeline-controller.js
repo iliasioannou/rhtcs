@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('TimelineCtrl', ['$scope','configuration', function ($scope,configuration) {
+	.controller('TimelineCtrl', ['$scope','configuration','utils', function ($scope,configuration,utils) {
 		angular.extend($scope,{
 			"options" : { // Chart options
 				"chart" : {
@@ -48,7 +48,7 @@ angular.module('rheticus')
 					"showDistY" : true,
 					"useInteractiveGuideline" : false,
 					"interactive" : true,
-					"tooltips" : true,
+					//"tooltips" : true,
 					"tooltipContent" : function(key, x, y, e, graph){
 						return '<h3>' + key + '</h3>' + '<p>' +  y + ' on ' + x + '</p>';
 					},
@@ -116,6 +116,7 @@ angular.module('rheticus')
 			 * Returns:
 			 * {Integer} - Position in list
 			 */
+			 /*
 			"getIndexByAttributeValue" : function(list,attribute,idValue) {
 				var res = -1;
 				try {
@@ -142,6 +143,7 @@ angular.module('rheticus')
 					return(res);
 				}
 			},
+			*/
 			/**
 			 * Parameters:
 			 * coords - Array<{Object}>
@@ -209,7 +211,7 @@ angular.module('rheticus')
 								try {
 									eval("datasetValue = timeline.features[i].properties."+$scope.datasetIdAttribute);
 									if (datasetValue!=""){ // dataset exists
-										var index = $scope.getIndexByAttributeValue(datasetList,"id",datasetValue);
+										var index = utils.getIndexByAttributeValue(datasetList,"id",datasetValue);
 										if (index==-1){ // add new dataset
 											datasetList.push({
 												"id" : datasetValue,
@@ -261,7 +263,7 @@ angular.module('rheticus')
 								for (var j=0; j<$scope.datasetList[i].features.length; j++) {
 									try {
 										var featureStartTime = new Date($scope.datasetList[i].features[j].properties.startTime);
-										if ((featureStartTime instanceof Date) && ($scope.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)==-1) ) {
+										if ((featureStartTime instanceof Date) && (utils.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)==-1) ) {
 											imageryList.push($scope.datasetList[i].features[j].id);
 											chartData[i].values.push({
 												"x" : featureStartTime,

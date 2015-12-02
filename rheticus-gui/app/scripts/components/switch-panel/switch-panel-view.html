@@ -1,0 +1,70 @@
+<div class="switchpanel" ng-controller="SwitchPanelCtrl" style ="background-color: rgba(0, 60, 136, 0.6);" >
+
+	<!-- Split button -->
+	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': ps_layer_view}" ng-click="ViewPsLegend()">PS viewer </button>
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': ps_layer_view}" uib-dropdown-toggle>
+			<span class="caret"></span>
+			<span class="sr-only">Split button!</span>
+		</button>
+		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
+			<li role="menuitem"><a ng-click="changePsLayer()" style="cursor: pointer" >{{ps_active}}</a></li>
+		</ul>
+	</div>
+
+	<!-- Split button -->
+	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': iffi_layer_view}" ng-click="ViewIffiLegend()">IFFI</button>
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': iffi_layer_view}" uib-dropdown-toggle>
+			<span class="caret"></span>
+			<span class="sr-only">Split button!</span>
+		</button>
+		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
+			<li role="menuitem"><a ng-click="changeIffiLayer()" style="cursor: pointer">{{iffi_active}}</a></li>
+		</ul>
+	</div>
+
+    <!-- Split button -->
+	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': sentinel_layer_view}" ng-click="ViewSentinelLegend()" >Sentinel1</button>
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': sentinel_layer_view}" uib-dropdown-toggle>
+			<span class="caret"></span>
+			<span class="sr-only">Split button!</span>
+		</button>
+		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
+			<li role="menuitem"><a ng-click="changeSentinelLayer()" style="cursor: pointer" >{{sentinel_active}}</a></li>
+		</ul>
+	</div>
+	
+	<!-- Minimize button -->
+	<button type="button" class="btn btn-default btn-xs pull-right" ng-click="Minimizer()" >
+		<span class="glyphicon glyphicon-pushpin"</span>
+	</button>
+
+	<div class = "panel" ng-show="ps_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);">
+		<div class="switchpaneltop" ng-show="isCollapsed == true">
+			<label style="color: #fff; display: block; font-size: 12px">{{legendTitlePs}}<br/><br/></label>
+		</div>
+		<div class="switchpanelegend">
+			<img data-ng-src="{{legendUrlPs}}">
+			<label style="color: #C6C6C6; display: block; font-size: 10px">{{legendUomPs}}</label>
+		</div>
+	</div>	
+
+	<div class = "panel" ng-show="iffi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
+		<div class="switchpaneltop" ng-show="isCollapsed == true">
+			<label style="color: #fff; display: block; font-size: 12px">{{legendTitleIffi}}<br/></label>
+		</div>
+		<div class="switchpanelegend">	
+			<img data-ng-src="{{legendUrlIffi1}}">
+			<img data-ng-src="{{legendUrlIffi2}}">
+		</div>
+	</div>	
+
+	<div class = "panel" ng-show="sentinel_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
+		<div class="switchpaneltop" ng-show="isCollapsed == true">
+			<label style="color: #fff; display: block; font-size: 12px">{{legendTitleSentinel}}<br/></label>
+		</div>	
+		<div class="switchpanelegend"></div>
+	</div>	
+</div>

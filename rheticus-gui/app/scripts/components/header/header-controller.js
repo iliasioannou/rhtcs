@@ -11,6 +11,6 @@
 angular.module('rheticus')
 	.controller('HeaderCtrl',['$scope','configuration', function ($scope,configuration) {
 		angular.extend($scope,{
-			"rheticusHeaderTitle" : configuration.rheticusHeaderTitle
+			"rheticusHeaderImage" : configuration.rheticusHeaderImage
 		});
 	}]);

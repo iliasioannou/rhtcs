@@ -1,6 +1,5 @@
 {
-	"rheticusHeaderTitle" : "./images/RheticusLogo.png",
-
+	"rheticusHeaderImage" : "./images/RheticusLogo.png",
 	"timeSlider" : {
 		"domain" : {
 			"start" : "2014-10-01T00:00:00Z",
@@ -18,7 +17,6 @@
 			"datasetIdentifier" : "datasetId"
 		}
 	},
-	
 	"filters" : {
 		"speedSlider" : {
 			"init" : "0;20",
@@ -38,7 +36,6 @@
 			"scale" : [75, "|", 90, "|", 100]
 		}
 	},
-
 	"map" : {
 		"center" : {
 			"lon" : 15.85,
@@ -50,7 +47,6 @@
 		},
 		"crs" : "EPSG:3857"
 	},
-	
 	"aoi" : [
 		{
 			"name" : "Demo Barritteri",
