@@ -12,10 +12,10 @@
  
 . /lib/lsb/init-functions
 
-name="tomcat7"
+name="Tomcat7"
 exec_bin_dir="/opt/apache-tomcat-*/bin/"
 
-TOMCAT_USAGE="Usage: $0 {\e[00;32mstart\e[00m|\e[00;31mstop\e[00m|\e[00;31mkill\e[00m|\e[00;32mstatus\e[00m|\e[00;31mrestart\e[00m}"
+TOMCAT_USAGE="Usage: $0 {\e[00;32mstart\e[00m|\e[00;31mstop\e[00m|\e[00;32mstatus\e[00m|\e[00;31mrestart\e[00m}"
 SHUTDOWN_WAIT=20
 
 start () {
