@@ -6,7 +6,7 @@
 			"source" : {
 				"type" : "OSM"
 			},
-			"visible" : false,
+			"active" : false,
 			"opacity" : 1
 		},{
 			"name" : "Ortofoto RealVista 1.0",
@@ -22,7 +22,7 @@
 				},
 				"serverType" : "geoserver"
 			},
-			"visible" : true,
+			"active" : true,
 			"opacity" : 1
 		}],
 		"overlays" : {
@@ -41,7 +41,6 @@
 					},
 					"serverType" : "geoserver"
 				},
-				"visible" : false,
 				"active" : false,
 				"opacity" : 0.8
 			},{
@@ -52,7 +51,6 @@
 					"type" : "GeoJSON",
 					"url" : "./stub/geojson.json"
 				},
-				"visible" : false,
 				"active" : false,
 				"opacity" : 0.8
 			},{
@@ -70,7 +68,6 @@
 					},
 					"serverType" : "geoserver"
 				},
-				"visible" : false,
 				"active" : true,
 				"opacity" : 0.8
 			}],
