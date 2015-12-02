@@ -10,6 +10,5 @@ angular
 		map : @@map,
 		aoi : @@aoi,
 		//custom environment configuration
-		legends : @@legends,
 		layers : @@layers
 	});

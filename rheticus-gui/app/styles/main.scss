@@ -47,7 +47,7 @@ body {
     }
 }
 .brand {
-    width: 100px;
+    width: 200px;
 	margin-left: 0px !important;
 	background-color: #f8f8f8;
 	border-radius: 4px;
@@ -232,6 +232,37 @@ body {
     background-color: rgba(255, 255, 255, 0.4);
 	margin: 1px;
 }
+
+.switchpanel {
+    position: fixed;
+    z-index: 1060;
+    bottom: 65px;
+    left: 8px;
+	width: 400px;
+	height: 200px;
+    border-radius: 4px;
+    padding: 2px;
+    background-color: rgba(255, 255, 255, 0.4);
+	margin: 1px;
+}
+
+
+
+.switchpanelegend{
+	margin-left: 7px;
+	margin-right: 7px;
+}
+.switchpaneltop{
+	margin: 7px;
+	margin-top: 10px;
+}
+
+.switchpanelminimizer{
+	margin-left : 100%;
+}
+
+
+
 /*
 .shadowed {
     -webkit-box-shadow: 10px 10px 42px 0px rgba(0, 0, 0, 0.75);
@@ -368,4 +399,8 @@ body {
     position: absolute;
     left: 7.5em;
     top: 2.25em !important;
+}
+
+.btn.active {
+    background-color: #ff0000 !important;
 }

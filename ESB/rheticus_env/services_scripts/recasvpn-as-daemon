@@ -1,0 +1,67 @@
+#! /bin/bash
+ 
+### BEGIN INIT INFO
+# Provides:          recasvpn
+# Required-Start:    $network $remote_fs
+# Required-Stop:     $network $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start forticlient ssl vpn connection to Recas at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+ 
+. /lib/lsb/init-functions
+
+name="recasvpn"
+exec_bin="/opt/init-rheticus/forticlient_cli_automation.exp"
+recasvpn_log="/var/log/recasvpn.log"
+pid_file="/var/run/recasvpn.pid"
+command_opts="90.147.168.2:8443 samarelli Eu@s2Ahk ${recasvpn_log} 0"
+
+start () {
+        log_daemon_msg "Starting $name"
+        if start-stop-daemon --quiet --oknodo --pidfile "$pid_file" -b -m --exec $exec_bin --start -- $command_opts; then
+                log_end_msg 0
+        else
+                log_end_msg 1
+        fi
+}
+ 
+stop () {
+        log_daemon_msg "Stopping $name"
+        start-stop-daemon --stop --oknodo --pidfile "$pid_file" --retry=TERM/20/KILL/5
+	rm -f $pid_file
+}
+
+status () {
+	status_of_proc -p $pid_file $exec_bin "$name"
+	scode="$?"
+	if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
+	return $scode
+}
+
+case $1 in
+        start)
+                if status; then exit 0; fi
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        reload)
+                stop
+                start
+                ;;
+        restart)
+                stop
+                start
+                ;;
+        status)
+                status && exit 0 || exit $?
+                ;;
+        *)
+                echo "Usage: $0 {start|stop|restart|reload|status}"
+                exit 1
+                ;;
+esac
+exit 0

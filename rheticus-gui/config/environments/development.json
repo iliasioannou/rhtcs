@@ -1,17 +1,4 @@
 {
-	"legends" : {
-		"ps" : {
-			"title" : "PS Velocity",
-			"uom" : "[mm/year]",
-			"url" : "./images/legend_vel_ps.png"
-		},
-		"iffi" : {
-			"title" : "Frane",
-			"uom" : "",
-			"url" : ["./images/Aree_frane_diffuse.png","./images/Frane.png","./images/Punto_identificativo_frana.png"]
-		}
-	},
-	
 	"layers" : {
 		"baselayers" : [{
 			"name" : "OpenStreetMap",
@@ -20,7 +7,6 @@
 				"type" : "OSM"
 			},
 			"visible" : false,
-			"active" : false,
 			"opacity" : 1
 		},{
 			"name" : "Ortofoto RealVista 1.0",
@@ -37,7 +23,6 @@
 				"serverType" : "geoserver"
 			},
 			"visible" : true,
-			"active" : true,
 			"opacity" : 1
 		}],
 		"overlays" : {
@@ -85,7 +70,7 @@
 					},
 					"serverType" : "geoserver"
 				},
-				"visible" : true,
+				"visible" : false,
 				"active" : true,
 				"opacity" : 0.8
 			}],
@@ -93,11 +78,27 @@
 				"id" : "iffi",
 				"type" : "",
 				"queryUrl" : "",
+				"legend" : {
+					"title" : "Frane",
+					"uom" : "",
+					"url" : {
+						"tipologia_frana" : "./images/Frane.png",
+						"area_frane_diffuse" : "./images/Aree_frane_diffuse.png",
+						"piff" : "./images/Punto_identificativo_frana.png"
+					}
+				},
 				"custom" : {}
 			},{
 				"id" : "sentinel",
 				"type" : "ImageWMS",
 				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/wms",
+				"legend" : {
+					"title" : "Sentinel 1 Datasets",
+					"uom" : "",
+					"url" : {
+						"nothing" : ""
+					}
+				},
 				"custom" : {
 					"LAYERS" : "rheticus:slc"
 				}
@@ -105,6 +106,13 @@
 				"id" : "ps",
 				"type" : "RheticusApiRest",
 				"queryUrl" : "http://kim.planetek.it:8081/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
+				"legend" : {
+					"title" : "PS Velocity",
+					"uom" : "[mm/year]",
+					"url" : {
+						"velocity" : "./images/legend_vel_ps.png"
+					}
+				},
 				"custom" : {
 					"heatmap" : "rheticus:ps_barritteri_raster",
 					"detail" : "rheticus:ps",

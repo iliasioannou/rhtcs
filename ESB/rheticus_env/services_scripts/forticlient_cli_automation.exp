@@ -1,0 +1,56 @@
+#!/usr/bin/expect -f
+# Usage: 
+#       ./forticlient_cli_automation.exp <vpnhost>:<vpnport> <vpnusername> <vpnpasswd> <log_file> <log_user>
+#	<log_file>    specify a filepath where to save the output logging
+#	<log_user>  0 or 1, whether to send logging also to STDOUT
+#
+# Configure it, setting the following variable "FC_PATH" to the dir containing the forticlientsslvpn_cli executable
+set FC_PATH "/opt/forticlientsslvpn-4.4.2307/64bit"
+
+set server [lindex $argv 0]
+set vpnuser [lindex $argv 1]
+set vpnpasswd [lindex $argv 2]
+set logfile [lindex $argv 3]
+set log_user [lindex $argv 4]
+
+
+if {[llength $argv] == 0} {
+  send_user "Usage: ./forticlient_cli_automation.exp <vpnhost>:<vpnport> <vpnusername> <vpnpasswd> <log_file> <log_user>\n\n"
+  send_user "Arguments explaination:\n"
+  send_user "      <log_file> \t\t specify a filepath where to save the output logging.\n"
+  send_user "      <log_user>  0 or 1, whether to send logging also to STDOUT.\n"
+  exit 1
+}
+
+if {![file exists $FC_PATH/forticlientsslvpn_cli]} {
+  send_user "ERROR: forticlientsslvpn_cli was not found in $FC_PATH.\n"
+  send_user "\tPlease open this script and make sure FC_PATH is pointing to the dir containing the forticlientsslvpn_cli executable.\n"
+  exit 1
+}
+
+log_user $log_user
+log_file -a -noappend $logfile
+set timestamp [clock format [clock seconds] -format {%Y-%m-%d_%T}]
+send_log "SCRIPT LAUNCHED ON $timestamp\n"
+set timeout -1
+
+
+spawn $FC_PATH/forticlientsslvpn_cli --server $server --vpnuser $vpnuser
+expect "Password for VPN:"
+send "$vpnpasswd\n"
+
+# need this for 'certificate error'
+expect "Would you like to connect to this server"
+send "Y\r"
+
+expect {
+	"STATUS::Tunnel running" {
+		puts "\n Forticlient vpn connection successfully started."
+		expect eof
+		exit
+	}
+	"STATUS::Set up tunnel failed\r" {
+               	puts "\n Forticlient vpn connection failed. \n See the log for more detailed info.\n"
+		exit 1
+	}
+}
