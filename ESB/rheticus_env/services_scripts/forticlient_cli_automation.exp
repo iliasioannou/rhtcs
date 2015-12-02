@@ -15,29 +15,32 @@ set log_user [lindex $argv 4]
 
 
 if {[llength $argv] == 0} {
-  send_user "Usage: ./forticlient_cli_automation.exp <vpnhost>:<vpnport> <vpnusername> <vpnpasswd> <log_file> <log_user>\n\n"
-  send_user "Arguments explaination:\n"
-  send_user "      <log_file> \t\t specify a filepath where to save the output logging.\n"
-  send_user "      <log_user>  0 or 1, whether to send logging also to STDOUT.\n"
+  puts "Usage: ./forticlient_cli_automation.exp <vpnhost>:<vpnport> <vpnusername> <vpnpasswd> <log_file> <log_user>\n\n"
+  puts "Arguments explaination:\n"
+  puts "      <log_file> \t\t specify a filepath where to save the output logging.\n"
+  puts "      <log_user>  0 or 1, whether to send logging also to STDOUT.\n"
   exit 1
 }
 
 if {![file exists $FC_PATH/forticlientsslvpn_cli]} {
-  send_user "ERROR: forticlientsslvpn_cli was not found in $FC_PATH.\n"
-  send_user "\tPlease open this script and make sure FC_PATH is pointing to the dir containing the forticlientsslvpn_cli executable.\n"
+  puts "ERROR: forticlientsslvpn_cli was not found in $FC_PATH.\n"
+  puts "\tPlease open this script and make sure FC_PATH is pointing to the dir containing the forticlientsslvpn_cli executable.\n"
   exit 1
 }
 
 log_user $log_user
 log_file -a -noappend $logfile
-set timestamp [clock format [clock seconds] -format {%Y-%m-%d_%T}]
-send_log "SCRIPT LAUNCHED ON $timestamp\n"
+send_log "<AUTOMATION> Launched on [clock format [clock seconds] -format {%Y-%m-%d_%T}]\n\n"
 set timeout -1
 
+trap {
+	send_log "\n<AUTOMATION> Terminated on [clock format [clock seconds] -format {%Y-%m-%d_%T}]"
+	exit
+} {SIGINT SIGTERM}
 
-spawn $FC_PATH/forticlientsslvpn_cli --server $server --vpnuser $vpnuser
+spawn $FC_PATH/forticlientsslvpn_cli --server $server --vpnuser $vpnuser --keepalive
 expect "Password for VPN:"
-send "$vpnpasswd\n"
+send "$vpnpasswd\r"
 
 # need this for 'certificate error'
 expect "Would you like to connect to this server"
@@ -45,12 +48,13 @@ send "Y\r"
 
 expect {
 	"STATUS::Tunnel running" {
-		puts "\n Forticlient vpn connection successfully started."
+		send_user "\n<AUTOMATION> Forticlient vpn connection successfully started."
 		expect eof
+		send_log "\n<AUTOMATION> Closed on [clock format [clock seconds] -format {%Y-%m-%d_%T}]"
 		exit
 	}
 	"STATUS::Set up tunnel failed\r" {
-               	puts "\n Forticlient vpn connection failed. \n See the log for more detailed info.\n"
+               	send_user "\n<AUTOMATION> Forticlient vpn connection failed. \n See the log for more detailed info."
 		exit 1
 	}
 }
