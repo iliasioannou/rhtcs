@@ -47,23 +47,6 @@ angular
 			"redirectTo": "/"
 		});
 	})
-	.run(function ($rootScope,configuration) {
-		angular.extend($rootScope,{
-			"speedModel" : configuration.filters.speedSlider.init,
-			"center" : configuration.map.center,
-			"iffi" : null,
-			"sentinel" : null,
-			"ps" : null,
-			"marker" : false,
-			//"aoi" : configuration.aoi,
-			"showDetails" : function() {
-				return $rootScope.center.zoom>=configuration.map.query.zoom;
-			},
-			"showLegends" : function(mapDir) {
-				return configuration.layers.overlays[mapDir].view.visible;
-			}
-		});
-	})
 	.factory('utils', function() {
 		return {
 			/**
@@ -102,4 +85,28 @@ angular
 				}
 			}
 		};
+	})
+	.run(function ($rootScope,configuration,utils) {
+		angular.extend($rootScope,{
+			"baselayers" : configuration.layers.baselayers, // basemap layer list
+			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
+			"metadata" : configuration.layers.overlays.metadata, // overlay layer list
+			"speedModel" : configuration.filters.speedSlider.init,
+			"center" : configuration.map.center,
+			"iffi" : null,
+			"sentinel" : null,
+			"ps" : null,
+			"marker" : false
+			//"aoi" : configuration.aoi,
+		});
+		angular.extend($rootScope,{
+			"overlaysHashMap" : {
+				"iffi" : utils.getIndexByAttributeValue($rootScope.overlays,"id","iffi"),
+				"sentinel" : utils.getIndexByAttributeValue($rootScope.overlays,"id","sentinel"),
+				"ps" : utils.getIndexByAttributeValue($rootScope.overlays,"id","ps")
+			},
+			"showDetails" : function() {
+				return $rootScope.center.zoom>=configuration.map.query.zoom;
+			}
+		});
 	});

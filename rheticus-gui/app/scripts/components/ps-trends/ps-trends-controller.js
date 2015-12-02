@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$rootScope','$scope','$http','$q','configuration','utils', function ($rootScope,$scope,$http,$q,configuration,utils) {
+	.controller('PsTrendsCtrl',['$rootScope','$scope','$http','$q', function ($rootScope,$scope,$http,$q) {
 		angular.extend($scope,{
 			"options" : { // PS Line chart options
 				"chart" : {
@@ -55,16 +55,15 @@ angular.module('rheticus')
 			},
 			"data" : [], // PS line chart data
 			"psDetails" : [], // PS feature details
-			"show_trends" : false, // dialog box closure
-			"psMetadataArrayIndex" : utils.getIndexByAttributeValue(configuration.layers.overlays.metadata,"id","ps")
+			"show_trends" : false // dialog box closure
 		});
 
 		angular.extend($scope,{ //other variables
-			"measureUrl" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].queryUrl,
-			"datasetIdKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.datasetid,
-			"psIdKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.psid,
-			"dateKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.date,
-			"measureKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.measure
+			"measureUrl" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].queryUrl,
+			"datasetIdKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.datasetid,
+			"psIdKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.psid,
+			"dateKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.date,
+			"measureKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.measure
 		});
 		
 		/**

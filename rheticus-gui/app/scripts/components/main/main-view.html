@@ -1,16 +1,17 @@
 <openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" custom-layers="true" ol-defaults="olDefaults">
 	<ol-control name="{{control.name}}" ng-repeat="control in controls|filter:{active: true}"></ol-control>
-	<layer-switcher></layer-switcher>
-	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers"></ol-layer>
-	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays|filter:{visible:true}"></ol-layer>
+	<!--layer-switcher></layer-switcher-->
+	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers|filter:{active:true}"></ol-layer>
+	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays|filter:{active:true}"></ol-layer>
 	<ol-marker ol-marker-properties="marker"></ol-marker>
 
 	<div ng-include src="'scripts/components/header/header-view.html'"></div>
 	<div ng-include src="'scripts/components/switch-panel/switch-panel-view.html'"></div>
 	<div class="ol-control map-control-panel">		
+		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>
 		<div ng-include src="'scripts/components/geocoder/geocoder-button-view.html'"></div>
 		<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
-		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>
+		<div ng-include src="'scripts/components/basemap/basemap-button-view.html'"></div>
 		<div ng-include src="'scripts/components/help/help-view.html'"></div>
 	</div>
 	<div ng-include src="'scripts/components/ps-trends/ps-trends-view.html'"></div>

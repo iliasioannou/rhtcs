@@ -6,7 +6,7 @@
 			"source" : {
 				"type" : "OSM"
 			},
-			"visible" : false,
+			"active" : false,
 			"opacity" : 1
 		},{
 			"name" : "Ortofoto RealVista 1.0",
@@ -22,7 +22,7 @@
 				},
 				"serverType" : "geoserver"
 			},
-			"visible" : true,
+			"active" : true,
 			"opacity" : 1
 		}],
 		"overlays" : {
@@ -41,7 +41,6 @@
 					},
 					"serverType" : "geoserver"
 				},
-				"visible" : false,
 				"active" : false,
 				"opacity" : 0.8
 			},{
@@ -52,7 +51,6 @@
 					"type" : "GeoJSON",
 					"url" : "./stub/geojson.json"
 				},
-				"visible" : false,
 				"active" : false,
 				"opacity" : 0.8
 			},{
@@ -65,12 +63,11 @@
 						"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:ps_barritteri_raster",
+						"LAYERS" : "rheticus:ps_barritteri_heatmap",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
 				},
-				"visible" : false,
 				"active" : true,
 				"opacity" : 0.8
 			}],
@@ -114,7 +111,7 @@
 					}
 				},
 				"custom" : {
-					"heatmap" : "rheticus:ps_barritteri_raster",
+					"heatmap" : "rheticus:ps_barritteri_heatmap",
 					"detail" : "rheticus:ps",
 					"datasetid" : "datasetid",
 					"psid" : "psid",
