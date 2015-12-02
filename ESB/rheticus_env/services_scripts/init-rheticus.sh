@@ -1,33 +1,36 @@
 #!/bin/bash
 
-# The root dir in which are present the Rheticus softwares
-swRoot="/opt/"
+# The dir containing the as-service wrappers to start SW as daemon
+wrappersdir="/opt/init-rheticus/as-daemon-wrappers/"
 
-cd $swRoot
+cd "$wrappersdir"
 
 start () {
 	clear
 	echo -e "\e[32m*********  Starting Rheticus System Services  ***********\e[0m"
 	echo -e "\e[44m[ACTIVEMQ]\e[0m"
-        apache-activemq-*/bin/activemq start
+        ./activemq-as-daemon start
         echo
         echo -e "\e[44m[ELASTICSEARCH]\e[0m"
-        init-rheticus/elasticsearch-as-daemon start
+        ./elasticsearch-as-daemon start
         echo
         echo -e "\e[44m[LOGSTASH]\e[0m"
-        init-rheticus/logstash-as-daemon start
+        ./logstash-as-daemon start
         echo
         echo -e "\e[44m[RECASVPN]\e[0m"
-        init-rheticus/recasvpn-as-daemon start
+        ./recasvpn-as-daemon start
         echo
         echo -e "\e[44m[MULE]\e[0m"
-        mule-standalone-*/bin/mule start
+        ./mule-as-daemon start
         echo
         echo -e "\e[44m[TOMCAT7]\e[0m"
-        init-rheticus/tomcat7-as-daemon start
+        ./tomcat7-as-daemon start
         echo
         echo -e "\e[44m[KIBANA]\e[0m"
-	init-rheticus/kibana-as-daemon start
+	./kibana-as-daemon start
+	echo
+	echo -e "\e[44m[REST-API]\e[0m"
+	./restapi-as-daemon start
 	echo
 	echo -e "\e[32m*********  Starting  Rheticus System Services  ***********\e[0m"
 }
@@ -36,53 +39,60 @@ stop () {
 	clear
         echo -e "\e[32m*********  Stopping Rheticus System Services  **********\e[0m"
 	echo -e "\e[44m[ACTIVEMQ]\e[0m"
-        apache-activemq-*/bin/activemq stop
+        ./activemq-as-daemon stop
         echo
         echo -e "\e[44m[ELASTICSEARCH]\e[0m"
-        init-rheticus/elasticsearch-as-daemon stop
+        ./elasticsearch-as-daemon stop
         echo
         echo -e "\e[44m[LOGSTASH]\e[0m"
-        init-rheticus/logstash-as-daemon stop
+        ./logstash-as-daemon stop
         echo
         echo -e "\e[44m[RECASVPN]\e[0m"
-        init-rheticus/recasvpn-as-daemon stop
+        ./recasvpn-as-daemon stop
         echo
         echo -e "\e[44m[MULE]\e[0m"
-        mule-standalone-*/bin/mule stop
+        ./mule-as-daemon stop
         echo
         echo -e "\e[44m[TOMCAT7]\e[0m"
-        init-rheticus/tomcat7-as-daemon stop
+        ./tomcat7-as-daemon stop
         echo
         echo -e "\e[44m[KIBANA]\e[0m"
-        init-rheticus/kibana-as-daemon stop
+	./kibana-as-daemon stop
+        echo
+	echo -e "\e[44m[REST-API]\e[0m"
+        ./restapi-as-daemon stop
         echo
         echo -e "\e[32m*********  Stopping Rheticus System Services  **********\e[0m"
 }
 
 status () {
 	clear
+	pwd
 	echo -e "\e[32m*********  Status of Rheticus System Services  **********\e[0m"
 	echo -e "\e[44m[ACTIVEMQ]\e[0m"
-	apache-activemq-*/bin/activemq status
+	./activemq-as-daemon status
 	echo
 	echo -e "\e[44m[ELASTICSEARCH]\e[0m"
-	init-rheticus/elasticsearch-as-daemon status
+	./elasticsearch-as-daemon status
 	echo
 	echo -e "\e[44m[LOGSTASH]\e[0m"
-	init-rheticus/logstash-as-daemon status
+	./logstash-as-daemon status
 	echo
 	echo -e "\e[44m[RECASVPN]\e[0m"
-	init-rheticus/recasvpn-as-daemon status
+	./recasvpn-as-daemon status
 	echo
 	echo -e "\e[44m[MULE]\e[0m"
-        mule-standalone-*/bin/mule status
+        ./mule-as-daemon status
 	echo
 	echo -e "\e[44m[TOMCAT7]\e[0m"
-	init-rheticus/tomcat7-as-daemon status
+	./tomcat7-as-daemon status
 	echo
 	echo -e "\e[44m[KIBANA]\e[0m"
-	init-rheticus/kibana-as-daemon status
+	./kibana-as-daemon status
 	echo
+	echo -e "\e[44m[REST-API]\e[0m"
+        ./restapi-as-daemon start
+        echo
 	echo -e "\e[32m*********  Status of Rheticus System Services  **********\e[0m"
 }
 

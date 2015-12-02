@@ -1,22 +1,23 @@
 #! /bin/bash
  
 ### BEGIN INIT INFO
-# Provides:          recasvpn
-# Required-Start:    $network $remote_fs
-# Required-Stop:     $network $remote_fs
+# Provides:          logstash
+# Required-Start:    $network $remote_fs $named $elasticsearch
+# Required-Stop:     $network $remote_fs $named $elasticsearch
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start forticlient ssl vpn connection to Recas at boot time
+# Short-Description: Start logstash at boot time
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
  
 . /lib/lsb/init-functions
 
-name="recasvpn"
-exec_bin="/opt/init-rheticus/forticlient_cli_automation.exp"
-recasvpn_log="/var/log/recasvpn.log"
-pid_file="/var/run/recasvpn.pid"
-command_opts="90.147.168.2:8443 samarelli Eu@s2Ahk ${recasvpn_log} 0"
+name="Logstash"
+exec_bin="/opt/logstash-*/bin/logstash"
+logstash_conf="/opt/logstash-*/bin/logstash.conf"
+logstash_log="/var/log/logstash.log"
+pid_file="/var/run/logstash.pid"
+command_opts="-f ${logstash_conf} -l ${logstash_log}"
 
 start () {
         log_daemon_msg "Starting $name"
@@ -29,15 +30,15 @@ start () {
  
 stop () {
         log_daemon_msg "Stopping $name"
-        start-stop-daemon --stop --oknodo --pidfile "$pid_file" --retry=INT/20/KILL/5
+        start-stop-daemon --stop --oknodo --pidfile "$pid_file" --retry=TERM/20/KILL/5
 	rm -f $pid_file
 }
 
 status () {
-	status_of_proc -p $pid_file $exec_bin "$name"
-	scode="$?"
-	if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
-	return $scode
+        status_of_proc -p $pid_file $exec_bin "$name"
+        scode="$?"
+        if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
+        return $scode
 }
 
 case $1 in

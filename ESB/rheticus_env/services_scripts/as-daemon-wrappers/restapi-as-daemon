@@ -1,22 +1,21 @@
 #! /bin/bash
  
 ### BEGIN INIT INFO
-# Provides:          logstash
+# Provides:          rest-API
 # Required-Start:    $network $remote_fs
 # Required-Stop:     $network $remote_fs
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
-# Short-Description: Start elasticsearch at boot time
+# Short-Description: Start Rheticus REST API at boot time
 # Description:       Enable service provided by daemon.
 ### END INIT INFO
  
 . /lib/lsb/init-functions
 
-name="elasticsearch"
-exec_bin="/opt/elasticsearch-*/bin/elasticsearch"
-elasticsearch_logdir="/var/log/elasticsearch"
-pid_file="/var/run/elasticsearch.pid"
-command_opts="-Des.path.logs=${elasticsearch_logdir}"
+name="rest-API"
+exec_bin="/usr/local/bin/node"
+pid_file="/var/run/restapi.pid"
+command_opts="/opt/rheticus_api_rest/server.js"
 
 start () {
         log_daemon_msg "Starting $name"
@@ -29,15 +28,15 @@ start () {
  
 stop () {
         log_daemon_msg "Stopping $name"
-        start-stop-daemon --stop --quiet --oknodo --pidfile "$pid_file" --retry=TERM/20/KILL/5
+        start-stop-daemon --stop --oknodo --pidfile "$pid_file" --retry=TERM/20/KILL/5
 	rm -f $pid_file
 }
 
 status () {
-        status_of_proc -p $pid_file $exec_bin "$name"
-        scode="$?"
-        if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
-        return $scode
+	status_of_proc -p $pid_file $exec_bin "$name"
+	scode="$?"
+	if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
+	return $scode
 }
 
 case $1 in
