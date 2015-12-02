@@ -9,15 +9,8 @@
  */
 
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','utils', function ($rootScope,$scope,$http,olData,configuration,utils) {
+	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration', function ($rootScope,$scope,$http,olData,configuration) {
 		angular.extend($scope,{ // scope variables
-			"baselayers" : configuration.layers.baselayers, // basemap layer list
-			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
-			"overlaysHashMap" : {
-				"iffi" : utils.getIndexByAttributeValue(configuration.layers.overlays.olLayers,"id","iffi"),
-				"sentinel" : utils.getIndexByAttributeValue(configuration.layers.overlays.olLayers,"id","sentinel"),
-				"ps" : utils.getIndexByAttributeValue(configuration.layers.overlays.olLayers,"id","ps")
-			},
 			"center" : $rootScope.center, // OpenLayers Center zoom
 			"olDefaults" : { // OpenLayers Default Events
 				"events" : { 
@@ -29,7 +22,7 @@ angular.module('rheticus')
 				}
 			},
 			"controls" : [ // Openlayers controls
-				//{"name" : 'zoom', "active" : true}, // ?? ..duplicate in view
+				//{"name" : 'zoom', "active" : true}, // TBC ...duplicate in view
 				{"name" : 'rotate', "active" : true},
 				{"name" : 'zoomtoextent', "active" : false},
 				//{"name" : 'zoomslider', "active" : true},
@@ -93,20 +86,20 @@ angular.module('rheticus')
 			"setSpeedModelFilter" : function(speedModel){
 				if ($rootScope.showDetails()){ //proceed with filtering
 					var cql = "(abs_4(velocity)>="+speedModel.split(";")[0]+" AND abs_4(velocity)<="+speedModel.split(";")[1]+")";
-					$scope.overlays[$scope.overlaysHashMap.ps].source.params.CQL_FILTER = cql;
+					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql;
 				}
 			},
 			"getGetFeatureInfoOlLayer" : function(l){
-				eval("var queryUrl = configuration.layers.overlays.metadata[$scope.overlaysHashMap."+l.id+"].queryUrl;");
+				eval("var queryUrl = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
 				var olLayer = null;
 				if (queryUrl=="") {
 					olLayer = l;
 				} else {
-					eval("var queryType = configuration.layers.overlays.metadata[$scope.overlaysHashMap."+l.id+"].type;");
+					eval("var queryType = $rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
 					switch(queryType) {
 						case "ImageWMS":
-							eval("var querySourceType = configuration.layers.overlays.metadata[$scope.overlaysHashMap."+l.id+"].type;");
-							eval("var queryLayers = configuration.layers.overlays.metadata[$scope.overlaysHashMap."+l.id+"].custom.LAYERS;");
+							eval("var querySourceType = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].type;");
+							eval("var queryLayers = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].custom.LAYERS;");
 							olLayer = {
 								"type" : querySourceType,
 								"url" : queryUrl,
@@ -132,10 +125,10 @@ angular.module('rheticus')
 		$rootScope.$watch("center.zoom", function () {
 			if ($rootScope.showDetails()){
 				$scope.setSpeedModelFilter($rootScope.speedModel);
-				$scope.overlays[$scope.overlaysHashMap.ps].source.params.LAYERS = configuration.layers.overlays.metadata[$scope.overlaysHashMap.ps].custom.detail;
+				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.LAYERS = $rootScope.metadata[$scope.overlaysHashMap.ps].custom.detail;
 			} else {
-				$scope.overlays[$scope.overlaysHashMap.ps].source.params.CQL_FILTER = null;
-				$scope.overlays[$scope.overlaysHashMap.ps].source.params.LAYERS = configuration.layers.overlays.metadata[$scope.overlaysHashMap.ps].custom.heatmap;
+				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = null;
+				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.LAYERS = $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.heatmap;
 			}
 		});
 		
@@ -164,12 +157,9 @@ angular.module('rheticus')
 
 		olData.getMap().then(function (map) {
 			map.on("singleclick", function (evt) {
-				
 				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
-				$scope.overlays.map(function(l) {
-					
+				$rootScope.overlays.map(function(l) {
 					if (l.active){
-
 						switch(l.id) {
 							case "iffi": //Progetto IFFI
 								$scope.getFeatureInfo(
@@ -225,10 +215,11 @@ angular.module('rheticus')
 								
 							default:
 								//do nothing
-						} 
+						}
+						
 					}
 				});
-
 			});
 		});
+		
 	}]);
