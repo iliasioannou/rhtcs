@@ -1,0 +1,97 @@
+#! /bin/bash
+ 
+### BEGIN INIT INFO
+# Provides:          tomcat7
+# Required-Start:    $network $remote_fs
+# Required-Stop:     $network $remote_fs
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start tomcat7 at boot time
+# Description:       Enable service provided by daemon.
+### END INIT INFO
+ 
+. /lib/lsb/init-functions
+
+name="tomcat7"
+exec_bin_dir="/opt/apache-tomcat-*/bin/"
+
+TOMCAT_USAGE="Usage: $0 {\e[00;32mstart\e[00m|\e[00;31mstop\e[00m|\e[00;31mkill\e[00m|\e[00;32mstatus\e[00m|\e[00;31mrestart\e[00m}"
+SHUTDOWN_WAIT=20
+
+start () {
+        pid=$(tomcat_pid)
+  	if [ -n "$pid" ]
+  	then
+    		echo " * Tomcat is already running (pid: $pid)"
+  	else
+		$exec_bin_dir/startup.sh
+	fi
+}
+
+stop() {
+	pid=$(tomcat_pid)
+	if [ -n "$pid" ]
+	then
+		echo " * Stoping Tomcat"
+		sh $exec_bin_dir/shutdown.sh
+
+		let kwait=$SHUTDOWN_WAIT
+		count=0;
+		until [ `ps -p $pid | grep -c $pid` = '0' ] || [ $count -gt $kwait ]
+		do
+			echo -n "\n   waiting for processes to exit";
+			sleep 5
+			let count=$count+5;
+		done
+
+		if [ $count -gt $kwait ]; then
+			echo -n -e "\n \e[00;31m    killing processes didn't stop after $SHUTDOWN_WAIT seconds\e[00m"
+			echo "\n * Terminating Tomcat"
+			kill -9 $(tomcat_pid)
+		fi
+		rm -f $pid_file
+	else
+	    echo " * Tomcat is not running"
+	fi
+}
+
+status(){
+          pid=$(tomcat_pid)
+          if [ -n "$pid" ]
+            then echo " * Tomcat is running" && echo " * Process id: $pid"
+          else
+            echo " * Tomcat is not running"
+            return 3
+          fi
+}
+
+tomcat_pid() {
+        echo `ps -fe | grep $exec_bin_dir | grep -v grep | tr -s " "|cut -d" " -f2`
+}
+
+
+case $1 in
+        start)
+                if status; then exit 0; fi
+                start
+                ;;
+        stop)
+                stop
+                ;;
+        reload)
+                stop
+                start
+                ;;
+        restart)
+                stop
+                start
+                ;;
+        status)
+                status && exit 0 || exit $?
+                ;;
+        *)
+                echo -e $TOMCAT_USAGE
+                exit 1
+                ;;
+esac
+exit 0

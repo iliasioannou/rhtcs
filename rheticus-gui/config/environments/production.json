@@ -1,199 +1,127 @@
 {
-	"legends" : {
-		"_comment" : "Barritteri legend style",
-		"velocity" : {
-			"title" : "Velocity PS ",
-			"uom" : "[mm/period]",
-			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
-		},
-		"density" : {
-			"title" : "Density PS ",
-			"uom" : "[ps/100\u33A1]",
-			"url" : "http://morgana.planetek.it:8080/geoserver/pkt284/wms?REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=image/png&WIDTH=20&HEIGHT=20&LAYER=pkt284:ps_barritteri_raster&TRANSPARENT=true&LEGEND_OPTIONS=fontColor:0xffffff;fontAntiAliasing:true"
-		},
-		"ps" : {
-			"title" : "Velocit\u00E0 PS ",
-			"uom" : "[mm/period]",
-			"url" : "./images/legend_vel_ps.png"
-		}
-	},
-	
 	"layers" : {
 		"baselayers" : [{
 			"name" : "OpenStreetMap",
+			"group" : "base",
 			"source" : {
 				"type" : "OSM"
 			},
-			"active" : true,
 			"visible" : false,
 			"opacity" : 1
 		},{
 			"name" : "Ortofoto RealVista 1.0",
+			"group" : "base",
 			"source" : {
 				"type" : "TileWMS",
 				"urls" : [
-					"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
+					"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
 				],
 				"params" : {
-					"LAYERS" : "pkt284:rv1",
-					"VERSION" : "1.3.0",
-					"SRS" : "EPSG:3857",
+					"LAYERS" : "rheticus:rv1",
 					"TILED" : true
 				},
 				"serverType" : "geoserver"
 			},
-			"active" : true,
 			"visible" : true,
 			"opacity" : 1
 		}],
 		"overlays" : {
-			"barritteri" : {
-				"heatmap" : { 
-					"name" : "Barritteri Heat Map",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
-						],
-						"minScale" : 10000,
-						"params" : {
-							"LAYERS" : "pkt284:ps_barritteri_raster",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						},
-						"serverType" : "geoserver"
+			"olLayers" : [{
+				"id" : "iffi",
+				"name" : "Aree a rischio frana",
+				"group" : "Overlays",
+				"source" : {
+					"type" : "TileWMS",
+					"urls" : [
+						"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
+					],
+					"params" : {
+						"LAYERS" : "rheticus:97,rheticus:98,rheticus:99",
+						"TILED" : true
 					},
-					"active" : true,
-					"visible" : true,
-					"opacity" : 0.8
+					"serverType" : "geoserver"
 				},
-				"view" : {
-					"name" : "Barritteri Persistent Scatterers Map",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
-						],
-						"maxScale" : 10000,
-						"params" : {
-							"LAYERS" : "pkt284:ps_barritteri_view",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						},
-						"serverType" : "geoserver"
-					},
-					"active" : true,
-					"visible" : true,
-					"opacity" : 0.8
+				"visible" : false,
+				"active" : false,
+				"opacity" : 0.8
+			},{
+				"id" : "sentinel",
+				"name" : "Sentinel 1 Datasets GeoJSON",
+				"group" : "Overlays",
+				"source" : {
+					"type" : "GeoJSON",
+					"url" : "./stub/geojson.json"
 				},
-				"query" : {
-					"name" : "Barritteri Persistent Scatterers Map Query",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://morgana.planetek.it:8080/geoserver/pkt284/wms"
-						],
-						"params" : {
-							"LAYERS" : "pkt284:ps_barritteri",
-							"VERSION" : "1.3.0",
-							"SRS":  "EPSG:3857"
-						},
-						"serverType" : "geoserver"
+				"visible" : false,
+				"active" : false,
+				"opacity" : 0.8
+			},{
+				"id" : "ps",
+				"name" : "Persistent Scatterers Map",
+				"group" : "Overlays",
+				"source" : {
+					"type" : "TileWMS",
+					"urls" : [
+						"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
+					],
+					"params" : {
+						"LAYERS" : "rheticus:ps_barritteri_raster",
+						"TILED" : true
 					},
-					"active" : true,
-					"visible" : false
+					"serverType" : "geoserver"
+				},
+				"visible" : false,
+				"active" : true,
+				"opacity" : 0.8
+			}],
+			"metadata" : [{
+				"id" : "iffi",
+				"type" : "",
+				"queryUrl" : "",
+				"legend" : {
+					"title" : "Frane",
+					"uom" : "",
+					"url" : {
+						"tipologia_frana" : "./images/Frane.png",
+						"area_frane_diffuse" : "./images/Aree_frane_diffuse.png",
+						"piff" : "./images/Punto_identificativo_frana.png"
+					}
+				},
+				"custom" : {}
+			},{
+				"id" : "sentinel",
+				"type" : "ImageWMS",
+				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/wms",
+				"legend" : {
+					"title" : "Sentinel 1 Datasets",
+					"uom" : "",
+					"url" : {
+						"nothing" : ""
+					}
+				},
+				"custom" : {
+					"LAYERS" : "rheticus:slc"
 				}
-			},
-			"trento" : {
-				"heatmap" : {
-					"name" : "Trento Heat Map",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
-						],
-						"minScale" : 10000,
-						"params" : {
-							"LAYERS" : "pkt284:PS_heatmap_100m",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						},
-						"serverType" : "geoserver"
-					},
-					"active" : true,
-					"visible" : true,
-					"opacity" : 0.8
+			},{
+				"id" : "ps",
+				"type" : "RheticusApiRest",
+				"queryUrl" : "http://kim.planetek.it:8081/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
+				"legend" : {
+					"title" : "PS Velocity",
+					"uom" : "[mm/year]",
+					"url" : {
+						"velocity" : "./images/legend_vel_ps.png"
+					}
 				},
-				"view" : {
-					"name" : "Trento Persistent Scatterers Map",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://morgana.planetek.it:8080/geoserver/gwc/service/wms"
-						],
-						"maxScale" : 10000,
-						"params" : {
-							"LAYERS" : "pkt284:ps_trento_view",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						},
-						"serverType" : "geoserver"
-					},
-					"active" : true,
-					"visible" : true,
-					"opacity" : 0.8
-				},
-				"query" : {
-					"name" : "Trento Persistent Scatterers Map Query",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://morgana.planetek.it:8080/geoserver/pkt284/wms"
-						],
-						"params" : {
-							"LAYERS" : "ps_trento",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857"
-						},
-						"serverType" : "geoserver"
-					},
-					"active" : true,
-					"visible" : false
+				"custom" : {
+					"heatmap" : "rheticus:ps_barritteri_raster",
+					"detail" : "rheticus:ps",
+					"datasetid" : "datasetid",
+					"psid" : "psid",
+					"date" : "data",
+					"measure" : "measure"
 				}
-			},
-			"sentinel" : {
-				"view" : {
-					"name" : "Sentinel 1 Datasets GeoJSON",
-					"source" : {
-						"type" : "GeoJSON",
-						"geojson" : {}
-					},
-					"active" : true,
-					"visible" : true
-				},
-				"query" : {
-					"name" : "Sentinel 1 Datasets Query",
-					"source" : {
-						"type" : "TileWMS",
-						"urls" : [
-							"http://kim.planetek.it:9080/geoserver/rheticus/wms"
-						],
-						"params" : {
-							"LAYERS" : "rheticus:slc",
-							"VERSION" : "1.3.0",
-							"SRS" : "EPSG:3857",
-							"TILED" : true
-						},
-						"serverType" : "geoserver"
-					},
-					"active" : true,
-					"visible" : false
-				}
-			}
+			}]
 		}
 	}
 }
