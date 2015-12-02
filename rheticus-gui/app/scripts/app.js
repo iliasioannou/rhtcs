@@ -38,11 +38,6 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
-		.when('/vs', {
-			"templateUrl": "scripts/components/view-switcher/view-switcher-view.html",
-			"controller": "ViewSwitcherCtrl",
-			"controllerAs": "view-switcher"
-		})
 		.otherwise({
 			"redirectTo": "/"
 		});
@@ -51,10 +46,11 @@ angular
 		angular.extend($rootScope,{
 			"speedModel" : configuration.filters.speedSlider.init,
 			"center" : configuration.map.center,
+			"iffi" : null,
+			"sentinel" : null,
 			"ps" : null,
 			"marker" : false,
-			"timeline" : null,
-			"aoi" : configuration.aoi,
+			//"aoi" : configuration.aoi,
 			"showDetails" : function() {
 				return $rootScope.center.zoom>=configuration.map.query.zoom;
 			},
@@ -62,4 +58,43 @@ angular
 				return configuration.layers.overlays[mapDir].view.visible;
 			}
 		});
+	})
+	.factory('utils', function() {
+		return {
+			/**
+			 * Parameters:
+			 * list - {Object}
+			 * attribute - {String}
+			 * idValue - {String}
+			 * 
+			 * Returns:
+			 * {Integer} - Position in list
+			 */
+			"getIndexByAttributeValue" : function(list,attribute,idValue) {
+				var res = -1;
+				try {
+					if ((list!=null) && (list.length>0)) {
+						if (attribute!=""){
+							for (var i=0; i<list.length; i++){
+								if (eval("list[i]."+attribute)==idValue){
+									res = i;
+									break;
+								}
+							}
+						} else {
+							for (var i=0; i<list.length; i++){
+								if (list[i]==idValue){
+									res = i;
+									break;
+								}
+							}
+						}
+					}
+				} catch (e) {
+					console.log("[timeline-controller :: getIndexByAttributeValue] EXCEPTION : '"+e);
+				} finally {
+					return(res);
+				}
+			}
+		};
 	});

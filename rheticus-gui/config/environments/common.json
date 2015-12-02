@@ -1,5 +1,5 @@
 {
-	"rheticusHeaderTitle" : "./images/RheticusLogo.png",
+	"rheticusHeaderImage" : "./images/RheticusLogo.png",
 
 	"timeSlider" : {
 		"domain" : {

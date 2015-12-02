@@ -4,7 +4,7 @@ angular
 	.module('services.config',[])
 	.constant('configuration', {
 		//common environment configuration
-		rheticusHeaderTitle : '@@rheticusHeaderTitle',
+		rheticusHeaderImage : "@@rheticusHeaderImage",
 		timeSlider : @@timeSlider,
 		filters : @@filters,
 		map : @@map,

@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration', function ($rootScope,$scope,configuration) {
+	.controller('PsTrendsCtrl',['$rootScope','$scope','$http','$q','configuration','utils', function ($rootScope,$scope,$http,$q,configuration,utils) {
 		angular.extend($scope,{
 			"options" : { // PS Line chart options
 				"chart" : {
@@ -55,9 +55,18 @@ angular.module('rheticus')
 			},
 			"data" : [], // PS line chart data
 			"psDetails" : [], // PS feature details
-			"show_trends" : false // dialog box closure
+			"show_trends" : false, // dialog box closure
+			"psMetadataArrayIndex" : utils.getIndexByAttributeValue(configuration.layers.overlays.metadata,"id","ps")
 		});
 
+		angular.extend($scope,{ //other variables
+			"measureUrl" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].queryUrl,
+			"datasetIdKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.datasetid,
+			"psIdKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.psid,
+			"dateKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.date,
+			"measureKey" : configuration.layers.overlays.metadata[$scope.psMetadataArrayIndex].custom.measure
+		});
+		
 		/**
 		 * showPsTrends hides this view and deletes OLs marker
 		 */
@@ -69,6 +78,31 @@ angular.module('rheticus')
 					$scope.data = [];
 					$scope.psDetails = [];
 				}
+			},
+			"getMeasures" : function (datasetid,psid){
+				var deferred = $q.defer();
+				var url = $scope.measureUrl.replace($scope.datasetIdKey,datasetid).replace($scope.psIdKey,psid);
+				$http.get(url)
+					.success(function (measures) { //if request is successful
+						var ret = [];
+						if ((measures!=null) && measures.length>0){
+							for (var i=0; i<measures.length; i++) {
+								var measureDate = new Date(eval("measures[i]."+$scope.dateKey+";"));
+								if (measureDate instanceof Date) {
+									ret.push({
+										"x" : measureDate,
+										"y" : eval("measures[i]."+$scope.measureKey+";")
+									});
+								}
+							}
+						}
+						deferred.resolve(ret);
+					})
+					.error(function(data,status,headers,config){ //if request is not successful
+						//reject the promise
+						deferred.reject('ERROR');
+					});
+				return deferred.promise;
 			},
 			/**
 			 * Parameters:
@@ -84,22 +118,14 @@ angular.module('rheticus')
 					$scope.options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
 					for (var i=0; i<ps.features.length; i++) {
 						if (ps.features[i].properties){
+							var datasetId = eval("ps.features[i].properties."+$scope.datasetIdKey+";");
+							var psId = eval("ps.features[i].properties."+$scope.psIdKey+";");
 							chartData.push({
-								"key" : ps.features[i].properties["sensorid"],
-								"values" : [] //values - represents the array of {x,y} data points
-								
+								"key" : ps.features[i].id,
+								"values" : $scope.getMeasures(datasetId,psId) // values - represents the array of {x,y} data points
 							});
 							var featureInfo = {};
 							for (var key in ps.features[i].properties) {
-								if (key.startsWith("dl")) {
-									var featureDate = new Date(key.replace("dl", "").splice(6, 0, "/").splice(4, 0, "/"));
-									if (featureDate instanceof Date) {
-										chartData[i].values.push({
-											"x" : featureDate,
-											"y" : ps.features[i].properties[key]
-										});
-									}
-								}
 								eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";");
 							}
 							tableInfo.push(featureInfo);
