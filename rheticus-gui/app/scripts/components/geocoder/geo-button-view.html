@@ -1,6 +1,18 @@
-<div class="geocoder ol-control">
-<!--div class="maps" ng-controller="MapCtrl"-->
-	<button popover-placement="left" popover-template="geoPopup" type="button" title="Search Location">
+<div class="geocoder ol-control" ng-controller="GeoCtrl as geo">
+	<button style="position:relative; float:right;" type="button" title="Search Location" 
+		ng-model="searching" uib-btn-checkbox >
 		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>		
 	</button>
+	<div ng-show="searching">
+		<form ng-submit="geo.searchLocation(geo.location)">
+			<input style="width:100%;" type="text" placeholder="Search..." ng-model="geo.location" />
+		</form>
+		<div class="searchResult" >
+			<div ng-repeat="result in results">
+				<span ng-click="geo.getLocation($index)" ng-bind="result.display_name"></span>
+				<!--br>
+				<span> {{result.display_name}} </span-->	
+			</div>
+		</div>
+	</div>
 </div>

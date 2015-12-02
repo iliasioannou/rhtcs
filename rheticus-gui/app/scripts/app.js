@@ -47,12 +47,13 @@ angular
 			"redirectTo": "/"
 		});
 	})
+	//"marker" : configuration.marker, (potrebbe essere utile sostituire)
 	.run(function ($rootScope,configuration) {
 		angular.extend($rootScope,{
 			"speedModel" : configuration.filters.speedSlider.init,
 			"center" : configuration.map.center,
 			"ps" : null,
-			"marker" : false,
+			"marker" : false,			
 			"timeline" : null,
 			"aoi" : configuration.aoi,
 			"showDetails" : function() {

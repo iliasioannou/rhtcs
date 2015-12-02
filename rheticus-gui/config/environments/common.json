@@ -43,12 +43,24 @@
 		"center" : {
 			"lon" : 15.85,
 			"lat" : 38.325,
-			"zoom" : 14
+			"zoom" : 14,
+			"bounds" : [],
+			"projection": "EPSG:4326"
 		},
 		"query" : {
 			"zoom" : 16
 		},
 		"crs" : "EPSG:3857"
+	},
+	
+	"marker" : {
+		"lat": 99999,
+		"lon": 99999,
+		"label": {
+			"message": "",
+			"show": false,
+			"showOnMouseOver": true
+		}
 	},
 	
 	"aoi" : [
