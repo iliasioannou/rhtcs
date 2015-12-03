@@ -41,11 +41,9 @@ angular.module('rheticus')
 			//DEMO AREAS
 			"demoareas" : [{
 				"name" : $rootScope.aoi[0].name,
-				"bbox" : $rootScope.aoi[0].bbox,
 				"checked" : $rootScope.aoi[0].selected
 				}, {
 				"name" : $rootScope.aoi[1].name,
-				"bbox" : $rootScope.aoi[1].bbox,
 				"checked" : $rootScope.aoi[1].selected
 				}],
 			//Controls
@@ -128,6 +126,10 @@ angular.module('rheticus')
 				angular.forEach(entities, function(subscription, index) {
 				if (position != index) 
 				  subscription.checked = false;
+			  if (position == index) {
+				$rootScope.center.lon = $rootScope.aoi[position].center.lon;
+				$rootScope.center.lat = $rootScope.aoi[position].center.lat;
+			  }
 			});
 			},
 			"updateSelection" : function(position, entities) {
