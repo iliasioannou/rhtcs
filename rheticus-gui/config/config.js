@@ -9,6 +9,7 @@ angular
 		filters : @@filters,
 		map : @@map,
 		aoi : @@aoi,
+		geocoder : @@geocoder,
 		//custom environment configuration
 		layers : @@layers
 	});
