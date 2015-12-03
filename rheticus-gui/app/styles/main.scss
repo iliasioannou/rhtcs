@@ -60,8 +60,9 @@ body {
 
 .footer {
     padding-top: 5px;
-    color: #777;
-    border-top: 1px solid #e5e5e5;
+    color: #000;
+    border-top-right-radius: 5px;
+	background-color: rgba(255, 255, 255, 0.4);
 }
 
 .container-narrow > hr {
@@ -85,10 +86,13 @@ body {
 .footer {
     position: absolute;
     bottom: 0;
-    width: 100%;
+    /*width: 100%;
     /* Set the fixed height of the footer here */
-    background-color: #f5f5f5;
+	/*background-color: #f5f5f5;*/
 	z-index: 1;
+}
+.footer div p {
+	margin:0;
 }
 .container {
 	padding-left: 0px;
@@ -105,7 +109,6 @@ body {
     .container,
     .footer {
         padding-left: 0 !important;
-        padding-right: 0 !important;
         margin: 0 !important;
     }
     /* Space out the masthead */
@@ -362,8 +365,7 @@ body {
 }
 
 .map-control-panel {
-	z-index:3;
-	
+	z-index:3;	
 	top: 7.4em;
 	right:.5em;
 }
@@ -379,7 +381,6 @@ body {
     position: absolute;
     right: 0.5em;
     text-align: left;
-
 	top: 14.8em !important;
 }
     
@@ -403,6 +404,14 @@ body {
     font-size: 14px;
     padding: 6px 8px;
     vertical-align: middle;
+}
+.credits{
+	z-index:1;
+	bottom: 0.5em;
+    right: 0.5em;
+}
+.credits > div{
+	float:left;	
 }
 
 .FullScreenHelp{

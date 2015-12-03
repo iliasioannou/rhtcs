@@ -7,7 +7,11 @@
 				"type" : "OSM"
 			},
 			"active" : false,
-			"opacity" : 1
+			"opacity" : 1,
+			"layerOptions" : {
+				"attribution" : "© OpenStreetMap contributors",
+				"url" : "http://www.openstreetmap.org/copyright"
+			}
 		},{
 			"name" : "Ortofoto RealVista 1.0",
 			"group" : "base",
@@ -23,7 +27,11 @@
 				"serverType" : "geoserver"
 			},
 			"active" : true,
-			"opacity" : 1
+			"opacity" : 1,
+			"layerOptions" : {
+				"attribution" : "Imagery © © Realvista contributors",
+				"url" : "http://www.realvista.it/"
+			}
 		}],
 		"overlays" : {
 			"olLayers" : [{
@@ -42,7 +50,11 @@
 					"serverType" : "geoserver"
 				},
 				"active" : false,
-				"opacity" : 0.8
+				"opacity" : 0.8,
+				"layerOptions" : {
+					"attribution" : "Progetto IFFI (Inventario dei Fenomeni Franosi in Italia) ISPRA",
+					"url" : "http://www.progettoiffi.isprambiente.it"
+				}
 			},{
 				"id" : "sentinel",
 				"name" : "Sentinel 1 Datasets GeoJSON",
@@ -52,7 +64,11 @@
 					"url" : "./stub/geojson.json"
 				},
 				"active" : false,
-				"opacity" : 0.8
+				"opacity" : 0.8,
+				"layerOptions" : {
+					"attribution" : "",
+					"url" : ""
+				}
 			},{
 				"id" : "ps",
 				"name" : "Persistent Scatterers Map",
@@ -69,7 +85,11 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
-				"opacity" : 0.8
+				"opacity" : 0.8,
+				"layerOptions" : {
+					"attribution" : "",
+					"url" : ""
+				}
 			}],
 			"metadata" : [{
 				"id" : "iffi",
