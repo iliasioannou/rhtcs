@@ -140,6 +140,7 @@ angular.module('rheticus')
 			  if (position == index) {
 				$rootScope.center.lon = $rootScope.aoi[position].center.lon;
 				$rootScope.center.lat = $rootScope.aoi[position].center.lat;
+				$rootScope.center.zoom = $rootScope.aoi[position].center.zoom;
 			  }
 			});
 			},

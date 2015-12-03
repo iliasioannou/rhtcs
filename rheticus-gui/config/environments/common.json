@@ -55,14 +55,16 @@
 		"name" : " Barritteri",
 		"center" : {
 			"lon" : 15.8461207,
-			"lat" : 38.3290608
+			"lat" : 38.3290608,
+			"zoom" : 14
 		},
 		"selected": true
 	},{
 		"name" : " Trento",
 		"center" : {
 			"lon" : 11.1257601,
-			"lat" : 46.0664228
+			"lat" : 46.0664228,
+			"zoom" : 12
 		},
 		"selected": false
 	}],
