@@ -27,7 +27,7 @@ angular.module('rheticus')
 				{"name" : 'zoomtoextent', "active" : false},
 				//{"name" : 'zoomslider', "active" : true},
 				{"name" : 'scaleline', "active" : true},
-				{"name" : 'attribution', "active" : false},
+				{"name" : 'attribution', "active" : true},
 				{"name" : 'fullscreen', "active" : true}
 			],
 			"view" : {}, // Openlayers view
