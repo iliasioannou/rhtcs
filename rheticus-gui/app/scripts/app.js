@@ -96,8 +96,8 @@ angular
 			"iffi" : null,
 			"sentinel" : null,
 			"ps" : null,
-			"marker" : false
-			//"aoi" : configuration.aoi,
+			"marker" : false,
+			"aoi" : configuration.aoi			
 		});
 		angular.extend($rootScope,{
 			"overlaysHashMap" : {

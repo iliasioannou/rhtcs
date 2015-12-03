@@ -76,6 +76,7 @@
 				"type" : "",
 				"queryUrl" : "",
 				"legend" : {
+					"name" : "IFFI",
 					"title" : "Frane",
 					"uom" : "",
 					"url" : {
@@ -90,6 +91,7 @@
 				"type" : "ImageWMS",
 				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/wms",
 				"legend" : {
+					"name" : "Sentinel-1",
 					"title" : "Sentinel 1 Datasets",
 					"uom" : "",
 					"url" : {
@@ -104,6 +106,7 @@
 				"type" : "RheticusApiRest",
 				"queryUrl" : "http://kim.planetek.it:8081/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
 				"legend" : {
+					"name":"Displacement Maps",
 					"title" : "PS Velocity",
 					"uom" : "[mm/year]",
 					"url" : {

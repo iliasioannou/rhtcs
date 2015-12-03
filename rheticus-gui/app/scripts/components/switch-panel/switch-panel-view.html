@@ -1,38 +1,43 @@
 <div class="switchpanel" ng-controller="SwitchPanelCtrl" style ="background-color: rgba(0, 60, 136, 0.6);" >
 
-	<!-- Split button -->
+	<!-- Ps Split button -->
 	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
-		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': ps_layer_view}" ng-click="ViewPsLegend()">PS viewer </button>
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': ps_layer_view}" ng-click="ViewPsLegend()">{{titlePs}}</button>
 		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': ps_layer_view}" uib-dropdown-toggle>
 			<span class="caret"></span>
 			<span class="sr-only">Split button!</span>
 		</button>
 		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
 			<li role="menuitem"><a ng-click="changePsLayer()" style="cursor: pointer" >{{ps_active}}</a></li>
+			<li role="menuitem"><a ng-click="ViewPsLegend()" style="cursor: pointer" >Show legend</a></li>
+			<li role="menuitem"><a ng-click="ViewAoiLegend()" style="cursor: pointer" >Select area of interest</a></li>
+			<li role="menuitem"><a ng-click="ViewProviderLegend()" style="cursor: pointer" >Select data provider</a></li>
 		</ul>
 	</div>
 
-	<!-- Split button -->
+	<!-- Iffi Split button -->
 	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
-		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': iffi_layer_view}" ng-click="ViewIffiLegend()">IFFI</button>
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': iffi_layer_view}" ng-click="ViewIffiLegend()">{{titleIffi}}</button>
 		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': iffi_layer_view}" uib-dropdown-toggle>
 			<span class="caret"></span>
 			<span class="sr-only">Split button!</span>
 		</button>
 		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
 			<li role="menuitem"><a ng-click="changeIffiLayer()" style="cursor: pointer">{{iffi_active}}</a></li>
+			<li role="menuitem"><a ng-click="ViewIffiLegend()" style="cursor: pointer" >Show legend</a></li>
 		</ul>
 	</div>
 
-    <!-- Split button -->
+    <!-- Sentinel Split button -->
 	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
-		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': sentinel_layer_view}" ng-click="ViewSentinelLegend()" >Sentinel1</button>
+		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': sentinel_layer_view}" ng-click="ViewSentinelLegend()" >{{titleSentinel}}</button>
 		<button type="button" class="btn btn-primary btn-xs" ng-class="{'btn-success': sentinel_layer_view}" uib-dropdown-toggle>
 			<span class="caret"></span>
 			<span class="sr-only">Split button!</span>
 		</button>
 		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
 			<li role="menuitem"><a ng-click="changeSentinelLayer()" style="cursor: pointer" >{{sentinel_active}}</a></li>
+			<li role="menuitem"><a ng-click="ViewSentinelLegend()" style="cursor: pointer" >Show legend</a></li>
 		</ul>
 	</div>
 	
@@ -41,9 +46,24 @@
 		<span class="glyphicon glyphicon-pushpin"</span>
 	</button>
 
+	
+	<!-- Ps Legend -->
 	<div class = "panel" ng-show="ps_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);">
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
-			<label style="color: #fff; display: block; font-size: 12px">{{legendTitlePs}}<br/><br/></label>
+			<label class= switchpanelabel>{{titlePs}}:<br/></label>
+			<label class= switchpanelabelmin >{{legendTitlePs}}</label>
+			
+				<label class= switchpanelabel>
+				Options:<br/></label>
+				<label class= switchpanelabel2><input type="checkbox" ng-click="changePsLayer()" ng-checked ="ps_layer_view"> Layer on</label><br/>
+				<label class= switchpanelabel2>Layer opacity
+				<input type="range" min="0" max="1" step="0.01" ng-model="overlays[overlaysHashMap.ps].opacity">
+				</label><br/>
+				
+				
+				
+			
+			
 		</div>
 		<div class="switchpanelegend">
 			<img data-ng-src="{{legendUrlPs}}">
@@ -51,9 +71,17 @@
 		</div>
 	</div>	
 
+	<!-- Iffi Legend -->
 	<div class = "panel" ng-show="iffi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
-			<label style="color: #fff; display: block; font-size: 12px">{{legendTitleIffi}}<br/></label>
+			<label class= switchpanelabel>{{titleIffi}}:<br/></label>
+			<label class= switchpanelabelmin >{{legendTitleIffi}}</label>
+			<label class= switchpanelabel>Options:<br/></label>
+			<label class= switchpanelabel2><input type="checkbox" ng-click="changeIffiLayer()" ng-checked ="iffi_layer_view"> Layer on</label><br/>
+				<label class= switchpanelabel2>Layer opacity
+				<input type="range" min="0" max="1" step="0.01" ng-model="overlays[overlaysHashMap.iffi].opacity">
+				</label><br/>
+			
 		</div>
 		<div class="switchpanelegend">	
 			<img data-ng-src="{{legendUrlIffi1}}">
@@ -61,10 +89,58 @@
 		</div>
 	</div>	
 
+	<!-- Sentinel Legend -->
 	<div class = "panel" ng-show="sentinel_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
-			<label style="color: #fff; display: block; font-size: 12px">{{legendTitleSentinel}}<br/></label>
+			<label class= switchpanelabel>{{titleSentinel}}:<br/></label>
+			<label class= switchpanelabelmin >{{legendTitleSentinel}}</label>
+			<label class= switchpanelabel>Options:<br/></label>
+			<label class= switchpanelabel2><input type="checkbox" ng-click="changeSentinelLayer()" ng-checked ="sentinel_layer_view"> Layer on</label><br/>
+				<label class= switchpanelabel2>Layer opacity
+				<input type="range" min="0" max="1" step="0.01" ng-model="overlays[overlaysHashMap.sentinel].opacity">
+				</label><br/>
+			</label>
 		</div>	
 		<div class="switchpanelegend"></div>
-	</div>	
+	</div>
+
+	<!-- Provider Legend -->
+	<div class = "panel" ng-show="provider_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
+		<div class="switchpaneltop" ng-show="isCollapsed == true">
+				<label style="color: #fff; display: block; font-size: 12px">
+				Data Providers:</label><br/>
+				<table>
+					<tr ng-repeat="subscription in entities">
+					  <td>
+						<label style="color: #fff; display: block; font-size: 12px"><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelection($index, entities)" />{{subscription.name}}<br/></label>
+					  </td>
+					</tr>
+				</table>
+				
+			</div>	
+			<div class="switchpanelegend">	
+			</div>
+	</div>
+	<!-- Area of Interest Legend -->
+	<div class = "panel" ng-show="aoi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
+		<div class="switchpaneltop" ng-show="isCollapsed == true">
+				<label class= switchpanelabel>
+				Demo areas:</label>
+				<table>
+					<tr ng-repeat="subscription in demoareas">
+					  <td>
+						<label class= switchpanelabel2><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelectionArea($index, demoareas)" />{{subscription.name}}</label><br/>
+					  </td>
+					</tr>
+				</table>
+				
+			</div>	
+			<div class="switchpanelegend">	
+			</div>
+	</div>
+
+
+
+
+	
 </div>
