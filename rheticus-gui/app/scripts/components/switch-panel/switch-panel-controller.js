@@ -33,7 +33,7 @@ angular.module('rheticus')
 			//DATA PROVIDER 
 			"entities" : [{
 				"name" : ' Sentinel',
-				"checked" : false
+				"checked" : true
 				}, {
 				"name" : ' Cosmo',
 				"checked" : false
@@ -78,6 +78,7 @@ angular.module('rheticus')
 				$scope.iffi_legend_view = false;
 				$scope.sentinel_legend_view = false;
 				$scope.provider_legend_view = false;
+				$scope.aoi_legend_view = false;
 				$scope.ps_legend_view = true;
 				
 			},
@@ -95,6 +96,7 @@ angular.module('rheticus')
 				$scope.ps_legend_view = false;
 				$scope.sentinel_legend_view = false;
 				$scope.provider_legend_view = false;
+				$scope.aoi_legend_view = false;
 				$scope.iffi_legend_view = true;
 			},
 			//SENTINEL
@@ -111,13 +113,22 @@ angular.module('rheticus')
 				$scope.iffi_legend_view = false;
 				$scope.ps_legend_view = false;
 				$scope.provider_legend_view = false;
+				$scope.aoi_legend_view = false;
 				$scope.sentinel_legend_view = true;
 			},
 			"ViewProviderLegend" : function(){
 				$scope.iffi_legend_view = false;
 				$scope.ps_legend_view = false;
 				$scope.provider_legend_view = true;
+				$scope.aoi_legend_view = false;
 				$scope.sentinel_legend_view = false;
+			},
+			"ViewAoiLegend" : function(){
+				$scope.iffi_legend_view = false;
+				$scope.ps_legend_view = false;
+				$scope.provider_legend_view = false;				
+				$scope.sentinel_legend_view = false;
+				$scope.aoi_legend_view = true;
 			},
 			"Minimize" : function(){
 				$scope.isCollapsed = !$scope.isCollapsed;

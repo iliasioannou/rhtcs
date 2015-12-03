@@ -10,6 +10,7 @@
 		<ul class="uib-dropdown-menu" role="menu" aria-labelledby="split-button">
 			<li role="menuitem"><a ng-click="changePsLayer()" style="cursor: pointer" >{{ps_active}}</a></li>
 			<li role="menuitem"><a ng-click="ViewPsLegend()" style="cursor: pointer" >Show legend</a></li>
+			<li role="menuitem"><a ng-click="ViewAoiLegend()" style="cursor: pointer" >Select area of interest</a></li>
 			<li role="menuitem"><a ng-click="ViewProviderLegend()" style="cursor: pointer" >Select data provider</a></li>
 		</ul>
 	</div>
@@ -51,15 +52,7 @@
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
 			<label class= switchpanelabel>{{titlePs}}:<br/></label>
 			<label class= switchpanelabelmin >{{legendTitlePs}}</label>
-			<label class= switchpanelabel>
-				Demo areas:</label>
-				<table>
-					<tr ng-repeat="subscription in demoareas">
-					  <td>
-						<label class= switchpanelabel2><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelectionArea($index, demoareas)" />{{subscription.name}}</label><br/>
-					  </td>
-					</tr>
-				</table>
+			
 				<label class= switchpanelabel>
 				Options:<br/></label>
 				<label class= switchpanelabel2><input type="checkbox" ng-click="changePsLayer()" ng-checked ="ps_layer_view"> Layer on</label><br/>
@@ -127,5 +120,27 @@
 			</div>	
 			<div class="switchpanelegend">	
 			</div>
-	</div>		
+	</div>
+	<!-- Area of Interest Legend -->
+	<div class = "panel" ng-show="aoi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
+		<div class="switchpaneltop" ng-show="isCollapsed == true">
+				<label class= switchpanelabel>
+				Demo areas:</label>
+				<table>
+					<tr ng-repeat="subscription in demoareas">
+					  <td>
+						<label class= switchpanelabel2><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelectionArea($index, demoareas)" />{{subscription.name}}</label><br/>
+					  </td>
+					</tr>
+				</table>
+				
+			</div>	
+			<div class="switchpanelegend">	
+			</div>
+	</div>
+
+
+
+
+	
 </div>
