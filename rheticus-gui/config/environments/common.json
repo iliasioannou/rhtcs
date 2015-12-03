@@ -48,11 +48,11 @@
 		"crs" : "EPSG:3857"
 	},
 	"aoi" : [{
-		"name" : "Demo Barritteri",
+		"name" : " Barritteri",
 		"bbox" : {},
 		"selected": true
 	},{
-		"name" : "Demo Trento",
+		"name" : " Trento",
 		"bbox" : {},
 		"selected": false
 	}]

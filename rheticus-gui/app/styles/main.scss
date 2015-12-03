@@ -238,7 +238,7 @@ body {
     z-index: 1060;
     bottom: 65px;
     left: 8px;
-	width: 400px;
+	max-width: 440px;
 	height: auto;
 	min-height: 50px;
     border-radius: 4px;
@@ -260,6 +260,28 @@ body {
 
 .switchpanelminimizer{
 	margin-left : 100%;
+}
+
+.switchpanelabel{
+	color: #fff; 
+	display: block;
+	font-size: 12px;
+}
+.switchpanelabelmin{
+	color: #fff; 
+	display: block;
+	font-size: 11px;
+	margin-left : 7px;
+}
+
+.switchpanelabel2{
+	color: #fff; 
+	font-size: 11px;
+	margin-left : 7px;
+}
+.switchpanelabel2big{
+	color: #fff; 
+	font-size: 12px;
 }
 
 
