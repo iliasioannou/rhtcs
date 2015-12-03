@@ -89,17 +89,17 @@ angular.module('rheticus')
 					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql;
 				}
 			},
-			"getGetFeatureInfoOlLayer" : function(l){
-				eval("var queryUrl = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
+			"getGetFeatureInfoOlLayerSource" : function(l){
+				var queryUrl = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
 				var olLayer = null;
 				if (queryUrl=="") {
 					olLayer = l;
 				} else {
-					eval("var queryType = $rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
+					var queryType = eval("$rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
 					switch(queryType) {
 						case "ImageWMS":
-							eval("var querySourceType = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].type;");
-							eval("var queryLayers = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].custom.LAYERS;");
+							var querySourceType = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].type;");
+							var queryLayers = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].custom.LAYERS;");
 							olLayer = {
 								"type" : querySourceType,
 								"url" : queryUrl,
@@ -115,7 +115,7 @@ angular.module('rheticus')
 							//do nothing
 					}
 				}
-				ret(olLayer);
+				return(olLayer);
 			}
 		});
 
@@ -179,7 +179,7 @@ angular.module('rheticus')
 								$scope.getFeatureInfo(
 									map,
 									evt.coordinate,
-									getGetFeatureInfoOlLayer(l).source,
+									$scope.getGetFeatureInfoOlLayerSource(l),
 									1000,
 									"(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))",
 									"sentinel",

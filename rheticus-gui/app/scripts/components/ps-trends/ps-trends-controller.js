@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$rootScope','$scope','$http','$q', function ($rootScope,$scope,$http,$q) {
+	.controller('PsTrendsCtrl',['$rootScope','$scope','$http', function ($rootScope,$scope,$http) {
 		angular.extend($scope,{
 			"options" : { // PS Line chart options
 				"chart" : {
@@ -79,11 +79,10 @@ angular.module('rheticus')
 				}
 			},
 			"getMeasures" : function (datasetid,psid){
-				var deferred = $q.defer();
+				var ret = [];
 				var url = $scope.measureUrl.replace($scope.datasetIdKey,datasetid).replace($scope.psIdKey,psid);
 				$http.get(url)
 					.success(function (measures) { //if request is successful
-						var ret = [];
 						if ((measures!=null) && measures.length>0){
 							for (var i=0; i<measures.length; i++) {
 								var measureDate = new Date(eval("measures[i]."+$scope.dateKey+";"));
@@ -95,13 +94,11 @@ angular.module('rheticus')
 								}
 							}
 						}
-						deferred.resolve(ret);
 					})
 					.error(function(data,status,headers,config){ //if request is not successful
-						//reject the promise
-						deferred.reject('ERROR');
+						console.log("[ps-trends-controller] getMeasures :: ERROR");
 					});
-				return deferred.promise;
+				return ret;
 			},
 			/**
 			 * Parameters:

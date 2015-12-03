@@ -22,6 +22,7 @@ angular
 		'ui.bootstrap',
 		'angularAwesomeSlider',
 		'nvd3',
+		//'nvd3ChartDirectives',
 		'smart-table',
         'services.config',
 		'angularHelpOverlay'
