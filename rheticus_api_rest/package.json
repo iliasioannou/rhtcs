@@ -1,0 +1,39 @@
+{
+  "name": "rheticus_api_rest",
+  "version": "1.0.0",
+  "description": "Rheticus API rest",
+  "main": "server.js",
+  "engines": {
+    "node": "= 0.12.x || = 4.x"
+  }, 
+  "scripts": {
+    "start": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Rheticus",
+    "Copernicus",
+    "Sentinel",
+    "PS",
+    "Permanent",
+    "Scatter",
+    "Planetek"
+  ],
+  "author": "coletta@planetek.it",
+  "license": "SEE LICENSE IN license.txt",
+  "dependencies": {
+    "bluebird": "^3.0.5",
+    "bookshelf": "^0.9.1",
+    "express": "^4.13.3",
+    "knex": "^0.9.0",
+    "pg": "^4.4.3",
+    "restify": "^4.0.3",
+    "restify-url-semver": "^1.0.0"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-execute": "^0.2.2",
+    "nodemon": "^1.8.1"
+  }
+}

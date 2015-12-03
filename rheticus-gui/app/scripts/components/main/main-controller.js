@@ -11,7 +11,7 @@
 angular.module('rheticus')
 	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration', function ($rootScope,$scope,$http,olData,configuration) {
 		angular.extend($scope,{ // scope variables
-			"center" : $rootScope.center, // OpenLayers Center zoom
+			//"center" : $rootScope.center, // OpenLayers Center zoom
 			"olDefaults" : { // OpenLayers Default Events
 				"events" : { 
 					"map" : ["moveend", "click"],
