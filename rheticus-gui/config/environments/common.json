@@ -59,7 +59,6 @@
 			"showOnMouseOver": true
 		}
 	},
-	
 	"aoi" : [
 		{
 			"name" : "Demo Barritteri",
@@ -71,5 +70,9 @@
 			"bbox" : {},
 			"selected": false
 		}
-	]
+	],
+	"geocoder" : {
+		"url" : "http://nominatim.openstreetmap.org/search?q=",
+		"params" : "&limit=5&format=json"
+	}
 }
