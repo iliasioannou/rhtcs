@@ -90,6 +90,10 @@ body {
     background-color: #f5f5f5;
 	z-index: 1;
 }
+.container {
+	padding-left: 0px;
+    padding-right: pxpx;
+}
 
 
 /* Responsive: Portrait tablets and up */
@@ -100,9 +104,9 @@ body {
     .marketing,
     .container,
     .footer {
-        padding-left: 0!important;
-        padding-right: 0!important;
-        margin: 0!important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin: 0 !important;
     }
     /* Space out the masthead */
     .header {
@@ -363,6 +367,10 @@ body {
 	top: 7.4em;
 	right:.5em;
 }
+.map-control-panel > div{
+	right:0;
+}
+
 .close {
 	margin:5px;
 }
@@ -376,33 +384,25 @@ body {
 }
     
 .geocoder > div  {
-	max-width: 200px;
-	float: left;
-	position:relative;
 	line-height: 1.2;
-	margin-right: 2px;
-	
+    margin-right: 2px;
+    max-width: 200px;
+    position: fixed;
+    right: 2.5em;
 }
 .searchResult {
     background-color: #f5f5f5;   
     margin-top: 3px;
-    position: absolute;
+    position: relative;
     width: 100%;
 }
 .searchResult  > div{
 	 border-bottom: 1px solid #ccc;
-	 
-
     -moz-user-select: none;
-    cursor: pointer;
-    /*display: inline-block;*/
+    cursor: pointer;   
     font-size: 14px;
-    /*font-weight: normal;*/
-    /*line-height: 1.42857;*/
     padding: 6px 8px;
-
     vertical-align: middle;
-
 }
 
 .FullScreenHelp{
