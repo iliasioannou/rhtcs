@@ -61,7 +61,7 @@
 				"group" : "Overlays",
 				"source" : {
 					"type" : "GeoJSON",
-					"url" : "./stub/geojson.json"
+					"url" : "./resources/geojson.json"
 				},
 				"active" : false,
 				"opacity" : 0.8,
