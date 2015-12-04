@@ -84,8 +84,15 @@
 			
 		</div>
 		<div class="switchpanelegend">	
-			<img data-ng-src="{{legendUrlIffi1}}">
-			<img data-ng-src="{{legendUrlIffi2}}">
+			<div>
+				<img data-ng-src="{{legendUrlIffiTipologiaFrana}}">
+			</div>
+			<div>
+				<img data-ng-src="{{legendUrlIffiAreaFraneDiffuse}}">
+			</div>
+			<div>
+				<img data-ng-src="{{legendUrlIffiPiff}}">
+			</div>
 		</div>
 	</div>	
 
@@ -125,7 +132,7 @@
 	<div class = "panel" ng-show="aoi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
 				<label class= switchpanelabel>
-				Demo areas:</label>
+				Area Of Interest:</label>
 				<table>
 					<tr ng-repeat="subscription in demoareas">
 					  <td>

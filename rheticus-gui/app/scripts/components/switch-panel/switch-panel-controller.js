@@ -21,8 +21,9 @@ angular.module('rheticus')
 			"titleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.name,
 			"legendTitleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.title,
 			"legendUomIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.uom,
-			"legendUrlIffi1" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.tipologia_frana,
-			"legendUrlIffi2" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.area_frane_diffuse,
+			"legendUrlIffiTipologiaFrana" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.tipologia_frana,
+			"legendUrlIffiAreaFraneDiffuse" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.area_frane_diffuse,
+			"legendUrlIffiPiff" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.piff,
 			"legendOpacityIffi" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].opacity,
 			//SENTINEL
 			"titleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.name,
