@@ -9,16 +9,16 @@
  */
 
 angular.module('rheticus')
-	.controller('FilterCtrl',['$rootScope','$scope','configuration', function ($rootScope,$scope,configuration) {
+	.controller('FilterCtrl',['$rootScope','$scope', function ($rootScope,$scope) {
 		angular.extend($scope,{
 			"filterPopup" : "scripts/components/filter/filter-popup-view.html",
-			"speedModel" : configuration.filters.speedSlider.init,
+			"speedModel" : $rootScope.speedModel.init,
 			"speedOptions" : {
-				"from" : configuration.filters.speedSlider.from,
-				"to" : configuration.filters.speedSlider.to,
-				"step" : configuration.filters.speedSlider.step,
-				"dimension" : configuration.filters.speedSlider.dimension,
-				"scale" : configuration.filters.speedSlider.scale,
+				"from" : $rootScope.speedModel.from,
+				"to" : $rootScope.speedModel.to,
+				"step" : $rootScope.speedModel.step,
+				"dimension" : $rootScope.speedModel.dimension,
+				"scale" : $rootScope.speedModel.scale,
 				"css" : {
 					"background" : {"background-color" : "silver"},
 					"before" : {"background-color" : "purple"},
@@ -27,7 +27,7 @@ angular.module('rheticus')
 					"pointer" : {"background-color" : "red"}
 				},
 				"callback" : function(value, released) { // released it triggered on mouse up
-					$rootScope.speedModel = value;
+					$rootScope.speedModel.init = value;
 					if(!$rootScope.$$phase) {
 						$rootScope.$apply();
 					}

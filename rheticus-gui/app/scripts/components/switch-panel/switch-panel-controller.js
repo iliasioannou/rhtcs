@@ -12,41 +12,29 @@ angular.module('rheticus')
 	.controller('SwitchPanelCtrl',['$rootScope','$scope', function ($rootScope,$scope) {
 		angular.extend($scope,{
 			//PS
-			"titlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.name,
-			"legendTitlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.title,
+			"titlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.title,
+			"legendTitlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.description,
 			"legendUomPs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.uom,
 			"legendUrlPs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.url.velocity,
 			"legendOpacityPs" : $rootScope.overlays[$rootScope.overlaysHashMap.ps].opacity,
 			//IFFI
-			"titleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.name,
-			"legendTitleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.title,
+			"titleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.title,
+			"legendTitleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.description,
 			"legendUomIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.uom,
 			"legendUrlIffiTipologiaFrana" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.tipologia_frana,
 			"legendUrlIffiAreaFraneDiffuse" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.area_frane_diffuse,
 			"legendUrlIffiPiff" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.piff,
 			"legendOpacityIffi" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].opacity,
 			//SENTINEL
-			"titleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.name,
-			"legendTitleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.title,
+			"titleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.title,
+			"legendTitleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.description,
 			"legendUomSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.uom,
 			"legendUrlSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.url.nothing,
 			"legendOpacitySentinel" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].opacity,
 			//DATA PROVIDER 
-			"entities" : [{
-				"name" : ' Sentinel',
-				"checked" : true
-				}, {
-				"name" : ' Cosmo',
-				"checked" : false
-				}],
+			"entities" : [{"name" : ' Sentinel'}, {"name" : ' Cosmo'}],
 			//DEMO AREAS
-			"demoareas" : [{
-				"name" : $rootScope.aoi[0].name,
-				"checked" : $rootScope.aoi[0].selected
-				}, {
-				"name" : $rootScope.aoi[1].name,
-				"checked" : $rootScope.aoi[1].selected
-				}],
+			"demoareas" : [{"name" : $rootScope.aoi[0].name}, {"name" : $rootScope.aoi[1].name}],
 			//Controls
 			"isCollapsed" : true, // not minimize
 			//overlay visibility 
@@ -136,14 +124,14 @@ angular.module('rheticus')
 			},
 			"updateSelectionArea" : function(position, entities) {
 				angular.forEach(entities, function(subscription, index) {
-				if (position != index) 
-				  subscription.checked = false;
-			  if (position == index) {
-				$rootScope.center.lon = $rootScope.aoi[position].center.lon;
-				$rootScope.center.lat = $rootScope.aoi[position].center.lat;
-				$rootScope.center.zoom = $rootScope.aoi[position].center.zoom;
-			  }
-			});
+					/*if (position != index) 
+						subscription.checked = false;*/
+					if (position == index) {
+						$rootScope.center.lon = $rootScope.aoi[position].center.lon;
+						$rootScope.center.lat = $rootScope.aoi[position].center.lat;
+						$rootScope.center.zoom = $rootScope.aoi[position].center.zoom;
+					}
+				});
 			},
 			"updateSelection" : function(position, entities) {
 				angular.forEach(entities, function(subscription, index) {

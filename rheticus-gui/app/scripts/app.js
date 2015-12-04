@@ -92,7 +92,7 @@ angular
 			"baselayers" : configuration.layers.baselayers, // basemap layer list
 			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
 			"metadata" : configuration.layers.overlays.metadata, // overlay layer list
-			"speedModel" : configuration.filters.speedSlider.init,
+			"speedModel" : configuration.filters.speedSlider,
 			"center" : configuration.map.center,
 			"iffi" : null,
 			"sentinel" : null,

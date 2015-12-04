@@ -20,12 +20,12 @@
 	},
 	"filters" : {
 		"speedSlider" : {
-			"init" : "0;20",
-			"from" : 0,
-			"to" : 20,
+			"init" : "-10;10",
+			"from" : -10,
+			"to" : 10,
 			"step" : 0.5,
 			"dimension" : "mm/year",
-			"scale" : [0, "|", 5, "|", 10, "|", 15, "|", 20]
+			"scale" : [-10, "|", -5, "|", 0, "|", 5, "|", 10]
 		},
 		"coherenceSlider" : {
 			"_comment" : "NOT YET IMPLEMENTED",
@@ -52,21 +52,19 @@
 	},
 
 	"aoi" : [{
-		"name" : " Demo_SEN1_Barritteri",
+		"name" : " Demo_CSK_Barritteri",
 		"center" : {
 			"lon" : 15.8461207,
 			"lat" : 38.3290608,
 			"zoom" : 14
-		},
-		"selected": true
+		}
 	},{
-		"name" : " Demo_SEN1_Trento",
+		"name" : " Demo_CSK_Trento",
 		"center" : {
 			"lon" : 11.1257601,
 			"lat" : 46.0664228,
 			"zoom" : 12
-		},
-		"selected": false
+		}
 	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",

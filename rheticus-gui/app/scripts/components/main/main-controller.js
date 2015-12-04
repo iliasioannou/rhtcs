@@ -83,10 +83,25 @@ angular.module('rheticus')
 					console.log("[main-controller :: getFeatureInfo] URL undefined!");
 				}
 			},
-			"setSpeedModelFilter" : function(speedModel){
+			"setSpeedModelFilter" : function(range){
 				if ($rootScope.showDetails()){ //proceed with filtering
-					var cql = "(abs_4(velocity)>="+speedModel.split(";")[0]+" AND abs_4(velocity)<="+speedModel.split(";")[1]+")";
-					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql;
+					//var cql = "(abs_4(velocity)>="+range.split(";")[0]+" AND abs_4(velocity)<="+range.split(";")[1]+")";
+					var min = "";
+					if (range.split(";")[0]!=$rootScope.speedModel.from){
+						min = "velocity>="+range.split(";")[0];
+					}
+					var max = "";
+					if (range.split(";")[1]!=$rootScope.speedModel.to){
+						max = "velocity<="+range.split(";")[1];
+					}
+					var cql_text = "";
+					if ((min!="") || (max!="")){
+						cql_text += (min!="") ? min : "";
+						cql_text += ((min!="") && (max!="")) ? " AND " : "";
+						cql_text += (max!="") ? max : "";
+					}
+					var cql_filter = (cql_text!="") ? cql_text : null;
+					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql_filter;
 				}
 			},
 			"getGetFeatureInfoOlLayerSource" : function(l){
@@ -124,7 +139,7 @@ angular.module('rheticus')
 		 */
 		$rootScope.$watch("center.zoom", function () {
 			if ($rootScope.showDetails()){
-				$scope.setSpeedModelFilter($rootScope.speedModel);
+				$scope.setSpeedModelFilter($rootScope.speedModel.init);
 				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.LAYERS = $rootScope.metadata[$scope.overlaysHashMap.ps].custom.detail;
 			} else {
 				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = null;
@@ -140,10 +155,10 @@ angular.module('rheticus')
 		});
 
 		/**
-		 * speedModel watcher for adjusting CQL_FILTER view source parameter
+		 * speedModel init watcher for adjusting CQL_FILTER view source parameter
 		 */
-		$rootScope.$watch("speedModel", function (speedModel) {
-			$scope.setSpeedModelFilter(speedModel);
+		$rootScope.$watch("speedModel.init", function (range) {
+			$scope.setSpeedModelFilter(range);
 		});
 
 		/**
