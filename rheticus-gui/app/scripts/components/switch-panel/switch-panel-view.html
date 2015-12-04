@@ -120,11 +120,11 @@
 	<div class = "panel" ng-show="aoi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
 				<label class= switchpanelabel>
-				Area Of Interests:</label>
+				Areas of Interest:</label>
 				<table>
 					<tr ng-repeat="subscription in demoareas">
 					  <td>
-						<label class= switchpanelabel2><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelectionArea($index, demoareas)" />{{subscription.name}}</label><br/>
+						<label class= switchpanelabel2><button type="button" class="btn btn-default btn-xs"  ng-model="subscription.checked" ng-click="updateSelectionArea($index, demoareas)">{{subscription.name}}</button></label><br/>
 					  </td>
 					</tr>
 				</table>
