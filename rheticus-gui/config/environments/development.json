@@ -9,7 +9,7 @@
 			"active" : false,
 			"opacity" : 1,
 			"layerOptions" : {
-				"attribution" : "© OpenStreetMap contributors",
+				"attribution" : "\u00A9 OpenStreetMap contributors",
 				"url" : "http://www.openstreetmap.org/copyright"
 			}
 		},{
@@ -29,7 +29,7 @@
 			"active" : true,
 			"opacity" : 1,
 			"layerOptions" : {
-				"attribution" : "Imagery © © Realvista contributors",
+				"attribution" : "Imagery \u00A9 \u00A9 Realvista contributors",
 				"url" : "http://www.realvista.it/"
 			}
 		}],

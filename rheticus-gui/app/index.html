@@ -10,6 +10,8 @@
 		<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 		
 		<!-- build:css(.) styles/vendor.css -->
+		<link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
+		<link rel="stylesheet" href="bower_components/chardin.js/chardinjs.css" />
 		<!-- bower:css -->
 		<link rel="stylesheet" href="bower_components/angular-awesome-slider/dist/css/angular-awesome-slider.min.css" />
 		<link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
@@ -18,10 +20,8 @@
 		<!-- endbuild -->
 		<!-- build:css(.tmp) styles/main.css -->
 		<link rel="stylesheet" href="styles/main.css">
-		<link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
 		<!--link rel="stylesheet" href="bower_components/angular-openlayers-directive/dist/angular-openlayers-directive.css" /-->
 		<link rel="stylesheet" href="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.css" />
-		<link rel="stylesheet" href="bower_components/chardin.js/chardinjs.css" />
 		<!-- endbuild -->
 	</head>
 
@@ -73,11 +73,11 @@
 		<script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
 		<script src="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.js"></script>
 		<script src="bower_components/angular-help-overlay/lib/angular-help-overlay.js"></script>
+		<script src="bower_components/chardin.js/chardinjs.min.js"></script>
 		<!-- endbower -->
 		<!-- endbuild -->
 
 		<!-- build:js({.tmp,app}) scripts/scripts.js -->
-		<script src="bower_components/chardin.js/chardinjs.min.js"></script>
 		<script src="scripts/app.js"></script>
 		<script src="scripts/services/config.js"></script>
 		<script src="scripts/services/utils.js"></script>
@@ -93,7 +93,7 @@
 		<script src="scripts/components/main/main-controller.js"></script>
 		<script src="scripts/components/about/about-controller.js"></script>
 		<script src="scripts/components/switch-panel/switch-panel-controller.js"></script>
-		<script src="scripts/components/credits/credits-controller.js"></script>
+		<!--script src="scripts/components/credits/credits-controller.js"></script-->
 		<!-- endbuild -->
 	</body>
 </html>
