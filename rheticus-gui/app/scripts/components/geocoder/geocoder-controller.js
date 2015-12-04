@@ -15,12 +15,16 @@ angular.module('rheticus')
 		this.results = {};
 		this.location = "";
 		this.searchLocation = function(){
-			this.location = this.location.replace('/[^a-zA-Z0-9]/g','+');
-			var that = this;
-			$http.get(configuration.geocoder.url+this.location+configuration.geocoder.params)
-				.success(function (response) {
-					that.results = response;
-				});
+			if(this.location.length>2){
+				this.location = this.location.replace('/[^a-zA-Z0-9]/g','+');
+				var that = this;
+				$http.get(configuration.geocoder.url+this.location+configuration.geocoder.params)
+					.success(function (response) {
+						that.results = response;
+					});
+			} else {
+				this.results = {};
+			}			
 		};
 		
 		this.getLocation = function(index){			
