@@ -117,14 +117,14 @@
 	<div class = "panel" ng-show="aoi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
 				<label class= switchpanelabel>
-				Area Of Interests:</label>
+				Areas of Interest:</label>
 				<table>
 					<tr ng-repeat="subscription in demoareas">
 					  <td>
 						<label class= switchpanelabel2>
 							<a class="aoi" ng-click="updateSelectionArea($index, demoareas)">{{subscription.name}}</a>
 						</label><br/>
-					  </td>
+ 					  </td>
 					</tr>
 				</table>
 				
