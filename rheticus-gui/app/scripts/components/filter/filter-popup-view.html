@@ -1,15 +1,17 @@
 <div data-intro="Area Of Interests" data-position="left">
 	<h4>Filters</h4>
+	<div ng-show="!showDetails()">
+		<i>Set of advanced filters applied on Displacement Maps</i>
+	</div>
+	<div class="divider" style="border: 1px"></div>	
 	<div ng-show="showDetails()">
 		<label>Velocity media</label>
 		<div>
 			<input slider type="text" ng-model="speedModel" options="speedOptions" />
 		</div>
-	</div>
-	<div class="divider" style="border: 1px">
-	</div>
-	<div>
-		<i>Move slider bounds to select velocity range for Persistent Scatterers Map filtering</i>
+		<div style="margin-top:20px">
+			<i>Move slider bounds to select velocity range for Persistent Scatterers Map filtering</i>
+		</div>
 	</div>
 	<!--
 	<div>

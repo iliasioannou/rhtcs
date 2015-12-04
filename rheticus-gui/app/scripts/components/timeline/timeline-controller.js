@@ -9,14 +9,18 @@
  */
 
 angular.module('rheticus')
-	.controller('TimelineCtrl', ['$scope','configuration','utils', function ($scope,configuration,utils) {
+	.controller('TimelineCtrl', ['$rootScope','$scope','configuration','utils', function ($rootScope,$scope,configuration,utils) {
 		angular.extend($scope,{
 			"options" : { // Chart options
 				"chart" : {
 					"showLegend": false,
 					"type" : "scatterChart",
-					"x" : function(d){return d.x;},
-					"y" : function(d){return d.y;},
+					"x" : function(d){
+						return d.x;
+					},
+					"y" : function(d){
+						return d.y;
+					},
 					"showValues" : true,
 					"color" : d3.scale.category20().range(),
 					"xAxis" : {
@@ -39,16 +43,16 @@ angular.module('rheticus')
 						"enabled" : true,
 						"scaleExtent" : [1,5],
 						"useFixedDomain" : false,
-						"useNiceScale" : false,
+						"useNiceScale" : true,
 						"horizontalOff" : false,
 						"verticalOff" : true/*,
 						"unzoomEventType" : "dblclick.zoom"*/
 					},
 					"showDistX" : true,
 					"showDistY" : true,
-					"useInteractiveGuideline" : false,
+					"useInteractiveGuideline" : true,
 					"interactive" : true,
-					//"tooltips" : true,
+					"tooltips" : true,
 					"tooltipContent" : function(key, x, y, e, graph){
 						return '<h3>' + key + '</h3>' + '<p>' +  y + ' on ' + x + '</p>';
 					},
@@ -91,9 +95,6 @@ angular.module('rheticus')
 			"datasetIdAttribute" : configuration.timeSlider.attributes.datasetIdentifier,
 			"datasetList" : [] // datasets
 		});
-		/**
-		 * showTimeline hides this view
-		 */
 		angular.extend($scope,{
 			/**
 			 * Parameters:
@@ -103,47 +104,11 @@ angular.module('rheticus')
 			 */
 			"showTimeline" : function (show){
 				$scope.show_timeline = show;
+				$rootScope.marker = show;
 				if (!show){
 					$scope.data = [];
 				}
 			},
-			/**
-			 * Parameters:
-			 * list - {Object}
-			 * attribute - {String}
-			 * idValue - {String}
-			 * 
-			 * Returns:
-			 * {Integer} - Position in list
-			 */
-			 /*
-			"getIndexByAttributeValue" : function(list,attribute,idValue) {
-				var res = -1;
-				try {
-					if ((list!=null) && (list.length>0)) {
-						if (attribute!=""){
-							for (var i=0; i<list.length; i++){
-								if (eval("list[i]."+attribute)==idValue){
-									res = i;
-									break;
-								}
-							}
-						} else {
-							for (var i=0; i<list.length; i++){
-								if (list[i]==idValue){
-									res = i;
-									break;
-								}
-							}
-						}
-					}
-				} catch (e) {
-					console.log("[timeline-controller :: getIndexByAttributeValue] EXCEPTION : '"+e);
-				} finally {
-					return(res);
-				}
-			},
-			*/
 			/**
 			 * Parameters:
 			 * coords - Array<{Object}>
@@ -248,6 +213,16 @@ angular.module('rheticus')
 			 * Returns:
 			 */
 			"generateChartData" : function(){
+				/*
+				var sortChartData = function(x, y){
+					if (x.values.length > y.values.length) {
+						return 1;
+					} else if (x.values.length < y.values.length) {
+						return -1;
+					}
+					return 0;
+				};
+				*/
 				var res = false;
 				try {
 					if (($scope.datasetList!=null) && ($scope.datasetList.length>0)){
@@ -286,6 +261,11 @@ angular.module('rheticus')
 								// do nothing and continue
 							}
 						}
+						/*
+						if (chartData.length>0){
+							chartData = chartData.sort(sortChartData);
+						}
+						*/
 						$scope.api.refresh();
 						$scope.api.updateWithData(chartData);
 						res = true;
@@ -295,20 +275,20 @@ angular.module('rheticus')
 				} finally {
 					return(res);
 				}
-			}/*,
+			},
 			"toolTipContentFunction" : function(){
 				return function(key, x, y, e, graph) {
 					return  'Super New Tooltip' +
 						'<h1>' + key + '</h1>' +
 						'<p>' +  y + ' at ' + x + '</p>'
 				}
-			}*/
+			}
 		});
 
 		/**
 		 * ps watcher for rendering chart line data
 		 */
-		$scope.$watch("timeline", function (timeline) {
+		$scope.$watch("sentinel", function (timeline) {
 			if ((timeline!=null) && (timeline.features!=null) && (timeline.features.length)) {
 				$scope.datasetList = $scope.normalizeDatasetList(timeline);
 				$scope.showTimeline(
@@ -318,4 +298,10 @@ angular.module('rheticus')
 				$scope.showTimeline(false);
 			}
 		});
+/*
+		$scope.$on('tooltipShow.directive', function(angularEvent, event){
+			angularEvent.targetScope.$parent.event = event;
+			angularEvent.targetScope.$parent.$digest();
+		});
+*/
 	}]);

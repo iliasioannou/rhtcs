@@ -1,5 +1,5 @@
 {
-  "name": "workspace-pilot",
+  "name": "rheticus",
   "version": "0.0.0",
   "dependencies": {
     "angular": "^1.3.0",
@@ -22,13 +22,18 @@
     "angular-mocks": "^1.3.0"
   },
   "appPath": "app",
-  "moduleName": "workspacePilotApp",
+  "moduleName": "rheticus",
   "overrides": {
     "bootstrap": {
       "main": [
         "less/bootstrap.less",
         "dist/css/bootstrap.css",
         "dist/js/bootstrap.js"
+      ]
+    },
+	"ol3-compiled": {
+      "main": [
+        "build/ol.css"
       ]
     }
   }
