@@ -2,17 +2,16 @@
 
 /**
  * @ngdoc function
- * @name rheticus.controller:FilterCtrl
+ * @name rheticus.controller:FilterPopoupCtrl
  * @description
- * # FilterCtrl
+ * # FilterPopoupCtrl
  * Controller of the rheticus
  */
 
 angular.module('rheticus')
-	.controller('FilterCtrl',['$rootScope','$scope', function ($rootScope,$scope) {
+	.controller('FilterPopoupCtrl',['$rootScope','$scope', function ($rootScope,$scope) {
 		angular.extend($scope,{
-			"filterPopup" : "scripts/components/filter/filter-popup-view.html",
-			"speedModel" : $rootScope.speedModel.init,
+			"speedModelValue" : $rootScope.speedModel.init,
 			"speedOptions" : {
 				"from" : $rootScope.speedModel.from,
 				"to" : $rootScope.speedModel.to,

@@ -1,4 +1,4 @@
-<div data-intro="Area Of Interests" data-position="left">
+<div data-intro="Area Of Interests" data-position="left" ng-controller="FilterPopoupCtrl">
 	<h4>Filters</h4>
 	<div ng-show="!showDetails()">
 		<i>Set of advanced filters applied on Displacement Maps</i>
@@ -7,7 +7,7 @@
 	<div ng-show="showDetails()">
 		<label>Velocity media</label>
 		<div>
-			<input slider type="text" ng-model="speedModel" options="speedOptions" />
+			<input slider type="text" ng-model="speedModelValue" options="speedOptions" />
 		</div>
 		<div style="margin-top:20px">
 			<i>Move slider bounds to select velocity range for Persistent Scatterers Map filtering</i>
