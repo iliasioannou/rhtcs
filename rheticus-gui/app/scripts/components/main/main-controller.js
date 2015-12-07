@@ -148,13 +148,6 @@ angular.module('rheticus')
 		});
 		
 		/**
-		 * Set new AOI
-		 */
-		$rootScope.$watch("aoi", function (aoi) {
-			//TODO
-		});
-
-		/**
 		 * speedModel init watcher for adjusting CQL_FILTER view source parameter
 		 */
 		$rootScope.$watch("speedModel.init", function (range) {
