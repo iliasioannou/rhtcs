@@ -13,11 +13,11 @@ angular.module('rheticus')
 			"showHelp" : false
 		});
 		angular.extend($scope,{
-			"onStart" : function(event) {
+			"onStart" : function() { //function(event)
 				//console.log('STARTING');
 				return '1';
 			},
-			"onStop" : function(event) {
+			"onStop" : function() { //
 				//console.log('ENDING');
 				return '0';
 			},

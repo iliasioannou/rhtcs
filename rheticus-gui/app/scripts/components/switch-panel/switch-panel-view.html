@@ -1,4 +1,4 @@
-<div class="switchpanel" ng-controller="SwitchPanelCtrl" style ="background-color: rgba(0, 60, 136, 0.6);" >
+<div class="switchpanel" data-intro="Data control Panel" data-position="top" ng-controller="SwitchPanelCtrl" style ="background-color: rgba(0, 60, 136, 0.6);" >
 
 	<!-- Ps Split button -->
 	<div class="btn-group" uib-dropdown ng-show="isCollapsed == true">
@@ -50,20 +50,13 @@
 	<!-- Ps Legend -->
 	<div class = "panel" ng-show="ps_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);">
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
-			<label class= switchpanelabel>{{titlePs}}:<br/></label>
 			<label class= switchpanelabelmin >{{legendTitlePs}}</label>
-			
 				<label class= switchpanelabel>
 				Options:<br/></label>
 				<label class= switchpanelabel2><input type="checkbox" ng-click="changePsLayer()" ng-checked ="ps_layer_view"> Layer on</label><br/>
 				<label class= switchpanelabel2>Layer opacity
 				<input type="range" min="0" max="1" step="0.01" ng-model="overlays[overlaysHashMap.ps].opacity">
 				</label><br/>
-				
-				
-				
-			
-			
 		</div>
 		<div class="switchpanelegend">
 			<img data-ng-src="{{legendUrlPs}}">
@@ -74,7 +67,6 @@
 	<!-- Iffi Legend -->
 	<div class = "panel" ng-show="iffi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
-			<label class= switchpanelabel>{{titleIffi}}:<br/></label>
 			<label class= switchpanelabelmin >{{legendTitleIffi}}</label>
 			<label class= switchpanelabel>Options:<br/></label>
 			<label class= switchpanelabel2><input type="checkbox" ng-click="changeIffiLayer()" ng-checked ="iffi_layer_view"> Layer on</label><br/>
@@ -84,15 +76,15 @@
 			
 		</div>
 		<div class="switchpanelegend">	
-			<img data-ng-src="{{legendUrlIffi1}}">
-			<img data-ng-src="{{legendUrlIffi2}}">
+			<img style="float:left" data-ng-src="{{legendUrlIffiTipologiaFrana}}">
+			<img data-ng-src="{{legendUrlIffiAreaFraneDiffuse}}">
+			<img data-ng-src="{{legendUrlIffiPiff}}">
 		</div>
 	</div>	
 
 	<!-- Sentinel Legend -->
 	<div class = "panel" ng-show="sentinel_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
-			<label class= switchpanelabel>{{titleSentinel}}:<br/></label>
 			<label class= switchpanelabelmin >{{legendTitleSentinel}}</label>
 			<label class= switchpanelabel>Options:<br/></label>
 			<label class= switchpanelabel2><input type="checkbox" ng-click="changeSentinelLayer()" ng-checked ="sentinel_layer_view"> Layer on</label><br/>
@@ -125,12 +117,14 @@
 	<div class = "panel" ng-show="aoi_legend_view == true" style ="background-color: rgba(0, 60, 136, 0);" >
 		<div class="switchpaneltop" ng-show="isCollapsed == true">
 				<label class= switchpanelabel>
-				Demo areas:</label>
+				Areas of Interest:</label>
 				<table>
 					<tr ng-repeat="subscription in demoareas">
 					  <td>
-						<label class= switchpanelabel2><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelectionArea($index, demoareas)" />{{subscription.name}}</label><br/>
-					  </td>
+						<label class= switchpanelabel2>
+							<a class="aoi" ng-click="updateSelectionArea($index, demoareas)">{{subscription.name}}</a>
+						</label><br/>
+ 					  </td>
 					</tr>
 				</table>
 				

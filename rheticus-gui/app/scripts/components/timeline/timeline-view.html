@@ -1,6 +1,12 @@
 <div class="timeline" ng-show="show_timeline" ng-controller="TimelineCtrl">
 	<div data-intro="Sentinel 1 Datasets Identifiers" data-position="top">
 		<a class="close" ng-click="showTimeline(false);">&times;</a>
-		<nvd3 options="options" data="data" config="config" events="events" api="api"></nvd3>
+		<nvd3 options="options" data="data" config="config" events="events" api="api" 
+		tooltips="true" interactive="true" tooltipcontent="toolTipContentFunction()"></nvd3>
+		<div><b>Point Data</b>
+			<div ng-repeat="point in event.point">
+				<div ng-bind="point"></div>
+			</div>
+		</div>
 	</div>
 </div>

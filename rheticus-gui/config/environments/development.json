@@ -7,7 +7,11 @@
 				"type" : "OSM"
 			},
 			"active" : false,
-			"opacity" : 1
+			"opacity" : 1,
+			"layerOptions" : {
+				"attribution" : "\u00A9 OpenStreetMap contributors",
+				"url" : "http://www.openstreetmap.org/copyright"
+			}
 		},{
 			"name" : "Ortofoto RealVista 1.0",
 			"group" : "base",
@@ -23,7 +27,11 @@
 				"serverType" : "geoserver"
 			},
 			"active" : true,
-			"opacity" : 1
+			"opacity" : 1,
+			"layerOptions" : {
+				"attribution" : "Imagery \u00A9 \u00A9 Realvista contributors",
+				"url" : "http://www.realvista.it/"
+			}
 		}],
 		"overlays" : {
 			"olLayers" : [{
@@ -42,17 +50,25 @@
 					"serverType" : "geoserver"
 				},
 				"active" : false,
-				"opacity" : 0.8
+				"opacity" : 0.8,
+				"layerOptions" : {
+					"attribution" : "Progetto IFFI (Inventario dei Fenomeni Franosi in Italia) ISPRA",
+					"url" : "http://www.progettoiffi.isprambiente.it"
+				}
 			},{
 				"id" : "sentinel",
 				"name" : "Sentinel 1 Datasets GeoJSON",
 				"group" : "Overlays",
 				"source" : {
 					"type" : "GeoJSON",
-					"url" : "./stub/geojson.json"
+					"url" : "./resources/geojson.json"
 				},
 				"active" : false,
-				"opacity" : 0.8
+				"opacity" : 0.8,
+				"layerOptions" : {
+					"attribution" : "",
+					"url" : ""
+				}
 			},{
 				"id" : "ps",
 				"name" : "Persistent Scatterers Map",
@@ -69,15 +85,19 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
-				"opacity" : 0.8
+				"opacity" : 1.0,
+				"layerOptions" : {
+					"attribution" : "",
+					"url" : ""
+				}
 			}],
 			"metadata" : [{
 				"id" : "iffi",
 				"type" : "",
 				"queryUrl" : "",
 				"legend" : {
-					"name" : "Landslide Maps",
-					"title" : "Here you will control the visualization of landslide maps covering the area (IFFI catalog).Single-clicking a point in the landslide enables the access to the features of the landlside.",
+					"title" : "Landslide Maps",
+					"description" : "Here you will control the visualization of landslide maps covering the area (IFFI catalog).Single-clicking a point in the landslide enables the access to the features of the landlside.",
 					"uom" : "",
 					"url" : {
 						"tipologia_frana" : "./images/Frane.png",
@@ -91,8 +111,8 @@
 				"type" : "ImageWMS",
 				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/wms",
 				"legend" : {
-					"name" : "Sentinel Catalog",
-					"title" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
+					"title" : "Sentinel Catalog",
+					"description" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
 					"uom" : "",
 					"url" : {
 						"nothing" : ""
@@ -106,8 +126,8 @@
 				"type" : "RheticusApiRest",
 				"queryUrl" : "http://kim.planetek.it:8081/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
 				"legend" : {
-					"name":"Displacement Maps",
-					"title" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
+					"title":"Displacement Maps",
+					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
 					"uom" : "[mm/year]",
 					"url" : {
 						"velocity" : "./images/legend_vel_ps.png"

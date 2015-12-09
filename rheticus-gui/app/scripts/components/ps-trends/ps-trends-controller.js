@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$rootScope','$scope','$http','$q', function ($rootScope,$scope,$http,$q) {
+	.controller('PsTrendsCtrl',['$rootScope','$scope','$http', function ($rootScope,$scope,$http) {
 		angular.extend($scope,{
 			"options" : { // PS Line chart options
 				"chart" : {
@@ -40,7 +40,8 @@ angular.module('rheticus')
 						"verticalOff" : true/*,
 						"unzoomEventType" : "dblclick.zoom"*/
 					},
-					"useInteractiveGuideline" : true
+					"useInteractiveGuideline" : true,
+					"noData" : "Loading..."
 				},
 				"title" : {
 					enable : true,
@@ -79,12 +80,11 @@ angular.module('rheticus')
 				}
 			},
 			"getMeasures" : function (datasetid,psid){
-				var deferred = $q.defer();
+				var ret = [];
 				var url = $scope.measureUrl.replace($scope.datasetIdKey,datasetid).replace($scope.psIdKey,psid);
 				$http.get(url)
 					.success(function (measures) { //if request is successful
-						var ret = [];
-						if ((measures!=null) && measures.length>0){
+						if ((measures!==null) && measures.length>0){
 							for (var i=0; i<measures.length; i++) {
 								var measureDate = new Date(eval("measures[i]."+$scope.dateKey+";"));
 								if (measureDate instanceof Date) {
@@ -95,13 +95,11 @@ angular.module('rheticus')
 								}
 							}
 						}
-						deferred.resolve(ret);
 					})
-					.error(function(data,status,headers,config){ //if request is not successful
-						//reject the promise
-						deferred.reject('ERROR');
+					.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
+						console.log("[ps-trends-controller] getMeasures :: ERROR");
 					});
-				return deferred.promise;
+				return ret;
 			},
 			/**
 			 * Parameters:
@@ -150,7 +148,7 @@ angular.module('rheticus')
 		 * ps watcher for rendering chart line data
 		 */
 		$scope.$watch("ps", function (ps) {
-			if ((ps!=null) && (ps.features!=null) && (ps.features.length>0)) {
+			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
 				$scope.showPsTrends(
 					$scope.generateChartData(ps)
 				);

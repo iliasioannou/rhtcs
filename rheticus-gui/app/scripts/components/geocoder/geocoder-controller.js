@@ -11,16 +11,29 @@
 angular.module('rheticus')
 	.controller('GeocoderCtrl',['$rootScope','$scope','$http','configuration', function ($rootScope,$scope,$http,configuration) {
 		//controller variables
-		this.searching = false;
+		this.geoCtrl= "geocoder";
+		
+		this.getShow = function(){
+			//console.log($scope.activeController===this.geoCtrl);
+			return $scope.getController(this.geoCtrl);
+		};
+		this.setShow = function(){
+			$scope.setController(this.geoCtrl);
+		};
+		
 		this.results = {};
 		this.location = "";
 		this.searchLocation = function(){
-			this.location = this.location.replace('/[^a-zA-Z0-9]/g','+');
-			var that = this;
-			$http.get(configuration.geocoder.url+this.location+configuration.geocoder.params)
-				.success(function (response) {
-					that.results = response;
-				});
+			if(this.location.length>2){
+				this.location = this.location.replace('/[^a-zA-Z0-9]/g','+');
+				var that = this;
+				$http.get(configuration.geocoder.url+this.location+configuration.geocoder.params)
+					.success(function (response) {
+						that.results = response;
+					});
+			} else {
+				this.results = {};
+			}			
 		};
 		
 		this.getLocation = function(index){			
@@ -31,4 +44,6 @@ angular.module('rheticus')
 			this.results = {};
 			this.location = "";
 		};
+		
+		
 	}]);

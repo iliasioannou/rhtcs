@@ -27,7 +27,7 @@ angular.module('rheticus')
 				{"name" : 'zoomtoextent', "active" : false},
 				//{"name" : 'zoomslider', "active" : true},
 				{"name" : 'scaleline', "active" : true},
-				{"name" : 'attribution', "active" : false},
+				{"name" : 'attribution', "active" : true},
 				{"name" : 'fullscreen', "active" : true}
 			],
 			"view" : {}, // Openlayers view
@@ -66,16 +66,17 @@ angular.module('rheticus')
 					"CQL_FILTER" : cqlFilter
 				});	
 				if (url) {
-					var that = $scope;
+					
 					$http.get(url).success(function (response) {
 						var obj = {
 							"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
 							"features" : (response.features && (response.features.length>0)) ? response.features : null
 						};
-						if (resultObj!=""){
+						if (resultObj!==""){
 							eval("that."+resultObj+" = obj;");
 						}
-						if (callback!=null){
+
+						if (callback!==null){
 							callback(obj);
 						}
 					});
@@ -83,23 +84,38 @@ angular.module('rheticus')
 					console.log("[main-controller :: getFeatureInfo] URL undefined!");
 				}
 			},
-			"setSpeedModelFilter" : function(speedModel){
+			"setSpeedModelFilter" : function(range){
 				if ($rootScope.showDetails()){ //proceed with filtering
-					var cql = "(abs_4(velocity)>="+speedModel.split(";")[0]+" AND abs_4(velocity)<="+speedModel.split(";")[1]+")";
-					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql;
+					//var cql = "(abs_4(velocity)>="+range.split(";")[0]+" AND abs_4(velocity)<="+range.split(";")[1]+")";
+					var min = "";
+					if (range.split(";")[0]!==$rootScope.speedModel.from){
+						min = "velocity>="+range.split(";")[0];
+					}
+					var max = "";
+					if (range.split(";")[1]!==$rootScope.speedModel.to){
+						max = "velocity<="+range.split(";")[1];
+					}
+					var cql_text = "";
+					if ((min!=="") || (max!=="")){
+						cql_text += (min!=="") ? min : "";
+						cql_text += ((min!=="") && (max!=="")) ? " AND " : "";
+						cql_text += (max!=="") ? max : "";
+					}
+					var cql_filter = (cql_text!=="") ? cql_text : null;
+					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql_filter;
 				}
 			},
-			"getGetFeatureInfoOlLayer" : function(l){
-				eval("var queryUrl = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
+			"getGetFeatureInfoOlLayerSource" : function(l){
+				var queryUrl = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
 				var olLayer = null;
-				if (queryUrl=="") {
+				if (queryUrl==="") {
 					olLayer = l;
 				} else {
-					eval("var queryType = $rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
+					var queryType = eval("$rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
 					switch(queryType) {
 						case "ImageWMS":
-							eval("var querySourceType = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].type;");
-							eval("var queryLayers = $rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].custom.LAYERS;");
+							var querySourceType = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].type;");
+							var queryLayers = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].custom.LAYERS;");
 							olLayer = {
 								"type" : querySourceType,
 								"url" : queryUrl,
@@ -115,8 +131,9 @@ angular.module('rheticus')
 							//do nothing
 					}
 				}
-				ret(olLayer);
-			}
+				return(olLayer);
+			},
+			"activeController" : "" // "login","filter","search","baselayer","help"
 		});
 
 		/**
@@ -124,7 +141,7 @@ angular.module('rheticus')
 		 */
 		$rootScope.$watch("center.zoom", function () {
 			if ($rootScope.showDetails()){
-				$scope.setSpeedModelFilter($rootScope.speedModel);
+				$scope.setSpeedModelFilter($rootScope.speedModel.init);
 				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.LAYERS = $rootScope.metadata[$scope.overlaysHashMap.ps].custom.detail;
 			} else {
 				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = null;
@@ -133,17 +150,11 @@ angular.module('rheticus')
 		});
 		
 		/**
-		 * Set new AOI
-		 */
-		$rootScope.$watch("aoi", function (aoi) {
-			//TODO
 		});
-
-		/**
-		 * speedModel watcher for adjusting CQL_FILTER view source parameter
+		 * speedModel init watcher for adjusting CQL_FILTER view source parameter
 		 */
-		$rootScope.$watch("speedModel", function (speedModel) {
-			$scope.setSpeedModelFilter(speedModel);
+		$rootScope.$watch("speedModel.init", function (range) {
+			$scope.setSpeedModelFilter(range);
 		});
 
 		/**
@@ -174,12 +185,12 @@ angular.module('rheticus')
 								break;
 								
 							case "sentinel": // Sentinel 1 Datatset and timeline management
-								var startDate = (configuration.timeSlider.domain.start!="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-								var endDate = (configuration.timeSlider.domain.end!="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
+								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
 								$scope.getFeatureInfo(
 									map,
 									evt.coordinate,
-									getGetFeatureInfoOlLayer(l).source,
+									$scope.getGetFeatureInfoOlLayerSource(l),
 									1000,
 									"(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))",
 									"sentinel",
@@ -220,6 +231,20 @@ angular.module('rheticus')
 					}
 				});
 			});
+		});
+		
+		this.setController = function(openController){
+			$scope.activeController = ($scope.activeController===openController) ? "" : openController;			
+			console.log($scope.activeController);
+		};
+		
+		this.getController = function(openController){
+			return $scope.activeController===openController;
+		};
+		
+		angular.extend($scope,{
+			"setController" : this.setController,
+			"getController" : this.getController
 		});
 		
 	}]);

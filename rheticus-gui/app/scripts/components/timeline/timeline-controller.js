@@ -9,14 +9,18 @@
  */
 
 angular.module('rheticus')
-	.controller('TimelineCtrl', ['$scope','configuration','utils', function ($scope,configuration,utils) {
+	.controller('TimelineCtrl', ['$rootScope','$scope','configuration','utils', function ($rootScope,$scope,configuration,utils) {
 		angular.extend($scope,{
 			"options" : { // Chart options
 				"chart" : {
 					"showLegend": false,
 					"type" : "scatterChart",
-					"x" : function(d){return d.x;},
-					"y" : function(d){return d.y;},
+					"x" : function(d){
+						return d.x;
+					},
+					"y" : function(d){
+						return d.y;
+					},
 					"showValues" : true,
 					"color" : d3.scale.category20().range(),
 					"xAxis" : {
@@ -39,17 +43,18 @@ angular.module('rheticus')
 						"enabled" : true,
 						"scaleExtent" : [1,5],
 						"useFixedDomain" : false,
-						"useNiceScale" : false,
+						"useNiceScale" : true,
 						"horizontalOff" : false,
 						"verticalOff" : true/*,
 						"unzoomEventType" : "dblclick.zoom"*/
 					},
 					"showDistX" : true,
 					"showDistY" : true,
-					"useInteractiveGuideline" : false,
+					"useInteractiveGuideline" : true,
 					"interactive" : true,
-					//"tooltips" : true,
-					"tooltipContent" : function(key, x, y, e, graph){
+					"tooltips" : true,
+					//"tooltipContent" : function(key, x, y, e, graph){
+					"tooltipContent" : function(key, x, y){
 						return '<h3>' + key + '</h3>' + '<p>' +  y + ' on ' + x + '</p>';
 					},
 					"scatter" : {
@@ -91,9 +96,6 @@ angular.module('rheticus')
 			"datasetIdAttribute" : configuration.timeSlider.attributes.datasetIdentifier,
 			"datasetList" : [] // datasets
 		});
-		/**
-		 * showTimeline hides this view
-		 */
 		angular.extend($scope,{
 			/**
 			 * Parameters:
@@ -103,47 +105,11 @@ angular.module('rheticus')
 			 */
 			"showTimeline" : function (show){
 				$scope.show_timeline = show;
+				$rootScope.marker = show;
 				if (!show){
 					$scope.data = [];
 				}
 			},
-			/**
-			 * Parameters:
-			 * list - {Object}
-			 * attribute - {String}
-			 * idValue - {String}
-			 * 
-			 * Returns:
-			 * {Integer} - Position in list
-			 */
-			 /*
-			"getIndexByAttributeValue" : function(list,attribute,idValue) {
-				var res = -1;
-				try {
-					if ((list!=null) && (list.length>0)) {
-						if (attribute!=""){
-							for (var i=0; i<list.length; i++){
-								if (eval("list[i]."+attribute)==idValue){
-									res = i;
-									break;
-								}
-							}
-						} else {
-							for (var i=0; i<list.length; i++){
-								if (list[i]==idValue){
-									res = i;
-									break;
-								}
-							}
-						}
-					}
-				} catch (e) {
-					console.log("[timeline-controller :: getIndexByAttributeValue] EXCEPTION : '"+e);
-				} finally {
-					return(res);
-				}
-			},
-			*/
 			/**
 			 * Parameters:
 			 * coords - Array<{Object}>
@@ -154,14 +120,18 @@ angular.module('rheticus')
 			"boundingBoxAroundPolyCoords" : function(coords) {
 				var res = null;
 				try {
-					if ((coords!=null) && (coords.length>0)){
+					if ((coords!==null) && (coords.length>0)){
 						var xAll = [], yAll = [];
 						for (var i=0; i<coords[0].length; i++) {
 							xAll.push(coords[0][i][1]);
 							yAll.push(coords[0][i][0]);
 						}
-						xAll = xAll.sort(function (a,b) { return a - b });
-						yAll = yAll.sort(function (a,b) { return a - b });
+						xAll = xAll.sort(function (a,b) { 
+							return a - b; 
+						});
+						yAll = yAll.sort(function (a,b) {
+							return a - b; 
+						});
 						res = {
 							"left" : xAll[0],
 							"bottom" : yAll[0],
@@ -184,7 +154,8 @@ angular.module('rheticus')
 			 * {Object} - Bounding Box Coordinates
 			 */
 			"updateDatasetBoundingBox" : function(current,feature) {
-				if ((current!=null) && (feature!=null)){
+				if ((current!==null) && (feature!==null)){
+					
 					return {
 						"left" : (feature.left<current.left) ? feature.left : current.left,
 						"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
@@ -205,14 +176,14 @@ angular.module('rheticus')
 				try {
 					for (var i=0; i<timeline.features.length; i++) {
 						if (timeline.features[i].properties){
-							var featureData = [];
+							//var featureData = [];
 							for (var key in timeline.features[i].properties) {
 								var datasetValue = "";
 								try {
 									eval("datasetValue = timeline.features[i].properties."+$scope.datasetIdAttribute);
-									if (datasetValue!=""){ // dataset exists
+									if (datasetValue!==""){ // dataset exists
 										var index = utils.getIndexByAttributeValue(datasetList,"id",datasetValue);
-										if (index==-1){ // add new dataset
+										if (index===-1){ // add new dataset
 											datasetList.push({
 												"id" : datasetValue,
 												"bbox" : $scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
@@ -248,9 +219,19 @@ angular.module('rheticus')
 			 * Returns:
 			 */
 			"generateChartData" : function(){
+				/*
+				var sortChartData = function(x, y){
+					if (x.values.length > y.values.length) {
+						return 1;
+					} else if (x.values.length < y.values.length) {
+						return -1;
+					}
+					return 0;
+				};
+				*/
 				var res = false;
 				try {
-					if (($scope.datasetList!=null) && ($scope.datasetList.length>0)){
+					if (($scope.datasetList!==null) && ($scope.datasetList.length>0)){
 						//Line chart data should be sent as an array of series objects.                
 						var chartData = []; //Data is represented as an array of {x,y} pairs.
 						for (var i=0; i<$scope.datasetList.length; i++) {
@@ -263,7 +244,7 @@ angular.module('rheticus')
 								for (var j=0; j<$scope.datasetList[i].features.length; j++) {
 									try {
 										var featureStartTime = new Date($scope.datasetList[i].features[j].properties.startTime);
-										if ((featureStartTime instanceof Date) && (utils.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)==-1) ) {
+										if ((featureStartTime instanceof Date) && (utils.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)===-1) ) {
 											imageryList.push($scope.datasetList[i].features[j].id);
 											chartData[i].values.push({
 												"x" : featureStartTime,
@@ -286,6 +267,11 @@ angular.module('rheticus')
 								// do nothing and continue
 							}
 						}
+						/*
+						if (chartData.length>0){
+							chartData = chartData.sort(sortChartData);
+						}
+						*/
 						$scope.api.refresh();
 						$scope.api.updateWithData(chartData);
 						res = true;
@@ -295,21 +281,22 @@ angular.module('rheticus')
 				} finally {
 					return(res);
 				}
-			}/*,
+			},
 			"toolTipContentFunction" : function(){
-				return function(key, x, y, e, graph) {
+				//return function(key, x, y, e, graph) {
+				return function(key, x, y) {
 					return  'Super New Tooltip' +
 						'<h1>' + key + '</h1>' +
-						'<p>' +  y + ' at ' + x + '</p>'
-				}
-			}*/
+						'<p>' +  y + ' at ' + x + '</p>';
+				};
+			}
 		});
 
 		/**
 		 * ps watcher for rendering chart line data
 		 */
-		$scope.$watch("timeline", function (timeline) {
-			if ((timeline!=null) && (timeline.features!=null) && (timeline.features.length)) {
+		$scope.$watch("sentinel", function (timeline) {
+			if ((timeline!==null) && (timeline.features!==null) && (timeline.features.length)) {
 				$scope.datasetList = $scope.normalizeDatasetList(timeline);
 				$scope.showTimeline(
 					$scope.generateChartData()
@@ -318,4 +305,10 @@ angular.module('rheticus')
 				$scope.showTimeline(false);
 			}
 		});
+/*
+		$scope.$on('tooltipShow.directive', function(angularEvent, event){
+			angularEvent.targetScope.$parent.event = event;
+			angularEvent.targetScope.$parent.$digest();
+		});
+*/
 	}]);

@@ -1,6 +1,6 @@
-<div ng-controller="BasemapButtonCtrl">
+<div ng-controller="BasemapButtonCtrl as basemap">
 	<div data-intro="Basemap selection" data-position="left">
-		<button popover-placement="left" popover-template="mapPopup" type="button" title="Basemap">
+		<button popover-placement="left" uib-popover-template="mapPopup" type="button" title="Basemap" popover-is-open="basemap.getShow()" ng-click="basemap.setShow()">
 			<span class="glyphicon glyphicon-th-large" aria-hidden="true"></span>		
 		</button>
 	</div>

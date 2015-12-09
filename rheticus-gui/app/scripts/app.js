@@ -22,6 +22,7 @@ angular
 		'ui.bootstrap',
 		'angularAwesomeSlider',
 		'nvd3',
+		//'nvd3ChartDirectives',
 		'smart-table',
         'services.config',
 		'angularHelpOverlay'
@@ -37,11 +38,6 @@ angular
 			"templateUrl": "scripts/components/about/about-view.html",
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
-		})
-		.when('/sp', {
-			"templateUrl": "scripts/components/switch-panel/switch-panel-view.html",
-			"controller": "SwitchPanelCtrl",
-			"controllerAs": "switch-panel"
 		})
 		.otherwise({
 			"redirectTo": "/"
@@ -61,17 +57,18 @@ angular
 			"getIndexByAttributeValue" : function(list,attribute,idValue) {
 				var res = -1;
 				try {
-					if ((list!=null) && (list.length>0)) {
-						if (attribute!=""){
-							for (var i=0; i<list.length; i++){
-								if (eval("list[i]."+attribute)==idValue){
+					if ((list!==null) && (list.length>0)) {
+						var i=0;
+						if (attribute!==""){
+							for (i=0; i<list.length; i++){
+								if (eval("list[i]."+attribute)===idValue){
 									res = i;
 									break;
 								}
 							}
 						} else {
-							for (var i=0; i<list.length; i++){
-								if (list[i]==idValue){
+							for (i=0; i<list.length; i++){
+								if (list[i]===idValue){
 									res = i;
 									break;
 								}
@@ -91,7 +88,7 @@ angular
 			"baselayers" : configuration.layers.baselayers, // basemap layer list
 			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
 			"metadata" : configuration.layers.overlays.metadata, // overlay layer list
-			"speedModel" : configuration.filters.speedSlider.init,
+			"speedModel" : configuration.filters.speedSlider,
 			"center" : configuration.map.center,
 			"iffi" : null,
 			"sentinel" : null,

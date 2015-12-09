@@ -9,43 +9,32 @@
  */
 
 angular.module('rheticus')
-	.controller('SwitchPanelCtrl',['$rootScope','$scope', function ($rootScope,$scope) {
+	.controller('SwitchPanelCtrl',['$rootScope','$scope','olData', function ($rootScope,$scope,olData) {
 		angular.extend($scope,{
 			//PS
-			"titlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.name,
-			"legendTitlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.title,
+			"titlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.title,
+			"legendTitlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.description,
 			"legendUomPs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.uom,
 			"legendUrlPs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.url.velocity,
 			"legendOpacityPs" : $rootScope.overlays[$rootScope.overlaysHashMap.ps].opacity,
 			//IFFI
-			"titleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.name,
-			"legendTitleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.title,
+			"titleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.title,
+			"legendTitleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.description,
 			"legendUomIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.uom,
-			"legendUrlIffi1" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.tipologia_frana,
-			"legendUrlIffi2" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.area_frane_diffuse,
+			"legendUrlIffiTipologiaFrana" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.tipologia_frana,
+			"legendUrlIffiAreaFraneDiffuse" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.area_frane_diffuse,
+			"legendUrlIffiPiff" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.piff,
 			"legendOpacityIffi" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].opacity,
 			//SENTINEL
-			"titleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.name,
-			"legendTitleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.title,
+			"titleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.title,
+			"legendTitleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.description,
 			"legendUomSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.uom,
 			"legendUrlSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.url.nothing,
 			"legendOpacitySentinel" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].opacity,
 			//DATA PROVIDER 
-			"entities" : [{
-				"name" : ' Sentinel',
-				"checked" : true
-				}, {
-				"name" : ' Cosmo',
-				"checked" : false
-				}],
+			"entities" : [{"name" : ' Sentinel'}, {"name" : ' Cosmo'}],
 			//DEMO AREAS
-			"demoareas" : [{
-				"name" : $rootScope.aoi[0].name,
-				"checked" : $rootScope.aoi[0].selected
-				}, {
-				"name" : $rootScope.aoi[1].name,
-				"checked" : $rootScope.aoi[1].selected
-				}],
+			"demoareas" : [{"name" : $rootScope.aoi[0].name}, {"name" : $rootScope.aoi[1].name}],
 			//Controls
 			"isCollapsed" : true, // not minimize
 			//overlay visibility 
@@ -62,17 +51,15 @@ angular.module('rheticus')
 			"iffi_active" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].active ? "Layer off" : "Layer on",
 			"sentinel_active" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].active ? "Layer off" : "Layer on",
 			
-			//Functions
 			//PS
 			"changePsLayer" : function(){
-				if ($scope.ps_layer_view == false){
+				if ($scope.ps_layer_view === false){
 					$scope.ps_active = "Layer off";
 				}else{
 					$scope.ps_active = "Layer on";
 				}
 				$scope.ps_layer_view = !$scope.ps_layer_view;
 				$rootScope.overlays[$rootScope.overlaysHashMap.ps].active = $scope.ps_layer_view;
-				
 			},
 			"ViewPsLegend" : function(){
 				$scope.iffi_legend_view = false;
@@ -84,7 +71,7 @@ angular.module('rheticus')
 			},
 			//IFFI
 			"changeIffiLayer" : function(){
-				if ($scope.iffi_layer_view == false){
+				if ($scope.iffi_layer_view === false){
 					$scope.iffi_active = "Layer off";
 				}else{
 					$scope.iffi_active = "Layer on";
@@ -101,7 +88,7 @@ angular.module('rheticus')
 			},
 			//SENTINEL
 			"changeSentinelLayer" : function(){
-				if ($scope.sentinel_layer_view == false){
+				if ($scope.sentinel_layer_view === false){
 						$scope.sentinel_active = "Layer off";
 				}else{
 					$scope.sentinel_active = "Layer on";
@@ -135,18 +122,20 @@ angular.module('rheticus')
 			},
 			"updateSelectionArea" : function(position, entities) {
 				angular.forEach(entities, function(subscription, index) {
-				if (position != index) 
-				  subscription.checked = false;
-			  if (position == index) {
-				$rootScope.center.lon = $rootScope.aoi[position].center.lon;
-				$rootScope.center.lat = $rootScope.aoi[position].center.lat;
-			  }
-			});
+					/*if (position !== index) 
+						subscription.checked = false;*/
+					if (position === index) {
+						$rootScope.center.lon = $rootScope.aoi[position].center.lon;
+						$rootScope.center.lat = $rootScope.aoi[position].center.lat;
+						$rootScope.center.zoom = $rootScope.aoi[position].center.zoom;
+					}
+				});
 			},
 			"updateSelection" : function(position, entities) {
 				angular.forEach(entities, function(subscription, index) {
-				if (position != index) 
+				if (position !== index) {
 				  subscription.checked = false;
+				}
 			});
 			}
 		});

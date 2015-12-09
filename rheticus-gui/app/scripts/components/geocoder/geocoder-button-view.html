@@ -1,7 +1,7 @@
 <div class="geocoder" data-intro="Find a location" data-position="left" ng-controller="GeocoderCtrl as geo">	
-	<div class="ol-control" ng-show="geo.searching">
-		<form ng-submit="geo.searchLocation(geo.location)">
-			<input style="width:100%;" type="text" placeholder="Search..." ng-model="geo.location" />
+	<div class="ol-control" ng-show="geo.getShow()">
+		<form ng-submit="geo.searchLocation()">
+			<input style="width:100%;" type="text" placeholder="Search..." ng-model="geo.location" ng-keyup="geo.searchLocation()"/>
 		</form>
 		<div class="searchResult" >
 			<div ng-repeat="result in geo.results">
@@ -11,7 +11,7 @@
 			</div>
 		</div>
 	</div>	
-	<button type="button" title="Search Location" ng-model="geo.searching" uib-btn-checkbox >
+	<button type="button" title="Search Location" ng-click="geo.setShow()">
 		<span class="glyphicon glyphicon-search" aria-hidden="true"></span>		
 	</button>
 	
