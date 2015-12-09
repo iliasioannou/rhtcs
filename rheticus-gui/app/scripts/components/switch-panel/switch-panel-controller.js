@@ -54,7 +54,7 @@ angular.module('rheticus')
 			//Functions
 			//PS
 			"changePsLayer" : function(){
-				if ($scope.ps_layer_view == false){
+				if ($scope.ps_layer_view === false){
 					$scope.ps_active = "Layer off";
 				}else{
 					$scope.ps_active = "Layer on";
@@ -73,7 +73,7 @@ angular.module('rheticus')
 			},
 			//IFFI
 			"changeIffiLayer" : function(){
-				if ($scope.iffi_layer_view == false){
+				if ($scope.iffi_layer_view === false){
 					$scope.iffi_active = "Layer off";
 				}else{
 					$scope.iffi_active = "Layer on";
@@ -90,7 +90,7 @@ angular.module('rheticus')
 			},
 			//SENTINEL
 			"changeSentinelLayer" : function(){
-				if ($scope.sentinel_layer_view == false){
+				if ($scope.sentinel_layer_view === false){
 						$scope.sentinel_active = "Layer off";
 				}else{
 					$scope.sentinel_active = "Layer on";
@@ -124,9 +124,9 @@ angular.module('rheticus')
 			},
 			"updateSelectionArea" : function(position, entities) {
 				angular.forEach(entities, function(subscription, index) {
-					/*if (position != index) 
+					/*if (position !== index) 
 						subscription.checked = false;*/
-					if (position == index) {
+					if (position === index) {
 						$rootScope.center.lon = $rootScope.aoi[position].center.lon;
 						$rootScope.center.lat = $rootScope.aoi[position].center.lat;
 						$rootScope.center.zoom = $rootScope.aoi[position].center.zoom;
@@ -135,8 +135,9 @@ angular.module('rheticus')
 			},
 			"updateSelection" : function(position, entities) {
 				angular.forEach(entities, function(subscription, index) {
-				if (position != index) 
+				if (position !== index) {
 				  subscription.checked = false;
+				}
 			});
 			}
 		});

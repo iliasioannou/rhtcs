@@ -26,7 +26,7 @@ angular.module('rheticus')
 					"after" : {"background-color" : "green"},
 					"pointer" : {"background-color" : "red"}
 				},
-				"callback" : function(value, released) { // released it triggered on mouse up
+				"callback" : function(value) { // function(value, released) released it triggered on mouse up
 					$rootScope.speedModel.init = value;
 					if(!$rootScope.$$phase) {
 						$rootScope.$apply();
@@ -34,4 +34,13 @@ angular.module('rheticus')
 				}
 			}
 		});
+		
+		this.filterCtrl= "filter";
+		this.getShow = function(){
+			console.log($scope.getController(this.filterCtrl));
+			return $scope.getController(this.filterCtrl);
+		};
+		this.setShow = function(){
+			$scope.setController(this.filterCtrl);
+		};	
 	}]);

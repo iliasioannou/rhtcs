@@ -9,7 +9,6 @@
  */
 
 angular.module('rheticus')
-	.controller('CreditsController', ['configuration',"$scope", function (configuration,$scope) {
-		this.show = false;
-	
+	.controller('CreditsController', [function () {
+		this.show = false;	
 	}]);

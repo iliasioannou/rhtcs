@@ -66,16 +66,16 @@ angular.module('rheticus')
 					"CQL_FILTER" : cqlFilter
 				});	
 				if (url) {
-					var that = $scope;
+					//var that = $scope;
 					$http.get(url).success(function (response) {
 						var obj = {
 							"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
 							"features" : (response.features && (response.features.length>0)) ? response.features : null
 						};
-						if (resultObj!=""){
+						if (resultObj!==""){
 							eval("that."+resultObj+" = obj;");
 						}
-						if (callback!=null){
+						if (callback!==null){
 							callback(obj);
 						}
 					});
@@ -87,27 +87,27 @@ angular.module('rheticus')
 				if ($rootScope.showDetails()){ //proceed with filtering
 					//var cql = "(abs_4(velocity)>="+range.split(";")[0]+" AND abs_4(velocity)<="+range.split(";")[1]+")";
 					var min = "";
-					if (range.split(";")[0]!=$rootScope.speedModel.from){
+					if (range.split(";")[0]!==$rootScope.speedModel.from){
 						min = "velocity>="+range.split(";")[0];
 					}
 					var max = "";
-					if (range.split(";")[1]!=$rootScope.speedModel.to){
+					if (range.split(";")[1]!==$rootScope.speedModel.to){
 						max = "velocity<="+range.split(";")[1];
 					}
 					var cql_text = "";
-					if ((min!="") || (max!="")){
-						cql_text += (min!="") ? min : "";
-						cql_text += ((min!="") && (max!="")) ? " AND " : "";
-						cql_text += (max!="") ? max : "";
+					if ((min!=="") || (max!=="")){
+						cql_text += (min!=="") ? min : "";
+						cql_text += ((min!=="") && (max!=="")) ? " AND " : "";
+						cql_text += (max!=="") ? max : "";
 					}
-					var cql_filter = (cql_text!="") ? cql_text : null;
+					var cql_filter = (cql_text!=="") ? cql_text : null;
 					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql_filter;
 				}
 			},
 			"getGetFeatureInfoOlLayerSource" : function(l){
 				var queryUrl = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
 				var olLayer = null;
-				if (queryUrl=="") {
+				if (queryUrl==="") {
 					olLayer = l;
 				} else {
 					var queryType = eval("$rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
@@ -131,7 +131,8 @@ angular.module('rheticus')
 					}
 				}
 				return(olLayer);
-			}
+			},
+			"activeController" : "" // "login","filter","search","baselayer","help"
 		});
 
 		/**
@@ -149,10 +150,10 @@ angular.module('rheticus')
 		
 		/**
 		 * Set new AOI
-		 */
+		 *//*
 		$rootScope.$watch("aoi", function (aoi) {
 			//TODO
-		});
+		});*/
 
 		/**
 		 * speedModel init watcher for adjusting CQL_FILTER view source parameter
@@ -172,7 +173,7 @@ angular.module('rheticus')
 
 		olData.getMap().then(function (map) {
 			map.on("singleclick", function (evt) {
-				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
+				//var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
 				$rootScope.overlays.map(function(l) {
 					if (l.active){
 						switch(l.id) {
@@ -189,8 +190,8 @@ angular.module('rheticus')
 								break;
 								
 							case "sentinel": // Sentinel 1 Datatset and timeline management
-								var startDate = (configuration.timeSlider.domain.start!="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-								var endDate = (configuration.timeSlider.domain.end!="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
+								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
 								$scope.getFeatureInfo(
 									map,
 									evt.coordinate,
@@ -235,6 +236,20 @@ angular.module('rheticus')
 					}
 				});
 			});
+		});
+		
+		this.setController = function(openController){
+			$scope.activeController = ($scope.activeController===openController) ? "" : openController;			
+			console.log($scope.activeController);
+		};
+		
+		this.getController = function(openController){
+			return $scope.activeController===openController;
+		};
+		
+		angular.extend($scope,{
+			"setController" : this.setController,
+			"getController" : this.getController
 		});
 		
 	}]);

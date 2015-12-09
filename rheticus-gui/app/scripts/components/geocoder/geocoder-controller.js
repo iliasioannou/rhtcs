@@ -11,7 +11,16 @@
 angular.module('rheticus')
 	.controller('GeocoderCtrl',['$rootScope','$scope','$http','configuration', function ($rootScope,$scope,$http,configuration) {
 		//controller variables
-		this.searching = false;
+		this.geoCtrl= "geocoder";
+		
+		this.getShow = function(){
+			console.log($scope.activeController===this.geoCtrl);
+			return $scope.getController(this.geoCtrl);
+		};
+		this.setShow = function(){
+			$scope.setController(this.geoCtrl);
+		};
+		
 		this.results = {};
 		this.location = "";
 		this.searchLocation = function(){
@@ -35,4 +44,6 @@ angular.module('rheticus')
 			this.results = {};
 			this.location = "";
 		};
+		
+		
 	}]);

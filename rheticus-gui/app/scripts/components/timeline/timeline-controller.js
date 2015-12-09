@@ -53,7 +53,8 @@ angular.module('rheticus')
 					"useInteractiveGuideline" : true,
 					"interactive" : true,
 					"tooltips" : true,
-					"tooltipContent" : function(key, x, y, e, graph){
+					//"tooltipContent" : function(key, x, y, e, graph){
+					"tooltipContent" : function(key, x, y){
 						return '<h3>' + key + '</h3>' + '<p>' +  y + ' on ' + x + '</p>';
 					},
 					"scatter" : {
@@ -119,14 +120,18 @@ angular.module('rheticus')
 			"boundingBoxAroundPolyCoords" : function(coords) {
 				var res = null;
 				try {
-					if ((coords!=null) && (coords.length>0)){
+					if ((coords!==null) && (coords.length>0)){
 						var xAll = [], yAll = [];
 						for (var i=0; i<coords[0].length; i++) {
 							xAll.push(coords[0][i][1]);
 							yAll.push(coords[0][i][0]);
 						}
-						xAll = xAll.sort(function (a,b) { return a - b });
-						yAll = yAll.sort(function (a,b) { return a - b });
+						xAll = xAll.sort(function (a,b) { 
+							return a - b; 
+						});
+						yAll = yAll.sort(function (a,b) {
+							return a - b; 
+						});
 						res = {
 							"left" : xAll[0],
 							"bottom" : yAll[0],
@@ -149,7 +154,8 @@ angular.module('rheticus')
 			 * {Object} - Bounding Box Coordinates
 			 */
 			"updateDatasetBoundingBox" : function(current,feature) {
-				if ((current!=null) && (feature!=null)){
+				if ((current!==null) && (feature!==null)){
+					
 					return {
 						"left" : (feature.left<current.left) ? feature.left : current.left,
 						"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
@@ -170,14 +176,14 @@ angular.module('rheticus')
 				try {
 					for (var i=0; i<timeline.features.length; i++) {
 						if (timeline.features[i].properties){
-							var featureData = [];
+							//var featureData = [];
 							for (var key in timeline.features[i].properties) {
 								var datasetValue = "";
 								try {
 									eval("datasetValue = timeline.features[i].properties."+$scope.datasetIdAttribute);
-									if (datasetValue!=""){ // dataset exists
+									if (datasetValue!==""){ // dataset exists
 										var index = utils.getIndexByAttributeValue(datasetList,"id",datasetValue);
-										if (index==-1){ // add new dataset
+										if (index===-1){ // add new dataset
 											datasetList.push({
 												"id" : datasetValue,
 												"bbox" : $scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
@@ -225,7 +231,7 @@ angular.module('rheticus')
 				*/
 				var res = false;
 				try {
-					if (($scope.datasetList!=null) && ($scope.datasetList.length>0)){
+					if (($scope.datasetList!==null) && ($scope.datasetList.length>0)){
 						//Line chart data should be sent as an array of series objects.                
 						var chartData = []; //Data is represented as an array of {x,y} pairs.
 						for (var i=0; i<$scope.datasetList.length; i++) {
@@ -238,7 +244,7 @@ angular.module('rheticus')
 								for (var j=0; j<$scope.datasetList[i].features.length; j++) {
 									try {
 										var featureStartTime = new Date($scope.datasetList[i].features[j].properties.startTime);
-										if ((featureStartTime instanceof Date) && (utils.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)==-1) ) {
+										if ((featureStartTime instanceof Date) && (utils.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)===-1) ) {
 											imageryList.push($scope.datasetList[i].features[j].id);
 											chartData[i].values.push({
 												"x" : featureStartTime,
@@ -277,11 +283,12 @@ angular.module('rheticus')
 				}
 			},
 			"toolTipContentFunction" : function(){
-				return function(key, x, y, e, graph) {
+				//return function(key, x, y, e, graph) {
+				return function(key, x, y) {
 					return  'Super New Tooltip' +
 						'<h1>' + key + '</h1>' +
-						'<p>' +  y + ' at ' + x + '</p>'
-				}
+						'<p>' +  y + ' at ' + x + '</p>';
+				};
 			}
 		});
 
@@ -289,7 +296,7 @@ angular.module('rheticus')
 		 * ps watcher for rendering chart line data
 		 */
 		$scope.$watch("sentinel", function (timeline) {
-			if ((timeline!=null) && (timeline.features!=null) && (timeline.features.length)) {
+			if ((timeline!==null) && (timeline.features!==null) && (timeline.features.length)) {
 				$scope.datasetList = $scope.normalizeDatasetList(timeline);
 				$scope.showTimeline(
 					$scope.generateChartData()

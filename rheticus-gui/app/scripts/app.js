@@ -62,17 +62,18 @@ angular
 			"getIndexByAttributeValue" : function(list,attribute,idValue) {
 				var res = -1;
 				try {
-					if ((list!=null) && (list.length>0)) {
-						if (attribute!=""){
-							for (var i=0; i<list.length; i++){
-								if (eval("list[i]."+attribute)==idValue){
+					if ((list!==null) && (list.length>0)) {
+						var i=0;
+						if (attribute!==""){
+							for (i=0; i<list.length; i++){
+								if (eval("list[i]."+attribute)===idValue){
 									res = i;
 									break;
 								}
 							}
 						} else {
-							for (var i=0; i<list.length; i++){
-								if (list[i]==idValue){
+							for (i=0; i<list.length; i++){
+								if (list[i]===idValue){
 									res = i;
 									break;
 								}

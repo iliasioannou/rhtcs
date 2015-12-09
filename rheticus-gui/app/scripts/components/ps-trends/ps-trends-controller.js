@@ -83,7 +83,7 @@ angular.module('rheticus')
 				var url = $scope.measureUrl.replace($scope.datasetIdKey,datasetid).replace($scope.psIdKey,psid);
 				$http.get(url)
 					.success(function (measures) { //if request is successful
-						if ((measures!=null) && measures.length>0){
+						if ((measures!==null) && measures.length>0){
 							for (var i=0; i<measures.length; i++) {
 								var measureDate = new Date(eval("measures[i]."+$scope.dateKey+";"));
 								if (measureDate instanceof Date) {
@@ -95,7 +95,7 @@ angular.module('rheticus')
 							}
 						}
 					})
-					.error(function(data,status,headers,config){ //if request is not successful
+					.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
 						console.log("[ps-trends-controller] getMeasures :: ERROR");
 					});
 				return ret;
@@ -147,7 +147,7 @@ angular.module('rheticus')
 		 * ps watcher for rendering chart line data
 		 */
 		$scope.$watch("ps", function (ps) {
-			if ((ps!=null) && (ps.features!=null) && (ps.features.length>0)) {
+			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
 				$scope.showPsTrends(
 					$scope.generateChartData(ps)
 				);
