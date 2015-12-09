@@ -32,6 +32,9 @@ start () {
 	echo -e "\e[44m[REST-API]\e[0m"
 	./restapi-as-daemon start
 	echo
+	echo -e "\e[44m[RHETICUS-GUI]\e[0m"
+	./rheticusgui-as-daemon start
+	echo
 	echo -e "\e[32m*********  Starting  Rheticus System Services  ***********\e[0m"
 }
  
@@ -61,6 +64,9 @@ stop () {
         echo
 	echo -e "\e[44m[REST-API]\e[0m"
         ./restapi-as-daemon stop
+        echo
+	echo -e "\e[44m[RHETICUS-GUI]\e[0m"
+        ./rheticusgui-as-daemon stop
         echo
         echo -e "\e[32m*********  Stopping Rheticus System Services  **********\e[0m"
 }
@@ -93,7 +99,10 @@ status () {
 	echo -e "\e[44m[REST-API]\e[0m"
         ./restapi-as-daemon start
         echo
-	echo -e "\e[32m*********  Status of Rheticus System Services  **********\e[0m"
+	echo -e "\e[44m[RHETICUS-GUI]\e[0m"
+        ./rheticusgui-as-daemon start
+        echo
+		echo -e "\e[32m*********  Status of Rheticus System Services  **********\e[0m"
 }
 
 
