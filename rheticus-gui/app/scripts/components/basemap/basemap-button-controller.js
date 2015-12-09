@@ -17,7 +17,7 @@ angular.module('rheticus')
 		//controller variables
 		this.basemapCtrl= "basemap";
 		this.getShow = function(){
-			console.log($scope.activeController===this.basemapCtrl);
+			//console.log($scope.activeController===this.basemapCtrl);
 			return $scope.getController(this.basemapCtrl);
 		};
 		this.setShow = function(){

@@ -39,11 +39,6 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
-		.when('/sp', {
-			"templateUrl": "scripts/components/switch-panel/switch-panel-view.html",
-			"controller": "SwitchPanelCtrl",
-			"controllerAs": "switch-panel"
-		})
 		.otherwise({
 			"redirectTo": "/"
 		});

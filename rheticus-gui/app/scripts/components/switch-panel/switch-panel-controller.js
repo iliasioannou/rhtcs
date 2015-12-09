@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('SwitchPanelCtrl',['$rootScope','$scope', function ($rootScope,$scope) {
+	.controller('SwitchPanelCtrl',['$rootScope','$scope','olData', function ($rootScope,$scope,olData) {
 		angular.extend($scope,{
 			//PS
 			"titlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.title,
@@ -51,7 +51,6 @@ angular.module('rheticus')
 			"iffi_active" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].active ? "Layer off" : "Layer on",
 			"sentinel_active" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].active ? "Layer off" : "Layer on",
 			
-			//Functions
 			//PS
 			"changePsLayer" : function(){
 				if ($scope.ps_layer_view === false){
@@ -61,7 +60,6 @@ angular.module('rheticus')
 				}
 				$scope.ps_layer_view = !$scope.ps_layer_view;
 				$rootScope.overlays[$rootScope.overlaysHashMap.ps].active = $scope.ps_layer_view;
-				
 			},
 			"ViewPsLegend" : function(){
 				$scope.iffi_legend_view = false;

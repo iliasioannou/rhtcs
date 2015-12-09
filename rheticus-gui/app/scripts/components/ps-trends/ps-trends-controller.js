@@ -40,7 +40,8 @@ angular.module('rheticus')
 						"verticalOff" : true/*,
 						"unzoomEventType" : "dblclick.zoom"*/
 					},
-					"useInteractiveGuideline" : true
+					"useInteractiveGuideline" : true,
+					"noData" : "Loading..."
 				},
 				"title" : {
 					enable : true,

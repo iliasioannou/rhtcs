@@ -66,7 +66,7 @@ angular.module('rheticus')
 					"CQL_FILTER" : cqlFilter
 				});	
 				if (url) {
-					//var that = $scope;
+					
 					$http.get(url).success(function (response) {
 						var obj = {
 							"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
@@ -75,6 +75,7 @@ angular.module('rheticus')
 						if (resultObj!==""){
 							eval("that."+resultObj+" = obj;");
 						}
+
 						if (callback!==null){
 							callback(obj);
 						}
@@ -149,13 +150,7 @@ angular.module('rheticus')
 		});
 		
 		/**
-		 * Set new AOI
-		 *//*
-		$rootScope.$watch("aoi", function (aoi) {
-			//TODO
-		});*/
-
-		/**
+		});
 		 * speedModel init watcher for adjusting CQL_FILTER view source parameter
 		 */
 		$rootScope.$watch("speedModel.init", function (range) {
@@ -173,7 +168,7 @@ angular.module('rheticus')
 
 		olData.getMap().then(function (map) {
 			map.on("singleclick", function (evt) {
-				//var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
+				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
 				$rootScope.overlays.map(function(l) {
 					if (l.active){
 						switch(l.id) {

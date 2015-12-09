@@ -14,7 +14,7 @@ angular.module('rheticus')
 		this.geoCtrl= "geocoder";
 		
 		this.getShow = function(){
-			console.log($scope.activeController===this.geoCtrl);
+			//console.log($scope.activeController===this.geoCtrl);
 			return $scope.getController(this.geoCtrl);
 		};
 		this.setShow = function(){
