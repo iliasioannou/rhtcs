@@ -43,67 +43,56 @@ angular
 			"redirectTo": "/"
 		});
 	})
-	.factory('utils', function() {
+	//.constant("configParam", "constant value");
+	//.value("defaultInput", 5);
+	/*.factory('MathService', function() {
 		return {
-			/**
-			 * Parameters:
-			 * list - {Object}
-			 * attribute - {String}
-			 * idValue - {String}
-			 * 
-			 * Returns:
-			 * {Integer} - Position in list
-			 */
-			"getIndexByAttributeValue" : function(list,attribute,idValue) {
-				var res = -1;
-				try {
-					if ((list!==null) && (list.length>0)) {
-						var i=0;
-						if (attribute!==""){
-							for (i=0; i<list.length; i++){
-								if (eval("list[i]."+attribute)===idValue){
-									res = i;
-									break;
-								}
+			method = function(a, b) {
+			   return a * b;
+			};
+		};
+	 });*/
+	.service('ArrayService', function() {
+		/**
+		 * Parameters:
+		 * list - {Object}
+		 * attribute - {String}
+		 * idValue - {String}
+		 * 
+		 * Returns:
+		 * {Integer} - Position in list
+		 */
+		this.getIndexByAttributeValue = function(list,attribute,idValue) {
+			var res = -1;
+			try {
+				if (list && (list!==null) && (list.length>0)) {
+					var i=0;
+					if (attribute!==""){
+						for (i=0; i<list.length; i++){
+							if (eval("list[i]."+attribute)===idValue){
+								res = i;
+								break;
 							}
-						} else {
-							for (i=0; i<list.length; i++){
-								if (list[i]===idValue){
-									res = i;
-									break;
-								}
+						}
+					} else {
+						for (i=0; i<list.length; i++){
+							if (list[i]===idValue){
+								res = i;
+								break;
 							}
 						}
 					}
-				} catch (e) {
-					console.log("[timeline-controller :: getIndexByAttributeValue] EXCEPTION : '"+e);
-				} finally {
-					return(res);
 				}
+			} catch (e) {
+				console.log("[ArrayService :: getIndexByAttributeValue] EXCEPTION : '"+e);
+			} finally {
+				return(res);
 			}
-		};
+		}
 	})
-	.run(function ($rootScope,configuration,utils) {
+	//.run(function () {//do nothing
+	.run(function ($rootScope) {
 		angular.extend($rootScope,{
-			"baselayers" : configuration.layers.baselayers, // basemap layer list
-			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
-			"metadata" : configuration.layers.overlays.metadata, // overlay layer list
-			"speedModel" : configuration.filters.speedSlider,
-			"center" : configuration.map.center,
-			"iffi" : null,
-			"sentinel" : null,
-			"ps" : null,
-			"marker" : false,
-			"aoi" : configuration.aoi			
-		});
-		angular.extend($rootScope,{
-			"overlaysHashMap" : {
-				"iffi" : utils.getIndexByAttributeValue($rootScope.overlays,"id","iffi"),
-				"sentinel" : utils.getIndexByAttributeValue($rootScope.overlays,"id","sentinel"),
-				"ps" : utils.getIndexByAttributeValue($rootScope.overlays,"id","ps")
-			},
-			"showDetails" : function() {
-				return $rootScope.center.zoom>=configuration.map.query.zoom;
-			}
+			"markerVisibility" : false
 		});
 	});

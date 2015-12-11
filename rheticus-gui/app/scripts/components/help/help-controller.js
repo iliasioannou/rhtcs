@@ -8,20 +8,20 @@
  * Controller of the rheticus
  */
 angular.module('rheticus')
-    .controller('HelpCtrl',['$scope', function ($scope) {
+    .controller('HelpCtrl',['$scope',function($scope){
 		angular.extend($scope,{
 			"showHelp" : false
 		});
 		angular.extend($scope,{
-			"onStart" : function() { //function(event)
+			"onStart" : function(){
 				//console.log('STARTING');
 				return '1';
 			},
-			"onStop" : function() { //
+			"onStop" : function(){
 				//console.log('ENDING');
 				return '0';
 			},
-			"toggleHelp" : function() {
+			"toggleHelp" : function(){
 				$scope.showHelp = !$scope.showHelp;
 			}
 		});	

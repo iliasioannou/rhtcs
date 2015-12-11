@@ -50,7 +50,6 @@
 		},
 		"crs" : "EPSG:3857"
 	},
-
 	"aoi" : [{
 		"name" : " Demo_CSK_Barritteri",
 		"center" : {
@@ -66,18 +65,13 @@
 			"zoom" : 12
 		}
 	}],
+	"dataProviders" : [{
+		"name" : " Sentinel"
+	},{
+		"name" : " Cosmo"
+	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",
 		"params" : "&limit=5&format=json"
-	},
-	"marker" : {
-		"lat": 99999,
-		"lon": 99999,
-		"label": {
-			"message": "",
-			"show": false,
-			"showOnMouseOver": true
-		}
 	}
-
 }

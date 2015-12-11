@@ -9,8 +9,25 @@
  */
 
 angular.module('rheticus')
-	.controller('TimelineCtrl', ['$rootScope','$scope','configuration','utils', function ($rootScope,$scope,configuration,utils) {
-		angular.extend($scope,{
+	.controller('TimelineCtrl',['$rootScope','$scope','configuration','ArrayService',function($rootScope,$scope,configuration,ArrayService){
+		
+		var self = this; //this controller
+
+		/**
+		 * PUBLIC VARIABLES AND METHODS
+		 */
+		var showTimeline = function (show){
+			self.show_timeline = show;
+			$rootScope.markerVisibility = show;
+			if (!show){
+				self.data = [];
+			}
+		};
+		
+		/**
+		 * EXPORT AS PUBLIC CONTROLLER
+		 */		
+		angular.extend(self,{
 			"options" : { // Chart options
 				"chart" : {
 					"showLegend": false,
@@ -93,195 +110,7 @@ angular.module('rheticus')
 			"events" : {},
 			"data" : [], // Chart data
 			"show_timeline" : false, // dialog box closure
-			"datasetIdAttribute" : configuration.timeSlider.attributes.datasetIdentifier,
-			"datasetList" : [] // datasets
-		});
-		angular.extend($scope,{
-			/**
-			 * Parameters:
-			 * show - {boolean}
-			 * 
-			 * Returns:
-			 */
-			"showTimeline" : function (show){
-				$scope.show_timeline = show;
-				$rootScope.marker = show;
-				if (!show){
-					$scope.data = [];
-				}
-			},
-			/**
-			 * Parameters:
-			 * coords - Array<{Object}>
-			 * 
-			 * Returns:
-			 * {Object} - Bounding Box Coordinates
-			 */
-			"boundingBoxAroundPolyCoords" : function(coords) {
-				var res = null;
-				try {
-					if ((coords!==null) && (coords.length>0)){
-						var xAll = [], yAll = [];
-						for (var i=0; i<coords[0].length; i++) {
-							xAll.push(coords[0][i][1]);
-							yAll.push(coords[0][i][0]);
-						}
-						xAll = xAll.sort(function (a,b) { 
-							return a - b; 
-						});
-						yAll = yAll.sort(function (a,b) {
-							return a - b; 
-						});
-						res = {
-							"left" : xAll[0],
-							"bottom" : yAll[0],
-							"right" : xAll[xAll.length-1],
-							"top" : yAll[yAll.length-1]
-						};
-					}
-				} catch (e) {
-					console.log("[timeline-controller :: boundingBoxAroundPolyCoords] EXCEPTION : '"+e);
-				} finally {
-					return(res);
-				}
-			},
-			/**
-			 * Parameters:
-			 * current - {Object}
-			 * feature - {Object}
-			 * 
-			 * Returns:
-			 * {Object} - Bounding Box Coordinates
-			 */
-			"updateDatasetBoundingBox" : function(current,feature) {
-				if ((current!==null) && (feature!==null)){
-					
-					return {
-						"left" : (feature.left<current.left) ? feature.left : current.left,
-						"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
-						"right" : (feature.right>current.right) ? feature.right : current.right,
-						"top" : (feature.top>current.top) ? feature.top : current.top
-					};
-				}
-			},
-			/**
-			 * Parameters:
-			 * timeline - {Object}
-			 * 
-			 * Returns:
-			 * Array<{Object}> - Dataset list
-			 */
-			"normalizeDatasetList" : function(timeline){
-				var datasetList = [];
-				try {
-					for (var i=0; i<timeline.features.length; i++) {
-						if (timeline.features[i].properties){
-							//var featureData = [];
-							for (var key in timeline.features[i].properties) {
-								var datasetValue = "";
-								try {
-									eval("datasetValue = timeline.features[i].properties."+$scope.datasetIdAttribute);
-									if (datasetValue!==""){ // dataset exists
-										var index = utils.getIndexByAttributeValue(datasetList,"id",datasetValue);
-										if (index===-1){ // add new dataset
-											datasetList.push({
-												"id" : datasetValue,
-												"bbox" : $scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
-												"features" : [timeline.features[i]]
-											});
-											//console.log("[timeline-controller] adding dataset id = '"+datasetList[datasetList.length-1].id+"'");
-											//console.log("[timeline-controller] adding dataset bbox = '"+JSON.stringify(datasetList[datasetList.length-1].bbox)+"'");
-										} else { // update bbox of existing dataset
-											datasetList[index].bbox = $scope.updateDatasetBoundingBox(datasetList[index].bbox,$scope.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
-											datasetList[index].features.push(timeline.features[i]);
-											//console.log("[timeline-controller] updating dataset id = '"+datasetList[index].id+"'");
-											//console.log("[timeline-controller] updating dataset bbox = '"+JSON.stringify(datasetList[index].bbox)+"'");
-										}
-									}
-								} catch (e) {
-									console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+$scope.datasetIdAttribute+"' attribute doesn't exists!");
-								} finally {
-									// do nothing ... continue parsing other features!
-								}
-							}
-						}
-					}
-				} catch (e) {
-					console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+e);
-					datasetList = []; // this empties the list if dirty
-				} finally {
-					return(datasetList);
-				}
-			},
-			/**
-			 * Parameters:
-			 * 
-			 * Returns:
-			 */
-			"generateChartData" : function(){
-				/*
-				var sortChartData = function(x, y){
-					if (x.values.length > y.values.length) {
-						return 1;
-					} else if (x.values.length < y.values.length) {
-						return -1;
-					}
-					return 0;
-				};
-				*/
-				var res = false;
-				try {
-					if (($scope.datasetList!==null) && ($scope.datasetList.length>0)){
-						//Line chart data should be sent as an array of series objects.                
-						var chartData = []; //Data is represented as an array of {x,y} pairs.
-						for (var i=0; i<$scope.datasetList.length; i++) {
-							try {
-								var imageryList = []; // necessary to filter unique imagery ID 
-								chartData.push({
-									"key" : $scope.datasetList[i].id, // dataset ID value
-									"values" : [] // values - represents the array of {x,y} data points
-								});
-								for (var j=0; j<$scope.datasetList[i].features.length; j++) {
-									try {
-										var featureStartTime = new Date($scope.datasetList[i].features[j].properties.startTime);
-										if ((featureStartTime instanceof Date) && (utils.getIndexByAttributeValue(imageryList,"",$scope.datasetList[i].features[j].id)===-1) ) {
-											imageryList.push($scope.datasetList[i].features[j].id);
-											chartData[i].values.push({
-												"x" : featureStartTime,
-												"y" : i,
-												"label" : $scope.datasetList[i].features[j].id,
-												"size" : 5,
-												"shape" : "square"
-											});
-										}
-									} catch (e) {
-										console.log("[timeline-controller :: generateChartData] EXCEPTION parsing S1 startTime: "+e);
-									} finally {
-										// do nothing and continue
-									}
-								}
-								chartData[chartData.length-1].key += " ("+imageryList.length+")";
-							} catch (e) {
-								console.log("[timeline-controller :: generateChartData] EXCEPTION adding data to chart: "+e);
-							} finally {
-								// do nothing and continue
-							}
-						}
-						/*
-						if (chartData.length>0){
-							chartData = chartData.sort(sortChartData);
-						}
-						*/
-						$scope.api.refresh();
-						$scope.api.updateWithData(chartData);
-						res = true;
-					}
-				} catch (e) {
-					console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
-				} finally {
-					return(res);
-				}
-			},
+			"showTimeline" : showTimeline,
 			"toolTipContentFunction" : function(){
 				//return function(key, x, y, e, graph) {
 				return function(key, x, y) {
@@ -293,18 +122,175 @@ angular.module('rheticus')
 		});
 
 		/**
-		 * ps watcher for rendering chart line data
-		 */
-		$scope.$watch("sentinel", function (timeline) {
+		 * WATCHERS
+		 */	
+		// ps watcher for rendering chart line data
+		$scope.$watch("sentinel",function(timeline) {
 			if ((timeline!==null) && (timeline.features!==null) && (timeline.features.length)) {
-				$scope.datasetList = $scope.normalizeDatasetList(timeline);
-				$scope.showTimeline(
-					$scope.generateChartData()
+				var datasetList = normalizeDatasetList(timeline);
+				showTimeline(
+					generateChartData(datasetList)
 				);
 			} else {
-				$scope.showTimeline(false);
+				showTimeline(false);
 			}
 		});
+
+		/**
+		 * PRIVATE VARIABLES AND METHODS
+		 */
+		/**
+		 * Parameters:
+		 * coords - Array<{Object}>
+		 * 
+		 * Returns:
+		 * {Object} - Bounding Box Coordinates
+		 */
+		var boundingBoxAroundPolyCoords = function(coords) {
+			var res = null;
+			try {
+				if ((coords!==null) && (coords.length>0)){
+					var xAll = [], yAll = [];
+					for (var i=0; i<coords[0].length; i++) {
+						xAll.push(coords[0][i][1]);
+						yAll.push(coords[0][i][0]);
+					}
+					xAll = xAll.sort(function (a,b) { 
+						return a - b; 
+					});
+					yAll = yAll.sort(function (a,b) {
+						return a - b; 
+					});
+					res = {
+						"left" : xAll[0],
+						"bottom" : yAll[0],
+						"right" : xAll[xAll.length-1],
+						"top" : yAll[yAll.length-1]
+					};
+				}
+			} catch (e) {
+				console.log("[timeline-controller :: boundingBoxAroundPolyCoords] EXCEPTION : '"+e);
+			} finally {
+				return(res);
+			}
+		};
+		/**
+		 * Parameters:
+		 * current - {Object}
+		 * feature - {Object}
+		 * 
+		 * Returns:
+		 * {Object} - Bounding Box Coordinates
+		 */
+		var updateDatasetBoundingBox = function(current,feature) {
+			if ((current!==null) && (feature!==null)){
+				return {
+					"left" : (feature.left<current.left) ? feature.left : current.left,
+					"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
+					"right" : (feature.right>current.right) ? feature.right : current.right,
+					"top" : (feature.top>current.top) ? feature.top : current.top
+				};
+			}
+		};
+		/**
+		 * Parameters:
+		 * timeline - {Object}
+		 * 
+		 * Returns:
+		 * Array<{Object}> - Dataset list
+		 */
+		var normalizeDatasetList = function(timeline){
+			var datasetIdAttribute = configuration.timeSlider.attributes.datasetIdentifier;
+			var datasetList = [];
+			try {
+				for (var i=0; i<timeline.features.length; i++) {
+					if (timeline.features[i].properties){
+						for (var key in timeline.features[i].properties) {
+							var datasetValue = "";
+							try {
+								eval("datasetValue = timeline.features[i].properties."+datasetIdAttribute);
+								if (datasetValue!==""){ // dataset exists
+									var index = ArrayService.getIndexByAttributeValue(datasetList,"id",datasetValue);
+									if (index===-1){ // add new dataset
+										datasetList.push({
+											"id" : datasetValue,
+											"bbox" : boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
+											"features" : [timeline.features[i]]
+										});
+									} else { // update bbox of existing dataset
+										datasetList[index].bbox = updateDatasetBoundingBox(datasetList[index].bbox,boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
+										datasetList[index].features.push(timeline.features[i]);
+									}
+								}
+							} catch (e) {
+								console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+datasetIdAttribute+"' attribute doesn't exists!");
+							} finally {
+								// do nothing ... continue parsing other features!
+							}
+						}
+					}
+				}
+			} catch (e) {
+				console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+e);
+				datasetList = []; // this empties the list if dirty
+			} finally {
+				return(datasetList);
+			}
+		};
+		/**
+		 * Parameters:
+		 * 
+		 * Returns:
+		 */
+		var generateChartData = function(datasetList){
+			var res = false;
+			try {
+				if ((datasetList!==null) && (datasetList.length>0)){
+					//Line chart data should be sent as an array of series objects.                
+					var chartData = []; //Data is represented as an array of {x,y} pairs.
+					for (var i=0; i<datasetList.length; i++) {
+						try {
+							var imageryList = []; // necessary to filter unique imagery ID 
+							chartData.push({
+								"key" : datasetList[i].id, // dataset ID value
+								"values" : [] // values - represents the array of {x,y} data points
+							});
+							for (var j=0; j<datasetList[i].features.length; j++) {
+								try {
+									var featureStartTime = new Date(datasetList[i].features[j].properties.startTime);
+									if ((featureStartTime instanceof Date) && (ArrayService.getIndexByAttributeValue(imageryList,"",datasetList[i].features[j].id)===-1) ) {
+										imageryList.push(datasetList[i].features[j].id);
+										chartData[i].values.push({
+											"x" : featureStartTime,
+											"y" : i,
+											"label" : datasetList[i].features[j].id,
+											"size" : 5,
+											"shape" : "square"
+										});
+									}
+								} catch (e) {
+									console.log("[timeline-controller :: generateChartData] EXCEPTION parsing S1 startTime: "+e);
+								} finally {
+									// do nothing and continue
+								}
+							}
+							chartData[chartData.length-1].key += " ("+imageryList.length+")";
+						} catch (e) {
+							console.log("[timeline-controller :: generateChartData] EXCEPTION adding data to chart: "+e);
+						} finally {
+							// do nothing and continue
+						}
+					}
+					$scope.api.refresh();
+					$scope.api.updateWithData(chartData);
+					res = true;
+				}
+			} catch (e) {
+				console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
+			} finally {
+				return(res);
+			}
+		};
 /*
 		$scope.$on('tooltipShow.directive', function(angularEvent, event){
 			angularEvent.targetScope.$parent.event = event;

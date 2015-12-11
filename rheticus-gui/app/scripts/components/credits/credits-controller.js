@@ -9,6 +9,10 @@
  */
 
 angular.module('rheticus')
-	.controller('CreditsController', [function () {
-		this.show = false;	
+	.controller('CreditsController',['$scope',function($scope){
+		angular.extend(this,{
+			"baselayers" : $scope.getBaselayers(),
+			"overlays" : $scope.getOverlays(),
+			"show" : false
+		});
 	}]);

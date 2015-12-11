@@ -9,18 +9,14 @@
  */
 
 angular.module('rheticus')
-	.controller('BasemapButtonCtrl',['$scope', function ($scope) {
-		angular.extend($scope,{
-			"mapPopup" : "scripts/components/basemap/basemap-popup-view.html"
+	.controller('BasemapButtonCtrl',['$scope',function ($scope){
+		angular.extend(this,{
+			"mapPopup" : "scripts/components/basemap/basemap-popup-view.html",
+			"getShow" : function(){
+				return $scope.getController("basemap");
+			},
+			"setShow" : function(){
+				$scope.setController("basemap");
+			}
 		});
-		
-		//controller variables
-		this.basemapCtrl= "basemap";
-		this.getShow = function(){
-			//console.log($scope.activeController===this.basemapCtrl);
-			return $scope.getController(this.basemapCtrl);
-		};
-		this.setShow = function(){
-			$scope.setController(this.basemapCtrl);
-		};	
 	}]);

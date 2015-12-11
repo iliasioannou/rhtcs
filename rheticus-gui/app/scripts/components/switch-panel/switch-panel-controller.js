@@ -9,134 +9,124 @@
  */
 
 angular.module('rheticus')
-	.controller('SwitchPanelCtrl',['$rootScope','$scope','olData', function ($rootScope,$scope,olData) {
-		angular.extend($scope,{
-			//PS
-			"titlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.title,
-			"legendTitlePs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.description,
-			"legendUomPs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.uom,
-			"legendUrlPs" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].legend.url.velocity,
-			"legendOpacityPs" : $rootScope.overlays[$rootScope.overlaysHashMap.ps].opacity,
-			//IFFI
-			"titleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.title,
-			"legendTitleIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.description,
-			"legendUomIffi" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.uom,
-			"legendUrlIffiTipologiaFrana" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.tipologia_frana,
-			"legendUrlIffiAreaFraneDiffuse" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.area_frane_diffuse,
-			"legendUrlIffiPiff" : $rootScope.metadata[$rootScope.overlaysHashMap.iffi].legend.url.piff,
-			"legendOpacityIffi" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].opacity,
-			//SENTINEL
-			"titleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.title,
-			"legendTitleSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.description,
-			"legendUomSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.uom,
-			"legendUrlSentinel" : $rootScope.metadata[$rootScope.overlaysHashMap.sentinel].legend.url.nothing,
-			"legendOpacitySentinel" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].opacity,
-			//DATA PROVIDER 
-			"entities" : [{"name" : ' Sentinel'}, {"name" : ' Cosmo'}],
-			//DEMO AREAS
-			"demoareas" : [{"name" : $rootScope.aoi[0].name}, {"name" : $rootScope.aoi[1].name}],
-			//Controls
-			"isCollapsed" : true, // not minimize
-			//overlay visibility 
-			"ps_layer_view" : $rootScope.overlays[$rootScope.overlaysHashMap.ps].active,
-			"iffi_layer_view" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].active,
-			"sentinel_layer_view" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].active,
-			// loading first PS div at startup
-			"ps_legend_view" : true,
-			"iffi_legend_view" : false,
-			"sentinel_legend_view" : false,
-			"provider_legend_view" : false,
-			// Tooltip on laye visibility
-			"ps_active" : $rootScope.overlays[$rootScope.overlaysHashMap.ps].active ? "Layer off" : "Layer on",
-			"iffi_active" : $rootScope.overlays[$rootScope.overlaysHashMap.iffi].active ? "Layer off" : "Layer on",
-			"sentinel_active" : $rootScope.overlays[$rootScope.overlaysHashMap.sentinel].active ? "Layer off" : "Layer on",
-			
-			//PS
-			"changePsLayer" : function(){
-				if ($scope.ps_layer_view === false){
-					$scope.ps_active = "Layer off";
-				}else{
-					$scope.ps_active = "Layer on";
-				}
-				$scope.ps_layer_view = !$scope.ps_layer_view;
-				$rootScope.overlays[$rootScope.overlaysHashMap.ps].active = $scope.ps_layer_view;
-			},
-			"ViewPsLegend" : function(){
-				$scope.iffi_legend_view = false;
-				$scope.sentinel_legend_view = false;
-				$scope.provider_legend_view = false;
-				$scope.aoi_legend_view = false;
-				$scope.ps_legend_view = true;
-				
-			},
-			//IFFI
-			"changeIffiLayer" : function(){
-				if ($scope.iffi_layer_view === false){
-					$scope.iffi_active = "Layer off";
-				}else{
-					$scope.iffi_active = "Layer on";
-				}
-				$scope.iffi_layer_view = !$scope.iffi_layer_view;
-				$rootScope.overlays[$rootScope.overlaysHashMap.iffi].active = $scope.iffi_layer_view;
-			},
-			"ViewIffiLegend" : function(){
-				$scope.ps_legend_view = false;
-				$scope.sentinel_legend_view = false;
-				$scope.provider_legend_view = false;
-				$scope.aoi_legend_view = false;
-				$scope.iffi_legend_view = true;
-			},
-			//SENTINEL
-			"changeSentinelLayer" : function(){
-				if ($scope.sentinel_layer_view === false){
-						$scope.sentinel_active = "Layer off";
-				}else{
-					$scope.sentinel_active = "Layer on";
-				}
-				$scope.sentinel_layer_view = !$scope.sentinel_layer_view;
-				$rootScope.overlays[$rootScope.overlaysHashMap.sentinel].active = $scope.sentinel_layer_view;
-			},
-			"ViewSentinelLegend" : function(){ 
-				$scope.iffi_legend_view = false;
-				$scope.ps_legend_view = false;
-				$scope.provider_legend_view = false;
-				$scope.aoi_legend_view = false;
-				$scope.sentinel_legend_view = true;
-			},
-			"ViewProviderLegend" : function(){
-				$scope.iffi_legend_view = false;
-				$scope.ps_legend_view = false;
-				$scope.provider_legend_view = true;
-				$scope.aoi_legend_view = false;
-				$scope.sentinel_legend_view = false;
-			},
-			"ViewAoiLegend" : function(){
-				$scope.iffi_legend_view = false;
-				$scope.ps_legend_view = false;
-				$scope.provider_legend_view = false;				
-				$scope.sentinel_legend_view = false;
-				$scope.aoi_legend_view = true;
-			},
-			"Minimize" : function(){
-				$scope.isCollapsed = !$scope.isCollapsed;
-			},
-			"updateSelectionArea" : function(position, entities) {
-				angular.forEach(entities, function(subscription, index) {
-					/*if (position !== index) 
-						subscription.checked = false;*/
-					if (position === index) {
-						$rootScope.center.lon = $rootScope.aoi[position].center.lon;
-						$rootScope.center.lat = $rootScope.aoi[position].center.lat;
-						$rootScope.center.zoom = $rootScope.aoi[position].center.zoom;
-					}
-				});
-			},
-			"updateSelection" : function(position, entities) {
-				angular.forEach(entities, function(subscription, index) {
-				if (position !== index) {
-				  subscription.checked = false;
+	.controller('SwitchPanelCtrl',['$scope','configuration',function ($scope,configuration){
+
+		var self = this; //this controller
+
+		/**
+		 * PUBLIC VARIABLES AND METHODS
+		 */
+		var minimize = function(){
+			self.isCollapsed = !self.isCollapsed;
+		};
+		//PS
+		var switchOverlayPs = function(){
+			toggleOverlay("ps");
+		};
+		var viewPanelPs = function(){
+			viewPanel("ps");
+		};
+		var viewPanelPsProviders = function(){
+			viewPanel("ps_provider");
+		};
+		var viewPanelPsAoi = function(){
+			viewPanel("ps_aoi");
+		};
+		var updateSelectionArea = function(position, entities) {
+			angular.forEach(entities, function(subscription, index) {
+				if (position === index) {
+					$scope.setCenter({
+						"lon" : self.aoi[position].center.lon,
+						"lat" : self.aoi[position].center.lat,
+						"zoom" : self.aoi[position].center.zoom
+					});
 				}
 			});
-			}
+		};
+		var updateSelection = function(position, entities) {
+			angular.forEach(entities, function(subscription, index) {
+				if (position !== index) {
+					subscription.checked = false;
+				}
+			});
+		};
+		//IFFI
+		var switchOverlayIffi = function(){
+			toggleOverlay("iffi");
+		};
+		var viewPanelIffi = function(){
+			viewPanel("iffi");
+		};
+		//SENTINEL
+		var switchOverlaySentinel = function(){
+			toggleOverlay("sentinel");
+		};
+		var viewPanelSentinel = function(){ 
+			viewPanel("sentinel");
+		};
+		
+		/**
+		 * EXPORT AS PUBLIC CONTROLLER
+		 */	
+		angular.extend(self,{
+			"ps" : $scope.getOverlayParams("ps"),
+			"ps_metadata" : $scope.getOverlayMetadata("ps"),
+			"iffi" : $scope.getOverlayParams("iffi"),
+			"iffi_metadata" : $scope.getOverlayMetadata("iffi"),
+			"sentinel" : $scope.getOverlayParams("sentinel"),
+			"sentinel_metadata" : $scope.getOverlayMetadata("sentinel")
 		});
+		angular.extend(self,{
+			//Tab controls
+			"isCollapsed" : true, // not minimize
+			"minimize" : minimize,
+			//PS
+			"show_panel_ps" : self.ps.active,
+			"show_panel_ps_provider" : false,
+			"show_panel_ps_aoi" : false,
+			"view_overlay_ps" : self.ps.active, // overlay visibility
+			"ps_layer_visibility_text" : self.ps.active ? "Layer off" : "Layer on",
+			"dataProviders" : configuration.dataProviders, // data rpoviders
+			"aoi" : configuration.aoi, //aoi
+			"switchOverlayPs" : switchOverlayPs,
+			"viewPanelPs" : viewPanelPs,
+			"viewPanelPsProviders" : viewPanelPsProviders,
+			"viewPanelPsAoi" : viewPanelPsAoi,
+			"updateSelectionArea" : updateSelectionArea,
+			"updateSelection" : updateSelection,
+			//IFFI
+			"show_panel_iffi" : self.iffi.active,
+			"view_overlay_iffi" : self.iffi.active,
+			"iffi_layer_visibility_text" : self.iffi.active ? "Layer off" : "Layer on",
+			"switchOverlayIffi" : switchOverlayIffi,
+			"viewPanelIffi" : viewPanelIffi,
+			//SENTINEL
+			"show_panel_sentinel" : self.sentinel.active,
+			"view_overlay_sentinel" : self.sentinel.active,
+			"sentinel_layer_visibility_text" : self.sentinel.active ? "Layer off" : "Layer on",
+			"switchOverlaySentinel" : switchOverlaySentinel,
+			"viewPanelSentinel" : viewPanelSentinel
+		});
+
+		/**
+		 * PRIVATE  VARIABLES AND METHODS
+		 */
+		var toggleOverlay = function(overlay){
+			var visibility = eval("self.view_overlay_"+overlay+";");
+			if (visibility === false){
+			eval("self."+overlay+"_layer_visibility_text = \"Layer off\";");
+			} else {
+			eval("self."+overlay+"_layer_visibility_text = \"Layer on\";");
+			}
+			eval("self.view_overlay_"+overlay+" = !self.view_overlay_"+overlay+";");
+			eval("self."+overlay+".active = self.view_overlay_"+overlay+";");
+		};
+		var viewPanel = function(panel){
+			self.show_panel_ps_provider = false;
+			self.show_panel_ps_aoi = false;
+			self.show_panel_iffi = false;
+			self.show_panel_sentinel = false;
+			self.show_panel_ps = false;
+			eval("self.show_panel_"+panel+" = true;");
+		};
 	}]);

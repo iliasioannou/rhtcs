@@ -1,9 +1,9 @@
-<openlayers ol-center="center" width="100%" height="100%" ol-view="view" style="position:fixed" custom-layers="true" ol-defaults="olDefaults">
-	<ol-control name="{{control.name}}" ng-repeat="control in controls|filter:{active: true}"></ol-control>
+<openlayers ol-center="center" width="100%" height="100%" ol-view="main.view" style="position:fixed" custom-layers="true" ol-defaults="main.olDefaults">
+	<ol-control name="{{control.name}}" ng-repeat="control in main.controls|filter:{active: true}"></ol-control>
 	<!--layer-switcher></layer-switcher-->
-	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in baselayers|filter:{active:true}"></ol-layer>
-	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in overlays|filter:{active:true}"></ol-layer>
-	<ol-marker ol-marker-properties="marker"></ol-marker>
+	<ol-layer name="{{baselayer.name}}" ol-layer-properties="baselayer" ng-repeat="baselayer in main.baselayers|filter:{active:true}"></ol-layer>
+	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in main.overlays|filter:{active:true}"></ol-layer>
+	<ol-marker ol-marker-properties="main.marker"></ol-marker>
 
 	<div ng-include src="'scripts/components/header/header-view.html'"></div>
 	<div ng-include src="'scripts/components/switch-panel/switch-panel-view.html'"></div>

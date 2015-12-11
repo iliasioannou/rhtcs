@@ -9,13 +9,16 @@
  */
 
 angular.module('rheticus')
-	.controller('BasemapPopoupCtrl',['$rootScope','$scope','utils', function ($rootScope,$scope,utils) {
-		angular.extend($scope,{
+	.controller('BasemapPopoupCtrl',['$scope',function($scope){
+		angular.extend(this,{
+			"baselayers" : $scope.getBaselayers()
+		});
+		angular.extend(this,{
 			"active" : {
-				"name" : $rootScope.baselayers[utils.getIndexByAttributeValue($rootScope.baselayers,"active",true)].name //"Ortofoto RealVista 1.0"
+				"name" : $scope.getActiveBaselayer().name
 			},
 			"changeLayer": function(layer) {
-				$rootScope.baselayers.map(function(l) {
+				this.baselayers.map(function(l) {
 					l.active = (l === layer);
 				});
 			}

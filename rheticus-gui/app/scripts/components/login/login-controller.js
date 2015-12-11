@@ -9,8 +9,6 @@
  */
 
 angular.module('rheticus')
-	.controller('LoginCtrl',['$scope', function ($scope) {
-		angular.extend($scope,{
-			//TODO
-		});
+	.controller('LoginCtrl',[function(){
+		//TODO
 	}]);

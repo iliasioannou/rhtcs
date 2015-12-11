@@ -1,10 +1,10 @@
-<div class="psTrends" ng-show="show_trends" ng-controller="PsTrendsCtrl">
+<div class="psTrends" ng-show="pstrends.show_trends" ng-controller="PsTrendsCtrl as pstrends">
 	<div data-intro="Overlays" data-position="right">
-		<a class="close" ng-click="showPsTrends(false);">&times;</a>
-		<nvd3 options="options" data="data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
+		<a class="close" ng-click="pstrends.showPsTrends(false);">&times;</a>
+		<nvd3 options="pstrends.options" data="pstrends.data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
 		</br>
 		<div class="table-responsive" style="overflow:auto;">
-			<table st-safe-src="psDetails" st-table="displayed" class="table table-striped table-condensed">
+			<table st-safe-src="pstrends.psDetails" st-table="displayed" class="table table-striped table-condensed">
 				<thead>
 					<tr>
 						<th>Dataset&nbsp;ID</th>
