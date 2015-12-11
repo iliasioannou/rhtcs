@@ -13,7 +13,7 @@
 . /lib/lsb/init-functions
 
 name="Rheticus-GUI"
-exec_bin="/usr/local/bin/node"
+exec_bin="/usr/bin/node"
 pid_file="/var/run/rheticusgui.pid"
 command_opts="/opt/Rheticus-GUI/server.js"
 

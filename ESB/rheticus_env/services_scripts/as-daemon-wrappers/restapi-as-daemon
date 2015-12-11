@@ -13,7 +13,7 @@
 . /lib/lsb/init-functions
 
 name="rest-API"
-exec_bin="/usr/local/bin/node"
+exec_bin="/usr/bin/node"
 pid_file="/var/run/restapi.pid"
 command_opts="/opt/rheticus_api_rest/server.js"
 
