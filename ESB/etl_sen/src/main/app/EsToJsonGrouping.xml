@@ -43,6 +43,7 @@ return prettyPrint(payload);]]></scripting:script>
         <expression-component doc:name="Expression"><![CDATA[report += "]\n}"]]></expression-component>
         <set-payload value="#[report]" doc:name="Set Payload as Report"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
+        <file:outbound-endpoint path="C:\Users\adminpk\Desktop" outputPattern="report.txt" responseTimeout="10000" doc:name="File"/>
 
         <set-payload value="Report salvato" doc:name="Set Payload"/>
 

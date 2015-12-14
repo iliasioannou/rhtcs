@@ -60,7 +60,10 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
                 <json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to Object"/>
                 <expression-component doc:name="Add Payload to GlobalVar"><![CDATA[GlobalVarOutput.addAll(payload);]]></expression-component>
                 <logger message="Step completed... call next step" level="INFO" doc:name="Step Completed. Next Page Search"/>
-                <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
+                <until-successful maxRetries="${sentinel.search.retries}" millisBetweenRetries="${sentinel.search.timebetween.retries}" synchronous="true" doc:name="Until Successful">
+                    <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
+                </until-successful>
+
                 <logger message="search next **********************************" level="INFO" doc:name="call flow loop"/>
                 <flow-ref name="SearchDownloadPaginationFlow2" doc:name="SearchDownloadPaginationFlow2"/>
             </when>

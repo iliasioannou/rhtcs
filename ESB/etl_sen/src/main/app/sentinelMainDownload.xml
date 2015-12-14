@@ -26,7 +26,8 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
     
 	<!-- Hide MULE Headers in the HTTP packets -->
     <http:request-config name="ManifestDownload" protocol="HTTPS" host="${sentinel.host}" port="${sentinel.port}" basePath="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" doc:name="HTTP Request Configuration">
-        <http:basic-authentication username="${sentinel.usr}" password="${sentinel.pwd}"/>
+        <http:ntlm-authentication username="${sentinel.usr}" password="${sentinel.pwd}"/>
+
     </http:request-config>
     <http:request-config name="InsertElastic" host="${elastic.host}" port="${elastic.port}" basePath="${elastic.index}/${elastic.type}/#[id]" doc:name="HTTP Request Configuration"/>
     <choice-exception-strategy name="Choice_Exception_Strategy">
@@ -61,11 +62,11 @@ GRD 130mb
             <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
             <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
             <logger message="*** Now downloading product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
-            <until-successful maxRetries="20"  synchronous="true" doc:name="Until Successful" millisBetweenRetries="30000">
-                <http:request config-ref="ManifestDownload" path="/" method="GET" doc:name="Manifest request"/>
-
+            <logger message="*****https://${sentinel.host}:${sentinel.port}${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" level="INFO" doc:name="Logger"/>
+            <set-variable variableName="queryDownload" value="('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" doc:name="queryDownload"/>
+            <until-successful maxRetries="${sentinel.download.retries}" millisBetweenRetries="${sentinel.download.timebetween.retries}" synchronous="true" doc:name="Until Successful">
+                <component class="org.mule.transformers.sentinelHTTPDownload" doc:name="sentinelHTTPDownload"/>
             </until-successful>
-            <logger message="*** Download terminated *** parsing value..." level="INFO" doc:name="Download manifest"/>
             <flow-ref name="xmlTransformerFlow1" doc:name="xmlTransformerFlow1"/>
             <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
             <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
@@ -128,6 +129,7 @@ qryableMap.remove('transmitterReceiverPolarisation2');
 ]]></expression-component>
             <logger message="***** LON #[metaCoordinateLon] ***LAT: #[metaCoordinateLat]" level="INFO" doc:name="metacoordinate"/>
             <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
+
             <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
             <json:object-to-json-transformer doc:name="Object to JSON"/>
             <logger message="*** Insert into ElasticSearch" level="INFO" doc:name="Log status"/>

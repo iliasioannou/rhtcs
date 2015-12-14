@@ -76,6 +76,7 @@ stringKml+="<SimpleField name=\"IDS1\" type=\"string\"> \n <displayName>IDS1</di
         </foreach>
         <expression-component doc:name="Finalize document "><![CDATA[stringKml+="  </Document>\n </kml>"]]></expression-component>
         <set-payload value="#[stringKml]" doc:name="stringKml"/>
+        <file:outbound-endpoint path="C:\Users\adminpk\Desktop" outputPattern="report.kml" responseTimeout="10000" doc:name="File"/>
 
         <set-payload value="Report saved" doc:name="Status"/>
 

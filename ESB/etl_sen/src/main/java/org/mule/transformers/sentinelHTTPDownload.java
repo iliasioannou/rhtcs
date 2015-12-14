@@ -17,10 +17,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.codec.binary.Base64;
 
-public class sentinelHTTPSearch implements Callable
+public class sentinelHTTPDownload implements Callable
 {
 
-	private static final Logger log = LoggerFactory.getLogger(sentinelHTTPSearch.class);
+	private static final Logger log = LoggerFactory.getLogger(sentinelHTTPDownload.class);
 
 	@Override
 	public Object onCall(MuleEventContext eventContext) throws Exception
@@ -29,13 +29,12 @@ public class sentinelHTTPSearch implements Callable
 		Properties sentinelProps = eventContext.getMuleContext().getRegistry().get("sentinelProps");
 
 		StringBuffer response = new StringBuffer();
-		String sorlEndpoint = "https://"+sentinelProps.getProperty("sentinel.host")+":"+sentinelProps.getProperty("sentinel.port")+sentinelProps.getProperty("sentinel.path.solr");
-		String querystr = eventContext.getMessage().getProperty("querystr", PropertyScope.INVOCATION);
+		String sorlEndpoint = "https://"+sentinelProps.getProperty("sentinel.host")+":"+sentinelProps.getProperty("sentinel.port")+sentinelProps.getProperty("sentinel.path.odata");
+		String querystr = eventContext.getMessage().getProperty("queryDownload", PropertyScope.INVOCATION);
 
-		//String querystr = "footprint:\"Intersects(POLYGON((-4.53 29.85, 26.75 29.85, 26.75 46.80,-4.53 46.80,-4.53 29.85)))\" AND beginPosition:[2014-01-01T00:00:00.000Z TO 2014-12-31T00:00:00.000Z] AND endPosition:[2014-01-01T00:00:00.000Z TO 2014-12-31T00:00:00.000Z] AND format=json";
-		//String querystr = "*&format=json";
 
-		log.info("Sending request to: "+sorlEndpoint + querystr);
+
+		log.info("Get Manifest from: "+sorlEndpoint + querystr);
 
 		URL url = new URL ( sorlEndpoint + querystr );
 		String basicauth = sentinelProps.getProperty("sentinel.usr")+":"+sentinelProps.getProperty("sentinel.pwd");
@@ -43,11 +42,14 @@ public class sentinelHTTPSearch implements Callable
 
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
+
 		try
 		{
 			connection.setInstanceFollowRedirects(false);		// disable redirect used to open DataHub Error Page
 			connection.setRequestMethod("GET");
 			connection.setRequestProperty  ("Authorization", "Basic " + encoding);
+			connection.setConnectTimeout(30000);
+			connection.setReadTimeout(30000);
 			int responseCode = connection.getResponseCode();
 
 			eventContext.getMessage().setProperty("http.status", responseCode, PropertyScope.INBOUND);
@@ -67,8 +69,7 @@ public class sentinelHTTPSearch implements Callable
 				{
 					in.close();
 					// connection.disconnect() will be executed thanks to exception propagation
-				}
-			}
+				}}
 			else{
 				throw new org.apache.commons.httpclient.HttpException("Sentinel DataHub returned an HTTP error code: "+responseCode);
 			}
