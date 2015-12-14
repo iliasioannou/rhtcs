@@ -7,8 +7,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd">
-    <http:request-config name="psProcessor" host="${ps.host}" port="${ps.port}" basePath="${ps.path}" doc:name="HTTP Request Configuration"/>
-    <http:request-config name="Orchestrator" host="${ps.host}" port="${ps.port}" basePath="${ps.path}" doc:name="HTTP Request Configuration"/>
+
 
     <flow name="SearchDownloadPaginationFlow1" >
         <http:listener config-ref="entryPoint" path="/SearchDownloadPagination" doc:name="HTTP"/>
