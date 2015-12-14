@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"  xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:https="http://www.mulesoft.org/schema/mule/https"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core"
+	xmlns:context="http://www.springframework.org/schema/context"
+	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd" >
+
+    
+    
+	<!-- Hide MULE Headers in the HTTP packets -->
+    <http:request-config name="ManifestDownload" protocol="HTTPS" host="${sentinel.host}" port="${sentinel.port}" basePath="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" doc:name="HTTP Request Configuration">
+        <http:ntlm-authentication username="${sentinel.usr}" password="${sentinel.pwd}"/>
+
+    </http:request-config>
+    <http:request-config name="InsertElastic" host="${elastic.host}" port="${elastic.port}" basePath="${elastic.index}/${elastic.type}/#[id]" doc:name="HTTP Request Configuration"/>
+    <choice-exception-strategy name="Choice_Exception_Strategy">
+        <catch-exception-strategy doc:name="Catch Exception Strategy" when="#[exception.causedBy(java.net.SocketTimeoutException)]">
+            <logger message="****************TIMEOUT Exception****************" level="WARN" doc:name="Generic Exception"/>
+            <set-payload value="#[flowVars.savePayload]" doc:name="savePayload" mimeType="application/json"/>
+            <logger message="*** Waiting 1 min before retry download. Payload is : #[payload]" level="INFO" doc:name="waitint log"/>
+            <scripting:component doc:name="repeat after 1 min">
+                <scripting:script engine="Groovy"><![CDATA[sleep(180000)]]></scripting:script>
+            </scripting:component>
+            <flow-ref name="sentinelDownloadFlow1" doc:name="sentinelDownloadFlow1"/>
+
+
+        </catch-exception-strategy>
+    </choice-exception-strategy>
+    <flow name="sentinelDownloadFlow1" processingStrategy="synchronous" doc:description="SLC 1.7gb
+{
+&quot;UUID&quot;:&quot;3016488c-721f-451a-b2a0-2a8602334ee2&quot;
+}
+
+GRD 130mb
+{
+&quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
+}">
+
+        <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
+        <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
+        <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
+        <foreach doc:name="For Each">
+            <set-variable variableName="metadatiMap" value="#[new java.util.HashMap()]" doc:name="metadatiMap"/>
+            <set-variable variableName="id" value="#[json:id]" doc:name="id"/>
+            <set-variable variableName="filename" value="#[json:title]" doc:name="filename"/>
+            <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
+            <set-variable variableName="ingestion" value="#[json:date[0]/content]" doc:name="ingestion"/>
+            <set-variable variableName="startTime" value="#[json:date[1]/content]" doc:name="startTime"/>
+            <set-variable variableName="stopTime" value="#[json:date[2]/content]" doc:name="stopTime"/>
+            <set-variable variableName="sensorOperationalMode" value="#[json:str[5]/content]" doc:name="sensorOperationalMode"/>
+            <set-variable variableName="orbitDirection" value="#[json:str[10]/content]" doc:name="orbitDirection"/>
+            <set-variable variableName="familyName" value="#[json:str[11]/content]" doc:name="familyName"/>
+            <set-variable variableName="productType" value="#[json:str[14]/content]" doc:name="productType"/>
+            <set-variable variableName="orbitNumber" value="#[json:int[0]/content]" doc:name="orbitNumber"/>
+            <set-variable variableName="relativeOrbitNumber" value="#[json:int[1]/content]" doc:name="relativeOrbitNumber"/>
+            <set-variable variableName="cloudCoverPercentage" value="#[json:double/content]" doc:name="cloudCoverPercentage"/>
+            <set-variable variableName="coordinates" value="#[json:str[7]/content]" doc:name="coordinates"/>
+            <expression-component doc:name="Convert coordinates to Elastic format"><![CDATA[java.util.HashMap location = new java.util.HashMap();
+location.put('type' , 'Polygon');
+java.util.ArrayList coordinatefinal = new java.util.ArrayList();
+java.util.ArrayList coordinate = new java.util.ArrayList();
+java.util.ArrayList coordinate2 = new java.util.ArrayList();
+java.util.ArrayList coordinate3 = new java.util.ArrayList();
+String onlyCoordinates = coordinates.replace("POLYGON","").replace("((","").replace("))","");
+java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(onlyCoordinates,",");
+int j=0;
+while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
+{
+	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken()," ");
+	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
+	CoordinateLon=(Double.parseDouble(pointCoordinate.nextToken()));
+	coordinate2.add(CoordinateLon);
+	coordinate2.add(CoordinateLat);
+	coordinate.add(coordinate2);
+	coordinate2=new java.util.ArrayList();
+}
+coordinatefinal.add(coordinate);
+location.put('coordinates' , coordinatefinal);
+
+
+metadatiMap.put('location',location);
+]]></expression-component>
+            <expression-component doc:name="Add data to metadatiMap"><![CDATA[metadatiMap.put('uuid',id);
+metadatiMap.put('filename',filename);
+metadatiMap.put('linkDownload',link);
+metadatiMap.put('ingestion',ingestion);
+metadatiMap.put('startTime',startTime);
+metadatiMap.put('stopTime',stopTime);
+metadatiMap.put('sensorOperationalMode',sensorOperationalMode);
+metadatiMap.put('orbitDirection',orbitDirection);
+metadatiMap.put('familyName',familyName);
+metadatiMap.put('productType',productType);
+metadatiMap.put('orbitNumber',orbitNumber);
+metadatiMap.put('relativeOrbitNumber',relativeOrbitNumber);
+metadatiMap.put('cloudCoverPercentage',cloudCoverPercentage);
+]]></expression-component>
+            <logger message="***#[metadatiMap]" level="INFO" doc:name="metadatiMap"/>
+            <set-payload value="#[metadatiMap]" doc:name="metadatiMap"/>
+
+            <expression-component doc:name="Add metadatiMap to arraylist"><![CDATA[arrayListData.add(metadatiMap);]]></expression-component>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+            <logger message="*** Insert into ElasticSearch" level="INFO" doc:name="Log status"/>
+            <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
+                <http:request config-ref="InsertElastic" path="/" method="POST" doc:name="Insert in ElasticSearch"/>
+            </until-successful>
+
+
+        </foreach>
+        <set-payload value="#[arrayListData]" doc:name="arrayListData"/>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+    </flow>
+
+</mule>
