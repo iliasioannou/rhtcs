@@ -3,7 +3,7 @@
 
 
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>etl_sen</artifactId>
+	<artifactId>etl_sen2</artifactId>
 	<packaging>mule</packaging>
 
 	<properties>
