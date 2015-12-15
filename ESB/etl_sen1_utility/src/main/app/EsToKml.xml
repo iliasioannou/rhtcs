@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd" >
+    <http:request-config name="searchElastic" host="${elastic.host}" port="${elastic.port}" basePath="${elastic.index}/${elastic.type}/_search" doc:name="HTTP Request Configuration"/>
+    <flow name="EsToKmlFlow1" >
+        <http:listener config-ref="entryPoint" path="/EsToKml" doc:name="HTTP"/>
+
+        <set-payload value="{  &quot;size&quot;: 0,  &quot;aggs&quot;: {    &quot;group_by_dataset&quot;: {      &quot;terms&quot;: {        &quot;field&quot;: &quot;datasetId&quot;,        &quot;size&quot;: 20000}}}}" doc:name="Request grouping"/>
+        <http:request config-ref="searchElastic" path="/" method="POST" doc:name="ElasticSearch"/>
+
+        <set-variable variableName="total" value="#[json:hits/total]" doc:name="total"/>
+        <logger message="&quot;total&quot;: #[total]" level="INFO" doc:name="total res"/>
+        <set-payload value="#[json:aggregations/group_by_dataset/buckets]" doc:name="select buckets"/>
+        <set-variable variableName="stringKml" value="&quot;&quot;" doc:name="stringKml"/>
+        <foreach doc:name="For Each" counterVariableName="forCounter">
+            <choice doc:name="Choice">
+                <when expression="#[forCounter != 1]">
+                    <expression-component doc:name="Add \n to stringKml"><![CDATA[stringKml += "\n \n"]]></expression-component>
+                </when>
+                <otherwise>
+                    <logger message="first no comma" level="INFO" doc:name="Set top body"/>
+                    <expression-component doc:name="Add top body to stringKml"><![CDATA[stringKml="<?xml version=\"1.0\" encoding=\"UTF-8\"?> \n <kml xmlns=\"http://earth.google.com/kml/2.2\"> \n <Document xmlns=\"http://earth.google.com/kml/2.2\"> \n <name xmlns=\"http://earth.google.com/kml/2.2\"/> \n <visibility xmlns=\"http://earth.google.com/kml/2.2\">1</visibility> \n <Style xmlns=\"http://earth.google.com/kml/2.2\" id=\"mapstyle\"> \n <IconStyle> \n <colorMode>normal</colorMode> \n <scale>1</scale> \n <Icon> \n <href>http://maps.google.com/mapfiles/kml/shapes/info-i.png</href> \n </Icon> \n </IconStyle>\n <LabelStyle> \n <color>7fffaaff</color> \n  <scale>0</scale> \n </LabelStyle> \n <PolyStyle> \n <fill>0</fill>\n <outline>1</outline> \n  </PolyStyle> \n <LineStyle> \n <color>ffff82f6</color> \n <width>3</width> \n </LineStyle> \n </Style> \n ";]]></expression-component>
+                </otherwise>
+            </choice>
+            <set-variable variableName="datasetId" value="#[json:key]" doc:name="datasetID"/>
+            <set-variable variableName="count" value="#[json:doc_count]" doc:name="count"/>
+            <set-payload value="{&quot;size&quot;: 20000,&quot;query&quot;: {&quot;bool&quot;: {&quot;must&quot;: [{ &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[json:key]&quot; }}]}}}" doc:name="request a Id"/>
+            <http:request config-ref="searchElastic" path="/" method="POST" doc:name="ElasticSearch"/>
+
+            <set-variable variableName="metadati" value="#[json:hits/hits[0]/_source/mode] #[json:hits/hits[0]/_source/swath] #[json:hits/hits[0]/_source/relativeOrbitNumberTypeStart] #[json:hits/hits[0]/_source/relativeOrbitNumberTypeStop] #[json:hits/hits[0]/_source/pass] #[json:hits/hits[0]/_source/productType] #[json:hits/hits[0]/_source/productClass] #[json:hits/hits[0]/_source/sliceNumber] #[json:hits/hits[0]/_source/transmitterReceiverPolarisation]" doc:name="All metadata"/>
+
+            <logger message="*************#[datasetID] #[metadati]" level="INFO" doc:name="Log dataset and metadata"/>
+            <expression-component doc:name="Create first part dataset kml"><![CDATA[
+java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(metadati," ");
+
+String mode=tokenizerCoordinates.nextToken();
+String swath=tokenizerCoordinates.nextToken();
+String relativeOrbitNumberTypeStart=tokenizerCoordinates.nextToken();
+String relativeOrbitNumberTypeStop=tokenizerCoordinates.nextToken();
+String pass=tokenizerCoordinates.nextToken();
+String productType=tokenizerCoordinates.nextToken();
+String productClass=tokenizerCoordinates.nextToken();
+String sliceNumber=tokenizerCoordinates.nextToken();
+String transmitterReceiverPolarisation=tokenizerCoordinates.nextToken();
+
+stringKml+="<Folder> \n <name>Dataset: "#[datasetID]+"[N_img="#[count]+" </name> \n<ExtendedData>	\n   <SchemaData schemaUrl=\"schemadata\">   \n  <SimpleData name= \"mode\">"+mode+"</SimpleData> \n       <SimpleData name=\"swath\">"+swath+"</SimpleData> \n        <SimpleData name=\"relativeOrbitNumberTypeStart\">"+relativeOrbitNumberTypeStart+"</SimpleData> \n      <SimpleData name=\"relativeOrbitNumberTypeStop\">"+relativeOrbitNumberTypeStop+"</SimpleData> \n       <SimpleData name=\"pass\">"+pass+"</SimpleData> \n         <SimpleData name=\"transmitterReceiverPolarisation\">"+transmitterReceiverPolarisation+"</SimpleData> \n        <SimpleData name=\"productType\">"+productType+"</SimpleData> \n         <SimpleData name=\"productClass\">"+productClass+"</SimpleData>	\n	    </SchemaData> \n     </ExtendedData>" ;  
+
+]]></expression-component>
+            <set-payload value="#[json:hits/hits]" doc:name="ArrayResult"/>
+            <foreach doc:name="For Each">
+                <set-payload value="#[json:_source]" doc:name="get Source"/>
+                <set-variable variableName="productMetadati" value="#[json:uuid] #[json:location/coordinates[0]]" doc:name="product metadati"/>
+                <expression-component doc:name="loop single product kml"><![CDATA[
+
+java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(productMetadati," ");
+
+String uuid=tokenizerCoordinates.nextToken();
+String coordinate1long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate1lat=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate2long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate2lat=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate3long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate3lat=tokenizerCoordinates.nextToken().replace("],","");
+String coordinate4long=tokenizerCoordinates.nextToken().replace("[","");
+String coordinate4lat=tokenizerCoordinates.nextToken().replace("],","");
+stringKml+="<SimpleField name=\"IDS1\" type=\"string\"> \n <displayName>IDS1</displayName>\n </SimpleField>\n <Placemark> \n <name>QuickLook ID: "+uuid+"</name>\n  <visibility>1</visibility>\n  <styleUrl>#mapstyle</styleUrl>\n <Polygon>\n <extrude>1</extrude> \n <tessellate>1</tessellate> \n <outerBoundaryIs> \n <LinearRing> \n <coordinates> \n"+coordinate1long+","+coordinate1lat+"0 \n"+coordinate2long+","+coordinate2lat+"0 \n"+coordinate3long+","+coordinate3lat+"0 \n"+coordinate4long+","+coordinate4lat+"0 \n"+coordinate1long+","+coordinate1lat+"0 \n </coordinates>\n </LinearRing> \n  </outerBoundaryIs> \n </Polygon></Placemark> \n <Placemark> \n <name>QuickLook ID: "+uuid+"</name>\n  <visibility>1</visibility>\n  <styleUrl>#mapstyle</styleUrl> \n <ExtendedData>\n <SchemaData schemaUrl=\"schemadata\"> \n <SimpleData name=\"IDS1\">"+uuid+"</SimpleData> \n </SchemaData> \n</ExtendedData> \n <Point> \n <extrude>1</extrude> \n <altitudeMode>clampToGround</altitudeMode> \n <coordinates>"+coordinate1long+","+coordinate1lat+"0\n </coordinates> \n </Point> \n   </Placemark> \n";	
+]]></expression-component>
+            </foreach>
+            <expression-component doc:name="Finalizing string dataset "><![CDATA[stringKml+="</Folder> \n"]]></expression-component>
+
+        </foreach>
+        <expression-component doc:name="Finalize document "><![CDATA[stringKml+="  </Document>\n </kml>"]]></expression-component>
+        <set-payload value="#[stringKml]" doc:name="stringKml"/>
+        <file:outbound-endpoint path="${output.folder}" outputPattern="report.kml" responseTimeout="10000" doc:name="File"/>
+
+        <set-payload value="Report saved" doc:name="Status"/>
+
+
+    </flow>
+</mule>
