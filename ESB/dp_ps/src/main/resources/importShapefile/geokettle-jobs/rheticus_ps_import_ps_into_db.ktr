@@ -16,7 +16,7 @@
         <parameter>
             <name>VAR_SENSORID</name>
             <default_value>S01</default_value>
-            <description></description>
+            <description>null</description>
         </parameter>
         <parameter>
             <name>VAR_SHP_NAME</name>
@@ -148,8 +148,8 @@
            </partitioning>
     <connection>rheticus</connection>
     <schema/>
-    <table>${VAR_RHETICUS_DB_TABLE_PS}</table>
-    <commit>${VAR_RHETICUS_DB_TABLE_COMMIT_SIZE}</commit>
+    <table>ps</table>
+    <commit>5000</commit>
     <truncate>N</truncate>
     <ignore_errors>N</ignore_errors>
     <use_batch>Y</use_batch>
