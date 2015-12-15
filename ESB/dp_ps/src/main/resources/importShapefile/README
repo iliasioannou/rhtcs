@@ -1,4 +1,124 @@
 ======================================
+Struttura delle tabelle  
+======================================
+
+
+-- Elimino le tabelle a cascata
+
+DROP VIEW ps_user;
+DROP TABLE ps_measure;
+DROP TABLE ps;
+DROP TABLE ps_dataset_products;
+DROP TABLE ps_dataset_metadata_algo_params;
+DROP TABLE ps_dataset_metadata;
+
+-- Creo le tabelle
+
+CREATE TABLE ps_dataset_metadata
+(
+  datasetid text NOT NULL,
+  algorithmname text,
+  algorithmdescription text,
+  algorithmversion text,
+  license text,
+  timestampelaborationstart timestamp with time zone,
+  timestampelaborationend timestamp with time zone,
+  supermaster text,
+  timestampinsert timestamp with time zone DEFAULT now(),
+  CONSTRAINT "ps_dataset_metadata_PK" PRIMARY KEY (datasetid)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_dataset_metadata
+  OWNER TO postgres;
+
+CREATE TABLE ps_dataset_metadata_algo_params
+(
+  datasetid text NOT NULL,
+  code text NOT NULL,
+  description text NOT NULL,
+  val text NOT NULL,
+  CONSTRAINT "ps_dataset_metadata_algo_params_PK" PRIMARY KEY (datasetid, code),
+  CONSTRAINT ps_dataset_metadata_algo_params_fkey FOREIGN KEY (datasetid)
+      REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_dataset_metadata_algo_params
+  OWNER TO postgres;
+
+CREATE TABLE ps_dataset_products
+(
+  datasetid text NOT NULL,
+  productid text NOT NULL,
+  CONSTRAINT "ps_dataset_product_PK" PRIMARY KEY (datasetid, productid),
+  CONSTRAINT ps_dataset_products_fkey FOREIGN KEY (datasetid)
+      REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_dataset_products
+  OWNER TO postgres;
+
+CREATE TABLE ps
+(
+  id serial NOT NULL,
+  psid text NOT NULL,
+  lat double precision,
+  lon double precision,
+  datasetid text NOT NULL,
+  sensorid text NOT NULL,
+  coherence double precision,
+  geom geometry(Point,4326),
+  height double precision,
+  velocity double precision,
+  CONSTRAINT "PK" PRIMARY KEY (datasetid, psid),
+  CONSTRAINT ps_fkey FOREIGN KEY (datasetid)
+      REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSM01'::text)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps
+  OWNER TO postgres;
+
+
+CREATE TABLE ps_measure
+(
+  datasetid text NOT NULL,
+  psid text NOT NULL,
+  type text NOT NULL,
+  data date,
+  measure double precision,
+  CONSTRAINT ps_measure_datasetid_fkey FOREIGN KEY (datasetid, psid)
+      REFERENCES ps (datasetid, psid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT type_check CHECK (type = 'DL'::text OR type = 'VAL'::text OR type = 'VASDL'::text)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_measure
+  OWNER TO postgres;
+
+
+
+CREATE OR REPLACE VIEW ps_user AS 
+ SELECT a.id, a.psid, a.lat, a.lon, a.datasetid, a.sensorid, a.coherence, a.geom, a.height, a.velocity, b.id AS user_id, c.id AS deal_id, c.geom AS user_aoi
+   FROM ps a, "user" b, deal c
+  WHERE b.id = c.user_id AND st_within(c.geom, a.geom);
+
+ALTER TABLE ps_user
+  OWNER TO postgres;
+
+======================================
 Import dello shapefile dei PS 
 ======================================
 
@@ -43,11 +163,13 @@ import.shapefile.kettle.job.log.level=Basic
 import.shapefile.db.host=kim.planetek.it
 import.shapefile.db.port=5432
 import.shapefile.db.name=RHETICUS
-import.shapefile.db.user=postgres
-import.shapefile.db.password=postgres
-import.shapefile.db.table.ps=ps
-import.shapefile.db.table.ps_measure=ps_measure
 #folder where find the shapefile to import. The name of shapefile to import (with .shp extention) is setted into VAR_SHP_NAME variable
 #import.shapefile.folder=C:\\rheticus\\import_PS\\files
 import.shapefile.folder=/var/pkt284/importPS
 import.shapefile.db.table_commit_size=5000     
+
+
+------------------------------
+Lancio manuale del job ETL GeoKettle
+
+/opt/geokettle-2.5/kitchen.sh -file=/opt/geokettle-jobs/rheticus_ps_import.kjb -param:VAR_RHETICUS_DB_HOST=kim.planetek.it -param:VAR_RHETICUS_DB_PORT=5432 -param:VAR_RHETICUS_DB_NAME=RHETICUS_DEV -param:VAR_RHETICUS_DB_USER=postgres -param:VAR_RHETICUS_DB_PASSWORD=postgres -param:VAR_RHETICUS_IMPORT_PS_FOLDER=/tmp/importShapefile/filePs -param:VAR_DATASETID=TEST -param:VAR_SHP_NAME=DEMO_COSMO_TRENTO_10_point.shp -level:Basic

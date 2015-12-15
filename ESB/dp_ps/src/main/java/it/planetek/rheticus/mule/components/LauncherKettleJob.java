@@ -43,8 +43,6 @@ public class LauncherKettleJob
         private String              dbName                   = "";
         private String              dbUser                   = "";
         private String              dbPassword               = "";
-        private String              tablePs                  = "";
-        private String              tablePsMeasure           = "";
         private String              inputFolder              = "";
 
         private String              datasetId                = "";
@@ -150,8 +148,6 @@ public class LauncherKettleJob
                 dbName = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.name"));
                 dbUser = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.user"));
                 dbPassword = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.password"));
-                tablePs = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.table.ps"));
-                tablePsMeasure = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.table.ps_measure"));
                 inputFolder = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.folder"));
                 jobFolder = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.kettle.job.folder"));
                 jobName = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.kettle.job.name"));
@@ -168,8 +164,6 @@ public class LauncherKettleJob
                 log.info("{}dbName= {}", CLASS_NAME, dbName);
                 log.info("{}dbUser= {}", CLASS_NAME, dbUser);
                 log.info("{}dbPassword= {}", CLASS_NAME, dbPassword);
-                log.info("{}tablePs= {}", CLASS_NAME, tablePs);
-                log.info("{}tablePsMeasure= {}", CLASS_NAME, tablePsMeasure);
                 log.info("{}inputFolder= {}", CLASS_NAME, inputFolder);
                 log.info("{}jobFolder= {}", CLASS_NAME, jobFolder);
                 log.info("{}jobName= {}", CLASS_NAME, jobName);
@@ -184,8 +178,6 @@ public class LauncherKettleJob
                 // "-param:VAR_RHETICUS_DB_PORT=5432" "-param:VAR_RHETICUS_DB_NAME=ps"
                 // "-param:VAR_RHETICUS_DB_USER=postgres"
                 // "-param:VAR_RHETICUS_DB_PASSWORD=pkadmin123"
-                // "-param:VAR_RHETICUS_DB_TABLE_PS=ps"
-                // "-param:VAR_RHETICUS_DB_TABLE_PS_MEASURE=ps_measure"
                 // "-param:VAR_RHETICUS_IMPORT_PS_FOLDER=C:\\rheticus\\import_PS\\files"
                 // "-param:VAR_DATASETID=A" "-param:VAR_SHP_NAME=PS_Sample.shp"
 
@@ -222,10 +214,6 @@ public class LauncherKettleJob
                 runKettleJob.append("-param:VAR_RHETICUS_DB_USER=").append(dbUser);
                 runKettleJob.append(QUOTE).append(SPACE).append(QUOTE);
                 runKettleJob.append("-param:VAR_RHETICUS_DB_PASSWORD=").append(dbPassword);
-                runKettleJob.append(QUOTE).append(SPACE).append(QUOTE);
-                runKettleJob.append("-param:VAR_RHETICUS_DB_TABLE_PS=").append(tablePs);
-                runKettleJob.append(QUOTE).append(SPACE).append(QUOTE);
-                runKettleJob.append("-param:VAR_RHETICUS_DB_TABLE_PS_MEASURE=").append(tablePsMeasure);
                 runKettleJob.append(QUOTE).append(SPACE).append(QUOTE);
                 runKettleJob.append("-param:VAR_RHETICUS_IMPORT_PS_FOLDER=").append(inputFolder);
                 runKettleJob.append(QUOTE).append(SPACE).append(QUOTE);
