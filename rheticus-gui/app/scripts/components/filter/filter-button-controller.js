@@ -9,17 +9,14 @@
  */
 
 angular.module('rheticus')
-	.controller('FilterButtonCtrl',['$scope', function ($scope) {
-		angular.extend($scope,{
-			"filterPopup" : "scripts/components/filter/filter-popup-view.html"
+	.controller('FilterButtonCtrl',['$scope',function($scope){
+		angular.extend(this,{
+			"filterPopup" : "scripts/components/filter/filter-popup-view.html",
+			"getShow" : function(){
+				return $scope.getController("filter");
+			},
+			"setShow" : function(){
+				$scope.setController("filter");
+			}
 		});
-		
-		this.filterCtrl= "filter";
-		this.getShow = function(){
-			//console.log($scope.getController(this.filterCtrl));
-			return $scope.getController(this.filterCtrl);
-		};
-		this.setShow = function(){
-			$scope.setController(this.filterCtrl);
-		};	
 	}]);

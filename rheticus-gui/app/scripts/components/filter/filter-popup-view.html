@@ -1,4 +1,4 @@
-<div data-intro="Area Of Interests" data-position="left" ng-controller="FilterPopoupCtrl">
+<div data-intro="Area Of Interests" data-position="left" ng-controller="FilterPopoupCtrl as filterPop">
 	<h4>Filters</h4>
 	<div ng-show="!showDetails()">
 		<i>Set of advanced filters applied on Displacement Maps</i>
@@ -7,36 +7,10 @@
 	<div ng-show="showDetails()">
 		<label>Velocity media</label>
 		<div>
-			<input slider type="text" ng-model="speedModelValue" options="speedOptions" />
+			<input slider type="text" ng-model="filterPop.speedModelValue" options="filterPop.speedOptions" />
 		</div>
 		<div style="margin-top:20px">
 			<i>Move slider bounds to select velocity range for Persistent Scatterers Map filtering</i>
 		</div>
 	</div>
-	<!--
-	<div>
-		<label>Tempo</label>
-		<div>
-			<input ng-model="timeModel" type="text" slider options="timeOptions" />
-		</div>
-	</div>
-	<div>
-		<label>Coerenza</label>
-		<div>
-			<input ng-model="coherenceModel" type="text" slider options="coherenceOptions" />
-		</div>
-	</div>
-	<label>Opzioni di visualizzazione:</label>
-	<div>
-		<div class="btn-group">
-			<label class="btn btn-primary" ng-class="{'btn-success': configuration.autocenter}" ng-model="configuration.autocenter" btn-checkbox>Autocenter</label>
-		</div>
-		<div class="btn-group">
-			<label class="btn btn-primary" ng-class="{'btn-success': configuration.autozoom&&configuration.autocenter}" ng-model="configuration.autozoom" ng-disabled="!configuration.autocenter" btn-checkbox>Autozoom</label>
-		</div>
-		<div class="btn-group">
-			<label class="btn btn-primary" ng-class="{'btn-success': configuration.pinwindow}" ng-model="configuration.pinwindow" btn-checkbox>Pin window</label>
-		</div>  
-	</div>   
-	-->									
 </div>

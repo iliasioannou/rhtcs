@@ -9,242 +9,266 @@
  */
 
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration', function ($rootScope,$scope,$http,olData,configuration) {
-		angular.extend($scope,{ // scope variables
-			//"center" : $rootScope.center, // OpenLayers Center zoom
-			"olDefaults" : { // OpenLayers Default Events
-				"events" : { 
-					"map" : ["moveend", "click"],
-					"layers" : ["click"]
-				},
-				"interactions" : {
-					"mouseWheelZoom" : true
-				}
-			},
-			"controls" : [ // Openlayers controls
-				//{"name" : 'zoom', "active" : true}, // TBC ...duplicate in view
-				{"name" : 'rotate', "active" : true},
-				{"name" : 'zoomtoextent', "active" : false},
-				//{"name" : 'zoomslider', "active" : true},
-				{"name" : 'scaleline', "active" : true},
-				{"name" : 'attribution', "active" : true},
-				{"name" : 'fullscreen', "active" : true}
-			],
-			"view" : {}, // Openlayers view
-			"marker" : {} // OpenLayers Marker layer for PS query
-		});
+	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService',
+	function ($rootScope,$scope,$http,olData,configuration,ArrayService){
 
-		angular.extend($scope,{ // scope functions
-			"setMarker" : function(response) { // Marker and PS trends management
-				$scope.marker = {
-					"lat" : response.point[1],
-					"lon" : response.point[0]/*,
-					"label" : {
-						"message" : "",
-						"show" : true,
-						"showOnMouseOver" : true
-					},
-					"style": {
-						"image": {
-							"icon": {
-								"anchor" : [0.5, 1],
-								"anchorXUnits" : "fraction",
-								"anchorYUnits" : "fraction",
-								"opacity" : 0.90,
-								"src" : "./images/marker.png"
-							}
-						}
-					}*/
-				};
-			},
-			"getFeatureInfo" : function(map,coordinate,olLayerSource,featureCount,cqlFilter,resultObj,callback){
-				var viewResolution = map.getView().getResolution();
-				var wms = eval("new ol.source."+olLayerSource.type+"(olLayerSource);");
-				var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{
-					"INFO_FORMAT" : "application/json",
-					"FEATURE_COUNT" : featureCount,
-					"CQL_FILTER" : cqlFilter
-				});	
-				if (url) {
-					
-					$http.get(url).success(function (response) {
-						var obj = {
-							"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
-							"features" : (response.features && (response.features.length>0)) ? response.features : null
-						};
-						if (resultObj!==""){
-							eval("that."+resultObj+" = obj;");
-						}
-
-						if (callback!==null){
-							callback(obj);
-						}
-					});
-				} else {
-					console.log("[main-controller :: getFeatureInfo] URL undefined!");
-				}
-			},
-			"setSpeedModelFilter" : function(range){
-				if ($rootScope.showDetails()){ //proceed with filtering
-					//var cql = "(abs_4(velocity)>="+range.split(";")[0]+" AND abs_4(velocity)<="+range.split(";")[1]+")";
-					var min = "";
-					if (range.split(";")[0]!==$rootScope.speedModel.from){
-						min = "velocity>="+range.split(";")[0];
-					}
-					var max = "";
-					if (range.split(";")[1]!==$rootScope.speedModel.to){
-						max = "velocity<="+range.split(";")[1];
-					}
-					var cql_text = "";
-					if ((min!=="") || (max!=="")){
-						cql_text += (min!=="") ? min : "";
-						cql_text += ((min!=="") && (max!=="")) ? " AND " : "";
-						cql_text += (max!=="") ? max : "";
-					}
-					var cql_filter = (cql_text!=="") ? cql_text : null;
-					$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = cql_filter;
-				}
-			},
-			"getGetFeatureInfoOlLayerSource" : function(l){
-				var queryUrl = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].queryUrl;");
-				var olLayer = null;
-				if (queryUrl==="") {
-					olLayer = l;
-				} else {
-					var queryType = eval("$rootScope.metadata[$scope.overlaysHashMap."+l.id+"].type;");
-					switch(queryType) {
-						case "ImageWMS":
-							var querySourceType = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].type;");
-							var queryLayers = eval("$rootScope.metadata[$rootScope.overlaysHashMap."+l.id+"].custom.LAYERS;");
-							olLayer = {
-								"type" : querySourceType,
-								"url" : queryUrl,
-								"params" : {
-									"LAYERS" : queryLayers
-								}
-							};
-							break;
-						case "RheticusApiRest":
-						
-							break;
-						default:
-							//do nothing
-					}
-				}
-				return(olLayer);
-			},
-			"activeController" : "" // "login","filter","search","baselayer","help"
-		});
+		var self = this; //this controller
 
 		/**
-		 * Switch PS layer
+		 * PUBLIC VARIABLES AND METHODS
 		 */
-		$rootScope.$watch("center.zoom", function () {
-			if ($rootScope.showDetails()){
-				$scope.setSpeedModelFilter($rootScope.speedModel.init);
-				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.LAYERS = $rootScope.metadata[$scope.overlaysHashMap.ps].custom.detail;
-			} else {
-				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.CQL_FILTER = null;
-				$rootScope.overlays[$rootScope.overlaysHashMap.ps].source.params.LAYERS = $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.heatmap;
+		// OpenLayers Default Events
+		var olDefaults = {
+			"events" : { 
+				"map" : ["moveend", "click"],
+				"layers" : ["click"]
+			},
+			"interactions" : {
+				"mouseWheelZoom" : true
 			}
-		});
+		};
+		// Openlayers controls
+		var olControls = [ 
+			//{"name" : 'zoom', "active" : true}, // TBC ...duplicate in view
+			{"name" : 'rotate', "active" : true},
+			{"name" : 'zoomtoextent', "active" : false},
+			//{"name" : 'zoomslider', "active" : true},
+			{"name" : 'scaleline', "active" : true},
+			{"name" : 'attribution', "active" : true},
+			{"name" : 'fullscreen', "active" : true}
+		];
+		//External Controller management : GETTER and SETTER
+		var setController = function(openController){
+			activeController = (activeController===openController) ? "" : openController;			
+		};
+		var getController = function(openController){
+			return activeController===openController;
+		};
+		//Setter map view center
+		var setCenter = function(center){
+			$scope.center.lon = (center.lon) ? center.lon : $scope.center.lon;
+			$scope.center.lat = (center.lat) ? center.lat : $scope.center.lat;
+			$scope.center.zoom = (center.zoom) ? center.zoom : $scope.center.zoom;
+		};
+		//Getter overlay ols parameters
+		var getOverlayParams = function(id){
+			return getOverlay("overlays",id);
+		};
+		//Getter overlay config metadata
+		var getOverlayMetadata = function(id){
+			return getOverlay("metadata",id);
+		};
+		// check on zoom level to enable getFeatureInfo query on PS
+		var showDetails = function() {
+			return $scope.center.zoom>=configuration.map.query.zoom;
+		};
+		//Getter active baselayer useful for basemap controller
+		var getActiveBaselayer = function() {
+			return self.baselayers[ArrayService.getIndexByAttributeValue(self.baselayers,"active",true)];
+		};
+		var getBaselayers = function() {
+			return self.baselayers;
+		};
+		var getOverlays = function() {
+			return self.overlays;
+		};
 		
 		/**
-		});
-		 * speedModel init watcher for adjusting CQL_FILTER view source parameter
-		 */
-		$rootScope.$watch("speedModel.init", function (range) {
-			$scope.setSpeedModelFilter(range);
+		 * EXPORT AS PUBLIC CONTROLLER
+		 */		
+		angular.extend(self,{
+			"olDefaults" : olDefaults,
+			"controls" : olControls,
+			"view" : {}, // Openlayers view
+			"marker" : {}, // OpenLayers Marker layer for PS query
+			"baselayers" : configuration.layers.baselayers, // basemap layer list
+			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
+			"metadata" : configuration.layers.overlays.metadata // overlay layer list
 		});
 
 		/**
-		 * delete marker when status changes to false
+		 * EXPORT AS PUBLIC SCOPE
 		 */
-		$rootScope.$watch("marker", function (marker) {
-			if (!marker){
-				$scope.marker = {};
+		angular.extend($scope,{
+			// externalized scope variables for watchers
+			"speedModel" : configuration.filters.speedSlider, // PS velocity filter
+			"iffi" : null, // IFFI overlay getFeatureInfoResponse
+			"sentinel" : null, // SENTINEL overlay getFeatureInfoResponse
+			"ps" : null, // PS overlay getFeatureInfoResponse
+			"center" : configuration.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
+			// externalized scope methods for children controllers
+			"setController" : setController,
+			"getController" : getController,
+			"setCenter" : setCenter,
+			"getOverlayParams" : getOverlayParams,
+			"getOverlayMetadata" : getOverlayMetadata,
+			"showDetails" : showDetails,
+			"getActiveBaselayer" : getActiveBaselayer,
+			"getBaselayers" : getBaselayers,
+			"getOverlays" : getOverlays
+		});
+
+		/**
+		 * WATCHERS
+		 */
+		//Switch PS layer
+		$scope.$watch("center.zoom", function () {
+			if (showDetails()){
+				setSpeedModelFilter($scope.speedModel.init);
+				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.detail;
+			} else {
+				getOverlayParams("ps").source.params.CQL_FILTER = null;
+				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.heatmap;
+			}
+		});
+		//speedModel init watcher for adjusting CQL_FILTER view source parameter
+		$scope.$watch("speedModel.init", function (range) {
+			setSpeedModelFilter(range);
+		});
+		//delete marker when status changes to false
+		$rootScope.$watch("markerVisibility", function (visible) {
+			if (!visible){
+				initMarker();
 			}
 		});
 
+		/**
+		 * PRIVATE  VARIABLES AND METHODS
+		 */
+		//Retrieves Overlay ols params or metadata detail
+		var getOverlay = function(detail,id){
+			var index = ArrayService.getIndexByAttributeValue(self.overlays,"id",id);
+			return eval("self."+detail+"[index]");
+		};
+		//External Controller flag
+		var activeController = "";
+		//Marker
+		var setMarker = function(response) { // Marker and PS trends management
+			self.marker = {
+				"lat" : response.point[1],
+				"lon" : response.point[0],
+				"label": {
+					"message": "",
+					"show": false,
+					"showOnMouseOver": true
+				}
+			};
+		};
+		var initMarker = function(){
+			setMarker({
+				"point" : [99999,99999]
+			});
+		};
+		//GetFeatureInfo
+		var getFeatureInfo = function(map,coordinate,olLayerSource,featureCount,cqlFilter,resultObj,callback){
+			var viewResolution = map.getView().getResolution();
+			var wms = eval("new ol.source."+olLayerSource.type+"(olLayerSource);");
+			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{
+				"INFO_FORMAT" : "application/json",
+				"FEATURE_COUNT" : featureCount,
+				"CQL_FILTER" : cqlFilter
+			});	
+			if (url) {
+				var that = $scope;
+				$http.get(url).success(function (response) {
+					var obj = {
+						"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
+						"features" : (response.features && (response.features.length>0)) ? response.features : null
+					};
+					if (resultObj!==""){
+						eval("that."+resultObj+" = obj;");
+					}
+
+					if (callback!==null){
+						callback(obj);
+					}
+				});
+			} else {
+				console.log("[main-controller :: getFeatureInfo] URL undefined!");
+			}
+		};
+		//CQL_FILTER SETTER ON "VELOCITY" PS ATTRIBUTE
+		var setSpeedModelFilter = function(range){
+			if (showDetails()){ //proceed with filtering
+				var min = "";
+				if (range.split(";")[0]!==$scope.speedModel.from){
+					min = "velocity>="+range.split(";")[0];
+				}
+				var max = "";
+				if (range.split(";")[1]!==$scope.speedModel.to){
+					max = "velocity<="+range.split(";")[1];
+				}
+				var cql_text = "";
+				if ((min!=="") || (max!=="")){
+					cql_text += (min!=="") ? min : "";
+					cql_text += ((min!=="") && (max!=="")) ? " AND " : "";
+					cql_text += (max!=="") ? max : "";
+				}
+				var cql_filter = (cql_text!=="") ? cql_text : null;
+				getOverlayParams("ps").source.params.CQL_FILTER = cql_filter;
+			}
+		};
+		//Creates OLS Layer Source from layer properties
+		var getGetFeatureInfoOlLayerSource = function(l){
+			var queryUrl = getOverlayMetadata(l.id).queryUrl;
+			var olLayer = null;
+			if (queryUrl==="") {
+				olLayer = l;
+			} else {
+				var queryType = getOverlayMetadata(l.id).type;
+				switch(queryType) {
+					case "ImageWMS":
+						olLayer = {
+							"type" : queryType,
+							"url" : queryUrl,
+							"params" : {
+								"LAYERS" : getOverlayMetadata(l.id).custom.LAYERS
+							}
+						};
+						break;
+					case "RheticusApiRest":
+						//do nothing
+						break;
+					default:
+						//do nothing
+				}
+			}
+			return(olLayer);
+		};
+		//OLS Map interation
 		olData.getMap().then(function (map) {
+			//singleclick event
 			map.on("singleclick", function (evt) {
 				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
-				$rootScope.overlays.map(function(l) {
+				self.overlays.map(function(l) {
 					if (l.active){
 						switch(l.id) {
 							case "iffi": //Progetto IFFI
-								$scope.getFeatureInfo(
-									map,
-									evt.coordinate,
-									l.source,
-									20,
-									null,
-									"iffi",
-									$scope.setMarker
-								);
+								getFeatureInfo(map,evt.coordinate,l.source,20,null,"iffi",setMarker);
 								break;
-								
 							case "sentinel": // Sentinel 1 Datatset and timeline management
 								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
 								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
-								$scope.getFeatureInfo(
-									map,
-									evt.coordinate,
-									$scope.getGetFeatureInfoOlLayerSource(l),
-									1000,
-									"(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))",
-									"sentinel",
-									$scope.setMarker
-								);
-								//STUB - START
-								/*var that = $scope;
-								$http.get("stub/FeatureCollection.json").success(function (response) {
-									that.timeline = {
-										"point" : point,
-										"features" : (response.features && (response.features.length>0)) ? response.features : null
-									};
-								});*/
-								//STUB - END
+								var cqlFilter = "(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))";
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),1000,cqlFilter,"sentinel",setMarker);
 								break;
-								
 							case "ps":
-								if ($rootScope.showDetails()){ //proceed with getFeatureInfo request
-									$scope.getFeatureInfo(
-										map,
-										evt.coordinate,
-										l.source,
-										20,
-										$scope.overlays[$scope.overlaysHashMap.ps].source.params.CQL_FILTER,
-										"ps",
-										$scope.setMarker
-									);
+								if (showDetails()){ //proceed with getFeatureInfo request
+									getFeatureInfo(map,evt.coordinate,l.source,20,getOverlayParams("ps").source.params.CQL_FILTER,"ps",setMarker);
 								} else {
 									// do nothing
-									console.log("heatmap zoom level ... no features info to display!");
+									//console.log("heatmap zoom level ... no features info to display!");
 								}
 								break;
-								
 							default:
 								//do nothing
 						}
-						
 					}
 				});
 			});
+			map.on("moveend", function (evt) {
+				//do nothing
+			});	
 		});
-		
-		this.setController = function(openController){
-			$scope.activeController = ($scope.activeController===openController) ? "" : openController;			
-			console.log($scope.activeController);
-		};
-		
-		this.getController = function(openController){
-			return $scope.activeController===openController;
-		};
-		
-		angular.extend($scope,{
-			"setController" : this.setController,
-			"getController" : this.getController
-		});
-		
+
 	}]);

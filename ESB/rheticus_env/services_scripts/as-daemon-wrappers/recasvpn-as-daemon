@@ -30,13 +30,12 @@ start () {
 stop () {
         log_daemon_msg "Stopping $name"
         start-stop-daemon --stop --oknodo --pidfile "$pid_file" --retry=INT/20/KILL/5
-	rm -f $pid_file
 }
 
 status () {
 	status_of_proc -p $pid_file $exec_bin "$name"
 	scode="$?"
-	if [ -e "$pid_file" ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
+	if [ $scode -eq 0 ]; then log_action_msg "Process id: $(cat $pid_file)"; fi
 	return $scode
 }
 

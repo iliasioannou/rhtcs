@@ -9,41 +9,39 @@
  */
 
 angular.module('rheticus')
-	.controller('GeocoderCtrl',['$rootScope','$scope','$http','configuration', function ($rootScope,$scope,$http,configuration) {
-		//controller variables
-		this.geoCtrl= "geocoder";
-		
-		this.getShow = function(){
-			//console.log($scope.activeController===this.geoCtrl);
-			return $scope.getController(this.geoCtrl);
-		};
-		this.setShow = function(){
-			$scope.setController(this.geoCtrl);
-		};
-		
-		this.results = {};
-		this.location = "";
-		this.searchLocation = function(){
-			if(this.location.length>2){
-				this.location = this.location.replace('/[^a-zA-Z0-9]/g','+');
-				var that = this;
-				$http.get(configuration.geocoder.url+this.location+configuration.geocoder.params)
-					.success(function (response) {
-						that.results = response;
-					});
-			} else {
-				this.results = {};
-			}			
-		};
-		
-		this.getLocation = function(index){			
-			var jsonLocation = this.results[index];			
-			$rootScope.center.lon = parseFloat(jsonLocation.lon);
-            $rootScope.center.lat = parseFloat(jsonLocation.lat);
-			this.searching = false;			//hide search after delection
-			this.results = {};
-			this.location = "";
-		};
-		
-		
+	.controller('GeocoderCtrl',['$scope','$http','configuration',function($scope,$http,configuration){
+
+		var self = this; //this controller
+
+		angular.extend(self,{
+			"results" : {},
+			"location" : "",
+			"getShow" : function(){
+				return $scope.getController("geocoder");
+			},
+			"setShow" : function(){
+				$scope.setController("geocoder");
+			},
+			"getLocation" : function(index){			
+				var jsonLocation = self.results[index];
+				$scope.setCenter({
+					"lon" : parseFloat(jsonLocation.lon),
+					"lat" : parseFloat(jsonLocation.lat)
+				});
+				self.results = {};
+				self.location = "";
+			},
+			"searchLocation" : function(){
+				if (this.location.length>2){
+					self.location = self.location.replace('/[^a-zA-Z0-9]/g','+');
+					var url = configuration.geocoder.url+self.location+configuration.geocoder.params;
+					$http.get(url)
+						.success(function (response) {
+							self.results = response;
+						});
+				} else {
+					self.results = {};
+				}			
+			}
+		});
 	}]);

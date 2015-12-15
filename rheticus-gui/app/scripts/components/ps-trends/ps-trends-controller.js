@@ -10,7 +10,13 @@
 
 angular.module('rheticus')
 	.controller('PsTrendsCtrl',['$rootScope','$scope','$http', function ($rootScope,$scope,$http) {
-		angular.extend($scope,{
+		
+		var self = this; //this controller
+		
+		/**
+		 * EXPORT AS PUBLIC CONTROLLER
+		 */		
+		angular.extend(self,{
 			"options" : { // PS Line chart options
 				"chart" : {
 					"type" : "lineChart",
@@ -56,104 +62,102 @@ angular.module('rheticus')
 			},
 			"data" : [], // PS line chart data
 			"psDetails" : [], // PS feature details
-			"show_trends" : false // dialog box closure
+			"show_trends" : false, // dialog box closure
+			"showPsTrends" : function (show){ // showPsTrends hides this view and deletes OLs marker
+				self.show_trends = show;
+				$rootScope.markerVisibility = show;
+				if (!show){
+					self.data = [];
+					self.psDetails = [];
+				}
+			}
 		});
 
-		angular.extend($scope,{ //other variables
-			"measureUrl" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].queryUrl,
-			"datasetIdKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.datasetid,
-			"psIdKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.psid,
-			"dateKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.date,
-			"measureKey" : $rootScope.metadata[$rootScope.overlaysHashMap.ps].custom.measure
-		});
-		
 		/**
-		 * showPsTrends hides this view and deletes OLs marker
-		 */
-		angular.extend($scope,{
-			"showPsTrends" : function (show){
-				$scope.show_trends = show;
-				$rootScope.marker = show;
-				if (!show){
-					$scope.data = [];
-					$scope.psDetails = [];
-				}
-			},
-			"getMeasures" : function (datasetid,psid){
-				var ret = [];
-				var url = $scope.measureUrl.replace($scope.datasetIdKey,datasetid).replace($scope.psIdKey,psid);
-				$http.get(url)
-					.success(function (measures) { //if request is successful
-						if ((measures!==null) && measures.length>0){
-							for (var i=0; i<measures.length; i++) {
-								var measureDate = new Date(eval("measures[i]."+$scope.dateKey+";"));
-								if (measureDate instanceof Date) {
-									ret.push({
-										"x" : measureDate,
-										"y" : eval("measures[i]."+$scope.measureKey+";")
-									});
-								}
-							}
-						}
-					})
-					.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
-						console.log("[ps-trends-controller] getMeasures :: ERROR");
-					});
-				return ret;
-			},
-			/**
-			 * Parameters:
-			 * features - {Object}
-			 * 
-			 * Returns:
-			 */
-			"generateChartData" : function(ps){
-				var res = false;
-				try {
-					var chartData = []; // Data is represented as an array of {x,y} pairs.
-					var tableInfo = []; // PS details
-					$scope.options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
-					for (var i=0; i<ps.features.length; i++) {
-						if (ps.features[i].properties){
-							var datasetId = eval("ps.features[i].properties."+$scope.datasetIdKey+";");
-							var psId = eval("ps.features[i].properties."+$scope.psIdKey+";");
-							chartData.push({
-								"key" : ps.features[i].id,
-								"values" : $scope.getMeasures(datasetId,psId) // values - represents the array of {x,y} data points
-							});
-							var featureInfo = {};
-							for (var key in ps.features[i].properties) {
-								eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";");
-							}
-							tableInfo.push(featureInfo);
-						}
-					}
-					//Line chart data should be sent as an array of series objects.                
-					$scope.data = chartData;
-					$scope.psDetails = tableInfo;
-					if(!$scope.$$phase) {
-						$scope.$apply();
-					}
-					res = true;
-				} catch (e) {
-					console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
-				} finally {
-					// do nothing
-					return(res);
-				}
-			}
-		});
-		
-		/**
-		 * ps watcher for rendering chart line data
-		 */
-		$scope.$watch("ps", function (ps) {
+		 * WATCHERS
+		 */		
+		// ps watcher for rendering chart line data
+		$scope.$watch("ps",function(ps){
 			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
-				$scope.showPsTrends(
-					$scope.generateChartData(ps)
+				self.showPsTrends(
+					generateChartData(ps)
 				);
 			} else {
-				$scope.showPsTrends(false);
+				self.showPsTrends(false);
 			}
 		});
+
+		/**
+		 * PRIVATE  VARIABLES AND METHODS
+		 */
+		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
+		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
+
+		var getMeasures = function (datasetid,psid){
+			var ret = [];
+			var measureUrl = $scope.getOverlayMetadata("ps").queryUrl;
+			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
+			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
+			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
+			$http.get(url)
+				.success(function (measures) { //if request is successful
+					if ((measures!==null) && measures.length>0){
+						for (var i=0; i<measures.length; i++) {
+							var measureDate = new Date(eval("measures[i]."+dateKey+";"));
+							if (measureDate instanceof Date) {
+								ret.push({
+									"x" : measureDate,
+									"y" : eval("measures[i]."+measureKey+";")
+								});
+							}
+						}
+					}
+				})
+				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
+					console.log("[ps-trends-controller] getMeasures :: ERROR");
+				});
+			return ret;
+		};
+		/**
+		 * Parameters:
+		 * features - {Object}
+		 * 
+		 * Returns:
+		 */
+		var generateChartData = function(ps){
+			var res = false;
+			try {
+				var chartData = []; // Data is represented as an array of {x,y} pairs.
+				var tableInfo = []; // PS details
+				self.options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
+				for (var i=0; i<ps.features.length; i++) {
+					if (ps.features[i].properties){
+						var datasetId = eval("ps.features[i].properties."+datasetIdKey+";");
+						var psId = eval("ps.features[i].properties."+psIdKey+";");
+						chartData.push({
+							"key" : ps.features[i].id,
+							"values" : getMeasures(datasetId,psId) // values - represents the array of {x,y} data points
+						});
+						var featureInfo = {};
+						for (var key in ps.features[i].properties) {
+							eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";");
+						}
+						tableInfo.push(featureInfo);
+					}
+				}
+				//Line chart data should be sent as an array of series objects.                
+				self.data = chartData;
+				self.psDetails = tableInfo;
+				if(!$scope.$$phase) {
+					$scope.$apply();
+				}
+				res = true;
+			} catch (e) {
+				console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
+			} finally {
+				// do nothing
+				return(res);
+			}
+		};
+
 	}]);

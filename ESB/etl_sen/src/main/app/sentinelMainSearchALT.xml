@@ -53,7 +53,7 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<set-variable variableName="querystr"
 			value="#[typeFilter]+AND+#[aoiFilter]+AND+beginPosition:#[dateFilter]+AND+endPosition:#[dateFilter]${sentinel.queryoptions}&amp;#[startRows]"
 			doc:name="querystr" />
-        <until-successful maxRetries="60" synchronous="true" doc:name="Until Successful">
+        <until-successful maxRetries="${sentinel.search.retries}" synchronous="true" doc:name="Until Successful" millisBetweenRetries="${sentinel.search.timebetween.retries}">
             <processor-chain doc:name="Processor Chain">
                 <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
                 <scripting:component doc:name="HTTP Status Check">

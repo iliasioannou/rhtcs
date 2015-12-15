@@ -9,8 +9,8 @@
  */
 
 angular.module('rheticus')
-	.controller('HeaderCtrl',['$scope','configuration', function ($scope,configuration) {
-		angular.extend($scope,{
+	.controller('HeaderCtrl',['configuration',function (configuration){
+		angular.extend(this,{
 			"rheticusHeaderImage" : configuration.rheticusHeaderImage
 		});
 	}]);

@@ -1,11 +1,10 @@
 <div>
 	<label>Select Basemap</label>	
-	<form ng-controller="BasemapPopoupCtrl">
-		<div ng-repeat="baselayer in baselayers">
-            <input type="radio" ng-model="active.name" value="{{ baselayer.name }}" ng-click="changeLayer(baselayer)"/>
-            {{ baselayer.name }}
+	<form ng-controller="BasemapPopoupCtrl as basemapPop">
+		<div ng-repeat="baselayer in basemapPop.baselayers">
+            <input type="radio" ng-model="basemapPop.active.name" value="{{baselayer.name}}" ng-click="basemapPop.changeLayer(baselayer)"/>
+            {{baselayer.name}}
             <input type="range" min="0" max="1" step="0.01" ng-model="baselayer.opacity">
         </div>
-		<!--tt>baselayer = {{active.name | json}}</tt><br/-->
     </form>
 </div>
