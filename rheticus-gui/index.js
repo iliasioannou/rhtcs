@@ -14,7 +14,7 @@ server.listen(server.get('port'), function() {
 });
 
 /*
- * PROXY
+ * PROXY IN PRODUCTION
  */
 var httpProxy = require('http-proxy');
 
