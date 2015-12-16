@@ -205,7 +205,7 @@ angular.module('rheticus')
 			try {
 				for (var i=0; i<timeline.features.length; i++) {
 					if (timeline.features[i].properties){
-						for (var key in timeline.features[i].properties) {
+						//for (var key in timeline.features[i].properties) {
 							var datasetValue = "";
 							try {
 								eval("datasetValue = timeline.features[i].properties."+datasetIdAttribute);
@@ -227,7 +227,7 @@ angular.module('rheticus')
 							} finally {
 								// do nothing ... continue parsing other features!
 							}
-						}
+						//}
 					}
 				}
 			} catch (e) {

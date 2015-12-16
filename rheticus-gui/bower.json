@@ -31,10 +31,13 @@
         "dist/js/bootstrap.js"
       ]
     },
-	"ol3-compiled": {
+    "ol3-compiled": {
       "main": [
         "build/ol.css"
       ]
     }
+  },
+  "resolutions": {
+    "angular": "~1.3.15"
   }
 }

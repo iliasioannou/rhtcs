@@ -25,7 +25,8 @@ angular
 		//'nvd3ChartDirectives',
 		'smart-table',
         'services.config',
-		'angularHelpOverlay'
+		'angularHelpOverlay',
+		'angularResizable'
 	])
 	.config(function ($routeProvider) {
 		$routeProvider
@@ -43,6 +44,15 @@ angular
 			"redirectTo": "/"
 		});
 	})
+	//Enabling CORS in Angular JS 
+	/*.config(['$httpProvider', function($httpProvider) {
+		//Enable cross domain calls
+        $httpProvider.defaults.useXDomain = true;
+		//Remove the header containing XMLHttpRequest used to identify ajax call 
+		//that would prevent CORS from working
+        delete $httpProvider.defaults.headers.common['X-Requested-With'];
+    }])*/
+
 	//.constant("configParam", "constant value");
 	//.value("defaultInput", 5);
 	/*.factory('MathService', function() {
