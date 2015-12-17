@@ -20,6 +20,12 @@ angular.module('rheticus')
 			"options" : { // PS Line chart options
 				"chart" : {
 					"type" : "lineChart",
+					"margin": {
+						"top": 30,
+						"right": 60,
+						"bottom": 50,
+						"left": 70
+					},
 					"x" : function (d) {return d.x;},
 					"y" : function (d) {return d.y;},
 					"showValues" : true,
@@ -47,7 +53,8 @@ angular.module('rheticus')
 						"unzoomEventType" : "dblclick.zoom"*/
 					},
 					"useInteractiveGuideline" : true,
-					"noData" : "Loading..."
+					"noData" : "Loading...",
+					"showLegend" : false,
 				},
 				"title" : {
 					enable : true,
@@ -103,11 +110,11 @@ angular.module('rheticus')
 				.success(function (measures) { //if request is successful
 					if ((measures!==null) && measures.length>0){
 						for (var i=0; i<measures.length; i++) {
-							var measureDate = new Date(eval("measures[i]."+dateKey+";"));
+							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
 							if (measureDate instanceof Date) {
 								ret.push({
 									"x" : measureDate,
-									"y" : eval("measures[i]."+measureKey+";")
+									"y" : eval("measures[i]."+measureKey+";") // jshint ignore:line
 								});
 							}
 						}
@@ -132,15 +139,15 @@ angular.module('rheticus')
 				self.options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
 				for (var i=0; i<ps.features.length; i++) {
 					if (ps.features[i].properties){
-						var datasetId = eval("ps.features[i].properties."+datasetIdKey+";");
-						var psId = eval("ps.features[i].properties."+psIdKey+";");
+						var datasetId = eval("ps.features[i].properties."+datasetIdKey+";"); // jshint ignore:line
+						var psId = eval("ps.features[i].properties."+psIdKey+";"); // jshint ignore:line
 						chartData.push({
 							"key" : ps.features[i].id,
 							"values" : getMeasures(datasetId,psId) // values - represents the array of {x,y} data points
 						});
 						var featureInfo = {};
 						for (var key in ps.features[i].properties) {
-							eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";");
+							eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
 						}
 						tableInfo.push(featureInfo);
 					}

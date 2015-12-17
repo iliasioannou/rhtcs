@@ -148,8 +148,35 @@ body {
 	padding: 5px;
 }
 
+.popover-login{
+	line-height: 1;
+	font-size: 12px;	
+}
+
+.login-button {
+	height: auto !important;
+    padding: 5px !important;
+    width: auto !important;
+	font-family: inherit;
+}
+
+.ng-invalid.ng-dirty {
+	border-color: #FA787E;
+}
+
+.ng-valid.ng-dirty {
+	border-color: #78FA89;
+}
+
+.form-control {
+	font-size: 12px;
+    height: 24px;
+    line-height: 1.2;
+    padding: 2px 12px;
+}
+
 .popover {
-    width: 350px !important;
+    width: 450px !important;
     /*max-width: 350px !important;
 	height: 350px !important;*/
 	/*top: -60px !important;*/
@@ -351,7 +378,7 @@ body {
 }
 
 .psTrends{
-	top: 60px;
+	top: 75px;
 	left: 100px;
 	position: absolute;
 	z-index: 1060;
@@ -396,6 +423,8 @@ body {
 
 .close {
 	margin:5px;
+	position: relative;
+    top: -12px;
 }
 
 .layer-switcher {

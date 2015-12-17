@@ -34,10 +34,16 @@
 <!-- Area of Interest Legend -->
 <div class = "panel" ng-show="switchpanel.show_panel_ps_aoi" style ="background-color: rgba(0, 60, 136, 0);" >
 	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-			<label class= switchpanelabel>
-			Areas of Interest:</label>
+			<label class= switchpanelabel>Areas of Interest: {{logged}}</label>
 			<table>
 				<tr ng-repeat="subscription in switchpanel.aoi">
+				  <td>
+					<label class= switchpanelabel2>
+						<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.aoi)">{{subscription.name}}</a>
+					</label><br/>
+				  </td>
+				</tr>
+				<tr ng-repeat="subscription in switchpanel.aoi" ng-show="logged">
 				  <td>
 					<label class= switchpanelabel2>
 						<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.aoi)">{{subscription.name}}</a>

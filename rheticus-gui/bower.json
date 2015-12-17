@@ -36,5 +36,8 @@
         "build/ol.css"
       ]
     }
+  },
+  "resolutions": {
+    "angular": ">=1.3.0"
   }
 }

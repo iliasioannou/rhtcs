@@ -29,6 +29,11 @@ angular
 	])
 	.config(function ($routeProvider) {
 		$routeProvider
+		.when('/login', {
+            controller: 'LoginController',
+            templateUrl: 'scripts/components/login/login-template-view.html',
+            hideMenus: true
+        })
 		.when('/',{
 			"templateUrl" : "scripts/components/main/main-view.html",
 			"controller" : "MainCtrl",
@@ -69,7 +74,7 @@ angular
 					var i=0;
 					if (attribute!==""){
 						for (i=0; i<list.length; i++){
-							if (eval("list[i]."+attribute)===idValue){
+							if (eval("list[i]."+attribute)===idValue){ // jshint ignore:line
 								res = i;
 								break;
 							}
@@ -88,11 +93,32 @@ angular
 			} finally {
 				return(res);
 			}
-		}
+		};
 	})
 	//.run(function () {//do nothing
-	.run(function ($rootScope) {
+	.run(['$rootScope', '$cookies','$http', function ($rootScope, $cookies, $http) {
 		angular.extend($rootScope,{
-			"markerVisibility" : false
+			"markerVisibility" : false,
+			"logged" : false,
+			"username" : ""
 		});
-	});
+		console.log("globals: "+ $cookies.getObject('username'));
+		$rootScope.globals = $cookies.getObject('globals') || {};
+		console.log($rootScope.globals);
+        if ($rootScope.globals.currentUser) {
+			console.log('currentUser:');
+			$rootScope.logged= true;
+			$rootScope.username = $rootScope.globals.currentUser.username;
+			console.log($rootScope.globals.currentUser);
+            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata; // jshint ignore:line
+        }
+ /*
+        $rootScope.$on('$locationChangeStart', function (event, next, current) {
+            // redirect to login page if not logged in and trying to access a restricted page
+            var restrictedPage = $.inArray($location.path(), ['/login', '/register']) === -1;
+            var loggedIn = $rootScope.globals.currentUser;
+            if (restrictedPage && !loggedIn) {
+                $location.path('/login');
+            }
+        });*/
+	}]);

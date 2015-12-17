@@ -208,7 +208,7 @@ angular.module('rheticus')
 						for (var key in timeline.features[i].properties) {
 							var datasetValue = "";
 							try {
-								eval("datasetValue = timeline.features[i].properties."+datasetIdAttribute);
+								eval("datasetValue = timeline.features[i].properties."+datasetIdAttribute); // jshint ignore:line
 								if (datasetValue!==""){ // dataset exists
 									var index = ArrayService.getIndexByAttributeValue(datasetList,"id",datasetValue);
 									if (index===-1){ // add new dataset

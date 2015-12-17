@@ -105,9 +105,14 @@ angular.module('rheticus')
 			"showDetails" : showDetails,
 			"getActiveBaselayer" : getActiveBaselayer,
 			"getBaselayers" : getBaselayers,
-			"getOverlays" : getOverlays
+			"getOverlays" : getOverlays,
+			
+			"dataLoading" : false,
+			"logged" : $rootScope.logged,
+			"username" : $rootScope.username,
+			"error" : null
 		});
-
+		
 		/**
 		 * WATCHERS
 		 */
@@ -137,8 +142,8 @@ angular.module('rheticus')
 		 */
 		//Retrieves Overlay ols params or metadata detail
 		var getOverlay = function(detail,id){
-			var index = ArrayService.getIndexByAttributeValue(self.overlays,"id",id);
-			return eval("self."+detail+"[index]");
+			var index = ArrayService.getIndexByAttributeValue(self.overlays,"id",id); // jshint ignore:line
+			return eval("self."+detail+"[index]"); // jshint ignore:line
 		};
 		//External Controller flag
 		var activeController = "";
@@ -162,21 +167,21 @@ angular.module('rheticus')
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayerSource,featureCount,cqlFilter,resultObj,callback){
 			var viewResolution = map.getView().getResolution();
-			var wms = eval("new ol.source."+olLayerSource.type+"(olLayerSource);");
+			var wms = eval("new ol.source."+olLayerSource.type+"(olLayerSource);"); // jshint ignore:line
 			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{
 				"INFO_FORMAT" : "application/json",
 				"FEATURE_COUNT" : featureCount,
 				"CQL_FILTER" : cqlFilter
 			});	
 			if (url) {
-				var that = $scope;
+				var that = $scope; // jshint ignore:line
 				$http.get(url).success(function (response) {
 					var obj = {
-						"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
+						"point" : ol.proj.toLonLat(coordinate,configuration.map.crs), // jshint ignore:line
 						"features" : (response.features && (response.features.length>0)) ? response.features : null
 					};
 					if (resultObj!==""){
-						eval("that."+resultObj+" = obj;");
+						eval("that."+resultObj+" = obj;"); // jshint ignore:line
 					}
 
 					if (callback!==null){
@@ -239,7 +244,7 @@ angular.module('rheticus')
 		olData.getMap().then(function (map) {
 			//singleclick event
 			map.on("singleclick", function (evt) {
-				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs);
+				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l.active){
 						switch(l.id) {
@@ -248,7 +253,8 @@ angular.module('rheticus')
 								break;
 							case "sentinel": // Sentinel 1 Datatset and timeline management
 								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // if empty string set on today's date
+								// if empty string set on today's date 
+								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line 
 								var cqlFilter = "(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))";
 								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),1000,cqlFilter,"sentinel",setMarker);
 								break;
@@ -266,7 +272,7 @@ angular.module('rheticus')
 					}
 				});
 			});
-			map.on("moveend", function (evt) {
+			map.on("moveend", function (evt) { // jshint ignore:line 
 				//do nothing
 			});	
 		});

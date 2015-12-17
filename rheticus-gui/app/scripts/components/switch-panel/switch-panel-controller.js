@@ -112,14 +112,14 @@ angular.module('rheticus')
 		 * PRIVATE  VARIABLES AND METHODS
 		 */
 		var toggleOverlay = function(overlay){
-			var visibility = eval("self.view_overlay_"+overlay+";");
+			var visibility = eval("self.view_overlay_"+overlay+";"); // jshint ignore:line
 			if (visibility === false){
-			eval("self."+overlay+"_layer_visibility_text = \"Layer off\";");
+			eval("self."+overlay+"_layer_visibility_text = \"Layer off\";"); // jshint ignore:line
 			} else {
-			eval("self."+overlay+"_layer_visibility_text = \"Layer on\";");
+			eval("self."+overlay+"_layer_visibility_text = \"Layer on\";"); // jshint ignore:line
 			}
-			eval("self.view_overlay_"+overlay+" = !self.view_overlay_"+overlay+";");
-			eval("self."+overlay+".active = self.view_overlay_"+overlay+";");
+			eval("self.view_overlay_"+overlay+" = !self.view_overlay_"+overlay+";"); // jshint ignore:line
+			eval("self."+overlay+".active = self.view_overlay_"+overlay+";"); // jshint ignore:line
 		};
 		var viewPanel = function(panel){
 			self.show_panel_ps_provider = false;
@@ -127,6 +127,6 @@ angular.module('rheticus')
 			self.show_panel_iffi = false;
 			self.show_panel_sentinel = false;
 			self.show_panel_ps = false;
-			eval("self.show_panel_"+panel+" = true;");
+			eval("self.show_panel_"+panel+" = true;"); // jshint ignore:line
 		};
 	}]);
