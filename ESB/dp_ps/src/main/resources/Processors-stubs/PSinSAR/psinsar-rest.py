@@ -36,7 +36,7 @@ class MyHandler(BaseHTTPRequestHandler):
                 jobStatus = random.choice(['done', 'progress', 'started', 'error', 'queued'])
                 print "Requested status of job with ID="+jobId+", sending status: "+jobStatus
                 if(jobStatus=="done"):
-                    outputMessage = '["/ps/psmap.shp", "/ps/psmap.dbf", "/ps/psmap.prj", "/ps/psmap.shx", "/ps/psmap.qpj"]'
+                    outputMessage = 'datasetID/L3'
                 else:
                     outputMessage = "Output exception error caused by Davide Nitti"
                 replyXml = "<Jobs> <Job> <Id>"+jobId+"</Id> <Arguments>Arg4</Arguments> <Comment>local</Comment> <CPUs>1</CPUs> <Flag>123</Flag> <LastCheck>2012-02-1410:54:58.0</LastCheck> <Name>PSinSar</Name> <Output>"+outputMessage+"</Output> <Provenance/>  <Status>"+jobStatus+"</Status> </Job> </Jobs>"

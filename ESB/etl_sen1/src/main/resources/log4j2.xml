@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+	<Appenders>
+        <Console name="CONSOLE" target="SYSTEM_OUT">
+            <PatternLayout pattern="[%t] %d %-5p  %C{2} (%F:%L) - %m%n"/>
+        </Console>
+        
+        <RollingFile name="FILE" fileName="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}etl_sen1.log" filePattern="${sys:mule.home}${sys:file.separator}logs${sys:file.separator}etl_sen1-%i.log">
+            <PatternLayout pattern="%d [%t] %-5p %c - %m%n" />
+            <SizeBasedTriggeringPolicy size="10 MB" />
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+        
+    </Appenders>
+    
+    <Loggers>
+    
+        <!-- CXF is used heavily by Mule for web services -->
+        <AsyncLogger name="org.apache.cxf" level="WARN"/>
+
+        <!-- Apache Commons tend to make a lot of noise which can clutter the log-->
+        <AsyncLogger name="org.apache" level="WARN"/>
+
+        <!-- Reduce startup noise -->
+        <AsyncLogger name="org.springframework" level="INFO"/>
+        
+        <AsyncLogger name="org.elasticsearch" level="INFO"/>
+
+        <!-- Mule classes -->
+        <AsyncLogger name="org.mule" level="INFO"/>	<!-- Set it to DEBUG to have complete flow logging (and a lot of noise :/) -->
+        <AsyncLogger name="com.mulesoft" level="INFO"/>
+        
+        <Root level="INFO">
+            <AppenderRef ref="CONSOLE"/>
+            <AppenderRef ref="FILE"/>
+        </Root>        
+    </Loggers>
+    
+
+  
+</Configuration>

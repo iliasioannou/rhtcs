@@ -97,10 +97,10 @@ status () {
 	./kibana-as-daemon status
 	echo
 	echo -e "\e[44m[REST-API]\e[0m"
-        ./restapi-as-daemon start
+        ./restapi-as-daemon status
         echo
 	echo -e "\e[44m[RHETICUS-GUI]\e[0m"
-        ./rheticusgui-as-daemon start
+        ./rheticusgui-as-daemon status
         echo
 		echo -e "\e[32m*********  Status of Rheticus System Services  **********\e[0m"
 }

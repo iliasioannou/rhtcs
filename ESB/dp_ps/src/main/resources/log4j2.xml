@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
-    <Appenders>
+	<Appenders>
         <Console name="CONSOLE" target="SYSTEM_OUT">
             <PatternLayout pattern="[%t] %d %-5p  %C{2} (%F:%L) - %m%n"/>
         </Console>
@@ -30,7 +30,7 @@
         <AsyncLogger name="org.elasticsearch" level="INFO"/>
 
         <!-- Mule classes -->
-        <AsyncLogger name="org.mule" level="INFO"/>
+        <AsyncLogger name="org.mule" level="INFO"/>	<!-- Set it to DEBUG to have complete flow logging (and a lot of noise :/) -->
         <AsyncLogger name="com.mulesoft" level="INFO"/>
         
         <Root level="INFO">

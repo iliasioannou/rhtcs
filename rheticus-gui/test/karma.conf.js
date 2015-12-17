@@ -39,7 +39,9 @@ module.exports = function(config) {
       'bower_components/angular-nvd3/dist/angular-nvd3.js',
       'bower_components/angular-smart-table/dist/smart-table.js',
       'bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.js',
+      'bower_components/chardin.js/chardinjs.min.js',
       'bower_components/angular-help-overlay/lib/angular-help-overlay.js',
+      'bower_components/angular-resizable/angular-resizable.min.js',
       'bower_components/angular-mocks/angular-mocks.js',
       // endbower
       "app/scripts/**/*.js",

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:mulerequester="http://www.mulesoft.org/schema/mule/mulerequester" xmlns:file="http://www.mulesoft.org/schema/mule/file"
-	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+<mule xmlns:mulerequester="http://www.mulesoft.org/schema/mule/mulerequester" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
 	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
@@ -14,7 +13,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
-http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
 http://www.mulesoft.org/schema/mule/mulerequester http://www.mulesoft.org/schema/mule/mulerequester/current/mule-mulerequester.xsd">
 
 	<context:property-placeholder location="classpath*:dp_ps${mule.env:#{null}}.properties"
@@ -35,12 +33,6 @@ http://www.mulesoft.org/schema/mule/mulerequester http://www.mulesoft.org/schema
 		basePath="${elasticsearch.sentinel.path}" doc:name="HTTP Request Elastisearch" />
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
-	
-	<mulerequester:config name="Mule_FTP_Requester" doc:name="Mule Requester"/>
-    <!-- FtpConnector with streaming=true to avoid original file deletion! (created to be used with mulerequester) -->
-    <ftp:connector name="nonDeletingFtpConn" doc:name="FTP Connector with streaming set to true to avoid original file deletion! (created to be used with mulerequester)" pollingFrequency="1000" validateConnections="true" streaming="true">	
-    	<!-- <dispatcher-threading-profile doThreading="false"/> -->
-    </ftp:connector>
     
     <!-- Add needed orchestrator properties to the JMS message to pass them to LogStash -->
     <message-properties-transformer name="Logstash-Properties" doc:name="Message Properties">
@@ -196,14 +188,16 @@ mapForS1TB.put("data", datasetDataArrayList);
             <message-property-filter pattern="message_failed=null" caseSensitive="true" scope="inbound"/>
 
         </message-filter>
-		<object-to-string-transformer doc:name="Object to String" />
+        <object-to-string-transformer doc:name="Object to String"/>
+
 
 		<logger message="PSinSAR Request response:  #[payload]" level="INFO" doc:name="Result PSinSAR" />
-		<json:json-to-object-transformer returnClass="java.util.ArrayList" doc:name="JSON to ArrayList"/>
+        <set-variable variableName="outputFolder" value="#[payload]" doc:name="outputFolder"/>
+        <component class="it.planetek.rheticus.mule.components.SftpFolderFilesRequester" doc:name="SftpFolderFilesRequester"/>
+
         <foreach doc:name="For Each">
 
-            <mulerequester:request config-ref="Mule_FTP_Requester" resource="ftp://${ps.ftp.usr}:${ps.ftp.pwd}@${ps.ftp.host}:${ps.ftp.port}#[payload]?connector=nonDeletingFtpConn" doc:name="Download PS map from FTP"/>
-            <logger message="Requester: #[message]" level="INFO" doc:name="Logger"/>
+            <logger message="Requester: #[message]" level="DEBUG" doc:name="Requester Msg"/>
             <set-variable variableName="fileName" value="#[message.inboundProperties['originalFilename']]" doc:name="fileName"/>
             <file:outbound-endpoint path="${import.shapefile.folder}" outputPattern="#[fileName]" responseTimeout="10000" doc:name="Download to import dir"/>
             <expression-filter expression="#[fileName.endsWith(&quot;.shp&quot;)]" doc:name="is .shp?"/>

@@ -14,6 +14,15 @@ angular.module('rheticus')
 
 		var self = this; //this controller
 
+		var setCrossOrigin = function() { // Review "CrossOrigin" openlayers parameter from overlays configuration
+			var overlays = configuration.layers.overlays.olLayers;
+			for(var o=0; o<overlays.length; o++){
+				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin=="null")) ? null : "";
+			}
+			return overlays;
+		};
+		var overlays = setCrossOrigin();
+
 		/**
 		 * PUBLIC VARIABLES AND METHODS
 		 */
@@ -82,7 +91,8 @@ angular.module('rheticus')
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
 			"baselayers" : configuration.layers.baselayers, // basemap layer list
-			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
+
+			"overlays" : overlays, // overlay layer list
 			"metadata" : configuration.layers.overlays.metadata // overlay layer list
 		});
 
@@ -105,6 +115,7 @@ angular.module('rheticus')
 			"showDetails" : showDetails,
 			"getActiveBaselayer" : getActiveBaselayer,
 			"getBaselayers" : getBaselayers,
+			
 			"getOverlays" : getOverlays,
 			
 			"dataLoading" : false,
@@ -140,13 +151,16 @@ angular.module('rheticus')
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */
+		var MAX_FEATURES = 5;
+		var MAX_SENTINEL_MEASURES = 1000;
+		//External Controller flag
+		var activeController = "";
 		//Retrieves Overlay ols params or metadata detail
 		var getOverlay = function(detail,id){
+
 			var index = ArrayService.getIndexByAttributeValue(self.overlays,"id",id); // jshint ignore:line
 			return eval("self."+detail+"[index]"); // jshint ignore:line
 		};
-		//External Controller flag
-		var activeController = "";
 		//Marker
 		var setMarker = function(response) { // Marker and PS trends management
 			self.marker = {
@@ -165,29 +179,38 @@ angular.module('rheticus')
 			});
 		};
 		//GetFeatureInfo
-		var getFeatureInfo = function(map,coordinate,olLayerSource,featureCount,cqlFilter,resultObj,callback){
+
+		var getFeatureInfo = function(map,coordinate,olLayerSource,infoFormat,featureCount,cqlFilter,resultObj,callback){
 			var viewResolution = map.getView().getResolution();
+
 			var wms = eval("new ol.source."+olLayerSource.type+"(olLayerSource);"); // jshint ignore:line
 			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{
-				"INFO_FORMAT" : "application/json",
+
+				"INFO_FORMAT" : (infoFormat!=="") ? infoFormat : "application/json",
 				"FEATURE_COUNT" : featureCount,
 				"CQL_FILTER" : cqlFilter
 			});	
 			if (url) {
 				var that = $scope; // jshint ignore:line
-				$http.get(url).success(function (response) {
-					var obj = {
-						"point" : ol.proj.toLonLat(coordinate,configuration.map.crs), // jshint ignore:line
-						"features" : (response.features && (response.features.length>0)) ? response.features : null
-					};
-					if (resultObj!==""){
-						eval("that."+resultObj+" = obj;"); // jshint ignore:line
-					}
+				$http.get(url)
+					.success(function (response) {
+						//TODO HTTP STATUS == 200 -- manage "ServiceException"
+						var obj = {
+							"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
+							"features" : (response.features && (response.features.length>0)) ? response.features : null
+						};
+						if (resultObj!==""){
+							eval("that."+resultObj+" = obj;");
+						}
 
-					if (callback!==null){
-						callback(obj);
-					}
-				});
+
+						if (callback!==null){
+							callback(obj);
+						}
+					})
+					.error(function (response) {
+						//TODO HTTP STATUS != 200
+					});
 			} else {
 				console.log("[main-controller :: getFeatureInfo] URL undefined!");
 			}
@@ -223,11 +246,18 @@ angular.module('rheticus')
 				var queryType = getOverlayMetadata(l.id).type;
 				switch(queryType) {
 					case "ImageWMS":
+						var idLayers = "";
+						for (var i=0; i<getOverlayMetadata(l.id).custom.LAYERS.length; i++) {
+							idLayers += getOverlayMetadata(l.id).custom.LAYERS[i].id + ",";
+						}
+						if (idLayers!==""){
+							idLayers = idLayers.substring(0, idLayers.length-1);
+						}
 						olLayer = {
 							"type" : queryType,
 							"url" : queryUrl,
 							"params" : {
-								"LAYERS" : getOverlayMetadata(l.id).custom.LAYERS
+								"LAYERS" : idLayers
 							}
 						};
 						break;
@@ -244,23 +274,26 @@ angular.module('rheticus')
 		olData.getMap().then(function (map) {
 			//singleclick event
 			map.on("singleclick", function (evt) {
+
 				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l.active){
 						switch(l.id) {
 							case "iffi": //Progetto IFFI
-								getFeatureInfo(map,evt.coordinate,l.source,20,null,"iffi",setMarker);
+
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),"application/geojson",MAX_FEATURES,null,"iffi",setMarker);
 								break;
 							case "sentinel": // Sentinel 1 Datatset and timeline management
 								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+	
 								// if empty string set on today's date 
 								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line 
 								var cqlFilter = "(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))";
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),1000,cqlFilter,"sentinel",setMarker);
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),"",MAX_SENTINEL_MEASURES,cqlFilter,"sentinel",setMarker);
 								break;
 							case "ps":
 								if (showDetails()){ //proceed with getFeatureInfo request
-									getFeatureInfo(map,evt.coordinate,l.source,20,getOverlayParams("ps").source.params.CQL_FILTER,"ps",setMarker);
+									getFeatureInfo(map,evt.coordinate,l.source,"",MAX_FEATURES,getOverlayParams("ps").source.params.CQL_FILTER,"ps",setMarker);
 								} else {
 									// do nothing
 									//console.log("heatmap zoom level ... no features info to display!");
@@ -272,7 +305,8 @@ angular.module('rheticus')
 					}
 				});
 			});
-			map.on("moveend", function (evt) { // jshint ignore:line 
+
+			map.on("moveend", function (evt) { //pan or zoom
 				//do nothing
 			});	
 		});

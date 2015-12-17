@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd" >
+
+	<spring:beans>
+		<context:property-placeholder location="classpath:sen1utility.properties" />
+		<spring:bean id="sen1utilityProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+			<spring:property name="singleton" value="true" />
+			<spring:property name="location" value="classpath:sen1utility.properties" />
+		</spring:bean>
+	</spring:beans>
+	
     <http:listener-config name="entryPoint" host="0.0.0.0" port="9090" doc:name="HTTP Listener Configuration"/>
+    
     <flow name="EsToJsonGroupingFlow1" doc:description="Get full Product From ElasticSearch and create a json file" >
         <http:listener config-ref="entryPoint" path="/EsToJson" doc:name="HTTP"/>
 
@@ -43,7 +55,7 @@ return prettyPrint(payload);]]></scripting:script>
         <expression-component doc:name="Expression"><![CDATA[report += "]\n}"]]></expression-component>
         <set-payload value="#[report]" doc:name="Set Payload as Report"/>
         <json:object-to-json-transformer doc:name="Object to JSON"/>
-        <file:outbound-endpoint path="C:\Users\adminpk\Desktop" outputPattern="report.txt" responseTimeout="10000" doc:name="File"/>
+        <file:outbound-endpoint path="${output.folder}" outputPattern="report.txt" responseTimeout="10000" doc:name="File"/>
 
         <set-payload value="Report salvato" doc:name="Set Payload"/>
 
