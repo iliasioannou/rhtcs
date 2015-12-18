@@ -4,6 +4,27 @@ var bookshelf = require("bookshelf")(knex);
 
 bookshelf.plugin("visibility");
 
+// ------------ User and Deal -------------
+
+var User = bookshelf.Model.extend({
+    tableName: "user",
+    hidden: ["password", "id"],
+
+	deals: function(){
+		return this.hasMany(Deal, "user_id");
+	}
+});
+
+
+var Deal = bookshelf.Model.extend({
+    tableName: "deal",
+    hidden: ["id", "seller_id", "user_id", "geom"]
+});
+
+
+
+
+// ------------ Dataset and Ps -------------
 var Dataset = bookshelf.Model.extend({
     tableName: "ps_dataset_metadata",
 	idAttribute: "datasetid",
@@ -48,6 +69,7 @@ var PsMeasures = bookshelf.Collection.extend({
 
 // Public
 var public = {
+	User: User,
     Dataset: Dataset,
     Ps: Ps,
     Pss: Pss,
