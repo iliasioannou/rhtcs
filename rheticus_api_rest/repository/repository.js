@@ -4,6 +4,28 @@ var bookshelf = require("bookshelf")(knex);
 
 bookshelf.plugin("visibility");
 
+var Dataset = bookshelf.Model.extend({
+    tableName: "ps_dataset_metadata",
+	idAttribute: "datasetid",
+    hidden: ["timestampinsert", "license"],
+	algoParams: function(){
+		return this.hasMany(AlgoParam, "datasetid");
+	},
+	products: function(){
+		return this.hasMany(Product, "datasetid");
+	}
+});
+
+var AlgoParam = bookshelf.Model.extend({
+    tableName: "ps_dataset_metadata_algo_params",
+    hidden: ["datasetid"]
+});
+
+var Product = bookshelf.Model.extend({
+    tableName: "ps_dataset_products",
+    hidden: ["datasetid"]
+});
+
 var Ps = bookshelf.Model.extend({
     tableName: "ps",
     hidden: ["id", "lat", "lon", "geom"]
@@ -26,6 +48,7 @@ var PsMeasures = bookshelf.Collection.extend({
 
 // Public
 var public = {
+    Dataset: Dataset,
     Ps: Ps,
     Pss: Pss,
     PsMeasure: PsMeasure,

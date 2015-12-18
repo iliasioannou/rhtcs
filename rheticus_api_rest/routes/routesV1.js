@@ -70,6 +70,31 @@ var serverRouter = function(server) {
         next();
     });
 
+    // ----------------------------------    
+    // Dettaglio di dataset
+    server.get({ path: '/datasets/:idDataset', version: VERSION }, function (req, res, next) {
+        console.log("Dettaglio del dataset");
+        var idDataset = req.params.idDataset;
+        if (idDataset == undefined || idDataset == null){
+            idDataset = "";
+        }
+        console.log("\tDataset Id = %s", req.params.idDataset);
+        repository.Dataset.forge({datasetid: idDataset})
+			.fetch({withRelated: ["algoParams", "products"]})
+            .then(function(dataset){
+				if (dataset == null){
+					next(new restify.NotFoundError("Unknow dataset. Sorry !"));
+					return;
+				}
+				else{
+					res.send(dataset.toJSON());
+				}
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+        next();
+    });
 
     // ----------------------------------    
     // Elenco dei PS di un dataset
@@ -88,7 +113,7 @@ var serverRouter = function(server) {
             })
             .catch(function(error){
                 console.log(error);
-            });       
+            });
         next();
     });
 
@@ -109,7 +134,7 @@ var serverRouter = function(server) {
         console.log("\tDataset Id = %s", req.params.idDataset);
         console.log("\tPs Id      = %s", req.params.idPs);
 
-        repository.Ps.forge()
+		repository.Ps.forge()
             .query({where: {datasetid: idDataset}, andWhere: {psid: idPs}})
             .fetchAll()
             .then(function(collection){
