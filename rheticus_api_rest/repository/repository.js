@@ -3,6 +3,7 @@ var knex = require("knex")(dbConfig);
 var bookshelf = require("bookshelf")(knex);
 
 bookshelf.plugin("visibility");
+//bookshelf.plugin("virtuals");
 
 // ------------ User and Deal -------------
 
@@ -18,7 +19,7 @@ var User = bookshelf.Model.extend({
 
 var Deal = bookshelf.Model.extend({
     tableName: "deal",
-    hidden: ["id", "seller_id", "user_id", "geom"]
+    hidden: ["id", "seller_id", "user_id", "geom"],
 });
 
 
