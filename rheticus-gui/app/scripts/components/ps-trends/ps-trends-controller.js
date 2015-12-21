@@ -80,6 +80,12 @@ angular.module('rheticus')
 			}
 		});
 
+		$scope.$on("setPsTrendsClosure",function(e){
+			if (self.show_trends) {
+				self.showPsTrends(false);
+			}
+		});
+		
 		/**
 		 * WATCHERS
 		 */		
@@ -102,7 +108,7 @@ angular.module('rheticus')
 
 		var getMeasures = function (datasetid,psid){
 			var ret = [];
-			var measureUrl = $scope.getOverlayMetadata("ps").queryUrl;
+			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
 			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
 			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
 			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
@@ -166,5 +172,20 @@ angular.module('rheticus')
 				return(res);
 			}
 		};
+
+		$scope.$on("angular-resizable.resizeEnd", function (event, args) {
+			$scope.rc.api.update();
+			if(!$scope.$$phase) {
+				$scope.$apply();
+			}
+/*
+			$scope.events.unshift(event);
+			$scope.size = args;
+			if(args.width)
+				$scope.dynamicSize.width = args.width;
+			if(args.height)
+				$scope.dynamicSize.height = args.height;
+*/
+        });
 
 	}]);

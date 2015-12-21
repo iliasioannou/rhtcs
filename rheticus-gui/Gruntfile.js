@@ -467,13 +467,15 @@ module.exports = function (grunt) {
 					'*.html',
 					'scripts/components/**/*.html',
 					'images/{,*/}*.{webp}',
-					'styles/fonts/{,*/}*.*'
-				]}, {
+					'styles/fonts/{,*/}*.*',
+					'resources/*.*'
+					]
+				},{
 					expand: true,
 					cwd: '.tmp/images',
 					dest: '<%= yeoman.dist %>/images',
 					src: ['generated/*']
-				}, {
+				},{
 					expand: true,
 					cwd: '.',
 					src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',

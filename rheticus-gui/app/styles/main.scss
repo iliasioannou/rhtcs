@@ -235,16 +235,6 @@ body {
     padding: 2px;
     position: fixed !important;
 }
-/*
-.psInfo {
-    margin-top: 20px;
-    position: absolute;
-    z-index: 1060;
-    width: 700px;
-	top: 60px;
-	font-size: 11px;
-}
-*/
 
 .pagination {
 	margin:0;
@@ -315,15 +305,6 @@ body {
 	font-size: 12px;
 }
 
-
-
-/*
-.shadowed {
-    -webkit-box-shadow: 10px 10px 42px 0px rgba(0, 0, 0, 0.75);
-    -moz-box-shadow: 10px 10px 42px 0px rgba(0, 0, 0, 0.75);
-    box-shadow: 10px 10px 42px 0px rgba(0, 0, 0, 0.75);
-}
-*/
 .keepoff {
     top: -10000px;
     position: absolute;
@@ -375,23 +356,6 @@ body {
 	stroke: black;
 }
 
-.psTrends{
-	top: 75px;
-	left: 100px;
-	position: absolute;
-	z-index: 1060;
-	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 4px;
-	padding: 2px;
-	min-height: 200px;
-	height:400px;
-	width: 50%;
-	margin-top: 20px;
-	font-size: 11px;
-	resize: both;
-	overflow: auto;
-}
-
 .timeline {
 	bottom: 50px;
 	position: absolute;
@@ -420,13 +384,6 @@ body {
 .map-control-panel > div{
 	right:0;
 }
-/*
-.close {
-	margin:5px;
-
-	position: relative;
-    top: -12px;
-}*/
 
 .layer-switcher {
     position: absolute;
@@ -512,6 +469,32 @@ body {
     z-index: 2;
 }
 
+.psTrendsClose {
+	margin: 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+.psTrendsChart{
+    width: auto;
+    height: 70%;
+}
+.psTrends {
+    transition: all .3s ease-in-out;     
+    width: 100%;
+    height: 100%;
+    position: relative;
+	z-index: 1060;
+}
+.psTrends {
+    &.active { left: 0; }
+    .resizable {
+        margin: auto;
+        position: absolute;
+		left: 3em;
+		top: 0.5em;
+    }
+}
 .featureInfoHeader {
 	width: 100%;
 	font-size: 15px;
@@ -545,8 +528,14 @@ body {
 .inner {
     box-sizing: border-box;
     overflow: auto;
-    padding: 1em;
+    padding: 0.5em;
     height: 100%;
     width: 100%;
 	font-size: 11px;
+}
+.flashMessage {
+	position: absolute;
+	bottom: -15px;
+	right: 40px;
+	z-index:2000;
 }

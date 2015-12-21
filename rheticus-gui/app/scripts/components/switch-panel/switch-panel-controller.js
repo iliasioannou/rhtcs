@@ -81,7 +81,7 @@ angular.module('rheticus')
 			"isCollapsed" : true, // not minimize
 			"minimize" : minimize,
 			//PS
-			"show_panel_ps" : self.ps.active,
+			"show_panel_ps" : true, //self.ps.active,
 			"show_panel_ps_provider" : false,
 			"show_panel_ps_aoi" : false,
 			"view_overlay_ps" : self.ps.active, // overlay visibility
@@ -95,13 +95,13 @@ angular.module('rheticus')
 			"updateSelectionArea" : updateSelectionArea,
 			"updateSelection" : updateSelection,
 			//IFFI
-			"show_panel_iffi" : self.iffi.active,
+			"show_panel_iffi" : false, //self.iffi.active,
 			"view_overlay_iffi" : self.iffi.active,
 			"iffi_layer_visibility_text" : self.iffi.active ? "Layer off" : "Layer on",
 			"switchOverlayIffi" : switchOverlayIffi,
 			"viewPanelIffi" : viewPanelIffi,
 			//SENTINEL
-			"show_panel_sentinel" : self.sentinel.active,
+			"show_panel_sentinel" : false, //self.sentinel.active,
 			"view_overlay_sentinel" : self.sentinel.active,
 			"sentinel_layer_visibility_text" : self.sentinel.active ? "Layer off" : "Layer on",
 			"switchOverlaySentinel" : switchOverlaySentinel,

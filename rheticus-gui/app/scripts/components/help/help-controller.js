@@ -24,5 +24,5 @@ angular.module('rheticus')
 			"toggleHelp" : function(){
 				$scope.showHelp = !$scope.showHelp;
 			}
-		});	
+		});
 	}]);

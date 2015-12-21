@@ -121,6 +121,12 @@ angular.module('rheticus')
 			}
 		});
 
+		$scope.$on("setTimelineClosure",function(e){
+			if (self.show_timeline) {
+				self.showTimeline(false);
+			}
+		});
+		
 		/**
 		 * WATCHERS
 		 */	

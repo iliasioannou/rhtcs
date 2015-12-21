@@ -1,8 +1,7 @@
 'use strict';
  
 angular.module('rheticus')
- 	.controller('LoginController', 
-		['$scope', '$rootScope', '$location', 'AuthenticationService', '$route', '$templateCache',
+ 	.controller('LoginController',['$scope', '$rootScope', '$location', 'AuthenticationService', '$route', '$templateCache',
 		function ($scope, $rootScope, $location, AuthenticationService,$route,$templateCache) {
 			$scope.login = function () {
 				$scope.dataLoading = true;
@@ -12,7 +11,6 @@ angular.module('rheticus')
 						AuthenticationService.SetCredentials($scope.username, $scope.password);
 						$location.path('/');
 						$scope.dataLoading = false;
-						
 						$scope.error = null;
 						console.log("logged1 : "+$scope.logged);
 						var currentPageTemplate = $route.current.templateUrl;

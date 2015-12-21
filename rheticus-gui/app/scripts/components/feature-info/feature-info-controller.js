@@ -29,6 +29,12 @@ angular.module('rheticus')
 			}
 		});
 
+		$scope.$on("setFeatureInfoClosure",function(e){
+			if (self.show_features) {
+				self.showFeatures(false);
+			}
+		});
+
 		/**
 		 * WATCHERS
 		 */		
