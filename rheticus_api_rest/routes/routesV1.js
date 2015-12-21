@@ -29,10 +29,54 @@ var serverRouter = function(server) {
         console.log("Http origin      : " + req.header("Origin"));
         console.log("Http url         : " + req.url);
         console.log("Http User-Agent  : " + req.header("User-Agent"));
+        console.log("Auth. username   : " + req.username);
         console.log("");
         next();
     });
-    
+
+    // ----------------------------------    
+    // Check identity for user and return AOI
+    server.get({ path: '/authenticate', version: VERSION }, function (req, res, next) {
+        console.log("Check autentication");
+        var userName = req.query.username;
+        if (userName == undefined || userName == null){
+            userName = "";
+        }
+        var passwordEncrypted = req.query.password;
+        if (passwordEncrypted == undefined || passwordEncrypted == null){
+            passwordEncrypted = "";
+        }
+        var passwordPlain = new Buffer(passwordEncrypted, 'base64').toString('ascii');
+        console.log("\tUsername  = %s", userName);
+        console.log("\tPassword  = %s", passwordPlain);
+        
+		repository.User.forge({username: userName})
+			.fetch({withRelated: ["deals"]})
+            .then(function(user){
+				if (user){
+					var userPassword = user.get("password");
+					console.log("\tUser from db = %s", JSON.stringify(user));
+					console.log("\tUser password from db = %s", userPassword);
+					if(userPassword !== passwordPlain) {
+						next(new restify.NotAuthorizedError());
+					}
+					else{
+						console.log("\tUser is OK");
+						res.send(user.toJSON());
+					}
+				}
+				else {
+					// Respond with { code: 'NotAuthorized', message: '' }
+					next(new restify.NotAuthorizedError());
+				}
+
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+    });
+	
+
     // ----------------------------------    
     // Info on Rheticus API Rest
     server.get({ path: '/info', version: VERSION }, function (req, res, next) {
@@ -70,6 +114,31 @@ var serverRouter = function(server) {
         next();
     });
 
+    // ----------------------------------    
+    // Dettaglio di dataset
+    server.get({ path: '/datasets/:idDataset', version: VERSION }, function (req, res, next) {
+        console.log("Dettaglio del dataset");
+        var idDataset = req.params.idDataset;
+        if (idDataset == undefined || idDataset == null){
+            idDataset = "";
+        }
+        console.log("\tDataset Id = %s", req.params.idDataset);
+        repository.Dataset.forge({datasetid: idDataset})
+			.fetch({withRelated: ["algoParams", "products"]})
+            .then(function(dataset){
+				if (dataset == null){
+					next(new restify.NotFoundError("Unknow dataset. Sorry !"));
+					return;
+				}
+				else{
+					res.send(dataset.toJSON());
+				}
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+        next();
+    });
 
     // ----------------------------------    
     // Elenco dei PS di un dataset
@@ -88,7 +157,7 @@ var serverRouter = function(server) {
             })
             .catch(function(error){
                 console.log(error);
-            });       
+            });
         next();
     });
 
@@ -109,7 +178,7 @@ var serverRouter = function(server) {
         console.log("\tDataset Id = %s", req.params.idDataset);
         console.log("\tPs Id      = %s", req.params.idPs);
 
-        repository.Ps.forge()
+		repository.Ps.forge()
             .query({where: {datasetid: idDataset}, andWhere: {psid: idPs}})
             .fetchAll()
             .then(function(collection){

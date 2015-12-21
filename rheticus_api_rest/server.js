@@ -8,7 +8,7 @@ var routes = require("./routes/routesV1.js")(server);
 
 server.pre(versioning({ prefix: "/api" }))
 server.pre(restify.pre.sanitizePath());
-server.pre(restify.CORS());
+//server.pre(restify.CORS());
 
 server.listen(serverConfig.port, function () {
     console.log("<%s> server (version %s) listening at <%s>", server.name, serverConfig.version, server.url);

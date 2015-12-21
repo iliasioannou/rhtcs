@@ -14,6 +14,52 @@ Versioning delle API
 
 Url delle risorse:
 
+
+processing info for dataset elaboration
+
+    .../api/v1/datasets/{id}
+
+    returned:
+
+		{
+			datasetid: "SENTINEL-TEST-METADATA",
+			algorithmname: "SPINUA",
+			algorithmdescription: "Generazione PS da acquisizioni Sentinel 1",
+			algorithmversion: "V1.1",
+			timestampelaborationstart: "2015-12-02T09:30:05.000Z",
+			timestampelaborationend: "2015-12-02T11:48:33.000Z",
+			supermaster: "0123456",
+			products: [
+				{
+					productid: "0000000"
+				},
+				{
+					productid: "0000001"
+				},
+				{
+					productid: "0000002"
+				}
+			],
+			algoParams: [
+				{
+					code: "PARAM_01",
+					description: "PARAMETER DESCRIPTION 01",
+					val: "1"
+				},
+				{
+					code: "PARAM_02",
+					description: "PARAMETER DESCRIPTION 02",
+					val: "XXXXXX"
+				},
+				{
+					code: "PARAM_03",
+					description: "PARAMETER DESCRIPTION 03",
+					val: "PIPPO"
+				}
+			]
+		}
+
+
 detailed info for ps of a dataset
     .../api/v1/datasets/{id}/pss/{id}
 
