@@ -3,55 +3,63 @@
 angular.module('rheticus')
  
 .factory('AuthenticationService',
-    ['Base64', '$http', '$cookies', '$rootScope', '$timeout',
-    function (Base64, $http, $cookies, $rootScope, $timeout) {
+    ['Base64', '$http', '$cookies', '$rootScope', '$timeout','configuration',
+    function (Base64, $http, $cookies, $rootScope, $timeout, configuration) {
         var service = {};
 		
         service.Login = function (username, password, callback) {
 
             /* Dummy authentication for testing, uses $timeout to simulate api call
-             ----------------------------------------------*/
+             ----------------------------------------------
             $timeout(function(){
-                var response = { success: username === 'test' && password === 'test' };
+                var response = { 
+					success: username === 'usertest' && password === 'pwdtest',
+					username: 'usertest'
+				};
                 if(!response.success) {
                     response.message = 'Username or password is incorrect';
                 } else { response.message = 'Username and password correct'; }
                 callback(response);
-            }, 1000);
+            }, 1000);*/
 
-
+			
             /* Use this for real authentication
-             ----------------------------------------------*/
-            //$http.post('/api/authenticate', { username: username, password: password })
+             ----------------------------------------------
+            //$http.post('configuration.authentication', { username: username, password: password })
             //    .success(function (response) {
             //        callback(response);
-            //    });
+            //    });*/
+			
+			
+			
+			var psw64 = Base64.encode(password);
+			var url = configuration.authentication.url + "username="+username+"&password="+psw64;
+
+			$http.get(url).success(function (response) {
+				var res = response;
+				
+				callback(res);
+            });
 
         };
  
-        service.SetCredentials = function (username, password) {
+        service.SetCredentials = function (username, password, deals) {
             var authdata = Base64.encode(username + ':' + password);
-			
- 
             $rootScope.globals = {
-                currentUser: {
-                    username: username,
-                    authdata: authdata
+                "currentUser": {
+                    "username": username,
+                    "authdata": authdata,
+					"deals" : deals
                 }
             };
- 
             $http.defaults.headers.common['Authorization'] = 'Basic ' + authdata; // jshint ignore:line
-            $cookies.putObject('globals', $rootScope.globals);
-			console.log("setCredential user: " + $rootScope.globals.currentUser.username);
-			
-			$rootScope.logged = true;
+            $cookies.putObject('globals', $rootScope.globals);$rootScope.logged = true;
         };
  
         service.ClearCredentials = function () {
             $rootScope.globals = {};
             $cookies.remove('globals');
-            $http.defaults.headers.common.Authorization = 'Basic ';
-			
+            $http.defaults.headers.common.Authorization = 'Basic ';			
 			$rootScope.logged = false;
         };
  

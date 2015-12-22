@@ -33,12 +33,13 @@ angular.module('rheticus')
 			viewPanel("ps_aoi");
 		};
 		var updateSelectionArea = function(position, entities) {
+		
 			angular.forEach(entities, function(subscription, index) {
 				if (position === index) {
 					$scope.setCenter({
-						"lon" : self.aoi[position].center.lon,
-						"lat" : self.aoi[position].center.lat,
-						"zoom" : self.aoi[position].center.zoom
+						"lon" : entities[position].center.lon,
+						"lat" : entities[position].center.lat,
+						"zoom" : entities[position].center.zoom
 					});
 				}
 			});
@@ -74,14 +75,15 @@ angular.module('rheticus')
 			"iffi" : $scope.getOverlayParams("iffi"),
 			"iffi_metadata" : $scope.getOverlayMetadata("iffi"),
 			"sentinel" : $scope.getOverlayParams("sentinel"),
-			"sentinel_metadata" : $scope.getOverlayMetadata("sentinel")
+			"sentinel_metadata" : $scope.getOverlayMetadata("sentinel"),
+			"privateAOI" : $scope.getPrivateAOI()
 		});
 		angular.extend(self,{
 			//Tab controls
 			"isCollapsed" : true, // not minimize
 			"minimize" : minimize,
 			//PS
-			"show_panel_ps" : self.ps.active,
+			"show_panel_ps" : true,
 			"show_panel_ps_provider" : false,
 			"show_panel_ps_aoi" : false,
 			"view_overlay_ps" : self.ps.active, // overlay visibility
@@ -95,17 +97,17 @@ angular.module('rheticus')
 			"updateSelectionArea" : updateSelectionArea,
 			"updateSelection" : updateSelection,
 			//IFFI
-			"show_panel_iffi" : self.iffi.active,
+			"show_panel_iffi" : false,
 			"view_overlay_iffi" : self.iffi.active,
 			"iffi_layer_visibility_text" : self.iffi.active ? "Layer off" : "Layer on",
 			"switchOverlayIffi" : switchOverlayIffi,
 			"viewPanelIffi" : viewPanelIffi,
 			//SENTINEL
-			"show_panel_sentinel" : self.sentinel.active,
+			"show_panel_sentinel" : false,
 			"view_overlay_sentinel" : self.sentinel.active,
 			"sentinel_layer_visibility_text" : self.sentinel.active ? "Layer off" : "Layer on",
 			"switchOverlaySentinel" : switchOverlaySentinel,
-			"viewPanelSentinel" : viewPanelSentinel
+			"viewPanelSentinel" : viewPanelSentinel			
 		});
 
 		/**

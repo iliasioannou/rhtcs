@@ -17,7 +17,7 @@ angular.module('rheticus')
 		var setCrossOrigin = function() { // Review "CrossOrigin" openlayers parameter from overlays configuration
 			var overlays = configuration.layers.overlays.olLayers;
 			for(var o=0; o<overlays.length; o++){
-				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin=="null")) ? null : "";
+				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin==="null")) ? null : "";
 			}
 			return overlays;
 		};
@@ -82,6 +82,41 @@ angular.module('rheticus')
 			return self.overlays;
 		};
 		
+		var privateAOI=[];
+		privateAOI.push({"name":"nick"});
+		
+		var setPrivateAOI = function(deals){
+			$rootScope.privateAOI = [];
+			angular.forEach(deals, function(aoi, index) {
+				var obj = JSON.parse(aoi.geom_geo_json);
+				
+				$rootScope.privateAOI.push({
+					"name" : aoi.product_name,
+					"center" : {
+						"lon" : getCoord(obj.coordinates[0], 0),
+						"lat" : getCoord(obj.coordinates[0], 1),
+						"zoom" : 14
+					}
+				});
+			});
+			
+		};
+		/**
+		* array coord: arrey di coordinate
+		* integer measure: specifica la coordinata su cui fare la media (0 per x, 1 per y)
+		*/
+		var getCoord= function(coord, measure) {
+			var tot=0;
+			angular.forEach(coord, function(value, index) {
+				tot+= coord[index][measure];
+			});
+			return (tot / coord.length);
+		};
+		
+		var getPrivateAOI = function(){
+			return $rootScope.privateAOI;
+		};
+		
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */		
@@ -121,7 +156,9 @@ angular.module('rheticus')
 			"dataLoading" : false,
 			"logged" : $rootScope.logged,
 			"username" : $rootScope.username,
-			"error" : null
+			"error" : null,
+			"setPrivateAOI" :  setPrivateAOI,
+			"getPrivateAOI" : getPrivateAOI
 		});
 		
 		/**
@@ -200,7 +237,7 @@ angular.module('rheticus')
 							"features" : (response.features && (response.features.length>0)) ? response.features : null
 						};
 						if (resultObj!==""){
-							eval("that."+resultObj+" = obj;");
+							eval("that."+resultObj+" = obj;"); // jshint ignore:line
 						}
 
 
@@ -309,6 +346,12 @@ angular.module('rheticus')
 			map.on("moveend", function (evt) { //pan or zoom
 				//do nothing
 			});	
+		});
+		
+		$rootScope.$watch("globals", function () {
+			if ($rootScope.globals.currentUser) {
+				$scope.setPrivateAOI($rootScope.globals.currentUser.deals);
+			}		
 		});
 
 	}]);

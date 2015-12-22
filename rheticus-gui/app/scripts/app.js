@@ -110,16 +110,16 @@ angular
 		angular.extend($rootScope,{
 			"markerVisibility" : false,
 			"logged" : false,
-			"username" : ""
+			"username" : "",
+			"privateAOI" : []
 		});
-		console.log("globals: "+ $cookies.getObject('username'));
+		
 		$rootScope.globals = $cookies.getObject('globals') || {};
-		console.log($rootScope.globals);
+
         if ($rootScope.globals.currentUser) {
-			console.log('currentUser:');
+			
 			$rootScope.logged= true;
 			$rootScope.username = $rootScope.globals.currentUser.username;
-			console.log($rootScope.globals.currentUser);
             $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata; // jshint ignore:line
         }
  /*

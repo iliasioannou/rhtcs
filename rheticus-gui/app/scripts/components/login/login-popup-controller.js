@@ -2,19 +2,17 @@
  
 angular.module('rheticus')
  	.controller('LoginController', 
-		['$scope', '$rootScope', '$location', 'AuthenticationService', '$route', '$templateCache',
-		function ($scope, $rootScope, $location, AuthenticationService,$route,$templateCache) {
+		['$scope', 'AuthenticationService', '$route', '$templateCache',
+		function ($scope, AuthenticationService,$route,$templateCache) {
 			$scope.login = function () {
 				$scope.dataLoading = true;
 				AuthenticationService.Login($scope.username, $scope.password, function(response) {
-					console.log($scope.username + $scope.password);
-					if(response.success) {
-						AuthenticationService.SetCredentials($scope.username, $scope.password);
-						$location.path('/');
-						$scope.dataLoading = false;
+					if(response.username === $scope.username) {
+						AuthenticationService.SetCredentials($scope.username, $scope.password, response.deals);
 						
+						$scope.dataLoading = false;
+						$scope.setPrivateAOI(response.deals);
 						$scope.error = null;
-						console.log("logged1 : "+$scope.logged);
 						var currentPageTemplate = $route.current.templateUrl;
 						$templateCache.remove(currentPageTemplate);
 						$route.reload();
@@ -23,13 +21,15 @@ angular.module('rheticus')
 						$scope.dataLoading = false;
 					}
 				});
-				console.log("logged2 : "+$scope.logged);
+				
 			};
 			
 			$scope.logout = function () {
 				AuthenticationService.ClearCredentials();
+				var currentPageTemplate = $route.current.templateUrl;
+				$templateCache.remove(currentPageTemplate);
 				$route.reload();
-				console.log("logged1 : "+$scope.logged);
+				
 			};
 		}]
 	);

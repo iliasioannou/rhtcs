@@ -28,14 +28,13 @@ body {
 /* Custom page header */
 
 .header {
-    /*border-bottom: 1px solid #e5e5e5;*/
-    margin-bottom: 10px;
 	position: absolute;
 	z-index: 2;
 	top: 2%;
 	left: 1%;
-	/*width: 95% !important;*/
-	/*background: none repeat scroll 0 0 rgba(248, 248, 248, 0.8);  */
+	background-color: rgba(255, 255, 255, 0.4);
+	border-radius: 15px;
+	padding: 0;
 	
     /* Make the masthead heading the same height as the navigation */
     h3 {
@@ -47,10 +46,7 @@ body {
 }
 .brand {
     width: 14em;
-	margin-left: 0px !important;
-	border-radius: 15px;
-	padding: 5px;
-	fill-opacity: .8;
+	margin: 5px;
 }
 
 

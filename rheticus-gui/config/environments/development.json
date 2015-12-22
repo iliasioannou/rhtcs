@@ -29,7 +29,7 @@
 			"active" : true,
 			"opacity" : 1,
 			"layerOptions" : {
-				"attribution" : "Imagery \u00A9 \u00A9 Realvista contributors",
+				"attribution" : "Imagery \u00A9 Realvista contributors",
 				"url" : "http://www.realvista.it/"
 			}
 		}],

@@ -152,6 +152,14 @@ angular.module('rheticus')
 						tableInfo.push(featureInfo);
 					}
 				}
+				
+				// add weather data getWeather(datasetId); TODO
+				chartData.push({
+					"key" : "Precipitations",
+					"values" : [{"x" :  new Date("Mon Apr 06 2010 00:00:00 GMT+0200"), "y": 5},{"x" : new Date("Mon Apr 06 2011 00:00:00 GMT+0200"), "y": 10}], // values - represents the array of {x,y} data points
+					"classed" : "dashed"
+				});
+				
 				//Line chart data should be sent as an array of series objects.                
 				self.data = chartData;
 				self.psDetails = tableInfo;
@@ -166,5 +174,9 @@ angular.module('rheticus')
 				return(res);
 			}
 		};
+		/*
+		var getWeather = function(datasetId){
+			
+		};*/
 
 	}]);

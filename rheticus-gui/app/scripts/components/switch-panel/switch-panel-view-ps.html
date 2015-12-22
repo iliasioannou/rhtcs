@@ -43,10 +43,10 @@
 					</label><br/>
 				  </td>
 				</tr>
-				<tr ng-repeat="subscription in switchpanel.aoi" ng-show="logged">
+				<tr ng-repeat="subscription in switchpanel.privateAOI" ng-show="logged">
 				  <td>
 					<label class= switchpanelabel2>
-						<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.aoi)">{{subscription.name}}</a>
+						<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.privateAOI)">{{subscription.name}}</a>
 					</label><br/>
 				  </td>
 				</tr>

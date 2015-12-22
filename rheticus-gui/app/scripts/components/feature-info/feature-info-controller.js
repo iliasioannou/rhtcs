@@ -64,23 +64,24 @@ angular.module('rheticus')
 					// retrieve features that have "properties" and "layerName" fields following geojson standard
 					if ((featureCollection.features[i].properties) && (featureCollection.features[i].layerName)){ 
 						//retrieve its layer name
+						var index;
 						var layerName = featureCollection.features[i].layerName;
 						if (configurationLayers.length>0){
-							var index = ArrayService.getIndexByAttributeValue(configurationLayers,"id",layerName);
+							index = ArrayService.getIndexByAttributeValue(configurationLayers,"id",layerName);
 							layerName = configurationLayers[index].name;
 						}
 						// layer name must be not null
 						if (layerName!==""){
 							try {
 								var record = {};
-								var index = ArrayService.getIndexByAttributeValue(layerList,"layer",layerName);
+								index = ArrayService.getIndexByAttributeValue(layerList,"layer",layerName);
 								if (index===-1){ // add new layer with its first feature
 									var attributes = [];
 									for (var key in featureCollection.features[i].properties) {
 										// layer attributes (i.e. name of its properties)
 										if (key!==null){
 											attributes.push(key);
-											eval("record."+key+" = featureCollection.features[i].properties."+key+";");
+											eval("record."+key+" = featureCollection.features[i].properties."+key+";"); // jshint ignore:line
 										}
 									}
 									layerList.push({
@@ -90,7 +91,7 @@ angular.module('rheticus')
 									});
 								} else { // update existing layer with current feature
 									for (var k=0; k<layerList[index].attributes.length; k++) { 
-										eval("record."+layerList[index].attributes[k]+" = featureCollection.features[i].properties."+layerList[index].attributes[k]+";");
+										eval("record."+layerList[index].attributes[k]+" = featureCollection.features[i].properties."+layerList[index].attributes[k]+";"); // jshint ignore:line
 									}
 									layerList[index].records.push(record);
 								}
