@@ -4,18 +4,18 @@
  * @ngdoc function
  * @name rheticus.controller:PsTrendsCtrl
  * @description
- * # PsTrendsCtrl
+ * # PsTrendsCtrlf
  * Controller of the rheticus
  */
 
 angular.module('rheticus')
 	.controller('PsTrendsCtrl',['$rootScope','$scope','$http', function ($rootScope,$scope,$http) {
-		
+
 		var self = this; //this controller
-		
+
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
-		 */		
+		 */
 		angular.extend(self,{
 			"options" : { // PS Line chart options
 				"chart" : {
@@ -85,10 +85,10 @@ angular.module('rheticus')
 				self.showPsTrends(false);
 			}
 		});
-		
+
 		/**
 		 * WATCHERS
-		 */		
+		 */
 		// ps watcher for rendering chart line data
 		$scope.$watch("ps",function(ps){
 			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
@@ -134,7 +134,7 @@ angular.module('rheticus')
 		/**
 		 * Parameters:
 		 * features - {Object}
-		 * 
+		 *
 		 * Returns:
 		 */
 		var generateChartData = function(ps){
@@ -158,7 +158,7 @@ angular.module('rheticus')
 						tableInfo.push(featureInfo);
 					}
 				}
-				//Line chart data should be sent as an array of series objects.                
+				//Line chart data should be sent as an array of series objects.
 				self.data = chartData;
 				self.psDetails = tableInfo;
 				if(!$scope.$$phase) {
@@ -187,5 +187,4 @@ angular.module('rheticus')
 				$scope.dynamicSize.height = args.height;
 */
         });
-
 	}]);
