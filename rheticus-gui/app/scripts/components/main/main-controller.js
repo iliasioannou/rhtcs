@@ -9,8 +9,8 @@
  */
 
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService',
-	function ($rootScope,$scope,$http,olData,configuration,ArrayService){
+	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService','Flash',
+	function ($rootScope,$scope,$http,olData,configuration,ArrayService,Flash){
 
 		var self = this; //this controller
 
@@ -81,7 +81,7 @@ angular.module('rheticus')
 		var getOverlays = function() {
 			return self.overlays;
 		};
-		
+
 		var privateAOI=[];
 		privateAOI.push({"name":"nick"});
 		
@@ -126,7 +126,6 @@ angular.module('rheticus')
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
 			"baselayers" : configuration.layers.baselayers, // basemap layer list
-
 			"overlays" : overlays, // overlay layer list
 			"metadata" : configuration.layers.overlays.metadata // overlay layer list
 		});
@@ -150,9 +149,7 @@ angular.module('rheticus')
 			"showDetails" : showDetails,
 			"getActiveBaselayer" : getActiveBaselayer,
 			"getBaselayers" : getBaselayers,
-			
 			"getOverlays" : getOverlays,
-			
 			"dataLoading" : false,
 			"logged" : $rootScope.logged,
 			"username" : $rootScope.username,
@@ -166,13 +163,13 @@ angular.module('rheticus')
 		 */
 		//Switch PS layer
 		$scope.$watch("center.zoom", function () {
-			if (showDetails()){
+			//if (showDetails()){
 				setSpeedModelFilter($scope.speedModel.init);
 				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.detail;
-			} else {
+			/*} else {
 				getOverlayParams("ps").source.params.CQL_FILTER = null;
 				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.heatmap;
-			}
+			}*/
 		});
 		//speedModel init watcher for adjusting CQL_FILTER view source parameter
 		$scope.$watch("speedModel.init", function (range) {
@@ -194,7 +191,6 @@ angular.module('rheticus')
 		var activeController = "";
 		//Retrieves Overlay ols params or metadata detail
 		var getOverlay = function(detail,id){
-
 			var index = ArrayService.getIndexByAttributeValue(self.overlays,"id",id); // jshint ignore:line
 			return eval("self."+detail+"[index]"); // jshint ignore:line
 		};
@@ -216,13 +212,10 @@ angular.module('rheticus')
 			});
 		};
 		//GetFeatureInfo
-
-		var getFeatureInfo = function(map,coordinate,olLayerSource,infoFormat,featureCount,cqlFilter,resultObj,callback){
+		var getFeatureInfo = function(map,coordinate,olLayer,infoFormat,featureCount,cqlFilter,resultObj,callback){
 			var viewResolution = map.getView().getResolution();
-
-			var wms = eval("new ol.source."+olLayerSource.type+"(olLayerSource);"); // jshint ignore:line
+			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
 			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{
-
 				"INFO_FORMAT" : (infoFormat!=="") ? infoFormat : "application/json",
 				"FEATURE_COUNT" : featureCount,
 				"CQL_FILTER" : cqlFilter
@@ -231,22 +224,24 @@ angular.module('rheticus')
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
 					.success(function (response) {
-						//TODO HTTP STATUS == 200 -- manage "ServiceException"
-						var obj = {
-							"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
-							"features" : (response.features && (response.features.length>0)) ? response.features : null
-						};
-						if (resultObj!==""){
-							eval("that."+resultObj+" = obj;"); // jshint ignore:line
-						}
-
-
-						if (callback!==null){
-							callback(obj);
+						if (!response.features){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
+							Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!!");
+						} else {
+							Flash.dismiss();
+							var obj = {
+								"point" : ol.proj.toLonLat(coordinate,configuration.map.crs),
+								"features" : (response.features.length>0) ? response.features : null
+							};
+							if (resultObj!==""){
+								eval("that."+resultObj+" = obj;");
+							}
+							if (callback!==null){
+								callback(obj);
+							}
 						}
 					})
-					.error(function (response) {
-						//TODO HTTP STATUS != 200
+					.error(function (response) {//HTTP STATUS != 200
+						Flash.create('danger', "Layer \""+olLayer.name+"\" returned an error!!");
 					});
 			} else {
 				console.log("[main-controller :: getFeatureInfo] URL undefined!");
@@ -254,7 +249,7 @@ angular.module('rheticus')
 		};
 		//CQL_FILTER SETTER ON "VELOCITY" PS ATTRIBUTE
 		var setSpeedModelFilter = function(range){
-			if (showDetails()){ //proceed with filtering
+			//if (showDetails()){ //proceed with filtering
 				var min = "";
 				if (range.split(";")[0]!==$scope.speedModel.from){
 					min = "velocity>="+range.split(";")[0];
@@ -271,10 +266,10 @@ angular.module('rheticus')
 				}
 				var cql_filter = (cql_text!=="") ? cql_text : null;
 				getOverlayParams("ps").source.params.CQL_FILTER = cql_filter;
-			}
+			//}
 		};
 		//Creates OLS Layer Source from layer properties
-		var getGetFeatureInfoOlLayerSource = function(l){
+		var getGetFeatureInfoOlLayer = function(l){
 			var queryUrl = getOverlayMetadata(l.id).queryUrl;
 			var olLayer = null;
 			if (queryUrl==="") {
@@ -291,10 +286,14 @@ angular.module('rheticus')
 							idLayers = idLayers.substring(0, idLayers.length-1);
 						}
 						olLayer = {
-							"type" : queryType,
-							"url" : queryUrl,
-							"params" : {
-								"LAYERS" : idLayers
+							"id" : l.id,
+							"name" : l.name,
+							"source" : {
+								"type" : queryType,
+								"url" : queryUrl,
+								"params" : {
+									"LAYERS" : idLayers
+								}	
 							}
 						};
 						break;
@@ -311,29 +310,26 @@ angular.module('rheticus')
 		olData.getMap().then(function (map) {
 			//singleclick event
 			map.on("singleclick", function (evt) {
-
 				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l.active){
+						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");
 						switch(l.id) {
 							case "iffi": //Progetto IFFI
-
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),"application/geojson",MAX_FEATURES,null,"iffi",setMarker);
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),"application/geojson",MAX_FEATURES,null,"iffi",setMarker);
 								break;
 							case "sentinel": // Sentinel 1 Datatset and timeline management
 								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-	
 								// if empty string set on today's date 
 								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line 
 								var cqlFilter = "(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))";
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayerSource(l),"",MAX_SENTINEL_MEASURES,cqlFilter,"sentinel",setMarker);
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),"",MAX_SENTINEL_MEASURES,cqlFilter,"sentinel",setMarker);
 								break;
 							case "ps":
 								if (showDetails()){ //proceed with getFeatureInfo request
-									getFeatureInfo(map,evt.coordinate,l.source,"",MAX_FEATURES,getOverlayParams("ps").source.params.CQL_FILTER,"ps",setMarker);
+									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),"",MAX_FEATURES,getOverlayParams("ps").source.params.CQL_FILTER,"ps",setMarker);
 								} else {
-									// do nothing
-									//console.log("heatmap zoom level ... no features info to display!");
+									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("ps").legend.title+"\"!");
 								}
 								break;
 							default:
@@ -344,7 +340,12 @@ angular.module('rheticus')
 			});
 
 			map.on("moveend", function (evt) { //pan or zoom
-				//do nothing
+				$scope.$broadcast("setFeatureInfoClosure");
+				$scope.$broadcast("setPsTrendsClosure");
+				$scope.$broadcast("setTimelineClosure");
+				if ($scope.$parent.showHelp){
+					$scope.$parent.showHelp = false;
+				}
 			});	
 		});
 		

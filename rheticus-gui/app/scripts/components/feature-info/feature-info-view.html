@@ -1,6 +1,6 @@
 <div ng-show="features.show_features" ng-controller="FeatureInfoCtrl as features" data-intro="Feature Info Collection" data-position="bottom">
 	<div class="featureInfo" ng-class="{'active':false}">
-		<div resizable id="standard-box" r-directions="['bottom','left']" r-centered-x="false" r-centered-y="false" r-width="500" r-height="300">
+		<div resizable id="featureInfo-standard-box" r-directions="['top','right','bottom','left']" r-centered-x="true" r-centered-y="true" r-width="500" r-height="300" draggable title="Drag me...">
 			<div class="inner">
 				<div class="featureInfoHeader">
 					{{features.overlayName}}

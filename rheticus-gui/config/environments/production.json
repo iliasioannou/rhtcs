@@ -17,6 +17,7 @@
 			"group" : "base",
 			"source" : {
 				"type" : "TileWMS",
+				"crossOrigin" : "null",
 				"urls" : [
 					"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
 				],
@@ -76,12 +77,12 @@
 				"group" : "Overlays",
 				"source" : {
 					"type" : "TileWMS",
-					"crossOrigin" : "",
+					"crossOrigin" : "null",
 					"urls" : [
 						"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:ps_barritteri_heatmap",
+						"LAYERS" : "rheticus:ps",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -208,7 +209,7 @@
 			},{
 				"id" : "sentinel",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/wms",
+				"queryUrl" : "http://mazinga.planetek.it:8080/geoserver/rheticus/wms",
 				"legend" : {
 					"title" : "Sentinel Catalog",
 					"description" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
@@ -218,12 +219,12 @@
 					}
 				},
 				"custom" : {
-					"LAYERS" : "rheticus:slc"
+					"LAYERS" : [{"id":"rheticus:slc","name":"sentinel 1"}]
 				}
 			},{
 				"id" : "ps",
-				"type" : "RheticusApiRest",
-				"queryUrl" : "http://kim.planetek.it:8081/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
+				"type" : "ImageWMS",
+				"queryUrl" : "http://mazinga.planetek.it:8080/geoserver/rheticus/wms",
 				"legend" : {
 					"title":"Displacement Maps",
 					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
@@ -233,8 +234,10 @@
 					}
 				},
 				"custom" : {
-					"heatmap" : "rheticus:ps_barritteri_heatmap",
+					"LAYERS" : [{"id":"rheticus:ps","name":"Persistent Scatterers"}],
+					"heatmap" : "rheticus:ps",
 					"detail" : "rheticus:ps",
+					"measureUrl" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
 					"datasetid" : "datasetid",
 					"psid" : "psid",
 					"date" : "data",

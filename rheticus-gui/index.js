@@ -8,34 +8,29 @@ server.use(express.static(__dirname + '/'));
 server.get('/',function(req, res) {
     res.sendfile('./index.html');
 });
-// Start Server.
-server.listen(server.get('port'), function() {
-    console.log('Express server listening on port ' + server.get('port'));
-});
 
 /*
- * PROXY IN PRODUCTION
+ * PROXY CONFIGURATION
  */
-var httpProxy = require('http-proxy');
-
 var HASH_MAP_EXTERNAL_SERVICES = {
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	//"AUTH" : "http://kim.planetek.it:8081/api/v1/authenticate?"
+	"RHETICUS_API" : "http://kim.planetek.it:8081",
+	"GEOSERVER" : "http://kim.planetek.it:9080"
+};
+
+var httpProxy = require('http-proxy');
+httpProxy.prototype.onError = function (err) {
+	console.log(err);
 };
 
 var proxyOptions = {
     changeOrigin: true
 };
-
-httpProxy.prototype.onError = function (err) {
-	console.log(err);
-};
-
 var apiProxy = httpProxy.createProxyServer(proxyOptions);
 
 // Grab all requests to the server with "/iffi".
 server.all("/iffi*", function(req, res) {
-    //console.log('Forwarding API requests to ' + HASH_MAP_EXTERNAL_SERVICES.IFFI);
 	req.url = req.url.replace('/iffi/','');
 	console.log("Forwarding API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI}/*, 
@@ -59,4 +54,23 @@ server.all("/auth*", function(req, res) {
 			});
 		}*/
 	);
+});
+// Grab all requests to the server with "/rheticusapi".
+server.all("/rheticusapi*", function(req, res) {
+	req.url = req.url.replace('/rheticusapi/','');
+	console.log("Forwarding API requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.RHETICUS_API});
+});
+// Grab all requests to the server with "/geoserver".
+server.all("/geoserver*", function(req, res) {
+	//req.url = req.url.replace('/geoserver/','');
+	console.log("Forwarding API requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.GEOSERVER});
+});
+
+/*
+ * Start Server.
+ */
+server.listen(server.get('port'), function() {
+    console.log('Express server listening on port ' + server.get('port'));
 });
