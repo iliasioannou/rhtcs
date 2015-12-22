@@ -1,0 +1,395 @@
+
+CREATE DATABASE "RHETICUS_DEV"
+  WITH OWNER = postgres
+       ENCODING = 'UTF8'
+       TABLESPACE = pg_default
+       LC_COLLATE = 'it_IT.UTF-8'
+       LC_CTYPE = 'it_IT.UTF-8'
+       CONNECTION LIMIT = -1;
+
+CREATE EXTENSION postgis
+  SCHEMA public
+  VERSION "2.1.2";
+  
+  
+-- Table: ps_dataset_metadata
+
+-- DROP TABLE ps_dataset_metadata;
+
+CREATE TABLE ps_dataset_metadata
+(
+  datasetid text NOT NULL,
+  algorithmname text,
+  algorithmdescription text,
+  algorithmversion text,
+  license text,
+  timestampelaborationstart timestamp with time zone,
+  timestampelaborationend timestamp with time zone,
+  supermaster text,
+  timestampinsert timestamp with time zone DEFAULT now(),
+  CONSTRAINT "ps_dataset_metadata_PK" PRIMARY KEY (datasetid)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_dataset_metadata
+  OWNER TO postgres;
+
+  
+  -- Table: ps_dataset_metadata_algo_params
+
+-- DROP TABLE ps_dataset_metadata_algo_params;
+
+CREATE TABLE ps_dataset_metadata_algo_params
+(
+  datasetid text NOT NULL,
+  code text NOT NULL,
+  description text NOT NULL,
+  val text NOT NULL,
+  CONSTRAINT "ps_dataset_metadata_algo_params_PK" PRIMARY KEY (datasetid, code),
+  CONSTRAINT ps_dataset_metadata_algo_params_fkey FOREIGN KEY (datasetid)
+      REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_dataset_metadata_algo_params
+  OWNER TO postgres;
+
+  
+  -- Table: ps_dataset_products
+
+-- DROP TABLE ps_dataset_products;
+
+CREATE TABLE ps_dataset_products
+(
+  datasetid text NOT NULL,
+  productid text NOT NULL,
+  CONSTRAINT "ps_dataset_product_PK" PRIMARY KEY (datasetid, productid),
+  CONSTRAINT ps_dataset_products_fkey FOREIGN KEY (datasetid)
+      REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_dataset_products
+  OWNER TO postgres;
+
+  
+  -- Table: ps
+
+-- DROP TABLE ps;
+
+CREATE TABLE ps
+(
+  id serial NOT NULL,
+  psid text NOT NULL,
+  lat double precision,
+  lon double precision,
+  datasetid text NOT NULL,
+  sensorid text NOT NULL,
+  coherence double precision,
+  geom geometry(Point,4326),
+  height double precision,
+  velocity double precision,
+  CONSTRAINT "PK" PRIMARY KEY (datasetid, psid),
+  CONSTRAINT ps_fkey FOREIGN KEY (datasetid)
+      REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSM01'::text)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps
+  OWNER TO postgres;
+
+  
+  -- Table: ps_measure
+
+-- DROP TABLE ps_measure;
+
+CREATE TABLE ps_measure
+(
+  datasetid text NOT NULL,
+  psid text NOT NULL,
+  type text NOT NULL,
+  data date,
+  measure double precision,
+  CONSTRAINT ps_measure_datasetid_fkey FOREIGN KEY (datasetid, psid)
+      REFERENCES ps (datasetid, psid) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT type_check CHECK (type = 'DL'::text OR type = 'VAL'::text OR type = 'VASDL'::text)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE ps_measure
+  OWNER TO postgres;
+
+  
+-- Function: get_geometry_as_geojson()
+
+-- DROP FUNCTION get_geometry_as_geojson();
+
+CREATE OR REPLACE FUNCTION get_geometry_as_geojson()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+  new.geom_geo_json := ST_AsGeoJSON(new.geom);
+  RETURN new;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION get_geometry_as_geojson()
+  OWNER TO postgres;
+
+
+-- Function: get_geometry_from_lat_lon()
+
+-- DROP FUNCTION get_geometry_from_lat_lon();
+
+CREATE OR REPLACE FUNCTION get_geometry_from_lat_lon()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+  new.geom := ST_MakePoint(new.lon, new.lat, new.elevation);
+  RETURN new;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+ALTER FUNCTION get_geometry_from_lat_lon()
+  OWNER TO postgres;
+
+
+-- Table: meteo_stations
+
+-- DROP TABLE meteo_stations;
+
+CREATE TABLE meteo_stations
+(
+  id text NOT NULL,
+  codcountry text NOT NULL,
+  cod text NOT NULL,
+  description text NOT NULL,
+  lat double precision,
+  lon double precision,
+  elevation integer,
+  geom geometry,
+  geom_geo_json text,
+  CONSTRAINT "meteo_stations_PK" PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE meteo_stations
+  OWNER TO postgres;
+
+-- Trigger: tr_01_get_geometry_from_lat_lon on meteo_stations
+
+-- DROP TRIGGER tr_01_get_geometry_from_lat_lon ON meteo_stations;
+
+CREATE TRIGGER tr_01_get_geometry_from_lat_lon
+  BEFORE INSERT OR UPDATE
+  ON meteo_stations
+  FOR EACH ROW
+  EXECUTE PROCEDURE get_geometry_from_lat_lon();
+
+-- Trigger: tr_02_get_geometry_as_geojson on meteo_stations
+
+-- DROP TRIGGER tr_02_get_geometry_as_geojson ON meteo_stations;
+
+CREATE TRIGGER tr_02_get_geometry_as_geojson
+  BEFORE INSERT OR UPDATE
+  ON meteo_stations
+  FOR EACH ROW
+  EXECUTE PROCEDURE get_geometry_as_geojson();
+
+
+-- Table: meteo_stations_measure
+
+-- DROP TABLE meteo_stations_measure;
+
+CREATE TABLE meteo_stations_measure
+(
+  id serial NOT NULL,
+  id_station text NOT NULL,
+  data date,
+  type text NOT NULL,
+  measure double precision,
+  CONSTRAINT meteo_stations_measure_fkey FOREIGN KEY (id_station)
+      REFERENCES meteo_stations (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE CASCADE,
+  CONSTRAINT type_check CHECK (type = 'precipitazioni_mm'::text OR type = 'temperatura_media_c'::text)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE meteo_stations_measure
+  OWNER TO postgres;
+  
+
+  
+  -- Table: "user"
+
+-- DROP TABLE "user";
+
+CREATE TABLE "user"
+(
+  id serial NOT NULL,
+  name character varying,
+  surname character varying,
+  company character varying,
+  email character varying,
+  username character varying,
+  password character varying,
+  CONSTRAINT pk_user PRIMARY KEY (id)
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE "user"
+  OWNER TO postgres;
+
+  
+-- Table: deal
+
+-- DROP TABLE deal;
+
+CREATE TABLE deal
+(
+  id serial NOT NULL,
+  seller_id character varying,
+  signature_date date,
+  product_id serial NOT NULL,
+  product_name character varying,
+  geom geometry,
+  user_id serial NOT NULL,
+  geom_geo_json character varying, -- Questa colonna viene alimentata mediante un trigger che prende il valore della colonna geom e la converte in GeoJson
+  CONSTRAINT pk_deal PRIMARY KEY (id),
+  CONSTRAINT fk_user FOREIGN KEY (user_id)
+      REFERENCES "user" (id) MATCH SIMPLE
+      ON UPDATE NO ACTION ON DELETE NO ACTION
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE deal
+  OWNER TO postgres;
+COMMENT ON COLUMN deal.geom_geo_json IS 'Questa colonna viene alimentata mediante un trigger che prende il valore della colonna geom e la converte in GeoJson';
+
+
+-- Index: fki_user
+
+-- DROP INDEX fki_user;
+
+CREATE INDEX fki_user
+  ON deal
+  USING btree
+  (user_id);
+
+
+-- Trigger: getgeometryasgeojson on deal
+
+-- DROP TRIGGER getgeometryasgeojson ON deal;
+
+CREATE TRIGGER get_geometry_as_geojson
+  BEFORE INSERT OR UPDATE
+  ON deal
+  FOR EACH ROW
+  EXECUTE PROCEDURE get_geometry_as_geojson();
+
+  
+-- View: ps_user
+
+-- DROP VIEW ps_user;
+
+CREATE OR REPLACE VIEW ps_user AS 
+ SELECT a.id,
+    a.psid,
+    a.lat,
+    a.lon,
+    a.datasetid,
+    a.sensorid,
+    a.coherence,
+    a.geom,
+    a.height,
+    a.velocity,
+    b.id AS user_id,
+    c.id AS deal_id,
+    c.geom AS user_aoi
+   FROM ps a,
+    "user" b,
+    deal c
+  WHERE b.id = c.user_id AND st_within(c.geom, a.geom);
+
+ALTER TABLE ps_user
+  OWNER TO postgres;
+  
+  
+  
+INSERT INTO "user"(
+            name, surname, company, email, username, password)
+    VALUES ('test', 'test', 'test', 'test@test.test', 'usertest', 'pwdtest');
+INSERT INTO "user"(
+            name, surname, company, email, username, password)
+    VALUES ('demo', 'demo', 'demo', 'demo@demo.demo', 'userdemo', 'pwddemo');
+
+
+INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
+    VALUES ('test01', '2016-01-01', 'PRVTMAP_SEN1_AOI'
+    , ST_GeomFromGeoJSON
+    (
+	'{
+	    "type":"Polygon",
+	    "coordinates":
+	    [
+		[
+		    [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+		]
+	    ],
+	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+	}'
+    )
+    , 1);
+
+INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
+    VALUES ('test02', '2016-03-01', 'PRVTMAP2_SEN1_AOI'
+    , ST_GeomFromGeoJSON
+    (
+	'{
+	    "type":"Polygon",
+	    "coordinates":
+	    [
+		[
+		    [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+		]
+	    ],
+	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+	}'
+    )
+    , 1);
+
+INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
+    VALUES ('demo01', '2016-04-01', 'DEMOMAP_SEN1_AOI'
+    , ST_GeomFromGeoJSON
+    (
+	'{
+	    "type":"Polygon",
+	    "coordinates":
+	    [
+		[
+		    [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+		]
+	    ],
+	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+	}'
+    )
+    , 1);
+
+
+	

@@ -119,8 +119,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>105</xloc>
-      <yloc>234</yloc>
+      <xloc>104</xloc>
+      <yloc>134</yloc>
       </entry>
     <entry>
       <name>Clear PS for dataset</name>
@@ -134,8 +134,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>271</xloc>
-      <yloc>335</yloc>
+      <xloc>270</xloc>
+      <yloc>298</yloc>
       </entry>
     <entry>
       <name>Success</name>
@@ -153,6 +153,7 @@
       <type>TRANS</type>
       <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_ps_into_db.ktr</filename>
       <transname/>
+      <directory/>
       <arg_from_previous>N</arg_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -172,8 +173,8 @@
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>908</xloc>
-      <yloc>306</yloc>
+      <xloc>871</xloc>
+      <yloc>299</yloc>
       </entry>
     <entry>
       <name>rheticus_ps_import_measure_into_db</name>
@@ -211,8 +212,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>104</xloc>
-      <yloc>334</yloc>
+      <xloc>102</xloc>
+      <yloc>289</yloc>
       </entry>
     <entry>
       <name>Check Metadata File Exists</name>
@@ -222,8 +223,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>597</xloc>
-      <yloc>332</yloc>
+      <xloc>609</xloc>
+      <yloc>299</yloc>
       </entry>
     <entry>
       <name>Shapefile PS non esiste</name>
@@ -233,8 +234,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>105</xloc>
-      <yloc>475</yloc>
+      <xloc>103</xloc>
+      <yloc>430</yloc>
       </entry>
     <entry>
       <name>Update Velocity Field</name>
@@ -269,8 +270,8 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>424</xloc>
-      <yloc>334</yloc>
+      <xloc>435</xloc>
+      <yloc>297</yloc>
       </entry>
     <entry>
       <name>Log after update velocity</name>
@@ -291,6 +292,7 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       <type>TRANS</type>
       <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_metadata_into_db.ktr</filename>
       <transname/>
+      <directory/>
       <arg_from_previous>N</arg_from_previous>
       <exec_per_row>N</exec_per_row>
       <clear_rows>N</clear_rows>
@@ -310,14 +312,14 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>600</xloc>
-      <yloc>224</yloc>
+      <xloc>613</xloc>
+      <yloc>67</yloc>
       </entry>
     <entry>
-      <name>rheticus_ps_import_metadata_NULL_into_db</name>
+      <name>rheticus_ps_import_NULL_metadata_into_db</name>
       <description>Trasformazione</description>
       <type>TRANS</type>
-      <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_metadata_NULL_into_db.ktr</filename>
+      <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_NULL_metadata_into_db.ktr</filename>
       <transname/>
       <directory/>
       <arg_from_previous>N</arg_from_previous>
@@ -339,8 +341,8 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>599</xloc>
-      <yloc>482</yloc>
+      <xloc>609</xloc>
+      <yloc>479</yloc>
       </entry>
     <entry>
       <name>rheticus_ps_import_metadata_into_db_algotithm_params</name>
@@ -348,52 +350,6 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       <type>TRANS</type>
       <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_metadata_into_db_algotithm_params.ktr</filename>
       <transname/>
-      <arg_from_previous>N</arg_from_previous>
-      <exec_per_row>N</exec_per_row>
-      <clear_rows>N</clear_rows>
-      <clear_files>N</clear_files>
-      <set_logfile>N</set_logfile>
-      <logfile/>
-      <logext/>
-      <add_date>N</add_date>
-      <add_time>N</add_time>
-      <loglevel>Nothing</loglevel>
-      <cluster>N</cluster>
-      <slave_server_name/>
-      <set_append_logfile>N</set_append_logfile>
-      <wait_until_finished>Y</wait_until_finished>
-      <follow_abort_remote>N</follow_abort_remote>
-      <parameters>        <pass_all_parameters>Y</pass_all_parameters>
-      </parameters>      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>598</xloc>
-      <yloc>18</yloc>
-      </entry>
-    <entry>
-      <name>Imposta nome dell shapefile pari al DataSetId + .shp</name>
-      <description>Imposta variabili</description>
-      <type>SET_VARIABLES</type>
-      <replacevars>Y</replacevars>
-      <fields>
-        <field>
-          <variable_name>VAR_SHP_NAME</variable_name>
-          <variable_value>${VAR_DATASETID}.shp</variable_value>
-          <variable_type>JVM</variable_type>
-        </field>
-      </fields>
-      <parallel>N</parallel>
-      <draw>Y</draw>
-      <nr>0</nr>
-      <xloc>168</xloc>
-      <yloc>75</yloc>
-      </entry>
-    <entry>
-      <name>rheticus_ps_import_metadata_into_db_dataset_product</name>
-      <description>Trasformazione</description>
-      <type>TRANS</type>
-      <filename>${Internal.Job.Filename.Directory}&#47;rheticus_ps_import_metadata_into_db_dataset_product.ktr</filename>
-      <transname/>
       <directory/>
       <arg_from_previous>N</arg_from_previous>
       <exec_per_row>N</exec_per_row>
@@ -414,8 +370,8 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       </parameters>      <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>601</xloc>
-      <yloc>125</yloc>
+      <xloc>872</xloc>
+      <yloc>96</yloc>
       </entry>
   </entries>
   <hops>
@@ -445,6 +401,15 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>START</from>
+      <to>Write To Log datasetId</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>Y</unconditional>
     </hop>
     <hop>
       <from>Write To Log datasetId</from>
@@ -484,7 +449,7 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
     </hop>
     <hop>
       <from>Check Metadata File Exists</from>
-      <to>rheticus_ps_import_metadata_NULL_into_db</to>
+      <to>rheticus_ps_import_NULL_metadata_into_db</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -519,8 +484,17 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>rheticus_ps_import_metadata_NULL_into_db</from>
+      <from>rheticus_ps_import_NULL_metadata_into_db</from>
       <to>rheticus_ps_import_ps_into_db</to>
+      <from_nr>0</from_nr>
+      <to_nr>0</to_nr>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>rheticus_ps_import_metadata_into_db</from>
+      <to>rheticus_ps_import_metadata_into_db_algotithm_params</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
@@ -530,33 +504,6 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid</sql>
     <hop>
       <from>rheticus_ps_import_metadata_into_db_algotithm_params</from>
       <to>rheticus_ps_import_ps_into_db</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>START</from>
-      <to>Write To Log datasetId</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>Y</unconditional>
-    </hop>
-    <hop>
-      <from>rheticus_ps_import_metadata_into_db</from>
-      <to>rheticus_ps_import_metadata_into_db_dataset_product</to>
-      <from_nr>0</from_nr>
-      <to_nr>0</to_nr>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>rheticus_ps_import_metadata_into_db_dataset_product</from>
-      <to>rheticus_ps_import_metadata_into_db_algotithm_params</to>
       <from_nr>0</from_nr>
       <to_nr>0</to_nr>
       <enabled>Y</enabled>
