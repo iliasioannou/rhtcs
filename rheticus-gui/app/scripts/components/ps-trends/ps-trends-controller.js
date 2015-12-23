@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$rootScope','$scope','$http', function ($rootScope,$scope,$http) {
+	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http', function ($rootScope,$scope,configuration,$http) {
 
 		var self = this; //this controller
 
@@ -17,6 +17,7 @@ angular.module('rheticus')
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */
 		angular.extend(self,{
+			
 			"options" : { // PS Line chart options
 				"chart" : {
 					"type" : "lineChart",
@@ -160,9 +161,32 @@ angular.module('rheticus')
 				}
 				
 				// add weather data getWeather(datasetId); TODO
+				var station ;
+				var values = [];
+				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI")
+				    station = configuration.aoi[0].station;
+				else
+					station = configuration.aoi[1].station;
+				
+				$http.get("http://kim.planetek.it:8081/api/v1/meteostations/"+station+"/measures?type=RAIN")
+					.success(function (response) {
+						for (i=0; i< response.length;i++)
+						{
+							values.push({
+								"x" :  new Date(response[i].data), 
+								"y": response[i].measure
+							});
+								
+						}
+					})
+					.error(function (response) {//HTTP STATUS != 200
+						
+					});
+				
+				
 				chartData.push({
 					"key" : "Precipitations",
-					"values" : [{"x" :  new Date("Mon Apr 06 2010 00:00:00 GMT+0200"), "y": 5},{"x" : new Date("Mon Apr 06 2011 00:00:00 GMT+0200"), "y": 10}], // values - represents the array of {x,y} data points
+					"values" : values,
 					"classed" : "dashed"
 				});
 				
