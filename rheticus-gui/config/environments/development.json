@@ -61,9 +61,20 @@
 				"name" : "Sentinel 1 Datasets GeoJSON",
 				"group" : "Overlays",
 				"source" : {
-					"type" : "GeoJSON",
-					"crossOrigin" : "",
-					"url" : "./resources/geojson.json"
+					"type": "GeoJSON",
+					"geojson": {
+						"projection": "EPSG:3857",
+						"object": {}
+					}
+				},
+				"style": {
+					"fill": {
+						"color": "rgba(255, 0, 0, 0.6)"
+					},
+					"stroke": {
+						"color": "white",
+						"width": 3
+					}
 				},
 				"active" : false,
 				"opacity" : 0.8,
@@ -245,5 +256,8 @@
 				}
 			}]
 		}
+	},
+	"authentication" : {
+		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/authenticate?"
 	}
 }

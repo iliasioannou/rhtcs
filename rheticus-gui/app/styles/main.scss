@@ -358,13 +358,44 @@ body {
 	right: 10px;
 	z-index: 1060;
 
+	
 	background-color: rgba(255, 255, 255, 0.8);
 	border-radius: 4px;
 	padding: 2px;
 	min-height: 50px;
 	height: auto;
-	width: 75%;
+	width: 50%;
 }
+table.gridtable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	float: right;
+	color:#333333;
+	margin-top: 20px;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+table.gridtable th {
+	border-width: 1px;
+	padding: 5px;
+	color:#ffffff;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #007FFF;
+}
+table.gridtable td {
+	border-width: 1px;
+	padding: 3px;
+	color:#333333;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+.close {
+	margin:5px;
+}
+
 
 .functionSwitcher {
 	z-index:3;

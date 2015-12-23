@@ -22,7 +22,6 @@ angular
 		'ui.bootstrap',
 		'angularAwesomeSlider',
 		'nvd3',
-		//'nvd3ChartDirectives',
 		'smart-table',
         'services.config',
 		'angularHelpOverlay',
@@ -50,24 +49,6 @@ angular
 			"redirectTo": "/"
 		});
 	})
-	//Enabling CORS in Angular JS 
-	/*.config(['$httpProvider', function($httpProvider) {
-		//Enable cross domain calls
-        $httpProvider.defaults.useXDomain = true;
-		//Remove the header containing XMLHttpRequest used to identify ajax call 
-		//that would prevent CORS from working
-        delete $httpProvider.defaults.headers.common['X-Requested-With'];
-    }])*/
-
-	//.constant("configParam", "constant value");
-	//.value("defaultInput", 5);
-	/*.factory('MathService', function() {
-		return {
-			method = function(a, b) {
-			   return a * b;
-			};
-		};
-	 });*/
 	.service('ArrayService', function() {
 		/**
 		 * Parameters:
@@ -106,7 +87,6 @@ angular
 			}
 		};
 	})
-	//.run(function () {//do nothing
 	.run(['$rootScope','$cookies','$http',function($rootScope,$cookies,$http) {
 		angular.extend($rootScope,{
 			"markerVisibility" : false,
@@ -114,24 +94,22 @@ angular
 			"username" : "",
 			"privateAOI" : []
 		});
-		
 		$rootScope.globals = $cookies.getObject('globals') || {};
-
         if ($rootScope.globals.currentUser) {
-			
 			$rootScope.logged = true;
 			$rootScope.username = $rootScope.globals.currentUser.username;
             $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata; // jshint ignore:line
         }
  /*
-        $rootScope.$on('$locationChangeStart', function (event, next, current) {
-            // redirect to login page if not logged in and trying to access a restricted page
+		// redirect to login page if not logged in and trying to access a restricted page
+		$rootScope.$on('$locationChangeStart', function (event, next, current) {
             var restrictedPage = $.inArray($location.path(), ['/login', '/register']) === -1;
             var loggedIn = $rootScope.globals.currentUser;
             if (restrictedPage && !loggedIn) {
                 $location.path('/login');
             }
-        });*/
+        });
+*/
 	}])
 	.directive('draggable', function($document) {
 		return function(scope, element, attr) {
@@ -150,7 +128,6 @@ angular
 				$document.on('mousemove', mousemove);
 				$document.on('mouseup', mouseup);
 			});
-
 			function mousemove(event) {
 				y = event.screenY - startY;
 				x = event.screenX - startX;
@@ -160,7 +137,6 @@ angular
 					border: '1px solid red'
 				});
 			}
-
 			function mouseup() {
 				$document.off('mousemove', mousemove);
 				$document.off('mouseup', mouseup);

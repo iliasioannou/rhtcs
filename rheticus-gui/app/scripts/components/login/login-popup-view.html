@@ -1,6 +1,5 @@
 <div class="popover-login" ng-controller="LoginController as loginPop">
 	<div ng-show="error" class="alert alert-danger">{{error}}</div>
-	
 	<form name="form" ng-submit="login()" role="form" ng-hide="logged">
 		<div class="form-group">
 			<label for="username">Username</label>
@@ -22,6 +21,6 @@
 	
 	<div ng-if="logged" style="padding-bottom: 0;">
 		<label>Welcome, <strong>{{username}}</strong></label>
-		<button type="button" class="login-button btn btn-primary " ng-click="logout()"><span class="glyphicon glyphicon-log-out" aria-hidden="true" style="padding-right:5px;"></span>Logout</button>
+		<button type="button" class="login-button btn btn-primary" ng-click="logout()"><span class="glyphicon glyphicon-log-out" aria-hidden="true" style="padding-right:5px;"></span>Logout</button>
 	</div>
 </div>

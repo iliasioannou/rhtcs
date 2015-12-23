@@ -82,14 +82,21 @@ angular.module('rheticus')
 			return self.overlays;
 		};
 
-		var privateAOI=[];
-		privateAOI.push({"name":"nick"});
-		
+		/**
+		* array coord: array di coordinate
+		* integer measure: specifica la coordinata su cui fare la media (0 per x, 1 per y)
+		*/
+		var getCoord = function(coord, measure) {
+			var tot=0;
+			angular.forEach(coord, function(value, index) {
+				tot += coord[index][measure];
+			});
+			return (tot / coord.length);
+		};
 		var setPrivateAOI = function(deals){
 			$rootScope.privateAOI = [];
 			angular.forEach(deals, function(aoi, index) {
 				var obj = JSON.parse(aoi.geom_geo_json);
-				
 				$rootScope.privateAOI.push({
 					"name" : aoi.product_name,
 					"center" : {
@@ -99,24 +106,39 @@ angular.module('rheticus')
 					}
 				});
 			});
-			
 		};
-		/**
-		* array coord: arrey di coordinate
-		* integer measure: specifica la coordinata su cui fare la media (0 per x, 1 per y)
-		*/
-		var getCoord= function(coord, measure) {
-			var tot=0;
-			angular.forEach(coord, function(value, index) {
-				tot+= coord[index][measure];
-			});
-			return (tot / coord.length);
-		};
-		
 		var getPrivateAOI = function(){
 			return $rootScope.privateAOI;
 		};
 		
+		var setSentinelExtent = function(geojson) {
+			getOverlayParams("sentinel").source = {
+				"type": "GeoJSON",
+				"geojson": {
+					"projection": "EPSG:3857",
+					"object": {
+						"type": "FeatureCollection",
+						"features": [{
+							"type": "Feature",
+							"id": "FRA",
+							"properties": {
+								"name": "France"
+							},
+							"geometry": {
+								"type": "MultiPolygon",
+								"coordinates": geojson
+							}
+						}]
+					}
+				}
+			}; 
+			if (getFeatureInfoPoint.length>0){
+				$scope.center.zoom = 7;
+				$scope.center.lat = getFeatureInfoPoint[1];
+				$scope.center.lon = getFeatureInfoPoint[0];
+			}
+		};
+
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */		
@@ -155,7 +177,8 @@ angular.module('rheticus')
 			"username" : $rootScope.username,
 			"error" : null,
 			"setPrivateAOI" :  setPrivateAOI,
-			"getPrivateAOI" : getPrivateAOI
+			"getPrivateAOI" : getPrivateAOI,
+			"setSentinelExtent" : setSentinelExtent
 		});
 		
 		/**
@@ -188,7 +211,8 @@ angular.module('rheticus')
 		var MAX_FEATURES = 5;
 		var MAX_SENTINEL_MEASURES = 1000;
 		//External Controller flag
-		var activeController = "";
+		var activeController = "",
+			getFeatureInfoPoint = [];
 		//Retrieves Overlay ols params or metadata detail
 		var getOverlay = function(detail,id){
 			var index = ArrayService.getIndexByAttributeValue(self.overlays,"id",id); // jshint ignore:line
@@ -213,6 +237,7 @@ angular.module('rheticus')
 		};
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayer,infoFormat,featureCount,cqlFilter,resultObj,callback){
+			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,configuration.map.crs);
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
 			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{

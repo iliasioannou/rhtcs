@@ -1,7 +1,28 @@
 <div class="timeline" ng-show="timeline.show_timeline" ng-controller="TimelineCtrl as timeline">
-	<div data-intro="Sentinel 1 Datasets Identifiers" data-position="top">
-		<a class="close" ng-click="timeline.showTimeline(false);">&times;</a>
-		<nvd3 options="timeline.options" data="timeline.data" config="timeline.config" events="timeline.events" api="api" 
-		tooltips="true" interactive="true" tooltipcontent="timeline.toolTipContentFunction()"></nvd3>
-	</div>
+	<a class="close" ng-click="timeline.showTimeline(false);">&times;</a>
+	<div data-position="top" ng-show="timeline.trendDataset===false">
+		
+		<nvd3 
+			id="bar1"
+			options="timeline.options" 
+			data="timeline.data" 
+			api="api" >
+		</nvd3>
+	</div>	
+	
+	<div  ng-show="timeline.trendDataset===true">
+		<button style="margin: 5px;" type="button" class="btn btn-default btn-xs pull-left"  ng-show="timeline.trendDataset===true" ng-click="timeline.trendDataset=false">
+			<span class="glyphicon glyphicon-chevron-left"></span>
+		</button>
+		<label style="margin: 5px;">{{timeline.tableData[0].properties.datasetId}}</label>
+		<div ng-include src="'scripts/components/timeline/timeline-metadatiTable.html'"></div>	
+		<nvd3 
+			id="bar2"
+			options="timeline.optionsTrend" 
+			data="timeline.dataTrend"  >
+		</nvd3>
+		
+	</div>	
+	
+	
 </div>

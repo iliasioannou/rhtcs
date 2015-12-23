@@ -1,11 +1,81 @@
+/*
+ * APP DISTRIBUTION ON NODE JS SERVER
+ */
 var express = require('express');
-var app     = express();
-
-app.use(express.static(__dirname + '/'));
-
-app.get('/', function(req, res) {
+var server = express();
+server.set('port', 8080);
+server.use(express.static(__dirname + '/'));
+server.get('/',function(req, res) {
     res.sendfile('./index.html');
 });
 
-app.listen(8080);
-console.log('Magic happens on 8080');
+/*
+ * PROXY CONFIGURATION
+ */
+var HASH_MAP_EXTERNAL_SERVICES = {
+	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
+	//"AUTH" : "http://kim.planetek.it:8081/api/v1/authenticate?",
+	"RHETICUS_API" : "http://kim.planetek.it:8081",
+	"GEOSERVER" : "http://kim.planetek.it:9080"
+};
+
+var httpProxy = require('http-proxy');
+httpProxy.prototype.onError = function (err) {
+	console.log(err);
+};
+
+var proxyOptions = {
+    changeOrigin: true
+};
+var apiProxy = httpProxy.createProxyServer(proxyOptions);
+
+// To modify the proxy connection before data is sent, you can listen
+// for the 'proxyReq' event. When the event is fired, you will receive
+// the following arguments:
+// (http.ClientRequest proxyReq, http.IncomingMessage req,
+//  http.ServerResponse res, Object options). This mechanism is useful when
+// you need to modify the proxy request before the proxy connection
+// is made to the target.
+//
+apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
+	proxyReq.setHeader('Authorization', '');
+});
+
+// Grab all requests to the server with "/iffi".
+server.all("/iffi*", function(req, res) {
+	req.url = req.url.replace('/iffi/','');
+	console.log("Forwarding API requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI}/*, 
+		function (res) {
+			res.on('data', function (data) {
+				console.log("data: "+data.toString());
+			});
+		}*/
+	);
+});
+/*
+// Grab all requests to the server with "/auth".
+server.all("/auth*", function(req, res) {
+	req.url = req.url.replace('/auth/','');
+	console.log("Forwarding API requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.AUTH});
+});
+*/
+// Grab all requests to the server with "/rheticusapi".
+server.all("/rheticusapi*", function(req, res) {
+	req.url = req.url.replace('/rheticusapi/','');
+	console.log("Forwarding API requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.RHETICUS_API});
+});
+// Grab all requests to the server with "/geoserver".
+server.all("/geoserver*", function(req, res) {
+	console.log("Forwarding API requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.GEOSERVER});
+});
+
+/*
+ * Start Server.
+ */
+server.listen(server.get('port'), function() {
+    console.log('Express server listening on port ' + server.get('port'));
+});

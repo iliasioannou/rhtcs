@@ -33,7 +33,6 @@ angular.module('rheticus')
 			viewPanel("ps_aoi");
 		};
 		var updateSelectionArea = function(position, entities) {
-		
 			angular.forEach(entities, function(subscription, index) {
 				if (position === index) {
 					$scope.setCenter({
