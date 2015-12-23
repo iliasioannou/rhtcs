@@ -11,8 +11,8 @@ angular
 		aoi : @@aoi,
 		dataProviders : @@dataProviders,
 		geocoder : @@geocoder,
-		weatherAPI : @@weatherAPI,
 		//custom environment configuration
 		layers : @@layers,
-		authentication : @@authentication
+		authentication : @@authentication,
+		weatherAPI : @@weatherAPI
 	});
