@@ -70,7 +70,7 @@ angular.module('rheticus')
 								console.log("! element Click !",e);
 								self.trendDataset=true;		//change ng-show variable
 								self.dataTrend=getTableData(e.data.features);
-								self.tableData=e.data.features;	
+								self.tableData=e.data;	
 							    var jsonExtent = [e.data.features[0].geometry.coordinates];
 								$scope.setSentinelExtent(jsonExtent);
 								$scope.$apply(); //update view			

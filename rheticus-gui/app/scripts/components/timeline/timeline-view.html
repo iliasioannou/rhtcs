@@ -14,7 +14,7 @@
 		<button style="margin: 5px;" type="button" class="btn btn-default btn-xs pull-left"  ng-show="timeline.trendDataset===true" ng-click="timeline.trendDataset=false">
 			<span class="glyphicon glyphicon-chevron-left"></span>
 		</button>
-		<label style="margin: 5px;">{{timeline.tableData[0].properties.datasetId}}</label>
+		<label style="margin: 5px;">{{timeline.tableData.label}} alias: {{timeline.tableData.features[0].properties.datasetId}}</label>
 		<div ng-include src="'scripts/components/timeline/timeline-metadatiTable.html'"></div>	
 		<nvd3 
 			id="bar2"
