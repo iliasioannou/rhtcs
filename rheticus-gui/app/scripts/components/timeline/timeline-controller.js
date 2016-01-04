@@ -130,8 +130,7 @@ angular.module('rheticus')
 							"yAxis": {
 								"axisLabel": 'Count',
 							},
-							"average": function(d) { return 15; },
-							"noData" : "I'm sorry ... No Data Available.",
+							"noData" : "Loading",
 							margin : {
 								right: 50,
 								left: 80
@@ -140,9 +139,29 @@ angular.module('rheticus')
 							"height" : 200,
 							"showDistX" : true,
 							"showDistY" : true,
-							"useInteractiveGuideline" : true,
+							"useInteractiveGuideline" : false,
 							"interactive" : true,
-							
+							"lines": {
+								"dispatch": {
+									"elementClick": function(e) {console.log("! chart Click !")},
+									"elementMouseout": function(e) {console.log("! chart elementMouseout !")},
+									"elementMouseover": function(e) {console.log("! chart elementMouseover !")},
+								}
+							},
+							"tooltip" : {
+								enable : true,
+								contentGenerator : function(d) {
+													console.log(d);
+													var dateString = d.point.data.startTime;
+													var day = dateString.substring(8,10);
+													var month = dateString.substring(5,7);
+													var year = dateString.substring(0,4);
+													dateString=day+'/'+month+'/'+year;
+													return '<p><b> UUID: ' + d.point.data.uuid  + ' </b></p>' +
+												'<p  style="text-align:left;">'+' Acquisition Day: '  +  dateString + '</p>'+
+												'<p  style="text-align:left;">'+' Total products: '  +  d.point.y + '</p>';
+												}
+							}
 						},
 						"title" : {
 								enable : true,
@@ -191,7 +210,7 @@ angular.module('rheticus')
 			for (var i = 0; i < features.length; i++) {
 				//get long value for date
 				var dateLong = convertDate(features[i].properties.startTime);
-                featureValue.push({x: dateLong, y: i+1});
+                featureValue.push({x: dateLong, y: i+1,data:features[i].properties});
                 
             };
 			$scope.$apply();			//update view
