@@ -20,9 +20,9 @@ angular.module('rheticus')
 			self.show_timeline = show;
 			self.trendDataset = false;
 			$rootScope.markerVisibility = show;
+			$scope.setSentinelExtent([]);
 			if (!show){
 				self.data = [];
-				$scope.setSentinelExtent([]);
 			}
 		};
 		
@@ -210,7 +210,7 @@ angular.module('rheticus')
 		var convertDate= function (dateString){
 			
 			var day = dateString.substring(8,10);
-			var month = dateString.substring(5,7);
+			var month = dateString.substring(5,7)-1;
 			var year = dateString.substring(0,4);
 			var d = new Date();
 			d.setFullYear(year);
