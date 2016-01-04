@@ -343,6 +343,12 @@ body {
 	stroke-width: 6;
 }
 
+.nv-point {
+    stroke-opacity: 1!important;
+    stroke-width: 1px!important;
+    fill-opacity: 1!important;
+}
+
 .brush .extent {
 	stroke: gray;
 	fill: dodgerblue;
