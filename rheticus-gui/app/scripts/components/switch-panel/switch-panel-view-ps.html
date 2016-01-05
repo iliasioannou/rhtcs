@@ -1,6 +1,7 @@
 <!-- Ps Legend -->
 <div class = "panel" ng-show="switchpanel.show_panel_ps" style ="background-color: rgba(0, 60, 136, 0);">
 	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
+		<label class= switchpanelabelmin >Displacement Maps:</label>
 		<label class= switchpanelabelmin >{{switchpanel.ps_metadata.legend.description}}</label>
 			<label class= switchpanelabel>
 			Options:<br/></label>
@@ -32,7 +33,6 @@
 <!-- Area of Interest Legend -->
 <div class = "panel" ng-show="switchpanel.show_panel_ps_aoi" style ="background-color: rgba(0, 60, 136, 0);" >
 	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-		<label class= switchpanelabel>Areas of Interest: {{logged}}</label>
 		<table>
 			<tr ng-repeat="subscription in switchpanel.aoi">
 			  <td>

@@ -20,9 +20,9 @@ angular.module('rheticus')
 			self.show_timeline = show;
 			self.trendDataset = false;
 			$rootScope.markerVisibility = show;
+			$scope.setSentinelExtent([]);
 			if (!show){
 				self.data = [];
-				$scope.setSentinelExtent([]);
 			}
 		};
 		
@@ -67,16 +67,13 @@ angular.module('rheticus')
 					  "dispatch": {
 						"elementClick": function(e) //chartClick: function(e) {console.log("! chart Click !")},
 							{
-								console.log("! element Click !",e);
 								self.trendDataset=true;		//change ng-show variable
 								self.dataTrend=getTableData(e.data.features);
 								self.tableData=e.data;	
-							    var jsonExtent = [e.data.features[0].geometry.coordinates];
+							    var jsonExtent = getExtentSuperMaster(e.data.features);
 								$scope.setSentinelExtent(jsonExtent);
 								$scope.$apply(); //update view			
-							},
-						"elementMouseout": function(e) {console.log("! element Mouseout !")},
-						"elementMouseover": function(e) {console.log("! element Mouseover !")}
+							}
 					  }
 					},
 					
@@ -97,7 +94,7 @@ angular.module('rheticus')
 										}
 					},
 					"transitionDuration" : 250,
-					"noData" : "Loading Data..."
+					"noData" : "Sorry... no data found"
 				},
 				"title" : {
 					enable : true,
@@ -130,8 +127,7 @@ angular.module('rheticus')
 							"yAxis": {
 								"axisLabel": 'Count',
 							},
-							"average": function(d) { return 15; },
-							"noData" : "I'm sorry ... No Data Available.",
+							"noData" : "Loading",
 							margin : {
 								right: 50,
 								left: 80
@@ -140,9 +136,28 @@ angular.module('rheticus')
 							"height" : 200,
 							"showDistX" : true,
 							"showDistY" : true,
-							"useInteractiveGuideline" : true,
+							"useInteractiveGuideline" : false,
 							"interactive" : true,
-							
+							"lines": {
+								"dispatch": {
+									"elementClick": function(e) {},
+									"elementMouseout": function(e) {},
+									"elementMouseover": function(e) {},
+								}
+							},
+							"tooltip" : {
+								enable : true,
+								contentGenerator : function(d) {
+													var dateString = d.point.data.startTime;
+													var day = dateString.substring(8,10);
+													var month = dateString.substring(5,7);
+													var year = dateString.substring(0,4);
+													dateString=day+'/'+month+'/'+year;
+													return '<p><b> UUID: ' + d.point.data.uuid  + ' </b></p>' +
+												'<p  style="text-align:left;">'+' Acquisition Day: '  +  dateString + '</p>'+
+												'<p  style="text-align:left;">'+' Total products: '  +  d.point.y + '</p>';
+												}
+							}
 						},
 						"title" : {
 								enable : true,
@@ -191,7 +206,7 @@ angular.module('rheticus')
 			for (var i = 0; i < features.length; i++) {
 				//get long value for date
 				var dateLong = convertDate(features[i].properties.startTime);
-                featureValue.push({x: dateLong, y: i+1});
+                featureValue.push({x: dateLong, y: i+1,data:features[i].properties});
                 
             };
 			$scope.$apply();			//update view
@@ -207,10 +222,45 @@ angular.module('rheticus')
 			
 			
 		};
+		
+		var getExtentSuperMaster= function (features)
+		{
+			var coordinates="";
+			var i = 0;
+			var trovato=1;
+			var olderProduct=0;
+			while ( i < features.length && trovato==1 ) {
+				if (features[i].properties.superMaster===true)
+				{
+					coordinates=features[i].geometry.coordinates;
+					trovato=0;
+					
+				}
+				if (convertDate(features[olderProduct].properties.startTime)>convertDate(features[i].properties.startTime))
+					olderProduct=i;
+				i++;  
+            };
+			if (coordinates===""){
+				console.log("getExtentSuperMaster: not superMaster");
+				coordinates=features[olderProduct].geometry.coordinates;
+			}
+			else{
+				console.log("getExtentSuperMaster: Is superMaster",features[olderProduct]);
+			}
+				
+			
+			return [coordinates];
+			
+		};
+		
+		
+		
+		
+		
 		var convertDate= function (dateString){
 			
 			var day = dateString.substring(8,10);
-			var month = dateString.substring(5,7);
+			var month = dateString.substring(5,7)-1;
 			var year = dateString.substring(0,4);
 			var d = new Date();
 			d.setFullYear(year);

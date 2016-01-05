@@ -41,8 +41,10 @@
 	</div>
 
 	<!-- Minimize button -->
-	<button type="button" class="btn btn-default btn-xs pull-right" ng-click="switchpanel.minimize();">
-		<span class="glyphicon glyphicon-pushpin"></span>
+	<button type="button" style="margin-left: 2px;" class="btn btn-default btn-xs pull-right glyphicon glyphicon-chevron-down"  ng-show="switchpanel.isCollapsed" ng-click="switchpanel.minimize();">
+	</button>
+	<!-- Maximinize button -->
+	<button type="button" style="margin-left: 2px;" class="btn btn-default btn-xs pull-right glyphicon glyphicon-chevron-up"  ng-show="switchpanel.isCollapsed===false" ng-click="switchpanel.minimize();">
 	</button>
 	
 	<!-- overlay tabs -->
