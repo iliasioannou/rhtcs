@@ -225,31 +225,16 @@ angular.module('rheticus')
 		
 		var getExtentSuperMaster= function (features)
 		{
-			var coordinates="";
+			var coordinates=[];
 			var i = 0;
-			var trovato=1;
-			var olderProduct=0;
-			while ( i < features.length && trovato==1 ) {
-				if (features[i].properties.superMaster===true)
-				{
-					coordinates=features[i].geometry.coordinates;
-					trovato=0;
-					
-				}
-				if (convertDate(features[olderProduct].properties.startTime)>convertDate(features[i].properties.startTime))
-					olderProduct=i;
+			while ( i < features.length  ) {
+					coordinates.push(features[i].geometry.coordinates);
+				
 				i++;  
             };
-			if (coordinates===""){
-				console.log("getExtentSuperMaster: not superMaster");
-				coordinates=features[olderProduct].geometry.coordinates;
-			}
-			else{
-				console.log("getExtentSuperMaster: Is superMaster",features[olderProduct]);
-			}
-			console.log("getExtentSuperMaster: coordinates",coordinates);
+			console.log(coordinates);
 			
-			return [coordinates];
+			return coordinates;
 			
 		};
 		
