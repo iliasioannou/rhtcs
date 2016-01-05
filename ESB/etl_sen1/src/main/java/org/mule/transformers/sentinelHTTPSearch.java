@@ -8,14 +8,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Properties;
 
+import org.apache.commons.codec.binary.Base64;
 import org.mule.api.MuleEventContext;
 import org.mule.api.lifecycle.Callable;
-import org.mule.api.registry.MuleRegistry;
 import org.mule.api.transport.PropertyScope;
-import org.mule.transport.DefaultReplyToHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.codec.binary.Base64;
 
 public class sentinelHTTPSearch implements Callable
 {
@@ -38,8 +36,8 @@ public class sentinelHTTPSearch implements Callable
 		log.info("Sending request to: "+sorlEndpoint + querystr);
 
 		URL url = new URL ( sorlEndpoint + querystr );
-		String basicauth = sentinelProps.getProperty("sentinel.usr")+":"+sentinelProps.getProperty("sentinel.pwd");
-		String encoding = new String( Base64.encodeBase64(basicauth.getBytes()) );
+		String basicAuth = sentinelProps.getProperty("sentinel.usr")+":"+sentinelProps.getProperty("sentinel.pwd");
+		String encodedBasicAuth = new String( Base64.encodeBase64(basicAuth.getBytes()) );
 
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -47,13 +45,13 @@ public class sentinelHTTPSearch implements Callable
 		{
 			connection.setInstanceFollowRedirects(false);		// disable redirect used to open DataHub Error Page
 			connection.setRequestMethod("GET");
-			connection.setRequestProperty  ("Authorization", "Basic " + encoding);
+			connection.setRequestProperty  ("Authorization", "Basic " + encodedBasicAuth);
 			int responseCode = connection.getResponseCode();
-
+			
 			eventContext.getMessage().setProperty("http.status", responseCode, PropertyScope.INBOUND);
 
 			log.info("Response code: "+responseCode);
-			if (responseCode<400)
+			if (responseCode==200)
 			{
 				InputStream content = connection.getInputStream();
 				BufferedReader in = new BufferedReader (new InputStreamReader (content));
