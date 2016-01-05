@@ -37,8 +37,8 @@ public class sentinelHTTPDownload implements Callable
 		log.info("Get Manifest from: "+sorlEndpoint + querystr);
 
 		URL url = new URL ( sorlEndpoint + querystr );
-		String basicauth = sentinelProps.getProperty("sentinel.usr")+":"+sentinelProps.getProperty("sentinel.pwd");
-		String encoding = new String( Base64.encodeBase64(basicauth.getBytes()) );
+		String basicAuth = sentinelProps.getProperty("sentinel.usr")+":"+sentinelProps.getProperty("sentinel.pwd");
+		String encodedBasicAuth = new String( Base64.encodeBase64(basicAuth.getBytes()) );
 
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -47,7 +47,7 @@ public class sentinelHTTPDownload implements Callable
 		{
 			connection.setInstanceFollowRedirects(false);		// disable redirect used to open DataHub Error Page
 			connection.setRequestMethod("GET");
-			connection.setRequestProperty  ("Authorization", "Basic " + encoding);
+			connection.setRequestProperty  ("Authorization", "Basic " + encodedBasicAuth);
 			connection.setConnectTimeout(30000);
 			connection.setReadTimeout(30000);
 			int responseCode = connection.getResponseCode();
@@ -55,7 +55,7 @@ public class sentinelHTTPDownload implements Callable
 			eventContext.getMessage().setProperty("http.status", responseCode, PropertyScope.INBOUND);
 
 			log.info("Response code: "+responseCode);
-			if (responseCode<400)
+			if (responseCode==200)
 			{
 				InputStream content = connection.getInputStream();
 				BufferedReader in = new BufferedReader (new InputStreamReader (content));

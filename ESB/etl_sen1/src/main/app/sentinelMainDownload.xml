@@ -57,41 +57,69 @@ GRD 130mb
         <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
         <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
         <foreach doc:name="For Each">
-            <set-variable variableName="id" value="#[json:id]" doc:name="id"/>
-            <set-variable variableName="title" value="#[json:title]" doc:name="title"/>
-            <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
-            <set-variable variableName="ingestion" value="#[json:date[2]/content]" doc:name="ingestion"/>
-            <logger message="*** Now downloading product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
-            <logger message="*****https://${sentinel.host}:${sentinel.port}${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" level="INFO" doc:name="Logger"/>
-            <set-variable variableName="queryDownload" value="('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" doc:name="queryDownload"/>
-            <until-successful maxRetries="${sentinel.download.retries}" millisBetweenRetries="${sentinel.download.timebetween.retries}" synchronous="true" doc:name="Until Successful">
-                <component class="org.mule.transformers.sentinelHTTPDownload" doc:name="sentinelHTTPDownload"/>
-            </until-successful>
-            <flow-ref name="xmlTransformerFlow1" doc:name="xmlTransformerFlow1"/>
-            <set-variable variableName="metaCoordinateLat" value="0.0" doc:name="metaCoordinateLat"/>
-            <set-variable variableName="metaCoordinateLon" value="0.0" doc:name="metaCoordinateLon"/>
-            <expression-component doc:name="Popolate qryableMap"><![CDATA[import java.lang.Math;
-Double CoordinateLon;
-Double CoordinateLat;
+            <set-variable variableName="metadataMap" value="#[new java.util.HashMap()]" doc:name="metadataMap"/>
+            <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+            <set-variable variableName="safeMap" value="#[payload]" doc:name="safeMap"/>
+            <foreach collection="#[[&quot;str&quot;,&quot;int&quot;,&quot;date&quot;, &quot;link&quot;]]" doc:name="For Each metaArraysNames (&quot;str&quot;,&quot;int&quot;,&quot;date&quot;,&quot;link&quot;)">
+                <set-variable variableName="currentArrayName" value="#[payload]" doc:name="currentArrayName"/>
+                <set-payload value="#[safeMap.get(payload)]" doc:name="extract metaArray"/>
+                <choice doc:name="Choice">
+                    <when expression="#[currentArrayName.equals('link')]">
+                        <foreach doc:name="For Each &quot;link&quot;">
+                            <expression-component doc:name="save rel=href into safeMap"><![CDATA[String rel="";
+if (!payload.containsKey("rel"))
+	rel = "linkdownload";
+else
+	rel = payload.get("rel");
+safeMap.put(rel, payload.get("href"))]]></expression-component>
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        <foreach doc:name="For Each">
+                            <expression-component doc:name="save name=content into safeMap"><![CDATA[safeMap.put(payload.get("name"), payload.get("content"))]]></expression-component>
+                        </foreach>
+                    </otherwise>
+                </choice>
+                <expression-component doc:name="Remove original metaArray"><![CDATA[safeMap.remove(currentArrayName)]]></expression-component>
+            </foreach>
+
+            <set-variable variableName="id" value="#[payload.get(&quot;id&quot;)]" doc:name="id"/>
+            <set-variable variableName="title" value="#[payload.get(&quot;title&quot;)]" doc:name="title"/>
+            <set-variable variableName="link" value="#[payload.get(&quot;linkdownload&quot;)]" doc:name="link"/>
+            <set-variable variableName="ingestion" value="#[payload.get(&quot;ingestiondate&quot;)]" doc:name="ingestion"/>
+            <set-variable variableName="coordinates" value="#[payload.get(&quot;footprint&quot;)]" doc:name="coordinates"/>
+            <set-variable variableName="familyName" value="#[payload.get(&quot;platformname&quot;)]" doc:name="familyName"/>
+            <set-variable variableName="mode" value="#[payload.get(&quot;sensoroperationalmode&quot;)]" doc:name="mode"/>
+            <set-variable variableName="swath" value="#[payload.get(&quot;swathidentifier&quot;)]" doc:name="swath"/>
+            <set-variable variableName="relativeOrbitNumberTypeStart" value="#[payload.get(&quot;relativeorbitnumber&quot;)]" doc:name="relativeOrbitNumberTypeStart"/>
+            <set-variable variableName="relativeOrbitNumberTypeStop" value="#[payload.get(&quot;lastrelativeorbitnumber&quot;)]" doc:name="relativeOrbitNumberTypeStop"/>
+            <set-variable variableName="pass" value="#[payload.get(&quot;orbitdirection&quot;)]" doc:name="pass"/>
+            <set-variable variableName="transmitterReceiverPolarisation" value="#[payload.get(&quot;polarisationmode&quot;).replace(&quot; &quot;,&quot;-&quot;)]" doc:name="transmitterReceiverPolarisation"/>
+            <set-variable variableName="productClass" value="#[payload.get(&quot;productclass&quot;)]" doc:name="productClass"/>
+            <set-variable variableName="productType" value="#[payload.get(&quot;producttype&quot;)]" doc:name="productType"/>
+            <logger message="*** Now saving product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
+
+            <expression-component doc:name="Populate metadataMap"><![CDATA[import java.lang.Math;
+double CoordinateLon;
+double CoordinateLat;
 
 java.util.HashMap location = new java.util.HashMap();
 location.put('type' , 'Polygon');
 java.util.ArrayList coordinatefinal = new java.util.ArrayList();
 java.util.ArrayList coordinate = new java.util.ArrayList();
 java.util.ArrayList coordinate2 = new java.util.ArrayList();
-java.util.ArrayList coordinate3 = new java.util.ArrayList();
-java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(coordinates," ");
+String coordinates = coordinates.replace("POLYGON","").replace("((","").replace("))","");
+java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(coordinates,",");
 int j=0;
 while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 {
-	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken(),",");
+	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken()," ");
 	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
 	CoordinateLon=(Double.parseDouble(pointCoordinate.nextToken()));
     if (j==0)
     {
-		metaCoordinateLon=(Math.round(CoordinateLon)) ;
-		metaCoordinateLat=(Math.ceil(CoordinateLat*2))/2 ;
-        coordinate3 = coordinate2;
+		flowVars['metaCoordinateLon']=(Math.round(CoordinateLon)) ;
+		flowVars['metaCoordinateLat']=(Math.ceil(CoordinateLat*2))/2 ;
         j++;
 	}
 	coordinate2.add(CoordinateLon);
@@ -99,38 +127,26 @@ while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 	coordinate.add(coordinate2);
 	coordinate2=new java.util.ArrayList();
 }
-coordinate.add(coordinate3);
 coordinatefinal.add(coordinate);
 location.put('coordinates' , coordinatefinal);
 
-qryableMap.put('uuid',id);
-qryableMap.put('filename',title);
-qryableMap.put('linkDownload',link);
-qryableMap.put('superMaster','false');
-qryableMap.put('location',location);
-qryableMap.put('ingestion',ingestion);
+metadataMap.put('uuid',id);
+metadataMap.put('filename',title);
+metadataMap.put('linkDownload',link);
+metadataMap.put('superMaster','false');
+metadataMap.put('location',location);
+metadataMap.put('ingestion',ingestion);
 
-String transmitterReceiverPolarisation = transmitterReceiverPolarisation1+'-'+transmitterReceiverPolarisation2;
-qryableMap.put('transmitterReceiverPolarisation',transmitterReceiverPolarisation);
+metadataMap.put('transmitterReceiverPolarisation',transmitterReceiverPolarisation);
 
 String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+transmitterReceiverPolarisation+productClass+productType+metaCoordinateLon+metaCoordinateLat;
-qryableMap.put('datasetId',dataset);
-
-qryableMap.remove('coordinates');
-qryableMap.remove('transmitterReceiverPolarisation1');
-qryableMap.remove('transmitterReceiverPolarisation2');
-
-
-
-
-
-
+metadataMap.put('datasetId',dataset);
 
 ]]></expression-component>
-            <logger message="***** LON #[metaCoordinateLon] ***LAT: #[metaCoordinateLat]" level="INFO" doc:name="metacoordinate"/>
-            <set-payload value="#[qryableMap]" doc:name="qryableMap"/>
+            <logger message="***** DATASETID LON #[metaCoordinateLon] ***LAT: #[metaCoordinateLat]" level="DEBUG" doc:name="metacoordinate"/>
+            <set-payload value="#[metadataMap]" doc:name="metadataMap"/>
 
-            <expression-component doc:name="Add qryableMap to arraylist"><![CDATA[arrayListData.add(qryableMap);]]></expression-component>
+            <expression-component doc:name="Add metadataMap to arraylist"><![CDATA[arrayListData.add(metadataMap);]]></expression-component>
             <json:object-to-json-transformer doc:name="Object to JSON"/>
             <logger message="*** Insert into ElasticSearch" level="INFO" doc:name="Log status"/>
             <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
