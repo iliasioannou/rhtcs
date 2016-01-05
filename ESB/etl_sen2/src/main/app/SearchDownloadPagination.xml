@@ -26,7 +26,7 @@ http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/ht
                     <flow-ref name="SearchDownloadPaginationFlow2" doc:name="SearchDownloadPaginationFlow2"/>
                 </when>
                 <otherwise>
-                    <logger message="No new acquisitions for today... " level="INFO" doc:name="No new acquisitions"/>
+                    <logger message="No new acquisitions detected... " level="INFO" doc:name="No new acquisitions"/>
                 </otherwise>
             </choice>
         </async>
@@ -79,7 +79,7 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
                     <scripting:script engine="Groovy"><![CDATA[import static groovy.json.JsonOutput.*;
 return prettyPrint(payload);]]></scripting:script>
                 </scripting:component>
-                <logger message="*** Process terminated. Call Orchestrator ***" level="INFO" doc:name="Flow end"/>
+                <logger message="*** SEN2 Process terminated. ***" level="INFO" doc:name="Flow end"/>
 
 
             </otherwise>

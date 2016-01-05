@@ -56,22 +56,49 @@ GRD 130mb
         <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
         <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
-        <foreach doc:name="For Each">
-            <set-variable variableName="metadatiMap" value="#[new java.util.HashMap()]" doc:name="metadatiMap"/>
-            <set-variable variableName="id" value="#[json:id]" doc:name="id"/>
-            <set-variable variableName="filename" value="#[json:title]" doc:name="filename"/>
-            <set-variable variableName="link" value="#[json:link[0]/href]" doc:name="link"/>
-            <set-variable variableName="ingestion" value="#[json:date[0]/content]" doc:name="ingestion"/>
-            <set-variable variableName="startTime" value="#[json:date[1]/content]" doc:name="startTime"/>
-            <set-variable variableName="stopTime" value="#[json:date[2]/content]" doc:name="stopTime"/>
-            <set-variable variableName="sensorOperationalMode" value="#[json:str[5]/content]" doc:name="sensorOperationalMode"/>
-            <set-variable variableName="orbitDirection" value="#[json:str[10]/content]" doc:name="orbitDirection"/>
-            <set-variable variableName="familyName" value="#[json:str[11]/content]" doc:name="familyName"/>
-            <set-variable variableName="productType" value="#[json:str[14]/content]" doc:name="productType"/>
-            <set-variable variableName="orbitNumber" value="#[json:int[0]/content]" doc:name="orbitNumber"/>
-            <set-variable variableName="relativeOrbitNumber" value="#[json:int[1]/content]" doc:name="relativeOrbitNumber"/>
-            <set-variable variableName="cloudCoverPercentage" value="#[json:double/content]" doc:name="cloudCoverPercentage"/>
-            <set-variable variableName="coordinates" value="#[json:str[7]/content]" doc:name="coordinates"/>
+        <foreach doc:name="For Each result entry (SEN2 product)">
+            <set-variable variableName="metadataMap" value="#[new java.util.HashMap()]" doc:name="metadataMap"/>
+            <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+            <set-variable variableName="safeMap" value="#[payload]" doc:name="safeMap"/>
+            <foreach collection="#[[&quot;str&quot;,&quot;int&quot;,&quot;date&quot;, &quot;link&quot;]]" doc:name="For Each metaArraysNames (&quot;str&quot;,&quot;int&quot;,&quot;date&quot;,&quot;link&quot;)">
+                <set-variable variableName="currentArrayName" value="#[payload]" doc:name="currentArrayName"/>
+                <set-payload value="#[safeMap.get(payload)]" doc:name="extract metaArray"/>
+                <choice doc:name="Choice">
+                    <when expression="#[currentArrayName.equals('link')]">
+                        <foreach doc:name="For Each &quot;link&quot;">
+                            <expression-component doc:name="save rel=href into safeMap"><![CDATA[String rel="";
+if (!payload.containsKey("rel"))
+	rel = "linkdownload";
+else
+	rel = payload.get("rel");
+safeMap.put(rel, payload.get("href"))]]></expression-component>
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        <foreach doc:name="For Each">
+                            <expression-component doc:name="save name=content into safeMap"><![CDATA[safeMap.put(payload.get("name"), payload.get("content"))]]></expression-component>
+                        </foreach>
+                    </otherwise>
+                </choice>
+                <expression-component doc:name="Remove original metaArray"><![CDATA[safeMap.remove(currentArrayName)]]></expression-component>
+            </foreach>
+
+            <set-variable variableName="id" value="#[payload.get(&quot;id&quot;)]" doc:name="id"/>
+
+            <set-variable variableName="filename" value="#[payload.get(&quot;title&quot;)]" doc:name="filename"/>
+            <logger message="*** Now saving product: &quot;#[id]&quot; with title: &quot;#[filename]&quot;" level="INFO" doc:name="Logger"/>
+            <set-variable variableName="link" value="#[payload.get(&quot;linkdownload&quot;)]" doc:name="link"/>
+            <set-variable variableName="ingestion" value="#[payload.get(&quot;ingestiondate&quot;)]" doc:name="ingestion"/>
+            <set-variable variableName="startTime" value="#[payload.get(&quot;beginposition&quot;)]" doc:name="startTime"/>
+            <set-variable variableName="stopTime" value="#[payload.get(&quot;endposition&quot;)]" doc:name="stopTime"/>
+            <set-variable variableName="sensorOperationalMode" value="#[payload.get(&quot;sensoroperationalmode&quot;)]" doc:name="sensorOperationalMode"/>
+            <set-variable variableName="orbitDirection" value="#[payload.get(&quot;orbitdirection&quot;)]" doc:name="orbitDirection"/>
+            <set-variable variableName="familyName" value="#[payload.get(&quot;platformserialidentifier&quot;)]" doc:name="familyName"/>
+            <set-variable variableName="productType" value="#[payload.get(&quot;producttype&quot;)]" doc:name="productType"/>
+            <set-variable variableName="orbitNumber" value="#[payload.get(&quot;orbitnumber&quot;)]" doc:name="orbitNumber"/>
+            <set-variable variableName="relativeOrbitNumber" value="#[payload.get(&quot;relativeorbitnumber&quot;)]" doc:name="relativeOrbitNumber"/>
+            <set-variable variableName="cloudCoverPercentage" value="#[payload.get(&quot;double&quot;).get(&quot;content&quot;)]" doc:name="cloudCoverPercentage"/>
+            <set-variable variableName="coordinates" value="#[payload.get(&quot;footprint&quot;)]" doc:name="coordinates"/>
             <expression-component doc:name="Convert coordinates to Elastic format"><![CDATA[java.util.HashMap location = new java.util.HashMap();
 location.put('type' , 'Polygon');
 java.util.ArrayList coordinatefinal = new java.util.ArrayList();
@@ -95,26 +122,26 @@ coordinatefinal.add(coordinate);
 location.put('coordinates' , coordinatefinal);
 
 
-metadatiMap.put('location',location);
+metadataMap.put('location',location);
 ]]></expression-component>
-            <expression-component doc:name="Add data to metadatiMap"><![CDATA[metadatiMap.put('uuid',id);
-metadatiMap.put('filename',filename);
-metadatiMap.put('linkDownload',link);
-metadatiMap.put('ingestion',ingestion);
-metadatiMap.put('startTime',startTime);
-metadatiMap.put('stopTime',stopTime);
-metadatiMap.put('sensorOperationalMode',sensorOperationalMode);
-metadatiMap.put('orbitDirection',orbitDirection);
-metadatiMap.put('familyName',familyName);
-metadatiMap.put('productType',productType);
-metadatiMap.put('orbitNumber',orbitNumber);
-metadatiMap.put('relativeOrbitNumber',relativeOrbitNumber);
-metadatiMap.put('cloudCoverPercentage',cloudCoverPercentage);
+            <expression-component doc:name="Add data to metadataMap"><![CDATA[metadataMap.put('uuid',id);
+metadataMap.put('filename',filename);
+metadataMap.put('linkDownload',link);
+metadataMap.put('ingestion',ingestion);
+metadataMap.put('startTime',startTime);
+metadataMap.put('stopTime',stopTime);
+metadataMap.put('sensorOperationalMode',sensorOperationalMode);
+metadataMap.put('orbitDirection',orbitDirection);
+metadataMap.put('familyName',familyName);
+metadataMap.put('productType',productType);
+metadataMap.put('orbitNumber',orbitNumber);
+metadataMap.put('relativeOrbitNumber',relativeOrbitNumber);
+metadataMap.put('cloudCoverPercentage',cloudCoverPercentage);
 ]]></expression-component>
-            <logger message="***#[metadatiMap]" level="INFO" doc:name="metadatiMap"/>
-            <set-payload value="#[metadatiMap]" doc:name="metadatiMap"/>
 
-            <expression-component doc:name="Add metadatiMap to arraylist"><![CDATA[arrayListData.add(metadatiMap);]]></expression-component>
+            <set-payload value="#[metadataMap]" doc:name="metadataMap"/>
+
+            <expression-component doc:name="Add metadataMap to arraylist"><![CDATA[arrayListData.add(metadataMap);]]></expression-component>
             <json:object-to-json-transformer doc:name="Object to JSON"/>
             <logger message="*** Insert into ElasticSearch" level="INFO" doc:name="Log status"/>
             <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
