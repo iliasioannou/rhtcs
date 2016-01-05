@@ -70,7 +70,7 @@ angular.module('rheticus')
 								self.trendDataset=true;		//change ng-show variable
 								self.dataTrend=getTableData(e.data.features);
 								self.tableData=e.data;	
-							    var jsonExtent = getExtentSuperMaster(e.data.features);
+							    var jsonExtent =  getExtentSuperMaster(e.data.features);
 								$scope.setSentinelExtent(jsonExtent);
 								$scope.$apply(); //update view			
 							}
@@ -247,7 +247,7 @@ angular.module('rheticus')
 			else{
 				console.log("getExtentSuperMaster: Is superMaster",features[olderProduct]);
 			}
-				
+			console.log("getExtentSuperMaster: coordinates",coordinates);
 			
 			return [coordinates];
 			

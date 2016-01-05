@@ -132,7 +132,7 @@ angular.module('rheticus')
 					}
 				}
 			}; 
-			if (getFeatureInfoPoint.length>0){
+			if (getFeatureInfoPoint.length>0 && geojson.length>0){
 				$scope.center.zoom = 7;
 				$scope.center.lat = getFeatureInfoPoint[1];
 				$scope.center.lon = getFeatureInfoPoint[0];
