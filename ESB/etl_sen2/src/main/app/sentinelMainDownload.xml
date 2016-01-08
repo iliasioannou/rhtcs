@@ -111,8 +111,8 @@ int j=0;
 while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 {
 	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken()," ");
-	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
 	CoordinateLon=(Double.parseDouble(pointCoordinate.nextToken()));
+	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
 	coordinate2.add(CoordinateLon);
 	coordinate2.add(CoordinateLat);
 	coordinate.add(coordinate2);

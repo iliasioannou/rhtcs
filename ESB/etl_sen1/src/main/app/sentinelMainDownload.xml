@@ -120,8 +120,8 @@ int j=0;
 while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
 {
 	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken()," ");
-	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
 	CoordinateLon=(Double.parseDouble(pointCoordinate.nextToken()));
+	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
     if (j==0)
     {
 		flowVars['metaCoordinateLon']=(Math.round(CoordinateLon)) ;
