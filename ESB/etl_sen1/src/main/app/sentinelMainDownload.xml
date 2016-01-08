@@ -90,13 +90,19 @@ safeMap.put(rel, payload.get("href"))]]></expression-component>
             <set-variable variableName="coordinates" value="#[payload.get(&quot;footprint&quot;)]" doc:name="coordinates"/>
             <set-variable variableName="familyName" value="#[payload.get(&quot;platformname&quot;)]" doc:name="familyName"/>
             <set-variable variableName="mode" value="#[payload.get(&quot;sensoroperationalmode&quot;)]" doc:name="mode"/>
-            <set-variable variableName="swath" value="#[payload.get(&quot;swathidentifier&quot;)]" doc:name="swath"/>
+            <set-variable variableName="swath" value="#[payload.get(&quot;swathidentifier&quot;).replace(&quot; &quot;,&quot;-&quot;)]" doc:name="swath"/>
+            <set-variable variableName="missionDataTakeId" value="#[payload.get(&quot;missiondatatakeid&quot;)]" doc:name="missionDataTakeId"/>
             <set-variable variableName="relativeOrbitNumberTypeStart" value="#[payload.get(&quot;relativeorbitnumber&quot;)]" doc:name="relativeOrbitNumberTypeStart"/>
             <set-variable variableName="relativeOrbitNumberTypeStop" value="#[payload.get(&quot;lastrelativeorbitnumber&quot;)]" doc:name="relativeOrbitNumberTypeStop"/>
             <set-variable variableName="pass" value="#[payload.get(&quot;orbitdirection&quot;)]" doc:name="pass"/>
             <set-variable variableName="transmitterReceiverPolarisation" value="#[payload.get(&quot;polarisationmode&quot;).replace(&quot; &quot;,&quot;-&quot;)]" doc:name="transmitterReceiverPolarisation"/>
             <set-variable variableName="productClass" value="#[payload.get(&quot;productclass&quot;)]" doc:name="productClass"/>
             <set-variable variableName="productType" value="#[payload.get(&quot;producttype&quot;)]" doc:name="productType"/>
+            <set-variable variableName="startTime" value="#[payload.get(&quot;beginposition&quot;)]" doc:name="startTime"/>
+            <set-variable variableName="stopTime" value="#[payload.get(&quot;endposition&quot;)]" doc:name="stopTime"/>
+            <set-variable variableName="sliceNumber" value="#[payload.get(&quot;slicenumber&quot;)]" doc:name="sliceNumber"/>
+            <set-variable variableName="orbitNumberTypeStart" value="#[payload.get(&quot;orbitnumber&quot;)]" doc:name="orbitNumberTypeStart"/>
+            <set-variable variableName="orbitNumberTypeStop" value="#[payload.get(&quot;lastorbitnumber&quot;)]" doc:name="orbitNumberTypeStop"/>
             <logger message="*** Now saving product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
 
             <expression-component doc:name="Populate metadataMap"><![CDATA[import java.lang.Math;
@@ -136,8 +142,22 @@ metadataMap.put('linkDownload',link);
 metadataMap.put('superMaster','false');
 metadataMap.put('location',location);
 metadataMap.put('ingestion',ingestion);
-
+metadataMap.put('productClass',productClass);
+metadataMap.put('productType',productType);
+metadataMap.put('familyName',familyName);
+metadataMap.put('mode',mode);
+metadataMap.put('startTime',startTime);
+metadataMap.put('relativeOrbitNumberTypeStop',relativeOrbitNumberTypeStop);
+metadataMap.put('swath',swath);
+metadataMap.put('sliceNumber',sliceNumber);
+metadataMap.put('pass',pass);
+metadataMap.put('stopTime',stopTime);
+metadataMap.put('orbitNumberTypeStart',orbitNumberTypeStart);
+metadataMap.put('orbitNumberTypeStop',orbitNumberTypeStop);
+metadataMap.put('relativeOrbitNumberTypeStart',relativeOrbitNumberTypeStart);
 metadataMap.put('transmitterReceiverPolarisation',transmitterReceiverPolarisation);
+metadataMap.put('missionDataTakeId',missionDataTakeId);
+
 
 String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+transmitterReceiverPolarisation+productClass+productType+metaCoordinateLon+metaCoordinateLat;
 metadataMap.put('datasetId',dataset);

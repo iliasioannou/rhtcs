@@ -7,7 +7,7 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
     <http:request-config name="startUpdate" host="127.0.0.1" port="9090" basePath="SearchDownloadPagination" doc:name="HTTP Request Configuration"/>
     <flow name="CycleUpdateFlow1"  initialState="started">
-        <quartz:inbound-endpoint jobName="SentinelUpdating" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 52 11 ? * *">
+        <quartz:inbound-endpoint jobName="SentinelUpdating" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 00 10 ? * *">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
         <logger message="Started Sentinel Cycle Update ............." level="INFO" doc:name="Start Sentinel Update"/>

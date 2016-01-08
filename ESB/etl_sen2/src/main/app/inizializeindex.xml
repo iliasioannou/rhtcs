@@ -1,14 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+<mule xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:spring="http://www.springframework.org/schema/beans"  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
     <http:request-config name="inizializeIndexES" host="${elastic.host}" port="${elastic.port}" basePath="${elastic.index}" doc:name="HTTP Request Configuration"/>
-    <http:listener-config name="entryPoint" host="0.0.0.0" port="9095" doc:name="HTTP Listener Configuration"/>
-    <flow name="InizializeIndexFlow1" >
-        <http:listener config-ref="entryPoint" path="/inizializeIndex" doc:name="HTTP"/>
-        <set-payload value="{&quot;settings&quot; : {         &quot;number_of_shards&quot; : 5,        &quot;number_of_replicas&quot; : 1    },	&quot;mappings&quot; : {             &quot;msi&quot;:{      &quot;properties&quot;:{      	 &quot;location&quot;: {            &quot;type&quot;: &quot;geo_shape&quot;,           &quot;precision&quot;: &quot;1m&quot;         },               	 &quot;orbitNumber&quot;:{            &quot;type&quot;:&quot;long&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },          &quot;linkDownload&quot;:{            &quot;type&quot;:&quot;string&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },              &quot;familyName&quot;:{            &quot;type&quot;:&quot;string&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },     &quot;relativeOrbitNumber&quot;:{            &quot;type&quot;:&quot;long&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },          &quot;productType&quot;:{            &quot;type&quot;:&quot;string&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },                        &quot;stopTime&quot;:{            &quot;type&quot;:&quot;date&quot;         },         &quot;startTime&quot;:{            &quot;type&quot;:&quot;date&quot;         },         &quot;ingestion&quot;:{            &quot;type&quot;:&quot;date&quot;         },    &quot;filename&quot;:{            &quot;type&quot;:&quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;        },        &quot;uuid&quot;:{            &quot;type&quot;:&quot;string&quot;  , &quot;index&quot; : &quot;not_analyzed&quot;      }      }   }}}" doc:name="Settings Elastic"/>
-        <http:request config-ref="inizializeIndexES" path="/" method="POST" doc:name="ElasticSearch"/>
-        <logger message="*** Index &quot;${elastic.index}&quot; inizialized !!!" level="INFO" doc:name="Logger"/>
+    <flow name="InizializeIndexFlow1">
+        <quartz:inbound-endpoint jobName="runAtStartup" repeatInterval="1" repeatCount="0" responseTimeout="10000" doc:name="Quartz">
+            <quartz:event-generator-job/>
+        </quartz:inbound-endpoint>
+        <logger  level="INFO" doc:name="Try ES mapping" message="Trying to set ${elastic.index} ES index mapping"/>
+        <set-payload value="{&quot;settings&quot; : {         &quot;number_of_shards&quot; : 5,        &quot;number_of_replicas&quot; : 1    },	&quot;mappings&quot; : {             &quot;msi&quot;:{      &quot;properties&quot;:{      	 &quot;location&quot;: {            &quot;type&quot;: &quot;geo_shape&quot;,           &quot;precision&quot;: &quot;1m&quot;         },               	 &quot;orbitNumber&quot;:{            &quot;type&quot;:&quot;long&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },          &quot;linkDownload&quot;:{            &quot;type&quot;:&quot;string&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },              &quot;familyName&quot;:{            &quot;type&quot;:&quot;string&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },     &quot;relativeOrbitNumber&quot;:{            &quot;type&quot;:&quot;long&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },          &quot;productType&quot;:{            &quot;type&quot;:&quot;string&quot;,            &quot;index&quot; : &quot;not_analyzed&quot;         },                        &quot;stopTime&quot;:{            &quot;type&quot;:&quot;date&quot;         },         &quot;startTime&quot;:{            &quot;type&quot;:&quot;date&quot;         },         &quot;ingestion&quot;:{            &quot;type&quot;:&quot;date&quot;         },    &quot;filename&quot;:{            &quot;type&quot;:&quot;string&quot; , &quot;index&quot; : &quot;not_analyzed&quot;        },        &quot;uuid&quot;:{            &quot;type&quot;:&quot;string&quot;  , &quot;index&quot; : &quot;not_analyzed&quot;      }      }   }}}	" doc:name="Settings ES mapping"/>
+
+        <http:request config-ref="inizializeIndexES" path="/" method="PUT" doc:name="ElasticSearch" >
+            <http:success-status-code-validator values="0..499"/>
+        </http:request>
+        <choice doc:name="Choice">
+            <when expression="#[message.inboundProperties[&quot;http.status&quot;]  == 200]">
+                <logger message="ES mapping succeded." level="INFO" doc:name="ES mapping succeded."/>
+            </when>
+            <otherwise>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger message="ES mapping failed (code: #[message.inboundProperties[&quot;http.status&quot;]]) with error: #[payload]" level="WARN" doc:name="ES mapping failed"/>
+            </otherwise>
+        </choice>
+
     </flow>
 </mule>

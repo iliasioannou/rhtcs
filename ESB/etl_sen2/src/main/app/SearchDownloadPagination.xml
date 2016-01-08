@@ -8,8 +8,9 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd">
 
-
+<http:listener-config name="entryPoint" host="0.0.0.0" port="9095" doc:name="HTTP Listener Configuration"/>
     <flow name="SearchDownloadPaginationFlow1" >
+    
         <http:listener config-ref="entryPoint" path="/SearchDownloadPagination" doc:name="HTTP"/>
         <set-session-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="*** Search and Download are running !!!" doc:name="Status response"/>
