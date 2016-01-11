@@ -47,8 +47,8 @@ var serverRouter = function(server) {
             passwordEncrypted = "";
         }
         var passwordPlain = new Buffer(passwordEncrypted, 'base64').toString('ascii');
-        console.log("\tUsername  = %s", userName);
-        console.log("\tPassword  = %s", passwordPlain);
+        console.log("\tUsername  = -%s-", userName);
+        console.log("\tPassword  = -%s-", passwordPlain);
         
 		repository.User.forge({username: userName})
 			.fetch({withRelated: ["deals"]})
@@ -56,7 +56,7 @@ var serverRouter = function(server) {
 				if (user){
 					var userPassword = user.get("password");
 					console.log("\tUser from db = %s", JSON.stringify(user));
-					console.log("\tUser password from db = %s", userPassword);
+					console.log("\tUser password from db = -%s-", userPassword);
 					if(userPassword !== passwordPlain) {
 						next(new restify.NotAuthorizedError());
 					}
