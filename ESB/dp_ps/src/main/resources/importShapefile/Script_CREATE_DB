@@ -98,7 +98,7 @@ CREATE TABLE ps
   CONSTRAINT ps_fkey FOREIGN KEY (datasetid)
       REFERENCES ps_dataset_metadata (datasetid) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE,
-  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSM01'::text)
+  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSK'::text)
 )
 WITH (
   OIDS=FALSE
@@ -341,7 +341,7 @@ INSERT INTO "user"(
 
 
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
-    VALUES ('test01', '2016-01-01', 'PRVTMAP_SEN1_AOI'
+    VALUES ('test01', '2016-01-01', 'PRVTMAP_CSK_TRENTO_SUD'
     , ST_GeomFromGeoJSON
     (
 	'{
@@ -358,7 +358,7 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
     , 1);
 
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
-    VALUES ('test02', '2016-03-01', 'PRVTMAP2_SEN1_AOI'
+    VALUES ('test02', '2016-03-01', 'PRVTMAP_CSK_TRENTO_NORD'
     , ST_GeomFromGeoJSON
     (
 	'{
@@ -366,7 +366,7 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
 	    "coordinates":
 	    [
 		[
-		    [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+		    [11.14,46.09],[11.18,46.09],[11.18,46.06],[11.14,46.06],[11.14,46.09]
 		]
 	    ],
 	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
@@ -375,7 +375,7 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
     , 1);
 
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
-    VALUES ('demo01', '2016-04-01', 'DEMOMAP_SEN1_AOI'
+    VALUES ('demo01', '2016-04-01', 'DEMOMAP_CSK_BARITTERI'
     , ST_GeomFromGeoJSON
     (
 	'{
@@ -383,13 +383,11 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id)
 	    "coordinates":
 	    [
 		[
-		    [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+		    [15.83,38.33],[15.85,38.33],[15.85,38.32],[15.83,38.32],[15.83,38.33]
 		]
 	    ],
 	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
 	}'
     )
-    , 1);
-
-
+    , 2);
 	
