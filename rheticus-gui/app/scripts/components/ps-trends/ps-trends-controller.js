@@ -17,7 +17,7 @@ angular.module('rheticus')
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */
 		angular.extend(self,{
-			
+
 			"options" : { // PS Line chart options
 				"chart" : {
 					"type" : "lineChart",
@@ -30,17 +30,17 @@ angular.module('rheticus')
 					"x" : function (d) {return d.x;},
 					"y" : function (d) {return d.y;},
 					"showValues" : true,
-					"color" : d3.scale.category20().range(),
+					"color" : d3.scale.category20().range(), // jshint ignore:line
 					"xAxis" : {
 						"axisLabel" : "Date",
 						"tickFormat" : function (d) {
-							return d3.time.format("%d/%m/%Y")(new Date(d));
+							return d3.time.format("%d/%m/%Y")(new Date(d)); // jshint ignore:line
 						}
 					},
 					"yAxis": {
 						"axisLabel" : "Displacement (mm)",
 						"tickFormat" : function (d) {
-							return d3.format(".02f")(d);
+							return d3.format(".02f")(d); // jshint ignore:line
 						},
 						"axisLabelDistance" : -10
 					},
@@ -81,7 +81,7 @@ angular.module('rheticus')
 			}
 		});
 
-		$scope.$on("setPsTrendsClosure",function(e){
+		$scope.$on("setPsTrendsClosure",function(e){ // jshint ignore:line
 			if (self.show_trends) {
 				self.showPsTrends(false);
 			}
@@ -94,7 +94,7 @@ angular.module('rheticus')
 		$scope.$watch("ps",function(ps){
 			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
 				self.showPsTrends(
-					generateChartData(ps)
+					generateChartData(ps,"MRF-PR-EOP-PRO-096_BARRITTERI")
 				);
 			} else {
 				self.showPsTrends(false);
@@ -138,7 +138,7 @@ angular.module('rheticus')
 		 *
 		 * Returns:
 		 */
-		var generateChartData = function(ps){
+		var generateChartData = function(ps,datasetId){
 			var res = false;
 			try {
 				var chartData = []; // Data is represented as an array of {x,y} pairs.
@@ -159,25 +159,26 @@ angular.module('rheticus')
 						tableInfo.push(featureInfo);
 					}
 				}
-				
+
 				// add weather data getWeather(datasetId); TODO
 				var station ;
 				var values = [];
-				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI")
+				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI") {
 				    station = configuration.aoi[0].station;
-				else
+				} else {
 					station = configuration.aoi[1].station;
-				
+				}
 				$http.get(configuration.weatherAPI.url+station+"/measures?type=RAIN")
 					.success(function (response) {
 						for (i=0; i< response.length;i++) {
 							values.push({
-								"x" :  new Date(response[i].data), 
+								"x" :  new Date(response[i].data),
 								"y": response[i].measure
 							});
 						}
 					})
-					.error(function (response) {//HTTP STATUS != 200
+					.error(function (response) { // jshint ignore:line
+						//HTTP STATUS != 200
 						//do nothing
 					});
 				chartData.push({
@@ -185,7 +186,7 @@ angular.module('rheticus')
 					"values" : values,
 					"classed" : "dashed"
 				});
-				//Line chart data should be sent as an array of series objects.                
+				//Line chart data should be sent as an array of series objects.
 				self.data = chartData;
 				self.psDetails = tableInfo;
 				if(!$scope.$$phase) {
@@ -201,10 +202,10 @@ angular.module('rheticus')
 		};
 		/*
 		var getWeather = function(datasetId){
-			
+
 		};*/
 
-		$scope.$on("angular-resizable.resizeEnd", function (event, args) {
+		$scope.$on("angular-resizable.resizeEnd", function (event, args) { // jshint ignore:line
 			$scope.rc.api.update();
 			if(!$scope.$$phase) {
 				$scope.$apply();

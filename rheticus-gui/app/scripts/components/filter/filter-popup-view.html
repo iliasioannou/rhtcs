@@ -1,19 +1,32 @@
 <div data-intro="Area Of Interests" data-position="left" ng-controller="FilterPopoupCtrl as filterPop">
-	<h4>Filters</h4>
 	<!--
+	<h4>Advanced Filters</h4>
 	<div ng-show="!showDetails()">
 		<i>Set of advanced filters applied on Displacement Maps</i>
 	</div>
-	<div class="divider" style="border: 1px"></div>	
+	<div class="divider" style="border: 1px"></div>
 	<div ng-show="showDetails()">
 	-->
+	<h4>Persistent Scatterers Map Advanced Filters</h4>
+	<h5>Move slider bounds to select desired range</h5>
+	<hr style="margin-top:5px;margin-bottom:5px;">
 	<div>
-		<label>Velocity media</label>
+		<label>Velocity</label>
 		<div>
 			<input slider type="text" ng-model="filterPop.speedModelValue" options="filterPop.speedOptions" />
 		</div>
-		<div style="margin-top:20px">
-			<i>Move slider bounds to select velocity range for Persistent Scatterers Map filtering</i>
+		<!--div style="margin-top:20px">
+			<i>Move slider bounds to select velocity range</i>
+		</div-->
+	</div>
+	<hr style="margin-top:5px;margin-bottom:5px;">
+	<div>
+		<label>Coherence</label>
+		<div>
+			<input slider type="text" ng-model="filterPop.coherenceModelValue" options="filterPop.coherenceOptions" />
 		</div>
+		<!--div style="margin-top:20px">
+			<i>Move slider bounds to select coherence range</i>
+		</div-->
 	</div>
 </div>

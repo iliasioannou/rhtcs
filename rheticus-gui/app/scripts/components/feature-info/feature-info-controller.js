@@ -10,12 +10,12 @@
 
 angular.module('rheticus')
 	.controller('FeatureInfoCtrl',['$rootScope','$scope','ArrayService',function($rootScope,$scope,ArrayService){
-		
+
 		var self = this; //this controller
-		
+
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
-		 */		
+		 */
 		angular.extend(self,{
 			"overlayName" : "",
 			"featureDetails" : [], // Feature details: array of "layerName" objects who have in thier "properties" KVP which are respectively fieldsName and records values
@@ -29,7 +29,7 @@ angular.module('rheticus')
 			}
 		});
 
-		$scope.$on("setFeatureInfoClosure",function(e){
+		$scope.$on("setFeatureInfoClosure",function(e){// jshint ignore:line
 			if (self.show_features) {
 				self.showFeatures(false);
 			}
@@ -37,7 +37,7 @@ angular.module('rheticus')
 
 		/**
 		 * WATCHERS
-		 */		
+		 */
 		// featureCollection watcher for rendering chart line data
 		$scope.$watch("iffi",function(iffi){
 			self.overlayName = $scope.getOverlayMetadata("iffi").legend.title;
@@ -58,7 +58,7 @@ angular.module('rheticus')
 		/**
 		 * Parameters:
 		 * features - {Object}
-		 * 
+		 *
 		 * Returns:
 		 */
 		var generateData = function(featureCollection){
@@ -66,9 +66,9 @@ angular.module('rheticus')
 			var layerList = []; // feature details
 			try {
 				// parse all features
-				for (var i=0; i<featureCollection.features.length; i++) { 
+				for (var i=0; i<featureCollection.features.length; i++) {
 					// retrieve features that have "properties" and "layerName" fields following geojson standard
-					if ((featureCollection.features[i].properties) && (featureCollection.features[i].layerName)){ 
+					if ((featureCollection.features[i].properties) && (featureCollection.features[i].layerName)){
 						//retrieve its layer name
 						var index;
 						var layerName = featureCollection.features[i].layerName;
@@ -96,7 +96,7 @@ angular.module('rheticus')
 										"records" : [record] // layer fileds
 									});
 								} else { // update existing layer with current feature
-									for (var k=0; k<layerList[index].attributes.length; k++) { 
+									for (var k=0; k<layerList[index].attributes.length; k++) {
 										eval("record."+layerList[index].attributes[k]+" = featureCollection.features[i].properties."+layerList[index].attributes[k]+";"); // jshint ignore:line
 									}
 									layerList[index].records.push(record);

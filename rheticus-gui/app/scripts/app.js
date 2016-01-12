@@ -112,7 +112,7 @@ angular
 */
 	}])
 	.directive('draggable', function($document) {
-		return function(scope, element, attr) {
+		return function(scope, element, attr) { // jshint ignore:line
 			var startX = 0, startY = 0, x = 0, y = 0;
 			element.css({
 				cursor: 'pointer'
