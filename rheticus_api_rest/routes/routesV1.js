@@ -17,7 +17,12 @@ var serverRouter = function(server) {
     var repository = require('../repository/repository.js');
     
     var dataFileRootPath =  __dirname + "/../data/";
-    var typeMeasureAllowed = ["DL", "VAL", "VASDL"];
+    var psTypeMeasureAllowed = ["DL", "VAL", "VASDL"];
+
+	var meteoTypeMeasureAllowed = ["TEMP", "RAIN"];
+	var meteoTypeMeasureForQuery = new Array();
+	meteoTypeMeasureForQuery["TEMP"] = "temperatura_media_c";
+	meteoTypeMeasureForQuery["RAIN"] = "precipitazioni_mm";
 
     server.use(function (req, res, next) {
         //console.log("*".repeat(50));
@@ -92,6 +97,135 @@ var serverRouter = function(server) {
                     "info": "TODO" 
                 }
         });
+        next();
+    });
+
+    // ----------------------------------    
+    // List Meteo Station
+    server.get({ path: '/meteostations', version: VERSION }, function (req, res, next) {
+        console.log("Elenco delle stazioni meteo");
+        repository.MeteoStation.forge()
+            .query(function queryBuilder(qb){
+                qb.orderBy("id", "asc");
+                })
+            .fetchAll()
+            .then(function(collection){
+                res.send(collection.toJSON());
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+        next();
+    });
+
+    // ----------------------------------    
+    // Detail for Meteo Station
+    server.get({ path: '/meteostations/:idStation', version: VERSION }, function (req, res, next) {
+        console.log("Dettaglio della stazioni meteo");
+        var idStation = req.params.idStation;
+        if (idStation == undefined || idStation == null){
+            idStation = "";
+		}
+        console.log("\tStation Id = %s", req.params.idStation);
+        repository.MeteoStation.forge({id: idStation})
+			.fetch()
+            .then(function(station){
+				if (station == null){
+					next(new restify.NotFoundError("Unknow station. Sorry !"));
+					return;
+				}
+				else{
+					res.send(station.toJSON());
+				}
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+        next();
+    });
+
+    // ----------------------------------    
+    // Measure for Meteo Station
+    server.get({ path: '/meteostations/:idStation/measures', version: VERSION }, function (req, res, next) {
+        console.log("Misure della stazioni meteo");
+        var idStation = req.params.idStation;
+        if (idStation == undefined || idStation == null){
+            idStation = "";
+		}
+        var typeMeasure = req.query.type;
+        if (typeMeasure == undefined || typeMeasure == null){
+            typeMeasure = "";
+        }
+        if (typeMeasure.length > 0 && meteoTypeMeasureAllowed.indexOf(typeMeasure) < 0){
+            next(new restify.BadRequestError("Unknow type measure. Sorry !"));
+            return;
+        }
+        console.log("\tStation Id = %s", req.params.idStation);
+        console.log("\tMeasure type = %s", typeMeasure);
+        repository.MeteoStationMeasure.forge()
+            .query(function queryBuilder(qb){
+                qb.where("id_station", "=", idStation);
+                if (typeMeasure.length > 0){
+                    qb.andWhere("type", "=", meteoTypeMeasureForQuery[typeMeasure])
+                }
+                qb.orderBy("data", "asc");
+                qb.orderBy("type", "asc");
+                })
+            .fetchAll()
+            .then(function(collection){
+                res.send(collection.toJSON());
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+        next();
+    });
+
+    server.get({ path: '/meteostations/:idStation/measuresAgg', version: VERSION }, function (req, res, next) {
+        console.log("Misure della stazioni meteo");
+        var idStation = req.params.idStation;
+        if (idStation == undefined || idStation == null){
+            idStation = "";
+		}
+        var typeMeasure = req.query.type;
+        if (typeMeasure == undefined || typeMeasure == null){
+            typeMeasure = "";
+        }
+        if (typeMeasure.length > 0 && meteoTypeMeasureAllowed.indexOf(typeMeasure) < 0){
+            next(new restify.BadRequestError("Unknow type measure. Sorry !"));
+            return;
+        }
+/*
+        var start = req.query.start;
+        if (start == undefined || start == null){
+            start = "";
+        }
+        var end = req.query.end;
+        if (end == undefined || end== null){
+            end = "";
+        }
+*/
+        console.log("\tStation Id = %s", req.params.idStation);
+        console.log("\tMeasure type = %s", typeMeasure);
+//        console.log("\tMeasure start = %s", start);
+//        console.log("\tMeasure end = %s", end);
+        repository.MeteoStationMeasureAggregate.forge()
+            .query(function queryBuilder(qb){
+                qb.where("id_station", "=", idStation);
+                if (typeMeasure.length > 0){
+                    qb.andWhere("type", "=", meteoTypeMeasureForQuery[typeMeasure])
+                }
+                qb.orderBy("y", "asc");
+                qb.orderBy("m", "asc");
+                qb.orderBy("type", "asc");
+                })
+            .fetchAll()
+            .then(function(collection){
+                res.send(collection.toJSON());
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
         next();
     });
 
@@ -208,7 +342,7 @@ var serverRouter = function(server) {
         if (typeMeasure == undefined || typeMeasure == null){
             typeMeasure = "";
         }
-        if (typeMeasure.length > 0 && typeMeasureAllowed.indexOf(typeMeasure) < 0){
+        if (typeMeasure.length > 0 && psTypeMeasureAllowed.indexOf(typeMeasure) < 0){
             next(new restify.BadRequestError("Unknow type measure. Sorry !"));
             return;
         }

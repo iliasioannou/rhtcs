@@ -23,7 +23,31 @@ var Deal = bookshelf.Model.extend({
 });
 
 
+// ------------ Meteo station and measures -------------
+var MeteoStation = bookshelf.Model.extend({
+    tableName: "meteo_stations",
+//	idAttribute: "id",
+    hidden: ["lat", "lon", "elevation", "geom"],
+	measures: function(){
+			return this.hasMany(MeteoStationMeasure , "id_station");
+		}
+});
 
+var MeteoStationMeasure = bookshelf.Model.extend({
+    tableName: "meteo_stations_measure"
+});
+
+var MeteoStationMeasureAggregate = bookshelf.Model.extend({
+    tableName: "vw_meteo_stations_measure"
+});
+
+var MeteoStationMeasures = bookshelf.Collection.extend({
+    model: MeteoStationMeasure
+});
+
+var MeteoStationMeasureAggregates = bookshelf.Collection.extend({
+    model: MeteoStationMeasureAggregate
+});
 
 // ------------ Dataset and Ps -------------
 var Dataset = bookshelf.Model.extend({
@@ -71,6 +95,9 @@ var PsMeasures = bookshelf.Collection.extend({
 // Public
 var public = {
 	User: User,
+	MeteoStation: MeteoStation,
+	MeteoStationMeasure: MeteoStationMeasure,
+	MeteoStationMeasureAggregate: MeteoStationMeasureAggregate,
     Dataset: Dataset,
     Ps: Ps,
     Pss: Pss,
