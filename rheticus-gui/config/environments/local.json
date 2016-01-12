@@ -108,7 +108,7 @@
 			"metadata" : [{
 				"id" : "iffi",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:8080/iffi",
+				"queryUrl" : "http://mazinga.planetek.it:8080/iffi",
 				"legend" : {
 					"title" : "Landslide Maps",
 					"description" : "Here you will control the visualization of landslide maps covering the area (IFFI catalog).Single-clicking a point in the landslide enables the access to the features of the landlside.",
@@ -235,7 +235,7 @@
 			},{
 				"id" : "ps",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:8080/geoserver/rheticus/wms",
+				"queryUrl" : "http://mazinga.planetek.it:8080/geoserver/rheticus/wms",
 				"legend" : {
 					"title":"Displacement Maps",
 					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
@@ -248,7 +248,7 @@
 					"LAYERS" : [{"id":"rheticus:ps","name":"Persistent Scatterers"}],
 					"heatmap" : "rheticus:ps",
 					"detail" : "rheticus:ps",
-					"measureUrl" : "http://kim.planetek.it:8080/rheticusapi/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
+					"measureUrl" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
 					"datasetid" : "datasetid",
 					"psid" : "psid",
 					"date" : "data",
@@ -258,9 +258,9 @@
 		}
 	},
 	"authentication" : {
-		"url" : "http://kim.planetek.it:8080/rheticusapi/api/v1/authenticate?"
+		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/authenticate?"
 	},
 	"weatherAPI" : {
-		"url" : "http://kim.planetek.it:8080/rheticusapi/api/v1/meteostations/"
+		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/meteostations/"
 	}
 }

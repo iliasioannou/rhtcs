@@ -23,7 +23,7 @@ angular
 		'angularAwesomeSlider',
 		'nvd3',
 		'smart-table',
-        'services.config',
+    'services.config',
 		'angularHelpOverlay',
 		'angularResizable',
 		'flash'
@@ -55,7 +55,7 @@ angular
 		 * list - {Object}
 		 * attribute - {String}
 		 * idValue - {String}
-		 * 
+		 *
 		 * Returns:
 		 * {Integer} - Position in list
 		 */

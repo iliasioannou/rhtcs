@@ -27,7 +27,6 @@
 			"scale" : [-10, "|", -5, "|", 0, "|", 5, "|", 10]
 		},
 		"coherenceSlider" : {
-			"_comment" : "NOT YET IMPLEMENTED",
 			"init" : "75;100",
 			"from" : 75,
 			"to" : 100,
