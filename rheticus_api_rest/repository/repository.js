@@ -3,7 +3,7 @@ var knex = require("knex")(dbConfig);
 var bookshelf = require("bookshelf")(knex);
 
 bookshelf.plugin("visibility");
-//bookshelf.plugin("virtuals");
+bookshelf.plugin("virtuals");
 
 // ------------ User and Deal -------------
 
@@ -27,18 +27,30 @@ var Deal = bookshelf.Model.extend({
 var MeteoStation = bookshelf.Model.extend({
     tableName: "meteo_stations",
 //	idAttribute: "id",
-    hidden: ["lat", "lon", "elevation", "geom"],
+    hidden: ["codcountry", "lat", "lon", "elevation", "geom"],
 	measures: function(){
 			return this.hasMany(MeteoStationMeasure , "id_station");
 		}
 });
 
 var MeteoStationMeasure = bookshelf.Model.extend({
-    tableName: "meteo_stations_measure"
+    tableName: "meteo_stations_measure",
+    hidden: ["id"],
+	virtuals: {
+		aggregation: {
+			get: function(){return "DAY"}
+		}		
+	}
 });
 
 var MeteoStationMeasureAggregate = bookshelf.Model.extend({
-    tableName: "vw_meteo_stations_measure"
+    tableName: "vw_meteo_stations_measure",
+    hidden: ["y", "m"],
+	virtuals: {
+		aggregation: {
+			get: function(){return "MONTH"}
+		}		
+	}
 });
 
 var MeteoStationMeasures = bookshelf.Collection.extend({
@@ -48,6 +60,11 @@ var MeteoStationMeasures = bookshelf.Collection.extend({
 var MeteoStationMeasureAggregates = bookshelf.Collection.extend({
     model: MeteoStationMeasureAggregate
 });
+
+var MeteoStations = bookshelf.Collection.extend(
+	{
+		model: MeteoStation
+	})
 
 // ------------ Dataset and Ps -------------
 var Dataset = bookshelf.Model.extend({
@@ -96,6 +113,7 @@ var PsMeasures = bookshelf.Collection.extend({
 var public = {
 	User: User,
 	MeteoStation: MeteoStation,
+	//MeteoStations: MeteoStations,
 	MeteoStationMeasure: MeteoStationMeasure,
 	MeteoStationMeasureAggregate: MeteoStationMeasureAggregate,
     Dataset: Dataset,

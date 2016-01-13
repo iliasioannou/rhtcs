@@ -6,6 +6,7 @@ var serverRouter = function(server) {
     var VERSION = "1.0.0";
     
     var serverConfig = require("../serverConfig");
+
     
     var dbConfig = require("../repository/dbConfig.js");
     var knex = require("knex")(dbConfig);
@@ -13,16 +14,13 @@ var serverRouter = function(server) {
     var restify = require('restify');
     var Promise = require("bluebird");
     var fs = require('fs');
+	var validator = require('validator');
 
     var repository = require('../repository/repository.js');
     
     var dataFileRootPath =  __dirname + "/../data/";
     var psTypeMeasureAllowed = ["DL", "VAL", "VASDL"];
 
-	var meteoTypeMeasureAllowed = ["TEMP", "RAIN"];
-	var meteoTypeMeasureForQuery = new Array();
-	meteoTypeMeasureForQuery["TEMP"] = "temperatura_media_c";
-	meteoTypeMeasureForQuery["RAIN"] = "precipitazioni_mm";
 
     server.use(function (req, res, next) {
         //console.log("*".repeat(50));
@@ -31,7 +29,7 @@ var serverRouter = function(server) {
         console.log("Api ver          : " + req.headers['accept-version']);
         console.log("Time request     : " + (new Date()).toISOString());
         console.log("Http method      : " + req.method);
-        console.log("Http origin      : " + req.header("Origin"));
+        console.log("Htp origin      : " + req.header("Origin"));
         console.log("Http url         : " + req.url);
         console.log("Http User-Agent  : " + req.header("User-Agent"));
         console.log("Auth. username   : " + req.username);
@@ -102,20 +100,67 @@ var serverRouter = function(server) {
 
     // ----------------------------------    
     // List Meteo Station
+	// Whitout parameter return all station
+	// With location=LAT,LONG where LAT=+/-GG.MMMMM and LONG=GGG.MMMMM in SRID=4326
     server.get({ path: '/meteostations', version: VERSION }, function (req, res, next) {
+		var LIMIT = 1;
+		var SRID = 4326;
+		var TO_SRID = 32633;
+		var errorMessage4StrangeLocation = "location=LAT,LONG where LAT=+/-GG.MMMM [-90.0000,90.0000] and LONG=GGG.MMMM [-180.0000,180.0000] in SRID=" + SRID ;
         console.log("Elenco delle stazioni meteo");
-        repository.MeteoStation.forge()
-            .query(function queryBuilder(qb){
-                qb.orderBy("id", "asc");
-                })
-            .fetchAll()
-            .then(function(collection){
-                res.send(collection.toJSON());
-            })
-            .catch(function(error){
-                console.log(error);
-            });       
-        next();
+        var location = req.query.location;
+        console.log("\tLocation = %s", location);
+        if (location !== undefined){
+			var arrayCoord = location.split(",");
+			if (arrayCoord.length == 2){
+				var lat = parseFloat(arrayCoord[0]);
+				var lon = parseFloat(arrayCoord[1]);
+				if (!isNaN(lat) && !isNaN(lon)){
+					console.log("\tLat = %s; Lon = %s", lat, lon);
+					var querySelectDistanceDegree = "round(st_distance(ST_SetSRID(geom, " + SRID + "), 'SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry)::numeric, 4) AS distance_degree";
+					var querySelectDistanceMeter = "floor(st_distance(ST_Transform(ST_SetSRID(geom, " + SRID + "), " + TO_SRID + "), ST_Transform('SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry, " + TO_SRID + "))) AS Distance_meter";
+					var queryOrderBy = "st_distance(ST_SetSRID(geom, " + SRID + "), 'SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry)";
+					
+					repository.MeteoStation.forge()
+						.query(function(qb) {
+							qb.offset(0).limit(LIMIT);
+							})
+						.query("select", ["*", knex.raw(querySelectDistanceDegree), knex.raw(querySelectDistanceMeter)])
+						.query("orderBy", knex.raw(queryOrderBy), "ASC")
+						.fetchAll()
+						.then(function(collection){
+							res.send(collection.toJSON());
+						})
+						.catch(function(error){
+							console.log(error);
+							next(new restify.BadRequestError(errorMessage4StrangeLocation));
+						});       
+				}
+				else{
+					next(new restify.BadRequestError(errorMessage4StrangeLocation));
+					return;
+				}
+			}
+			else{
+				next(new restify.BadRequestError(errorMessage4StrangeLocation));
+				return;
+			}
+        }
+		else{
+			repository.MeteoStation.forge()
+				.query(function queryBuilder(qb){
+					qb.orderBy("id", "asc");
+					})
+				.fetchAll()
+				.then(function(collection){
+					res.send(collection.toJSON());
+				})
+				.catch(function(error){
+					console.log(error);
+				});       
+			next();
+		}
+
     });
 
     // ----------------------------------    
@@ -146,27 +191,100 @@ var serverRouter = function(server) {
 
     // ----------------------------------    
     // Measure for Meteo Station
-    server.get({ path: '/meteostations/:idStation/measures', version: VERSION }, function (req, res, next) {
+	// Whitout parameter return all measures
+	// Parameter: type, perdiod, aggregation
+	var meteoTypeMeasureAllowed = ["TEMP", "RAIN"];
+	var meteoTypeMeasureForQuery = new Array();
+	meteoTypeMeasureForQuery["TEMP"] = "temperatura_media_c";
+	meteoTypeMeasureForQuery["RAIN"] = "precipitazioni_mm";
+	
+	var meteoTypeMeasureAggregation = ["DAY", "MONTH"];
+	var dateSeparator4Period = ","; 
+/*
+	var validationParamMethodMeasures = {
+		resources: {
+			idStation: {isRequired: true}
+		},
+		queries: {
+			type: {isRequired: false, isIn: meteoTypeMeasureAllowed},
+			period: {isRequired: false, contains: [dateSeparator4Period]}
+		}		
+	};
+    server.get({ path: '/meteostations/:idStation/measures', version: VERSION, validation:  validationParamMethodMeasures}, function (req, res, next) {
+*/
+    server.get({ path: '/meteostations/:idStation/measures', version: VERSION}, function (req, res, next) {
         console.log("Misure della stazioni meteo");
+		
+		var errorMessage4StrangeType = "Unknow type measure. type=[" + meteoTypeMeasureAllowed + "]";
+		var errorMessage4StrangeTypeAggregation = "Unknow type measure aggregation. type=[" + meteoTypeMeasureAggregation + "]";
+		var errorMessage4StrangePeriod = "Unknow time period. period=from,to. Where from > to and from/to in format YYYY-MM-DD";
+
         var idStation = req.params.idStation;
+        console.log("\tStation Id = %s", req.params.idStation);
         if (idStation == undefined || idStation == null){
             idStation = "";
 		}
+
         var typeMeasure = req.query.type;
-        if (typeMeasure == undefined || typeMeasure == null){
+        console.log("\tMeasure type = %s", typeMeasure);
+        if (typeMeasure === undefined || typeMeasure === null){
             typeMeasure = "";
         }
         if (typeMeasure.length > 0 && meteoTypeMeasureAllowed.indexOf(typeMeasure) < 0){
-            next(new restify.BadRequestError("Unknow type measure. Sorry !"));
+            next(new restify.InvalidArgumentError(errorMessage4StrangeType));
             return;
+		}
+       
+        var typeMeasureAggregation = req.query.aggregation;
+        console.log("\tMeasure type aggregation = %s", typeMeasureAggregation);
+        if (typeMeasureAggregation === undefined || typeMeasureAggregation === null){
+            typeMeasureAggregation = "";
         }
-        console.log("\tStation Id = %s", req.params.idStation);
-        console.log("\tMeasure type = %s", typeMeasure);
-        repository.MeteoStationMeasure.forge()
+        if (meteoTypeMeasureAggregation.length > 0 && meteoTypeMeasureAggregation.indexOf(typeMeasureAggregation ) < 0){
+            next(new restify.InvalidArgumentError(errorMessage4StrangeTypeAggregation));
+            return;
+		}
+	   	
+		var periodIsValid = false;	
+		var period = req.query.period;
+        console.log("\tPeriod = %s", period);
+        if (period !== undefined){
+			var arrayPeriod = period.split(dateSeparator4Period);
+			if (arrayPeriod.length == 2){
+				var from = validator.toDate(arrayPeriod[0]);
+				var to = validator.toDate(arrayPeriod[1])
+        		console.log("\tPeriod from = %s, to = %s", from, to);
+				periodIsValid = (from !== null && to !== null && from < to && validator.isBefore(from) && validator.isBefore(to));
+				if (periodIsValid == false){
+					next(new restify.InvalidArgumentError(errorMessage4StrangePeriod));
+					return;
+				}
+			}
+			else{
+				next(new restify.InvalidArgumentError(errorMessage4StrangePeriod));
+				return;
+			}
+        }
+        console.log("\tPeriod is valid = %s", periodIsValid);
+
+ 		var repo = null;		
+		if (typeMeasureAggregation === "DAY"){
+ 			repo = repository.MeteoStationMeasure;		
+		}
+		else{
+ 			repo = repository.MeteoStationMeasureAggregate;		
+		}
+
+		repo.forge()
+			//.query("select", ["*", "row_number() AS id"])
             .query(function queryBuilder(qb){
                 qb.where("id_station", "=", idStation);
                 if (typeMeasure.length > 0){
                     qb.andWhere("type", "=", meteoTypeMeasureForQuery[typeMeasure])
+                }
+				if (periodIsValid){
+                    qb.andWhere("data ", ">=", from.toISOString())
+                    qb.andWhere("data ", "<=", to)
                 }
                 qb.orderBy("data", "asc");
                 qb.orderBy("type", "asc");
@@ -176,9 +294,9 @@ var serverRouter = function(server) {
                 res.send(collection.toJSON());
             })
             .catch(function(error){
-                console.log(error);
+				console.log(error);
+				next(new restify.BadRequestError(errorMessage4StrangePeriod));
             });       
-        next();
     });
 
     server.get({ path: '/meteostations/:idStation/measuresAgg', version: VERSION }, function (req, res, next) {
@@ -194,21 +312,9 @@ var serverRouter = function(server) {
         if (typeMeasure.length > 0 && meteoTypeMeasureAllowed.indexOf(typeMeasure) < 0){
             next(new restify.BadRequestError("Unknow type measure. Sorry !"));
             return;
-        }
-/*
-        var start = req.query.start;
-        if (start == undefined || start == null){
-            start = "";
-        }
-        var end = req.query.end;
-        if (end == undefined || end== null){
-            end = "";
-        }
-*/
+        }za
         console.log("\tStation Id = %s", req.params.idStation);
         console.log("\tMeasure type = %s", typeMeasure);
-//        console.log("\tMeasure start = %s", start);
-//        console.log("\tMeasure end = %s", end);
         repository.MeteoStationMeasureAggregate.forge()
             .query(function queryBuilder(qb){
                 qb.where("id_station", "=", idStation);
@@ -218,7 +324,7 @@ var serverRouter = function(server) {
                 qb.orderBy("y", "asc");
                 qb.orderBy("m", "asc");
                 qb.orderBy("type", "asc");
-                })
+            })
             .fetchAll()
             .then(function(collection){
                 res.send(collection.toJSON());
