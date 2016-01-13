@@ -22,7 +22,6 @@ var Deal = bookshelf.Model.extend({
     hidden: ["id", "seller_id", "user_id", "geom"],
 });
 
-
 // ------------ Meteo station and measures -------------
 var MeteoStation = bookshelf.Model.extend({
     tableName: "meteo_stations",
