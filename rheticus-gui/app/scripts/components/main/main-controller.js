@@ -404,7 +404,7 @@ angular.module('rheticus')
 								if (showDetails()){ //proceed with getFeatureInfo request
 									params = {
 										"INFO_FORMAT" : "application/json",
-										"FEATURE_COUNT" : MAX_SENTINEL_MEASURES,
+										"FEATURE_COUNT" : MAX_FEATURES,
 										"CQL_FILTER" : getOverlayParams("ps").source.params.CQL_FILTER
 									};
 									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"ps",setMarker);
