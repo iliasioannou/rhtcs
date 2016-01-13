@@ -238,9 +238,16 @@ angular.module('rheticus')
 						});
 						var featureInfo = {};
 						for (var key in ps.features[i].properties) {
-							eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+							if (key==="coherence")
+							{
+								eval("featureInfo." + key + " = 100*ps.features[\"" + i + "\"].properties." + key + ";"); // jshint 
+							}else{
+								eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+							}
+							
 						}
 						tableInfo.push(featureInfo);
+						
 					}
 				}
 				
