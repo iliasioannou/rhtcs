@@ -108,7 +108,7 @@
 			"metadata" : [{
 				"id" : "iffi",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://mazinga.planetek.it:8080/iffi",
+				"queryUrl" : "http://kim.planetek.it:8080/iffi",
 				"legend" : {
 					"title" : "Landslide Maps",
 					"description" : "Here you will control the visualization of landslide maps covering the area (IFFI catalog).Single-clicking a point in the landslide enables the access to the features of the landlside.",
@@ -210,7 +210,7 @@
 						{"id":"105","name":"Bolzano_Punto_identificativo_frana"},
 						{"id":"107","name":"Basilicata_Aree_frane_diffuse"},
 						{"id":"108","name":"Basilicata_Frane"},
-						{"id":"109","name":"Basilicata_Punto_identificativo_frana"},						
+						{"id":"109","name":"Basilicata_Punto_identificativo_frana"},
 						{"id":"111","name":"Abruzzo_DGPV"},
 						{"id":"112","name":"Abruzzo_Aree_frane_diffuse"},
 						{"id":"113","name":"Abruzzo_Frane"},
@@ -220,7 +220,7 @@
 			},{
 				"id" : "sentinel",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/wms",
+				"queryUrl" : "http://kim.planetek.it:8080/geoserver/rheticus/wms",
 				"legend" : {
 					"title" : "Sentinel Catalog",
 					"description" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
@@ -235,7 +235,7 @@
 			},{
 				"id" : "ps",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://mazinga.planetek.it:8080/geoserver/rheticus/wms",
+				"queryUrl" : "http://kim.planetek.it:8080/geoserver/rheticus/wms",
 				"legend" : {
 					"title":"Displacement Maps",
 					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
@@ -248,7 +248,7 @@
 					"LAYERS" : [{"id":"rheticus:ps","name":"Persistent Scatterers"}],
 					"heatmap" : "rheticus:ps",
 					"detail" : "rheticus:ps",
-					"measureUrl" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
+					"measureUrl" : "http://kim.planetek.it:8080/rheticusapi/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
 					"datasetid" : "datasetid",
 					"psid" : "psid",
 					"date" : "data",
@@ -258,9 +258,9 @@
 		}
 	},
 	"authentication" : {
-		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/authenticate?"
+		"url" : "http://kim.planetek.it:8080/rheticusapi/api/v1/authenticate?"
 	},
 	"weatherAPI" : {
-		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/meteostations/"
+		"url" : "http://kim.planetek.it:8080/rheticusapi/api/v1/meteostations/"
 	}
 }

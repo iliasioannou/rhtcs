@@ -12,7 +12,7 @@ module.exports = function (grunt) {
 
 	// Time how long tasks take. Can help when optimizing build times
 	require('time-grunt')(grunt);
-  
+
 	// Automatically load required Grunt tasks
 	require('jit-grunt')(grunt, {
 		useminPrepare: 'grunt-usemin',
@@ -25,6 +25,8 @@ module.exports = function (grunt) {
 		app: require('./bower.json').appPath || 'app',
 		dist: 'dist'
 	};
+
+	grunt.loadNpmTasks('grunt-replace');
 
 	// Define the configuration for all the tasks
 	grunt.initConfig({
@@ -318,8 +320,23 @@ module.exports = function (grunt) {
 				}
 			}
 		},
-    
+
 		replace: {
+			local: {
+				options: {
+					patterns: [{
+						json: grunt.file.readJSON('./config/environments/common.json')
+					},{
+						json: grunt.file.readJSON('./config/environments/local.json')
+					}]
+				},
+				files: [{
+					expand: true,
+					flatten: true,
+					src: ['./config/config.js'],
+					dest: '<%= yeoman.app %>/scripts/services/'
+				}]
+			},
 			development: {
 				options: {
 					patterns: [{
@@ -351,7 +368,7 @@ module.exports = function (grunt) {
 				}]
 			}
 		},
-    
+
 		// The following *-min tasks will produce minified files in the dist folder
 		// By default, your `index.html`'s <!-- Usemin block --> will take care of
 		// minification. These next options are pre-configured if you do not wish
@@ -516,7 +533,7 @@ module.exports = function (grunt) {
 
 //	grunt.loadNpmTasks('grunt-connect-proxy');
 //	grunt.loadNpmTasks('grunt-contrib-connect');
-	
+
 	grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
 		if (target === 'dist') {
 			return grunt.task.run(['build', 'connect:dist:keepalive']);
@@ -549,7 +566,8 @@ module.exports = function (grunt) {
 	grunt.registerTask('build', function(target){
 		grunt.task.run([
 			'clean:dist',
-			'replace:' + (target==='dist' ? 'production' : 'development'),
+			//'replace:' + (target==='dist' ? 'production' : 'development'),
+			'replace:' + (target===undefined ? 'production' : target),
 			'wiredep',
 			'useminPrepare',
 			'concurrent:dist',

@@ -10,7 +10,7 @@
 
 angular.module('rheticus')
 	.controller('TimelineCtrl',['$rootScope','$scope','configuration','ArrayService',function($rootScope,$scope,configuration,ArrayService){
-		
+
 		var self = this; //this controller
 
 		/**
@@ -25,21 +25,21 @@ angular.module('rheticus')
 				self.data = [];
 			}
 		};
-		
+
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
-		 */		
+		 */
 		angular.extend(self,{
-			
+
 			"trendDataset" : false,
 			"show_timeline" : false, // dialog box closure
 			"showTimeline" : showTimeline,
 			"data" : [],
 			"tableData" :[],
 			"dataTrend" : [],
-			
+
 			// Chart options
-			"options" : { 
+			"options" : {
 				"chart" : {
 					"width" : 600,
 					"height" : 200,
@@ -52,11 +52,11 @@ angular.module('rheticus')
 						return parseInt(d.value);
 					},
 					"valueFormat": function(d){
-						return d3.format(',.0f')(d);
+						return d3.format(',.0f')(d); // jshint ignore:line
 					},
 					"xAxis" : {
 						"axisLabel" : "Dataset"
-						
+
 					},
 					"yAxis" : {
 						"axisLabel" : "Count",
@@ -69,14 +69,14 @@ angular.module('rheticus')
 							{
 								self.trendDataset=true;		//change ng-show variable
 								self.dataTrend=getTableData(e.data.features);
-								self.tableData=e.data;	
+								self.tableData=e.data;
 							    var jsonExtent =  getExtentSuperMaster(e.data.features);
 								$scope.setSentinelExtent(jsonExtent);
-								$scope.$apply(); //update view			
+								$scope.$apply(); //update view
 							}
 					  }
 					},
-					
+
 					"useInteractiveGuideline" : false,
 					"interactive" : true,
 					"tooltip" : {
@@ -100,14 +100,14 @@ angular.module('rheticus')
 					enable : true,
 					html : "<b>Sentinel 1 Datasets Identifier</b>"
 				},
-				
-				
-				
-				
+
+
+
+
 			},
-			
+
 			// Chart options
-			"optionsTrend" : { 
+			"optionsTrend" : {
 				"chart" : {
 							"showLegend": false,
 							"type" : "lineChart",
@@ -120,7 +120,7 @@ angular.module('rheticus')
 							"xAxis": {
 								"axisLabel": 'Acquisitions day',
 								"tickFormat" : function (d) {
-									return d3.time.format("%d/%m/%Y")(new Date(d));
+									return d3.time.format("%d/%m/%Y")(new Date(d)); // jshint ignore:line
 								},
 							},
 
@@ -140,9 +140,9 @@ angular.module('rheticus')
 							"interactive" : true,
 							"lines": {
 								"dispatch": {
-									"elementClick": function(e) {},
-									"elementMouseout": function(e) {},
-									"elementMouseover": function(e) {},
+									"elementClick": function(e) {}, // jshint ignore:line
+									"elementMouseout": function(e) {}, // jshint ignore:line
+									"elementMouseover": function(e) {}, // jshint ignore:line
 								}
 							},
 							"tooltip" : {
@@ -163,27 +163,27 @@ angular.module('rheticus')
 								enable : true,
 								html : "<b>Acquisitions History</b>"
 						},
-					
+
 				}
-				
-				
-				
-				
-			
-			
-			
-			
-			
+
+
+
+
+
+
+
+
+
 		});
 		/**
 		 * WATCHERS
-		 */	
+		 */
 		// ps watcher for rendering chart line data
 		$scope.$watch("sentinel",function(timeline) {
 
 			if ((timeline!==null) && (timeline.features!==null) && (timeline.features.length)) {
 				var datasetList = normalizeDatasetList(timeline);
-				
+
 				showTimeline(
 					generateChartData(datasetList)
 				);
@@ -192,26 +192,27 @@ angular.module('rheticus')
 			}
 		});
 		var getTableData= function (features){
-			
+
 			features.sort(function(a,b) {
-							if (convertDate(a.properties.startTime) < convertDate(b.properties.startTime))
+							if (convertDate(a.properties.startTime) < convertDate(b.properties.startTime)){
 								return -1;
-							if (convertDate(a.properties.startTime) > convertDate(b.properties.startTime))
+							}
+							if (convertDate(a.properties.startTime) > convertDate(b.properties.startTime)){
 								return 1;
+							}
 							return 0;
 				} );
-			
+
 			var featureValue = [];
 			var dateLong =[];
 			for (var i = 0; i < features.length; i++) {
 				//get long value for date
-				var dateLong = convertDate(features[i].properties.startTime);
-                featureValue.push({x: dateLong, y: i+1,data:features[i].properties});
-                
-            };
+				dateLong = convertDate(features[i].properties.startTime);
+      	featureValue.push({x: dateLong, y: i+1,data:features[i].properties});
+      }
 			$scope.$apply();			//update view
 			console.log(featureValue);
-			
+
 			return [
                 {
                     values: featureValue,      //values - represents the array of {x,y} data points
@@ -219,31 +220,27 @@ angular.module('rheticus')
                     color: '#ff7f0e',  //color - optional: choose your own line color.
 					mean: 20
                 }];
-			
-			
 		};
-		
+
 		var getExtentSuperMaster= function (features)
 		{
 			var coordinates=[];
 			var i = 0;
 			while ( i < features.length  ) {
-					coordinates.push(features[i].geometry.coordinates);
-				
-				i++;  
-            };
+				coordinates.push(features[i].geometry.coordinates);
+				i++;
+      }
 			console.log(coordinates);
-			
 			return coordinates;
-			
+
 		};
-		
-		
-		
-		
-		
+
+
+
+
+
 		var convertDate= function (dateString){
-			
+
 			var day = dateString.substring(8,10);
 			var month = dateString.substring(5,7)-1;
 			var year = dateString.substring(0,4);
@@ -251,17 +248,17 @@ angular.module('rheticus')
 			d.setFullYear(year);
 			d.setMonth(month);
 			d.setDate(day);
-			
+
 			return d.getTime();
-			
-		}
+
+		};
 		/**
 		 * PRIVATE VARIABLES AND METHODS
 		 */
 		/**
 		 * Parameters:
 		 * coords - Array<{Object}>
-		 * 
+		 *
 		 * Returns:
 		 * {Object} - Bounding Box Coordinates
 		 */
@@ -274,11 +271,11 @@ angular.module('rheticus')
 						xAll.push(coords[0][i][1]);
 						yAll.push(coords[0][i][0]);
 					}
-					xAll = xAll.sort(function (a,b) { 
-						return a - b; 
+					xAll = xAll.sort(function (a,b) {
+						return a - b;
 					});
 					yAll = yAll.sort(function (a,b) {
-						return a - b; 
+						return a - b;
 					});
 					res = {
 						"left" : xAll[0],
@@ -297,7 +294,7 @@ angular.module('rheticus')
 		 * Parameters:
 		 * current - {Object}
 		 * feature - {Object}
-		 * 
+		 *
 		 * Returns:
 		 * {Object} - Bounding Box Coordinates
 		 */
@@ -314,7 +311,7 @@ angular.module('rheticus')
 		/**
 		 * Parameters:
 		 * timeline - {Object}
-		 * 
+		 *
 		 * Returns:
 		 * Array<{Object}> - Dataset list
 		 */
@@ -327,37 +324,38 @@ angular.module('rheticus')
 							var datasetValue = timeline.features[i].properties.datasetId;
 							try {
 									var index = ArrayService.getIndexByAttributeValue(datasetList,"id",datasetValue);
-									
+
 									if (index===-1){ // add new dataset
 										datasetList.push({
 											"id" : datasetValue,
 											"bbox" : boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
 											"features" : [timeline.features[i]]
-											
+
 										});
 									} else { // update bbox of existing dataset
 										datasetList[index].bbox = updateDatasetBoundingBox(datasetList[index].bbox,boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
 										datasetList[index].features.push(timeline.features[i]);
 									}
-								
+
 							} catch (e) {
 								console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+datasetIdAttribute+"' attribute doesn't exists!");
 							} finally {
 								// do nothing ... continue parsing other features!
 							}
-					
-						
+
+
 					}
 				}
 				//sort datasetList
 				datasetList.sort(function(a,b) {
-							if (a.features.length < b.features.length)
+							if (a.features.length < b.features.length){
 								return -1;
-							if (a.features.length > b.features.length)
+							}
+							if (a.features.length > b.features.length){
 								return 1;
+							}
 							return 0;
-				} );
-				
+				});
 				datasetList.reverse();
 			} catch (e) {
 				console.log("[timeline-controller :: normalizeDatasetList] EXCEPTION : '"+e);
@@ -368,30 +366,30 @@ angular.module('rheticus')
 		};
 		/**
 		 * Parameters:
-		 * 
+		 *
 		 * Returns:
 		 */
 		var generateChartData = function(datasetList){
 			var alphabet =['A','B','C','D','E','F','G','H','I','L','M','N','0','P'] ;
 			var res = false;
-			if (datasetList.length>9)
+			if (datasetList.length>9){
 				datasetList.length=10; // max array size to be displayed
+			}
 			try {
 				if ((datasetList!==null) && (datasetList.length>0)){
-					//Line chart data should be sent as an array of series objects.                
+					//Line chart data should be sent as an array of series objects.
 					var chartData = []; //Data is represented as an array of {x,y} pairs.
 					for (var i=0; i<datasetList.length; i++) {
 						try {
-							
-							if(datasetList[i].features.length>5) // set a minimum cardinality to view a dataset
-							chartData.push({
-								"label" : alphabet[i], // alias dataset ID value
-								"id" : datasetList[i].id, // dataset id
-								"value" : datasetList[i].features.length, // values - represents the dataset's cardinality 
-								"features" : datasetList[i].features
-								
-							});
-							
+							if(datasetList[i].features.length>5){ // set a minimum cardinality to view a dataset
+								chartData.push({
+									"label" : alphabet[i], // alias dataset ID value
+									"id" : datasetList[i].id, // dataset id
+									"value" : datasetList[i].features.length, // values - represents the dataset's cardinality
+									"features" : datasetList[i].features
+
+								});
+							}
 						} catch (e) {
 							console.log("[timeline-controller :: generateChartData] EXCEPTION adding data to chart: "+e);
 						} finally {
@@ -400,9 +398,9 @@ angular.module('rheticus')
 					}
 					var chartDataExternal = [];
 					chartDataExternal.push({
-								"key" : "prova", 
-								"values" : chartData 
-								
+								"key" : "prova",
+								"values" : chartData
+
 							});
 					$scope.api.refresh();
 					$scope.api.updateWithData(chartDataExternal);

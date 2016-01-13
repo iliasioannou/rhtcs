@@ -20,40 +20,64 @@ angular.module('rheticus')
 			
 			"options" : { // PS Line chart options
 				"chart" : {
-					"type" : "lineChart",
+					"type" : "multiChart",
 					"margin": {
 						"top": 30,
-						"right": 60,
+						"right": 80,
 						"bottom": 50,
-						"left": 70
+						"left": 80
 					},
+					"focusEnable": false,
 					"x" : function (d) {return d.x;},
 					"y" : function (d) {return d.y;},
 					"showValues" : true,
-					"color" : d3.scale.category20().range(),
+					"color": [
+							  "#ff7f0e",
+							  "#2ca02c",
+							  "#d62728",
+							  "#9467bd",
+							  "#8c564b",
+							  "#e377c2",
+							  "#7f7f7f",
+							  "#bcbd22",
+							  "#17becf"
+							],
 					"xAxis" : {
 						"axisLabel" : "Date",
 						"tickFormat" : function (d) {
 							return d3.time.format("%d/%m/%Y")(new Date(d));
 						}
 					},
-					"yAxis": {
-						"axisLabel" : "Displacement (mm)",
-						"tickFormat" : function (d) {
-							return d3.format(".02f")(d);
+					"yAxis1": {
+						"axisLabel": 'Displacement Maps (mm/year)',
+						"tickFormat": function(d){
+							return d3.format(',.1f')(d);
 						},
-						"axisLabelDistance" : -10
+						"axisLabelDistance": 12
 					},
-					"zoom" : {
-						"enabled" : true,
-						"scaleExtent" : [1,10],
-						"useFixedDomain" : false,
-						"useNiceScale" : true,
-						"horizontalOff" : true,
-						"verticalOff" : true/*,
-						"unzoomEventType" : "dblclick.zoom"*/
+					"yAxis2": {
+						"axisLabel": 'Precipitations (mm/day)',
+						"tickFormat": function(d) {
+							return d3.format(',.f')(d)
+						}
 					},
-					"useInteractiveGuideline" : true,
+					//custom Tooltip
+					"tooltip" : {
+						enable : true,
+						contentGenerator : function(d) {
+											console.log(d);
+											var dataPoint = (d3.time.format("%d/%m/%Y")(d.value));
+											if (typeof d.point != 'undefined')
+											{
+												return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: '+d.point.color+';" > &#x25CF;</a><b>'+dataPoint+'</b></div><b>&nbsp;Name: </b>'+d.point.key+'&nbsp;</br><b>&nbsp;Velocity:  </b> '+d.point.y+' mm/year ' ;
+											}
+											else{
+												
+												return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/day </b></p>' ;
+											}
+											
+										}
+					},
 					"noData" : "Loading...",
 					"showLegend" : false,
 				},
@@ -68,6 +92,9 @@ angular.module('rheticus')
 					"enable" : false
 				}
 			},
+			"chartDataMeasureCount" : false, //flag to download weather only one time.
+			"chartData" : [],
+			"lastDatePs" : 0,
 			"data" : [], // PS line chart data
 			"psDetails" : [], // PS feature details
 			"show_trends" : false, // dialog box closure
@@ -107,8 +134,9 @@ angular.module('rheticus')
 		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
 		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
 
-		var getMeasures = function (datasetid,psid){
+		var getMeasures = function (datasetid,psid,idComplete){
 			var ret = [];
+			self.lastDatePs=0;
 			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
 			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
 			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
@@ -119,12 +147,29 @@ angular.module('rheticus')
 						for (var i=0; i<measures.length; i++) {
 							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
 							if (measureDate instanceof Date) {
+								var milliTime = measureDate.getTime();
+								if(self.lastDatePs < milliTime)
+									self.lastDatePs = milliTime;
 								ret.push({
 									"x" : measureDate,
-									"y" : eval("measures[i]."+measureKey+";") // jshint ignore:line
+									"y" : eval("measures[i]."+measureKey+";"), // jshint ignore:line
+									"key" : idComplete
 								});
 							}
 						}
+					}
+					if (self.chartDataMeasureCount === false)
+					{
+
+						var values = getWeather(datasetid); // get weather data 
+						self.chartData.push({
+							"key" : "Precipitations",
+							"yAxis" : 2,
+							"type" : "bar",
+							"values" : values,
+							"color" : "#1e90ff"
+						});
+						self.chartDataMeasureCount = true;
 					}
 				})
 				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
@@ -132,6 +177,41 @@ angular.module('rheticus')
 				});
 			return ret;
 		};
+		
+		/**
+		 * Parameters:
+		 * features - {latitude,longitude}
+		 *
+		 * Returns: null (change the global chart title)
+		 */
+		var getCity = function(lat,lon)
+		{
+			var result="";
+			var url = configuration.geocoder.urlReverse+'lat='+lat+'&lon='+lon+configuration.geocoder.paramsReverse;
+			$http.get(url)
+						.success(function (response) {
+							console.log(response);
+							var city = response.address.city;
+							if (typeof city != 'undefined')
+								result=city+', '+response.address.state+', '+response.address.country;
+							else{
+								city=response.address.village;
+								result=city+', '+response.address.state+', '+response.address.country;
+							}
+							console.log("getCity:",result);
+							self.options.title.html = "<b>Trend spostamenti PS: <b>"+result+"<br>[LAT: "+Math.round(lat*10000)/10000+"; LON: "+Math.round(lon*10000)/10000+"]";
+							
+						})
+						.error(function(){ 
+							console.log("[ps-trends-controller] getCity :: ERROR");
+						});
+			
+		}
+		
+		
+		
+		
+		
 		/**
 		 * Parameters:
 		 * features - {Object}
@@ -139,54 +219,42 @@ angular.module('rheticus')
 		 * Returns:
 		 */
 		var generateChartData = function(ps){
+			self.chartDataMeasureCount = false;
 			var res = false;
 			try {
-				var chartData = []; // Data is represented as an array of {x,y} pairs.
+				getCity(ps.point[1],ps.point[0]);
+				self.chartData = []; // Data is represented as an array of {x,y} pairs.
 				var tableInfo = []; // PS details
-				self.options.title.html = "<b>Trend spostamenti PS ID<b><br>[LAT: "+Math.round(ps.point[1]*10000)/10000+"; LON: "+Math.round(ps.point[0]*10000)/10000+"]";
+				
 				for (var i=0; i<ps.features.length; i++) {
 					if (ps.features[i].properties){
 						var datasetId = eval("ps.features[i].properties."+datasetIdKey+";"); // jshint ignore:line
 						var psId = eval("ps.features[i].properties."+psIdKey+";"); // jshint ignore:line
-						chartData.push({
+						self.chartData.push({
 							"key" : ps.features[i].id,
-							"values" : getMeasures(datasetId,psId) // values - represents the array of {x,y} data points
+							"type" : "line",
+							"yAxis" : 1,
+							"values" : getMeasures(datasetId,psId,ps.features[i].id) // values - represents the array of {x,y} data points
 						});
 						var featureInfo = {};
 						for (var key in ps.features[i].properties) {
-							eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+							if (key==="coherence")
+							{
+								eval("featureInfo." + key + " = 100*ps.features[\"" + i + "\"].properties." + key + ";"); // jshint 
+							}else{
+								eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+							}
+							
 						}
 						tableInfo.push(featureInfo);
+						
 					}
 				}
 				
-				// add weather data getWeather(datasetId); TODO
-				var station ;
-				var values = [];
-				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI")
-				    station = configuration.aoi[0].station;
-				else
-					station = configuration.aoi[1].station;
 				
-				$http.get(configuration.weatherAPI.url+station+"/measures?type=RAIN")
-					.success(function (response) {
-						for (i=0; i< response.length;i++) {
-							values.push({
-								"x" :  new Date(response[i].data), 
-								"y": response[i].measure
-							});
-						}
-					})
-					.error(function (response) {//HTTP STATUS != 200
-						//do nothing
-					});
-				chartData.push({
-					"key" : "Precipitations",
-					"values" : values,
-					"classed" : "dashed"
-				});
+				
 				//Line chart data should be sent as an array of series objects.                
-				self.data = chartData;
+				self.data = self.chartData;
 				self.psDetails = tableInfo;
 				if(!$scope.$$phase) {
 					$scope.$apply();
@@ -199,10 +267,41 @@ angular.module('rheticus')
 				return(res);
 			}
 		};
-		/*
+		
+		/**
+		 * Parameters:
+		 * features - {String datasetId} it conteins the id of the city weather station
+		 *
+		 * Returns: array values with the date and the relative measure
+		 */
+		
 		var getWeather = function(datasetId){
-			
-		};*/
+			var station ;
+				var values = [];
+				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI")
+				    station = configuration.aoi[0].station;
+				else
+					station = configuration.aoi[1].station;
+				
+				$http.get(configuration.weatherAPI.url+station+"/measures?type=RAIN")
+					.success(function (response) {
+						for (var i=0; i< response.length;i++) {
+							var dateWeather = new Date(response[i].data);
+							if (self.lastDatePs> dateWeather.getTime())
+							{
+								values.push({
+								"x" : dateWeather , 
+								"y": response[i].measure
+								});
+							}
+							
+						}
+					})
+					.error(function (response) {//HTTP STATUS != 200
+						//do nothing
+					});
+					return values;
+		};
 
 		$scope.$on("angular-resizable.resizeEnd", function (event, args) {
 			$scope.rc.api.update();
