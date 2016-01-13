@@ -14,7 +14,6 @@ server.get('/',function(req, res) {
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
-	//"AUTH" : "http://kim.planetek.it:8081/api/v1/authenticate?",
 	"RHETICUS_API" : "http://kim.planetek.it:8081",
 	"GEOSERVER" : "http://kim.planetek.it:9080"
 };
@@ -45,7 +44,7 @@ apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
 server.all("/iffi*", function(req, res) {
 	req.url = req.url.replace('/iffi/','');
 	console.log("Forwarding API requests to: "+req.url);
-	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI}/*, 
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI}/*,
 		function (res) {
 			res.on('data', function (data) {
 				console.log("data: "+data.toString());

@@ -10,10 +10,6 @@
 			"end" : ""
 		},
 		"attributes" : {
-			"CQL_FILTER" : {
-				"startDate" : "startTime",
-				"endDate" : "stopTime"
-			},
 			"datasetIdentifier" : "datasetId"
 		}
 	},

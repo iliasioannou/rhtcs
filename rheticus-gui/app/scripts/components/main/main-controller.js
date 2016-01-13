@@ -243,15 +243,11 @@ angular.module('rheticus')
 			});
 		};
 		//GetFeatureInfo
-		var getFeatureInfo = function(map,coordinate,olLayer,infoFormat,featureCount,cqlFilter,resultObj,callback){
+		var getFeatureInfo = function(map,coordinate,olLayer,olParams,resultObj,callback){
 			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,configuration.map.crs); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
-			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,{
-				"INFO_FORMAT" : (infoFormat!=="") ? infoFormat : "application/json",
-				"FEATURE_COUNT" : featureCount,
-				"CQL_FILTER" : cqlFilter
-			});
+			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,olParams);
 			if (url) {
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
@@ -384,20 +380,34 @@ angular.module('rheticus')
 				self.overlays.map(function(l) {
 					if (l.active){
 						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");
+						var params = null;
 						switch(l.id) {
 							case "iffi": //Progetto IFFI
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),"application/geojson",MAX_FEATURES,null,"iffi",setMarker);
+								params = {
+									"INFO_FORMAT" : "application/geojson",
+									"FEATURE_COUNT" : MAX_FEATURES
+								};
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"iffi",setMarker);
 								break;
 							case "sentinel": // Sentinel 1 Datatset and timeline management
-								var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+								//var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
 								// if empty string set on today's date
-								var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
-								var cqlFilter = "(("+configuration.timeSlider.attributes.CQL_FILTER.startDate+">="+startDate+") AND ("+configuration.timeSlider.attributes.CQL_FILTER.endDate+"<="+endDate+"))";
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),"",MAX_SENTINEL_MEASURES,cqlFilter,"sentinel",setMarker);
+								//var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
+								params = {
+									"INFO_FORMAT" : "application/json",
+									"FEATURE_COUNT" : MAX_SENTINEL_MEASURES
+									//"TIME" : startDate+"/"+endDate
+								};
+								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"sentinel",setMarker);
 								break;
 							case "ps":
 								if (showDetails()){ //proceed with getFeatureInfo request
-									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),"",MAX_FEATURES,getOverlayParams("ps").source.params.CQL_FILTER,"ps",setMarker);
+									params = {
+										"INFO_FORMAT" : "application/json",
+										"FEATURE_COUNT" : MAX_SENTINEL_MEASURES,
+										"CQL_FILTER" : getOverlayParams("ps").source.params.CQL_FILTER
+									};
+									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"ps",setMarker);
 								} else {
 									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("ps").legend.title+"\"!");
 								}

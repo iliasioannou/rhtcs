@@ -220,7 +220,7 @@
 			},{
 				"id" : "sentinel",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://metis.planetek.it:9080/geoserver/rheticus/wms",
+				"queryUrl" : "http://metis.planetek.it:80/geoserver/rheticus/wms",
 				"legend" : {
 					"title" : "Sentinel Catalog",
 					"description" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
@@ -235,7 +235,7 @@
 			},{
 				"id" : "ps",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://metis.planetek.it:9080/geoserver/rheticus/wms",
+				"queryUrl" : "http://metis.planetek.it:80/geoserver/rheticus/wms",
 				"legend" : {
 					"title":"Displacement Maps",
 					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
