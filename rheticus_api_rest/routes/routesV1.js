@@ -12,7 +12,7 @@ var serverRouter = function(server) {
     var knex = require("knex")(dbConfig);
 
     var restify = require('restify');
-    var Promise = require("bluebird");
+    var promise = require("bluebird");
     var fs = require('fs');
 	var validator = require('validator');
 
@@ -41,7 +41,9 @@ var serverRouter = function(server) {
     // Check identity for user and return AOI
     server.get({ path: '/authenticate', version: VERSION }, function (req, res, next) {
         console.log("Check autentication");
-        var userName = req.query.username;
+        var userNameAnonymous = "anonymous";
+        
+		var userName = req.query.username;
         if (userName == undefined || userName == null){
             userName = "";
         }
@@ -53,6 +55,24 @@ var serverRouter = function(server) {
         console.log("\tUsername  = -%s-", userName);
         console.log("\tPassword  = -%s-", passwordPlain);
         
+		// Retrieve always the deal related to anonymous user
+		var demoDeals = [];
+		var anonymousDealPromise = repository.User.forge({username: userNameAnonymous})
+			.fetch({withRelated: ["deals"]})
+            .then(function(user){
+				if (user){
+					demoDeals = user.related("deals");
+					console.log("\tDeal for anonymous user = %s", JSON.stringify(demoDeals));
+				}
+				else {
+					console.log("\tProblem during retrieve anonymous user");
+				}
+            })
+            .catch(function(error){
+                console.log(error);
+            });       
+		
+		
 		repository.User.forge({username: userName})
 			.fetch({withRelated: ["deals"]})
             .then(function(user){
@@ -65,6 +85,15 @@ var serverRouter = function(server) {
 					}
 					else{
 						console.log("\tUser is OK");
+							/*
+						Array.prototype.push.apply(user.related("deals"), demoDeals);
+						*/
+						console.log("\tdemo deal len = %s", demoDeals.length);
+						for (var i = 0; i < demoDeals.length; i++){
+							console.log("\tdeal demo %s = %s", i, demoDeals[i]);
+							var newLen = user.related("deals").push(demoDeals[i]);
+							console.log("\tnew len = %s", newLen);
+						}
 						res.send(user.toJSON());
 					}
 				}
