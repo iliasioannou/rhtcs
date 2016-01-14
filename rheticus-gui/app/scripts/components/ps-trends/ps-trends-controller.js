@@ -64,6 +64,9 @@ angular.module('rheticus')
 					//custom Tooltip
 					"tooltip" : {
 						enable : true,
+						gravity : "e",
+						duration : 100,
+						snapDistance : 25 ,
 						contentGenerator : function(d) {
 											console.log(d);
 											var dataPoint = (d3.time.format("%d/%m/%Y")(d.value));
