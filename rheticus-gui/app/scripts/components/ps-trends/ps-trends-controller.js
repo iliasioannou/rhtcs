@@ -95,6 +95,8 @@ angular.module('rheticus')
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"lastDatePs" : 0,
+			"lat" : 0,
+			"lon" : 0,
 			"data" : [], // PS line chart data
 			"psDetails" : [], // PS feature details
 			"show_trends" : false, // dialog box closure
@@ -141,9 +143,11 @@ angular.module('rheticus')
 		var generateChartData = function(ps){
 			self.chartDataMeasureCount = false; // reset flag for download weather 
 			self.lastDatePs=0;					// reset Date(millisec.) value for download weather 
+			self.lat=ps.point[1];
+			self.lon=ps.point[0];
 			var res = false;
 			try {
-				getCity(ps.point[1],ps.point[0]);
+				getCity();
 				self.chartData = []; // Data is represented as an array of {x,y} pairs.
 				var tableInfo = []; // PS details
 				
@@ -248,10 +252,10 @@ angular.module('rheticus')
 		 *
 		 * Returns: null (change the global chart title)
 		 */
-		var getCity = function(lat,lon)
+		var getCity = function()
 		{
 			var result="";
-			var url = configuration.geocoder.urlReverse+'lat='+lat+'&lon='+lon+configuration.geocoder.paramsReverse;
+			var url = configuration.geocoder.urlReverse+'lat='+self.lat+'&lon='+self.lon+configuration.geocoder.paramsReverse;
 			$http.get(url)
 						.success(function (response) {
 							console.log(response);
@@ -263,7 +267,7 @@ angular.module('rheticus')
 								result=city+', '+response.address.state+', '+response.address.country;
 							}
 							console.log("getCity:",result);
-							self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(lat*10000)/10000+"; LON: "+Math.round(lon*10000)/10000+"]";
+							self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
 							
 						})
 						.error(function(){ 
@@ -279,32 +283,37 @@ angular.module('rheticus')
 		 * Returns: array values with the date and the relative measure
 		 */
 		
-		var getWeather = function(datasetId){
-			var station ;
-				var values = [];
-				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI")
-				    station = configuration.aoi[0].station;
-				else
-					station = configuration.aoi[1].station;
-				
-				$http.get(configuration.weatherAPI.url+station+"/measures?type=RAIN")
+		var getWeather = function(datasetId){    
+			
+			var values = [];
+			$http.get(configuration.weatherAPI.urlFoundStation+self.lat+","+self.lon)
 					.success(function (response) {
-						for (var i=0; i< response.length;i++) {
-							var dateWeather = new Date(response[i].data);
-							if (self.lastDatePs> dateWeather.getTime())
-							{
-								values.push({
-								"x" : dateWeather , 
-								"y": response[i].measure
-								});
-							}
+							var station = response[0].id;
+							var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs));
+							$http.get(configuration.weatherAPI.urlGetWeatherFromStation+station+"/measures?type=RAIN&period=2009-01-01,"+lastDatePs+"&aggregation=DAY")
+							.success(function (response) {
+								for (var i=0; i< response.length;i++) {
+									var dateWeather = new Date(response[i].data);
+									values.push({
+										"x" : dateWeather , 
+										"y": response[i].measure
+									});
+								
+								}
+								
+							})
+							.error(function (response) {//HTTP STATUS != 200
+								//do nothing
+							});
 							
-						}
 					})
 					.error(function (response) {//HTTP STATUS != 200
 						//do nothing
 					});
-					return values;
+				
+			return values;	
+				
+					
 		};
 
 		$scope.$on("angular-resizable.resizeEnd", function (event, args) {
