@@ -15,40 +15,17 @@
 		<label style="color: #C6C6C6; display: block; font-size: 10px">{{switchpanel.ps_metadata.legend.uom}}</label>
 	</div>
 </div>
-<!-- Provider Legend -->
-<div class = "panel" ng-show="switchpanel.show_panel_ps_provider" style ="background-color: rgba(0, 60, 136, 0);" >
-	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-		<label style="color: #fff; display: block; font-size: 12px">
-		Data Providers:</label><br/>
-		<table>
-			<tr ng-repeat="subscription in switchpanel.dataProviders">
-			  <td>
-				<label style="color: #fff; display: block; font-size: 12px"><input type="checkbox" ng-model="subscription.checked" ng-click="updateSelection($index,switchpanel.dataProviders)" />{{subscription.name}}<br/></label>
-			  </td>
-			</tr>
-		</table>
-	</div>	
-	<div class="switchpanelegend"></div>
-</div>
 <!-- Area of Interest Legend -->
 <div class = "panel" ng-show="switchpanel.show_panel_ps_aoi" style ="background-color: rgba(0, 60, 136, 0);" >
 	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
 		<table>
-			<tr ng-repeat="subscription in switchpanel.aoi">
+			<tr ng-repeat="subscription in switchpanel.userDeals">
 			  <td>
 				<label class= switchpanelabel2>
-					<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.aoi)">{{subscription.name}}</a>
-				</label><br/>
-			  </td>
-			</tr>
-			<tr ng-repeat="subscription in switchpanel.privateAOI" ng-show="logged">
-			  <td>
-				<label class= switchpanelabel2>
-					<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.privateAOI)">{{subscription.name}}</a>
+					<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.userDeals)">{{subscription.product_name}}</a>
 				</label><br/>
 			  </td>
 			</tr>
 		</table>
-	</div>	
-	<div class="switchpanelegend"></div>
+	</div>
 </div>

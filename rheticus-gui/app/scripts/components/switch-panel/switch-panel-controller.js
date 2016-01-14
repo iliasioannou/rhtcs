@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('SwitchPanelCtrl',['$scope','configuration',function ($scope,configuration){
+	.controller('SwitchPanelCtrl',['$scope',function ($scope){
 
 		var self = this; //this controller
 
@@ -38,18 +38,12 @@ angular.module('rheticus')
 					$scope.setCenter({
 						"lon" : entities[position].center.lon,
 						"lat" : entities[position].center.lat,
-						"zoom" : entities[position].center.zoom
+						"zoom" : $scope.center.zoom
 					});
 				}
 			});
 		};
-		var updateSelection = function(position, entities) {
-			angular.forEach(entities, function(subscription, index) {
-				if (position !== index) {
-					subscription.checked = false;
-				}
-			});
-		};
+
 		//IFFI
 		var switchOverlayIffi = function(){
 			toggleOverlay("iffi");
@@ -61,13 +55,13 @@ angular.module('rheticus')
 		var switchOverlaySentinel = function(){
 			toggleOverlay("sentinel");
 		};
-		var viewPanelSentinel = function(){ 
+		var viewPanelSentinel = function(){
 			viewPanel("sentinel");
 		};
-		
+
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
-		 */	
+		 */
 		angular.extend(self,{
 			"ps" : $scope.getOverlayParams("ps"),
 			"ps_metadata" : $scope.getOverlayMetadata("ps"),
@@ -75,7 +69,7 @@ angular.module('rheticus')
 			"iffi_metadata" : $scope.getOverlayMetadata("iffi"),
 			"sentinel" : $scope.getOverlayParams("sentinel"),
 			"sentinel_metadata" : $scope.getOverlayMetadata("sentinel"),
-			"privateAOI" : $scope.getPrivateAOI()
+			"userDeals" : $scope.getUserDeals()
 		});
 		angular.extend(self,{
 			//Tab controls
@@ -83,18 +77,14 @@ angular.module('rheticus')
 			"minimize" : minimize,
 			//PS
 			"show_panel_ps" : true, //self.ps.active,
-			"show_panel_ps_provider" : false,
 			"show_panel_ps_aoi" : false,
 			"view_overlay_ps" : self.ps.active, // overlay visibility
 			"ps_layer_visibility_text" : self.ps.active ? "Layer off" : "Layer on",
-			"dataProviders" : configuration.dataProviders, // data rpoviders
-			"aoi" : configuration.aoi, //aoi
 			"switchOverlayPs" : switchOverlayPs,
 			"viewPanelPs" : viewPanelPs,
 			"viewPanelPsProviders" : viewPanelPsProviders,
 			"viewPanelPsAoi" : viewPanelPsAoi,
 			"updateSelectionArea" : updateSelectionArea,
-			"updateSelection" : updateSelection,
 			//IFFI
 			"show_panel_iffi" : false, //self.iffi.active,
 			"view_overlay_iffi" : self.iffi.active,
@@ -106,7 +96,11 @@ angular.module('rheticus')
 			"view_overlay_sentinel" : self.sentinel.active,
 			"sentinel_layer_visibility_text" : self.sentinel.active ? "Layer off" : "Layer on",
 			"switchOverlaySentinel" : switchOverlaySentinel,
-			"viewPanelSentinel" : viewPanelSentinel			
+			"viewPanelSentinel" : viewPanelSentinel
+		});
+
+		$scope.$on("setSwitchPanelUserDeals",function(event, args){ // jshint ignore:line
+			self.userDeals = args.userDeals;
 		});
 
 		/**
@@ -123,7 +117,6 @@ angular.module('rheticus')
 			eval("self."+overlay+".active = self.view_overlay_"+overlay+";"); // jshint ignore:line
 		};
 		var viewPanel = function(panel){
-			self.show_panel_ps_provider = false;
 			self.show_panel_ps_aoi = false;
 			self.show_panel_iffi = false;
 			self.show_panel_sentinel = false;

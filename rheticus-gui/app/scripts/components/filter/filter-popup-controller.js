@@ -9,7 +9,16 @@
  */
 
 angular.module('rheticus')
-	.controller('FilterPopoupCtrl',['$scope',function($scope){
+	.controller('FilterPopoupCtrl',['$scope','configuration',function($scope,configuration){
+
+		var updateSelection = function(position, entities) {
+			angular.forEach(entities, function(subscription, index) {
+				if (position !== index) {
+					subscription.checked = false;
+				}
+			});
+		};
+
 		angular.extend(this,{
 			//SPEED SLIDER
 			"speedModelValue" : $scope.speedModel.init,
@@ -54,6 +63,8 @@ angular.module('rheticus')
 						$scope.$apply();
 					}
 				}
-			}
+			},
+			"dataProviders" : configuration.dataProviders, // data providers
+			"updateSelection" : updateSelection
 		});
 	}]);

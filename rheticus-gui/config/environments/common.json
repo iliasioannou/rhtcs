@@ -23,12 +23,12 @@
 			"scale" : [-10, "|", -5, "|", 0, "|", 5, "|", 10]
 		},
 		"coherenceSlider" : {
-			"init" : "0;100",
-			"from" : 0,
+			"init" : "70;100",
+			"from" : 70,
 			"to" : 100,
 			"step" : 1,
 			"dimension" : " %",
-			"scale" : [0, "|", 25, "|", 50, "|", 75, "|", 100]
+			"scale" : [70, "|", 80, "|", 90, "|", 100]
 		}
 	},
 	"map" : {
@@ -44,23 +44,6 @@
 		},
 		"crs" : "EPSG:3857"
 	},
-	"aoi" : [{
-		"name" : " Demo_CSK_Barritteri",
-		"center" : {
-			"lon" : 15.8461207,
-			"lat" : 38.3290608,
-			"zoom" : 14
-		},
-		"station" : "IT-LICF"
-	},{
-		"name" : " Demo_CSK_Trento",
-		"center" : {
-			"lon" : 11.1257601,
-			"lat" : 46.0664228,
-			"zoom" : 12
-		},
-		"station" : "IT-LIVP"
-	}],
 	"dataProviders" : [{
 		"name" : " Sentinel"
 	},{

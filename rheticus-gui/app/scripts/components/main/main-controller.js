@@ -9,8 +9,8 @@
  */
 
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService','Flash',
-	function ($rootScope,$scope,$http,olData,configuration,ArrayService,Flash){
+	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService','SpatialService','Flash',
+	function ($rootScope,$scope,$http,olData,configuration,ArrayService,SpatialService,Flash){
 
 		var self = this; //this controller
 
@@ -55,9 +55,9 @@ angular.module('rheticus')
 		};
 		//Setter map view center
 		var setCenter = function(center){
-			$scope.center.lon = (center.lon) ? center.lon : $scope.center.lon;
-			$scope.center.lat = (center.lat) ? center.lat : $scope.center.lat;
-			$scope.center.zoom = (center.zoom) ? center.zoom : $scope.center.zoom;
+			$scope.center.lon = (center.lon && !isNaN(center.lon)) ? center.lon : $scope.center.lon;
+			$scope.center.lat = (center.lat && !isNaN(center.lat)) ? center.lat : $scope.center.lat;
+			$scope.center.zoom = (center.zoom && !isNaN(center.zoom)) ? center.zoom : $scope.center.zoom;
 		};
 		//Getter overlay ols parameters
 		var getOverlayParams = function(id){
@@ -81,36 +81,10 @@ angular.module('rheticus')
 		var getOverlays = function() {
 			return self.overlays;
 		};
-
-		/**
-		* array coord: array di coordinate
-		* integer measure: specifica la coordinata su cui fare la media (0 per x, 1 per y)
-		*/
-		var getCoord = function(coord, measure) {
-			var tot=0;
-			angular.forEach(coord, function(value, index) {
-				tot += coord[index][measure];
-			});
-			return (tot / coord.length);
+		var userDeals = [];
+		var getUserDeals = function(){
+			return userDeals;
 		};
-		var setPrivateAOI = function(deals){
-			$rootScope.privateAOI = [];
-			angular.forEach(deals, function(aoi) {
-				var obj = JSON.parse(aoi.geom_geo_json);
-				$rootScope.privateAOI.push({
-					"name" : aoi.product_name,
-					"center" : {
-						"lon" : getCoord(obj.coordinates[0], 0),
-						"lat" : getCoord(obj.coordinates[0], 1),
-						"zoom" : 14
-					}
-				});
-			});
-		};
-		var getPrivateAOI = function(){
-			return $rootScope.privateAOI;
-		};
-
 		var setSentinelExtent = function(geojson) {
 			getOverlayParams("sentinel").source = {
 				"type": "GeoJSON",
@@ -120,9 +94,9 @@ angular.module('rheticus')
 						"type": "FeatureCollection",
 						"features": [{
 							"type": "Feature",
-							"id": "FRA",
+							"id": "sentinel",
 							"properties": {
-								"name": "France"
+								"name": "Sentinel"
 							},
 							"geometry": {
 								"type": "MultiPolygon",
@@ -173,12 +147,7 @@ angular.module('rheticus')
 			"getActiveBaselayer" : getActiveBaselayer,
 			"getBaselayers" : getBaselayers,
 			"getOverlays" : getOverlays,
-			"dataLoading" : false,
-			"logged" : $rootScope.logged,
-			"username" : $rootScope.username,
-			"error" : null,
-			"setPrivateAOI" :  setPrivateAOI,
-			"getPrivateAOI" : getPrivateAOI,
+			"getUserDeals" : getUserDeals,
 			"setSentinelExtent" : setSentinelExtent
 		});
 
@@ -188,7 +157,7 @@ angular.module('rheticus')
 		//Switch PS layer
 		$scope.$watch("center.zoom", function () {
 			//if (showDetails()){
-				setAdvancedFilters();
+				//setAdvancedFilters();
 				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.detail;
 			/*} else {
 				getOverlayParams("ps").source.params.CQL_FILTER = null;
@@ -210,6 +179,13 @@ angular.module('rheticus')
 			if (!visible){
 				initMarker();
 			}
+		});
+		//update user details on login change status
+		$rootScope.$watch("login.details", function () {
+			setUserDeals(
+				(($rootScope.login.details!==null) && $rootScope.login.details.info) ? $rootScope.login.details.info : null
+			);
+			$scope.$broadcast("setSwitchPanelUserDeals",{"userDeals":userDeals});
 		});
 
 		/**
@@ -253,7 +229,7 @@ angular.module('rheticus')
 				$http.get(url)
 					.success(function (response) {
 						if (!response.features){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
-							Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!!");
+							Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
 						} else {
 							Flash.dismiss();
 							var obj = {
@@ -276,63 +252,57 @@ angular.module('rheticus')
 				console.log("[main-controller :: getFeatureInfo] URL undefined!");
 			}
 		};
-		var advancedFilters = {
+		var advancedCqlFilters = {
 			"velocity" : "",
-			"coherence" : ""
+			"coherence" : "",
+			"spatial" : ""
 		};
 		var applyFiltersToMap = function(){
-			var cql_filter = null;
-			if ((advancedFilters.velocity!=="") || (advancedFilters.coherence!=="")) {
-				cql_filter = (advancedFilters.velocity!=="") ? advancedFilters.velocity : "";
-				cql_filter += ((advancedFilters.velocity!=="") && (advancedFilters.coherence!=="")) ? " AND " : "";
-				cql_filter += (advancedFilters.coherence!=="") ? advancedFilters.coherence : "";
+			var cqlFilter = null;
+			for (var key in advancedCqlFilters) {
+				if (advancedCqlFilters.hasOwnProperty(key) && (advancedCqlFilters[key]!=="")) {
+					if (cqlFilter!==null){
+						cqlFilter += " AND "; //Add "AND" condition with prevoius item
+					} else {
+						cqlFilter = ""; //initialize as empty String
+					}
+					cqlFilter += advancedCqlFilters[key]; //Add new condition to cqlFilter
+				}
 			}
-			getOverlayParams("ps").source.params.CQL_FILTER = cql_filter;
+			getOverlayParams("ps").source.params.CQL_FILTER = cqlFilter;
+		};
+		var getCqlTextRange = function(minText, maxText){
+			var cqlText = "";
+			if ((minText!=="") || (maxText!=="")){
+				cqlText += (minText!=="") ? minText : "";
+				cqlText += ((minText!=="") && (maxText!=="")) ? " AND " : "";
+				cqlText += (maxText!=="") ? maxText : "";
+			}
+			return cqlText;
 		};
 		//CQL_FILTER SETTER ON "VELOCITY" PS ATTRIBUTE
 		var setSpeedModelFilter = function(range){
-			//if (showDetails()){ //proceed with filtering
-				var min = "";
-				if (parseInt(range.split(";")[0])!==$scope.speedModel.from){
-					min = "velocity>="+range.split(";")[0];
-				}
-				var max = "";
-				if (parseInt(range.split(";")[1])!==$scope.speedModel.to){
-					max = "velocity<="+range.split(";")[1];
-				}
-				var cql_text = "";
-				if ((min!=="") || (max!=="")){
-					cql_text += (min!=="") ? min : "";
-					cql_text += ((min!=="") && (max!=="")) ? " AND " : "";
-					cql_text += (max!=="") ? max : "";
-				}
-				advancedFilters.velocity = cql_text;
-			//}
+			var min = "";
+			if (parseInt(range.split(";")[0])!==$scope.speedModel.from){
+				min = "velocity>="+range.split(";")[0];
+			}
+			var max = "";
+			if (parseInt(range.split(";")[1])!==$scope.speedModel.to){
+				max = "velocity<="+range.split(";")[1];
+			}
+			advancedCqlFilters.velocity = getCqlTextRange(min,max);
 		};
 		//CQL_FILTER SETTER ON "COHERENCE" PS ATTRIBUTE
 		var setCoherenceModelFilter = function(range){
-			//if (showDetails()){ //proceed with filtering
-				var min = "";
-				if (parseInt(range.split(";")[0])!==$scope.coherenceModel.from){
-					min = "coherence>="+range.split(";")[0]/100;
-				}
-				var max = "";
-				if (parseInt(range.split(";")[1])!==$scope.coherenceModel.to){
-					max = "coherence<="+range.split(";")[1]/100;
-				}
-				var cql_text = "";
-				if ((min!=="") || (max!=="")){
-					cql_text += (min!=="") ? min : "";
-					cql_text += ((min!=="") && (max!=="")) ? " AND " : "";
-					cql_text += (max!=="") ? max : "";
-				}
-				advancedFilters.coherence = cql_text;
-			//}
-		};
-		var setAdvancedFilters = function(){
-			setSpeedModelFilter($scope.speedModel.init);
-			setCoherenceModelFilter($scope.coherenceModel.init);
-			applyFiltersToMap();
+			var min = "";
+			if (parseInt(range.split(";")[0])!==$scope.coherenceModel.from){
+				min = "coherence>="+range.split(";")[0]/100;
+			}
+			var max = "";
+			if (parseInt(range.split(";")[1])!==$scope.coherenceModel.to){
+				max = "coherence<="+range.split(";")[1]/100;
+			}
+			advancedCqlFilters.coherence = getCqlTextRange(min,max);
 		};
 		//Creates OLS Layer Source from layer properties
 		var getGetFeatureInfoOlLayer = function(l){
@@ -430,10 +400,42 @@ angular.module('rheticus')
 			});
 		});
 
-		$rootScope.$watch("globals", function () {
-			if ($rootScope.globals.currentUser) {
-				$scope.setPrivateAOI($rootScope.globals.currentUser.deals);
+		//CQL_FILTER SETTER ON "SPATIAL" PS
+		var setSpatialFilter = function(){
+			var cqlFilter = "";
+			for(var i=0; i<userDeals.length; i++){
+				if (userDeals[i].geom_geo_json!==null){
+					if (cqlFilter!==""){
+						cqlFilter += " OR ";
+					}
+					cqlFilter += SpatialService.getIntersectSpatialFilterCqlText(userDeals[i].geom_geo_json.type,userDeals[i].geom_geo_json.coordinates);
+				}
 			}
-		});
+			advancedCqlFilters.spatial = (cqlFilter!=="") ? "("+cqlFilter+")" : "";
+		};
+		//User deals management
+		var setUserDeals = function(info){
+			userDeals = [];
+			if ((info!==null) && info.deals && (info.deals.length>0)){
+				angular.forEach(info.deals,
+					function(item) {
+						var coords = (item.geom_geo_json && item.geom_geo_json!=="") ? JSON.parse(item.geom_geo_json) : null;
+						userDeals.push({
+							"signature_date" : (item.signature_date && item.signature_date!=="") ? item.signature_date : "",
+							"product_id" : (item.product_id && item.product_id!=="") ? item.product_id : -1,
+							"product_name" : (item.product_name && item.product_name!=="") ? item.product_name : "",
+							"geom_geo_json" : coords, //geojson Object
+							"sensorid" : (item.sensorid && item.sensorid!=="") ? item.sensorid : "",
+							"start_period" : (item.start_period && item.start_period!=="") ? item.start_period : "",
+							"end_period" : (item.end_period && item.end_period!=="") ? item.end_period : "",
+							// for OLs extent management
+							"center" : SpatialService.getCenterWithinPolyCoords(coords.coordinates)
+						});
+					}
+				);
+			}
+			setSpatialFilter();
+			applyFiltersToMap();
+		};
 
 	}]);
