@@ -261,6 +261,7 @@
 		"url" : "http://kim.planetek.it:8080/rheticusapi/api/v1/authenticate?"
 	},
 	"weatherAPI" : {
-		"url" : "http://kim.planetek.it:8080/rheticusapi/api/v1/meteostations/"
+		"urlFoundStation" : "http://kim.planetek.it:8081/api/v1/meteostations?location=",
+		"urlGetWeatherFromStation" : "http://kim.planetek.it:8081/api/v1/meteostations/"
 	}
 }
