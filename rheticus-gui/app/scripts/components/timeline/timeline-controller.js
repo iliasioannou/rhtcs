@@ -198,7 +198,7 @@ angular.module('rheticus')
       	featureValue.push({x: dateLong, y: i+1,data:features[i].properties});
       }
 			$scope.$apply();			//update view
-			console.log(featureValue);
+			//console.log(featureValue);
 
 			return [
                 {
@@ -217,7 +217,7 @@ angular.module('rheticus')
 				coordinates.push(features[i].geometry.coordinates);
 				i++;
       }
-			console.log(coordinates);
+			//console.log(coordinates);
 			return coordinates;
 
 		};
