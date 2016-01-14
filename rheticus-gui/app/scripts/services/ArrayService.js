@@ -38,4 +38,22 @@ angular.module('rheticus')
         return(res);
       }
     };
+    /**
+     * APIMethod: cloneObj
+     *
+     * Parameters:
+     * obj - {Object}
+     *
+     * Returns:
+     * {Object}
+     */
+    this.cloneObj = function(obj) {
+      var clone = null;
+      if (obj!==null){
+        clone = {};
+        for (var p in obj)
+          eval("clone."+p+" = obj[p];"); // jshint ignore:line
+      }
+      return clone;
+    };
   });

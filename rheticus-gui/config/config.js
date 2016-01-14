@@ -8,7 +8,6 @@ angular
 		timeSlider : @@timeSlider,
 		filters : @@filters,
 		map : @@map,
-		aoi : @@aoi,
 		dataProviders : @@dataProviders,
 		geocoder : @@geocoder,
 		//custom environment configuration

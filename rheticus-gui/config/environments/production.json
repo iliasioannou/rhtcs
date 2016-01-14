@@ -261,6 +261,7 @@
 		"url" : "http://metis.planetek.it:80/rheticusapi/api/v1/authenticate?"
 	},
 	"weatherAPI" : {
-		"url" : "http://metis.planetek.it:80/rheticusapi/api/v1/meteostations/"
+		"urlFoundStation" : "http://metis.planetek.it:80/rheticusapi/api/v1/meteostations?location=",
+		"urlGetWeatherFromStation" : "http://metis.planetek.it:80/rheticusapi/api/v1/meteostations/"
 	}
 }

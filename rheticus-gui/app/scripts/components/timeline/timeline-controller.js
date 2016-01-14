@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('TimelineCtrl',['$rootScope','$scope','configuration','ArrayService',function($rootScope,$scope,configuration,ArrayService){
+	.controller('TimelineCtrl',['$rootScope','$scope','configuration','ArrayService','SpatialService',function($rootScope,$scope,configuration,ArrayService,SpatialService){
 
 		var self = this; //this controller
 
@@ -99,11 +99,7 @@ angular.module('rheticus')
 				"title" : {
 					enable : true,
 					html : "<b>Sentinel 1 Datasets Identifier</b>"
-				},
-
-
-
-
+				}
 			},
 
 			// Chart options
@@ -163,16 +159,7 @@ angular.module('rheticus')
 								enable : true,
 								html : "<b>Acquisitions History</b>"
 						},
-
 				}
-
-
-
-
-
-
-
-
 
 		});
 		/**
@@ -211,7 +198,7 @@ angular.module('rheticus')
       	featureValue.push({x: dateLong, y: i+1,data:features[i].properties});
       }
 			$scope.$apply();			//update view
-			console.log(featureValue);
+			//console.log(featureValue);
 
 			return [
                 {
@@ -230,14 +217,10 @@ angular.module('rheticus')
 				coordinates.push(features[i].geometry.coordinates);
 				i++;
       }
-			console.log(coordinates);
+			//console.log(coordinates);
 			return coordinates;
 
 		};
-
-
-
-
 
 		var convertDate= function (dateString){
 
@@ -255,59 +238,6 @@ angular.module('rheticus')
 		/**
 		 * PRIVATE VARIABLES AND METHODS
 		 */
-		/**
-		 * Parameters:
-		 * coords - Array<{Object}>
-		 *
-		 * Returns:
-		 * {Object} - Bounding Box Coordinates
-		 */
-		var boundingBoxAroundPolyCoords = function(coords) {
-			var res = null;
-			try {
-				if ((coords!==null) && (coords.length>0)){
-					var xAll = [], yAll = [];
-					for (var i=0; i<coords[0].length; i++) {
-						xAll.push(coords[0][i][1]);
-						yAll.push(coords[0][i][0]);
-					}
-					xAll = xAll.sort(function (a,b) {
-						return a - b;
-					});
-					yAll = yAll.sort(function (a,b) {
-						return a - b;
-					});
-					res = {
-						"left" : xAll[0],
-						"bottom" : yAll[0],
-						"right" : xAll[xAll.length-1],
-						"top" : yAll[yAll.length-1]
-					};
-				}
-			} catch (e) {
-				console.log("[timeline-controller :: boundingBoxAroundPolyCoords] EXCEPTION : '"+e);
-			} finally {
-				return(res);
-			}
-		};
-		/**
-		 * Parameters:
-		 * current - {Object}
-		 * feature - {Object}
-		 *
-		 * Returns:
-		 * {Object} - Bounding Box Coordinates
-		 */
-		var updateDatasetBoundingBox = function(current,feature) {
-			if ((current!==null) && (feature!==null)){
-				return {
-					"left" : (feature.left<current.left) ? feature.left : current.left,
-					"bottom" : (feature.bottom<current.bottom) ? feature.bottom : current.bottom,
-					"right" : (feature.right>current.right) ? feature.right : current.right,
-					"top" : (feature.top>current.top) ? feature.top : current.top
-				};
-			}
-		};
 		/**
 		 * Parameters:
 		 * timeline - {Object}
@@ -328,12 +258,11 @@ angular.module('rheticus')
 									if (index===-1){ // add new dataset
 										datasetList.push({
 											"id" : datasetValue,
-											"bbox" : boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
+											"bbox" : SpatialService.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates),
 											"features" : [timeline.features[i]]
-
 										});
 									} else { // update bbox of existing dataset
-										datasetList[index].bbox = updateDatasetBoundingBox(datasetList[index].bbox,boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
+										datasetList[index].bbox = SpatialService.updateDatasetBoundingBox(datasetList[index].bbox,SpatialService.boundingBoxAroundPolyCoords(timeline.features[i].geometry.coordinates));
 										datasetList[index].features.push(timeline.features[i]);
 									}
 

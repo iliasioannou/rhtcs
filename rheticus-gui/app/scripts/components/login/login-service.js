@@ -1,48 +1,56 @@
 'use strict';
- 
+
 angular.module('rheticus')
-	.factory('AuthenticationService',['Base64', '$http', '$cookies', '$rootScope', '$timeout','configuration',
-		function (Base64, $http, $cookies, $rootScope, $timeout, configuration) {
+	.factory('AuthenticationService',['Base64','$http','$cookies','$rootScope','configuration','ArrayService',
+		function(Base64,$http,$cookies,$rootScope,configuration,ArrayService){
 			var service = {};
 			service.Login = function (username, password, callback) {
-				/* 
 				//Use this for real authentication in POST
-				$http.post(configuration.authentication.url,
+				/* $http.post(configuration.authentication.url,
 					{username : username, password : password})
 					.success(function (response) {
 						callback(response);
 					}
-				);
-				*/
+				);*/
 				var psw64 = Base64.encode(password);
 				var url = configuration.authentication.url + "username="+username+"&password="+psw64;
-				$http.get(url).success(function (response) {
-					var res = response;
-					callback(res);
-				});
-			};
-			service.SetCredentials = function (username, password, deals) {
-				var authdata = Base64.encode(username + ':' + password);
-				$rootScope.globals = {
-					"currentUser" : {
-						"username" : username,
-						"authdata" : authdata,
-						"deals" : deals
+				$http.get(url)
+          .success(function (response) {
+            if (response.username){
+              callback(response);
+            } else {
+              callback({message:"Counldn't retrieve the username!"});
+            }
+  				})
+          .error(function (response) { // jshint ignore:line
+						//HTTP STATUS != 200
+						var message = (response.code && (response.code!=="")) ? response.code : "";
+						message += (response.message && (response.message!=="")) ? ((message!=="") ? " : " : "") + response.message : "";
+            callback({"message":message});
 					}
-				};
-				$http.defaults.headers.common.Authorization = 'Basic ' + authdata; // jshint ignore:line
-				$cookies.putObject('globals', $rootScope.globals);
-				$rootScope.logged = true;
+        );
+			};
+			service.SetCredentials = function (username, password, response) {
+				var authdata = Base64.encode(username + ":" + password);
+        //TODO: uncomment for HTTPS
+        //$http.defaults.headers.common.Authorization = "Basic " + authdata; // jshint ignore:line
+        $rootScope.login.logged = true;
+        $rootScope.login.details = {
+          "authdata" : authdata,
+          "info" : response
+        };
+        $cookies.putObject('rheticus.login.details', $rootScope.login.details);
 			};
 			service.ClearCredentials = function () {
-				$rootScope.globals = {};
-				$cookies.remove('globals');
-				$http.defaults.headers.common.Authorization = 'Basic ';
-				$rootScope.logged = false;
+        //TODO: uncomment for HTTPS
+        //$http.defaults.headers.common.Authorization = "Basic ";
+        $rootScope.login.logged = false;
+        $rootScope.login.details = ArrayService.cloneObj($rootScope.anonymousDetails); //null;
+        $cookies.remove('rheticus.login.details');
 			};
 			return service;
 		}])
-	 
+
 	.factory('Base64', function () {
 		/* jshint ignore:start */
 		var keyStr = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';

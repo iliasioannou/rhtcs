@@ -52,29 +52,52 @@ angular
 			"redirectTo": "/"
 		});
 	})
-
+	.constant("ANONYMOUS_USER", {
+		"username": "anonymous",
+		"password": "anonymous"
+	})
 	//login service configuration
-	.run(['$rootScope','$cookies','$http',function($rootScope,$cookies,$http) {
-		angular.extend($rootScope,{
-			"markerVisibility" : false,
-			"logged" : false,
-			"username" : "",
-			"privateAOI" : []
-		});
-		$rootScope.globals = $cookies.getObject('globals') || {};
-        if ($rootScope.globals.currentUser) {
-					$rootScope.logged = true;
-					$rootScope.username = $rootScope.globals.currentUser.username;
-					$http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.globals.currentUser.authdata; // jshint ignore:line
-        }
- /*
-		// redirect to login page if not logged in and trying to access a restricted page
-		$rootScope.$on('$locationChangeStart', function (event, next, current) {
-            var restrictedPage = $.inArray($location.path(), ['/login', '/register']) === -1;
-            var loggedIn = $rootScope.globals.currentUser;
-            if (restrictedPage && !loggedIn) {
-                $location.path('/login');
-            }
-        });
-*/
-	}]);
+	.run(['$rootScope','$cookies'/*,'$http'*/,'ANONYMOUS_USER','ArrayService','AuthenticationService',
+		function($rootScope,$cookies/*,$http*/,ANONYMOUS_USER,ArrayService,AuthenticationService) {
+			angular.extend($rootScope,{
+				"markerVisibility" : false,
+				"login" : {
+					"logged" : false,
+					"details" : null
+				},
+				"anonymousDetails" : null
+			});
+			//retrieve details for anonymous user (login simulation)
+			AuthenticationService.Login(ANONYMOUS_USER.username,ANONYMOUS_USER.password,
+				function(response) {
+					if(response.username && (response.username===ANONYMOUS_USER.username)) {
+						$rootScope.anonymousDetails = {
+							"authdata" : "",
+							"info" : response
+						};
+					} else {
+						// do nothing
+					}
+				}
+			);
+
+			//set anonymous details instead of "null" value
+			$rootScope.login.details = $cookies.getObject('rheticus.login.details') || (($rootScope.anonymousDetails!==null) ? ArrayService.cloneObj($rootScope.anonymousDetails) : null);
+			if (($rootScope.login.details!==null) &&
+					$rootScope.login.details.info && ($rootScope.login.details.info!==null) &&
+					$rootScope.login.details.info.username && ($rootScope.login.details.info.username!==ANONYMOUS_USER.username)) {
+				$rootScope.login.logged = true;
+				//TODO: uncomment for HTTPS
+				//$http.defaults.headers.common["Authorization"] = "Basic " + $rootScope.login.details.authdata; // jshint ignore:line
+	    }
+			// redirect to login page if not logged in and trying to access a restricted page
+			/*$rootScope.$on('$locationChangeStart', function (event, next, current) {
+	          var restrictedPage = $.inArray($location.path(), ['/login', '/register']) === -1;
+	          var loggedIn = $rootScope.globals.currentUser;
+	          if (restrictedPage && !loggedIn) {
+	              $location.path('/login');
+	          }
+	      });*/
+		}
+	]
+);
