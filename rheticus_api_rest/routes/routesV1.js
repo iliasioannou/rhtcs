@@ -56,56 +56,43 @@ var serverRouter = function(server) {
         console.log("\tPassword  = -%s-", passwordPlain);
         
 		// Retrieve always the deal related to anonymous user
-		var demoDeals = [];
 		var anonymousDealPromise = repository.User.forge({username: userNameAnonymous})
-			.fetch({withRelated: ["deals"]})
-            .then(function(user){
-				if (user){
-					demoDeals = user.related("deals");
-					console.log("\tDeal for anonymous user = %s", JSON.stringify(demoDeals));
-				}
-				else {
-					console.log("\tProblem during retrieve anonymous user");
-				}
-            })
-            .catch(function(error){
-                console.log(error);
-            });       
-		
-		
-		repository.User.forge({username: userName})
-			.fetch({withRelated: ["deals"]})
-            .then(function(user){
-				if (user){
-					var userPassword = user.get("password");
-					console.log("\tUser from db = %s", JSON.stringify(user));
-					console.log("\tUser password from db = -%s-", userPassword);
-					if(userPassword !== passwordPlain) {
-						next(new restify.NotAuthorizedError());
-					}
-					else{
-						console.log("\tUser is OK");
-							/*
-						Array.prototype.push.apply(user.related("deals"), demoDeals);
-						*/
-						console.log("\tdemo deal len = %s", demoDeals.length);
-						for (var i = 0; i < demoDeals.length; i++){
-							console.log("\tdeal demo %s = %s", i, demoDeals[i]);
-							var newLen = user.related("deals").push(demoDeals[i]);
-							console.log("\tnew len = %s", newLen);
-						}
-						res.send(user.toJSON());
-					}
-				}
-				else {
-					// Respond with { code: 'NotAuthorized', message: '' }
+			.fetch({withRelated: ["deals"]});
+
+		var userDealPromise =  repository.User.forge({username: userName})
+			.fetch({withRelated: ["deals"]});
+
+		var joinPromise = promise.join;
+		joinPromise(anonymousDealPromise, userDealPromise,function(anonymousUser, user){
+			var anonymousUserDeals = [];
+			if (anonymousUser){
+				anonymousUserDeals = anonymousUser.serialize().deals;
+				console.log("\tDeal for anonymous user = %s", JSON.stringify(anonymousUserDeals));
+			}
+			else {
+				console.log("\tProblem during retrieve anonymous user");
+			}
+			if (user){
+				var userPassword = user.get("password");
+				if(userPassword !== passwordPlain) {
 					next(new restify.NotAuthorizedError());
 				}
+				else{
+					// add anonymous user deals to user's deals
+					user.related("deals").add(anonymousUserDeals, {merge: false});
+					res.send(user.toJSON());
+				}
+			}
+			else {
+				// Respond with { code: 'NotAuthorized', message: '' }
+				next(new restify.NotAuthorizedError());
+			}
+		})
+		.catch(function(error){
+			console.log(error);
+			next(new restify.NotAuthorizedError());
+		});       
 
-            })
-            .catch(function(error){
-                console.log(error);
-            });       
     });
 	
 
