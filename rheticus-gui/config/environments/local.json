@@ -261,6 +261,7 @@
 		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/authenticate?"
 	},
 	"weatherAPI" : {
-		"url" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/meteostations/"
+		"urlFoundStation" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/meteostations?location=",
+		"urlGetWeatherFromStation" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1/meteostations/"
 	}
 }

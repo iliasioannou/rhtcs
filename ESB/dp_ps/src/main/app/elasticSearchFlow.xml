@@ -34,7 +34,7 @@ payload.put("size", paginationSize);]]></expression-component>
                 <logger message="ElasticSearch Pagination Flow started." level="INFO" doc:name="Start new ElasticSearch Pagination"/>
                 <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
                 <set-variable variableName="inputPayload" value="#[payload]" doc:name="save originalPayload"/>
-                <set-variable variableName="paginationSize" value="#[Integer.parseInt(${elasticsearch.sentinel.pagination})]" doc:name="init paginationSize"/>
+                <set-variable variableName="paginationSize" value="#[Integer.parseInt(${elasticsearch.pagination})]" doc:name="init paginationSize"/>
                 <set-variable variableName="resultCounter" value="#[new Integer(0)]" doc:name="init resultCounter"/>
                 <set-variable variableName="resultList" value="#[new java.util.ArrayList()]" doc:name="resultList"/>
                 <http:request config-ref="HTTP_Request_Elastisearch" path="/_count" method="GET" doc:name="count total ElasticSearch results"/>
