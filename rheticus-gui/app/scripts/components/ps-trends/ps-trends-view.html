@@ -22,7 +22,8 @@
 						<tbody>
 							<ul lr-infinite-scroll="myEventHandler">
 							<tr ng-repeat="record in displayed">
-								<td>{{record.datasetid}}</td>
+
+								<td><a style=" color: {{record.color}};" > &#x26AB;&nbsp;</a>{{record.datasetid}}</td>
 								<td>{{record.psid}}</td>
 								<td>{{record.sensorid}}</td>
 								<td>{{record.coherence}}</td>

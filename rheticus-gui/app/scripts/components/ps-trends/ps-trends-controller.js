@@ -128,89 +128,9 @@ angular.module('rheticus')
 			}
 		});
 
-		/**
-		 * PRIVATE  VARIABLES AND METHODS
-		 */
-		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
-		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
+		
+		
 
-		var getMeasures = function (datasetid,psid,idComplete){
-			var ret = [];
-			self.lastDatePs=0;
-			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
-			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
-			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
-			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
-			$http.get(url)
-				.success(function (measures) { //if request is successful
-					if ((measures!==null) && measures.length>0){
-						for (var i=0; i<measures.length; i++) {
-							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
-							if (measureDate instanceof Date) {
-								var milliTime = measureDate.getTime();
-								if(self.lastDatePs < milliTime)
-									self.lastDatePs = milliTime;
-								ret.push({
-									"x" : measureDate,
-									"y" : eval("measures[i]."+measureKey+";"), // jshint ignore:line
-									"key" : idComplete
-								});
-							}
-						}
-					}
-					if (self.chartDataMeasureCount === false)
-					{
-
-						var values = getWeather(datasetid); // get weather data 
-						self.chartData.push({
-							"key" : "Precipitations",
-							"yAxis" : 2,
-							"type" : "bar",
-							"values" : values,
-							"color" : "#1e90ff"
-						});
-						self.chartDataMeasureCount = true;
-					}
-				})
-				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
-					console.log("[ps-trends-controller] getMeasures :: ERROR");
-				});
-			return ret;
-		};
-		
-		/**
-		 * Parameters:
-		 * features - {latitude,longitude}
-		 *
-		 * Returns: null (change the global chart title)
-		 */
-		var getCity = function(lat,lon)
-		{
-			var result="";
-			var url = configuration.geocoder.urlReverse+'lat='+lat+'&lon='+lon+configuration.geocoder.paramsReverse;
-			$http.get(url)
-						.success(function (response) {
-							console.log(response);
-							var city = response.address.city;
-							if (typeof city != 'undefined')
-								result=city+', '+response.address.state+', '+response.address.country;
-							else{
-								city=response.address.village;
-								result=city+', '+response.address.state+', '+response.address.country;
-							}
-							console.log("getCity:",result);
-							self.options.title.html = "<b>Trend spostamenti PS: <b>"+result+"<br>[LAT: "+Math.round(lat*10000)/10000+"; LON: "+Math.round(lon*10000)/10000+"]";
-							
-						})
-						.error(function(){ 
-							console.log("[ps-trends-controller] getCity :: ERROR");
-						});
-			
-		}
-		
-		
-		
-		
 		
 		/**
 		 * Parameters:
@@ -219,7 +139,8 @@ angular.module('rheticus')
 		 * Returns:
 		 */
 		var generateChartData = function(ps){
-			self.chartDataMeasureCount = false;
+			self.chartDataMeasureCount = false; // reset flag for download weather 
+			self.lastDatePs=0;					// reset Date(millisec.) value for download weather 
 			var res = false;
 			try {
 				getCity(ps.point[1],ps.point[0]);
@@ -246,7 +167,9 @@ angular.module('rheticus')
 							}
 							
 						}
+						featureInfo.color =  self.options.chart.color[i];
 						tableInfo.push(featureInfo);
+						console.log(tableInfo);
 						
 					}
 				}
@@ -267,6 +190,87 @@ angular.module('rheticus')
 				return(res);
 			}
 		};
+		
+		
+		/**
+		 * PRIVATE  VARIABLES AND METHODS
+		 */
+		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
+		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
+
+		var getMeasures = function (datasetid,psid,idComplete){
+			var ret = [];    
+			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
+			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
+			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
+			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
+			$http.get(url)
+				.success(function (measures) { //if request is successful
+					if ((measures!==null) && measures.length>0){
+						for (var i=0; i<measures.length; i++) {
+							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
+							if (measureDate instanceof Date) {
+								var milliTime = measureDate.getTime();
+								if(self.lastDatePs < milliTime)				//update last valid date for PS 
+									self.lastDatePs = milliTime;
+								ret.push({
+									"x" : measureDate,
+									"y" : eval("measures[i]."+measureKey+";"), // jshint ignore:line
+									"key" : idComplete
+								});
+							}
+						}
+					}
+					if (self.chartDataMeasureCount === false)
+					{
+						var values = getWeather(datasetid); // get weather data 
+						self.chartData.push({
+							"key" : "Precipitations",
+							"yAxis" : 2,
+							"type" : "bar",
+							"values" : values,
+							"color" : "#1e90ff"
+						});
+						self.chartDataMeasureCount = true;
+					}
+				})
+				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
+					console.log("[ps-trends-controller] getMeasures :: ERROR");
+				});
+			return ret;
+		};
+		
+		
+		
+		/**
+		 * Parameters:
+		 * features - {latitude,longitude}
+		 *
+		 * Returns: null (change the global chart title)
+		 */
+		var getCity = function(lat,lon)
+		{
+			var result="";
+			var url = configuration.geocoder.urlReverse+'lat='+lat+'&lon='+lon+configuration.geocoder.paramsReverse;
+			$http.get(url)
+						.success(function (response) {
+							console.log(response);
+							var city = response.address.city;
+							if (typeof city != 'undefined')
+								result=city+', '+response.address.state+', '+response.address.country;
+							else{
+								city=response.address.village;
+								result=city+', '+response.address.state+', '+response.address.country;
+							}
+							console.log("getCity:",result);
+							self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(lat*10000)/10000+"; LON: "+Math.round(lon*10000)/10000+"]";
+							
+						})
+						.error(function(){ 
+							console.log("[ps-trends-controller] getCity :: ERROR");
+						});
+			
+		}
 		
 		/**
 		 * Parameters:
