@@ -95,6 +95,8 @@ angular.module('rheticus')
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"lastDatePs" : 0,
+			"lat" : 0,
+			"lon" : 0,
 			"data" : [], // PS line chart data
 			"psDetails" : [], // PS feature details
 			"show_trends" : false, // dialog box closure
@@ -128,89 +130,9 @@ angular.module('rheticus')
 			}
 		});
 
-		/**
-		 * PRIVATE  VARIABLES AND METHODS
-		 */
-		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
-		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
+		
+		
 
-		var getMeasures = function (datasetid,psid,idComplete){
-			var ret = [];
-			self.lastDatePs=0;
-			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
-			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
-			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
-			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
-			$http.get(url)
-				.success(function (measures) { //if request is successful
-					if ((measures!==null) && measures.length>0){
-						for (var i=0; i<measures.length; i++) {
-							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
-							if (measureDate instanceof Date) {
-								var milliTime = measureDate.getTime();
-								if(self.lastDatePs < milliTime)
-									self.lastDatePs = milliTime;
-								ret.push({
-									"x" : measureDate,
-									"y" : eval("measures[i]."+measureKey+";"), // jshint ignore:line
-									"key" : idComplete
-								});
-							}
-						}
-					}
-					if (self.chartDataMeasureCount === false)
-					{
-
-						var values = getWeather(datasetid); // get weather data 
-						self.chartData.push({
-							"key" : "Precipitations",
-							"yAxis" : 2,
-							"type" : "bar",
-							"values" : values,
-							"color" : "#1e90ff"
-						});
-						self.chartDataMeasureCount = true;
-					}
-				})
-				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
-					console.log("[ps-trends-controller] getMeasures :: ERROR");
-				});
-			return ret;
-		};
-		
-		/**
-		 * Parameters:
-		 * features - {latitude,longitude}
-		 *
-		 * Returns: null (change the global chart title)
-		 */
-		var getCity = function(lat,lon)
-		{
-			var result="";
-			var url = configuration.geocoder.urlReverse+'lat='+lat+'&lon='+lon+configuration.geocoder.paramsReverse;
-			$http.get(url)
-						.success(function (response) {
-							console.log(response);
-							var city = response.address.city;
-							if (typeof city != 'undefined')
-								result=city+', '+response.address.state+', '+response.address.country;
-							else{
-								city=response.address.village;
-								result=city+', '+response.address.state+', '+response.address.country;
-							}
-							console.log("getCity:",result);
-							self.options.title.html = "<b>Trend spostamenti PS: <b>"+result+"<br>[LAT: "+Math.round(lat*10000)/10000+"; LON: "+Math.round(lon*10000)/10000+"]";
-							
-						})
-						.error(function(){ 
-							console.log("[ps-trends-controller] getCity :: ERROR");
-						});
-			
-		}
-		
-		
-		
-		
 		
 		/**
 		 * Parameters:
@@ -219,10 +141,13 @@ angular.module('rheticus')
 		 * Returns:
 		 */
 		var generateChartData = function(ps){
-			self.chartDataMeasureCount = false;
+			self.chartDataMeasureCount = false; // reset flag for download weather 
+			self.lastDatePs=0;					// reset Date(millisec.) value for download weather 
+			self.lat=ps.point[1];
+			self.lon=ps.point[0];
 			var res = false;
 			try {
-				getCity(ps.point[1],ps.point[0]);
+				getCity();
 				self.chartData = []; // Data is represented as an array of {x,y} pairs.
 				var tableInfo = []; // PS details
 				
@@ -246,7 +171,9 @@ angular.module('rheticus')
 							}
 							
 						}
+						featureInfo.color =  self.options.chart.color[i];
 						tableInfo.push(featureInfo);
+						console.log(tableInfo);
 						
 					}
 				}
@@ -268,6 +195,87 @@ angular.module('rheticus')
 			}
 		};
 		
+		
+		/**
+		 * PRIVATE  VARIABLES AND METHODS
+		 */
+		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
+		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
+
+		var getMeasures = function (datasetid,psid,idComplete){
+			var ret = [];    
+			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
+			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
+			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
+			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
+			$http.get(url)
+				.success(function (measures) { //if request is successful
+					if ((measures!==null) && measures.length>0){
+						for (var i=0; i<measures.length; i++) {
+							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
+							if (measureDate instanceof Date) {
+								var milliTime = measureDate.getTime();
+								if(self.lastDatePs < milliTime)				//update last valid date for PS 
+									self.lastDatePs = milliTime;
+								ret.push({
+									"x" : measureDate,
+									"y" : eval("measures[i]."+measureKey+";"), // jshint ignore:line
+									"key" : idComplete
+								});
+							}
+						}
+					}
+					if (self.chartDataMeasureCount === false)
+					{
+						var values = getWeather(datasetid); // get weather data 
+						self.chartData.push({
+							"key" : "Precipitations",
+							"yAxis" : 2,
+							"type" : "bar",
+							"values" : values,
+							"color" : "#1e90ff"
+						});
+						self.chartDataMeasureCount = true;
+					}
+				})
+				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
+					console.log("[ps-trends-controller] getMeasures :: ERROR");
+				});
+			return ret;
+		};
+		
+		
+		
+		/**
+		 * Parameters:
+		 * features - {latitude,longitude}
+		 *
+		 * Returns: null (change the global chart title)
+		 */
+		var getCity = function()
+		{
+			var result="";
+			var url = configuration.geocoder.urlReverse+'lat='+self.lat+'&lon='+self.lon+configuration.geocoder.paramsReverse;
+			$http.get(url)
+						.success(function (response) {
+							console.log(response);
+							var city = response.address.city;
+							if (typeof city != 'undefined')
+								result=city+', '+response.address.state+', '+response.address.country;
+							else{
+								city=response.address.village;
+								result=city+', '+response.address.state+', '+response.address.country;
+							}
+							console.log("getCity:",result);
+							self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
+							
+						})
+						.error(function(){ 
+							console.log("[ps-trends-controller] getCity :: ERROR");
+						});
+			
+		}
+		
 		/**
 		 * Parameters:
 		 * features - {String datasetId} it conteins the id of the city weather station
@@ -275,32 +283,37 @@ angular.module('rheticus')
 		 * Returns: array values with the date and the relative measure
 		 */
 		
-		var getWeather = function(datasetId){
-			var station ;
-				var values = [];
-				if (datasetId==="MRF-PR-EOP-PRO-096_BARRITTERI")
-				    station = configuration.aoi[0].station;
-				else
-					station = configuration.aoi[1].station;
-				
-				$http.get(configuration.weatherAPI.url+station+"/measures?type=RAIN")
+		var getWeather = function(datasetId){    
+			
+			var values = [];
+			$http.get(configuration.weatherAPI.urlFoundStation+self.lat+","+self.lon)
 					.success(function (response) {
-						for (var i=0; i< response.length;i++) {
-							var dateWeather = new Date(response[i].data);
-							if (self.lastDatePs> dateWeather.getTime())
-							{
-								values.push({
-								"x" : dateWeather , 
-								"y": response[i].measure
-								});
-							}
+							var station = response[0].id;
+							var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs));
+							$http.get(configuration.weatherAPI.urlGetWeatherFromStation+station+"/measures?type=RAIN&period=2009-01-01,"+lastDatePs+"&aggregation=DAY")
+							.success(function (response) {
+								for (var i=0; i< response.length;i++) {
+									var dateWeather = new Date(response[i].data);
+									values.push({
+										"x" : dateWeather , 
+										"y": response[i].measure
+									});
+								
+								}
+								
+							})
+							.error(function (response) {//HTTP STATUS != 200
+								//do nothing
+							});
 							
-						}
 					})
 					.error(function (response) {//HTTP STATUS != 200
 						//do nothing
 					});
-					return values;
+				
+			return values;	
+				
+					
 		};
 
 		$scope.$on("angular-resizable.resizeEnd", function (event, args) {

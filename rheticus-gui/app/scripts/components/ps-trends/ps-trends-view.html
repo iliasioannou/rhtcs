@@ -1,6 +1,6 @@
 <div ng-show="pstrends.show_trends" ng-controller="PsTrendsCtrl as pstrends">
 	<div class="psTrends" ng-class="{'active':false}">
-		<div resizable id="psTrends-standard-box" r-directions="['top','right','bottom','left']" r-centered-x="true" r-centered-y="true" r-width="500" r-height="300" draggable title="Drag me...">
+		<div resizable id="psTrends-standard-box" r-directions="['top','left']" r-centered-x="true" r-centered-y="true" r-width="500" r-height="300" draggable title="Drag me...">
 			<div class="inner" data-intro="Persistent Scatterers Trends" data-position="bottom">
 				<div class="psTrendsClose">
 					<a class="close" ng-click="pstrends.showPsTrends(false);">&times;</a>
@@ -22,7 +22,8 @@
 						<tbody>
 							<ul lr-infinite-scroll="myEventHandler">
 							<tr ng-repeat="record in displayed">
-								<td>{{record.datasetid}}</td>
+
+								<td><tt style=" color: {{record.color}};" > &#x26AB;&nbsp;</tt>{{record.datasetid}}</td>
 								<td>{{record.psid}}</td>
 								<td>{{record.sensorid}}</td>
 								<td>{{record.coherence}}</td>
