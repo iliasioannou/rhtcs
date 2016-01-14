@@ -268,7 +268,7 @@ CREATE OR REPLACE VIEW vw_meteo_stations_measure AS
     date_part('year'::text, meteo_stations_measure.data) AS y,
     date_part('month'::text, meteo_stations_measure.data) AS m,
     (((date_part('year'::text, meteo_stations_measure.data) || '-'::text) || lpad(date_part('month'::text, meteo_stations_measure.data)::text, 2, '0'::text)) || '-01'::text)::date AS data,
-    round(avg(meteo_stations_measure.measure)::numerc, 1) AS measure
+    round(avg(meteo_stations_measure.measure)::numeric, 1) AS measure
    FROM meteo_stations_measure
   GROUP BY meteo_stations_measure.id_station, meteo_stations_measure.type, date_part('year'::text, meteo_stations_measure.data), date_part('month'::text, meteo_stations_measure.data);
 
