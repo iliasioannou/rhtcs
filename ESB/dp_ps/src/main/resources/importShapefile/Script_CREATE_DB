@@ -256,6 +256,24 @@ ALTER TABLE meteo_stations_measure
   OWNER TO postgres;
 
 
+-------------------------------------------  
+-- View: vw_meteo_stations_measure
+-------------------------------------------  
+
+-- DROP VIEW vw_meteo_stations_measure;
+
+CREATE OR REPLACE VIEW vw_meteo_stations_measure AS 
+ SELECT meteo_stations_measure.id_station,
+    meteo_stations_measure.type,
+    date_part('year'::text, meteo_stations_measure.data) AS y,
+    date_part('month'::text, meteo_stations_measure.data) AS m,
+    (((date_part('year'::text, meteo_stations_measure.data) || '-'::text) || lpad(date_part('month'::text, meteo_stations_measure.data)::text, 2, '0'::text)) || '-01'::text)::date AS data,
+    round(avg(meteo_stations_measure.measure)::numerci, 1) AS measure
+   FROM meteo_stations_measure
+  GROUP BY meteo_stations_measure.id_station, meteo_stations_measure.type, date_part('year'::text, meteo_stations_measure.data), date_part('month'::text, meteo_stations_measure.data);
+
+ALTER TABLE vw_meteo_stations_measure
+  OWNER TO postgres;
 
   
 ===========================================
@@ -348,96 +366,108 @@ CREATE TRIGGER getgeometryasgeojson
 
 -- DROP VIEW ps_user;
 
-CREATE OR REPLACE VIEW ps_user AS 
-SELECT 
-	ps.psid,
-	ps.lat,
-	ps.lon,
-	ps.datasetid,
-	ps.sensorid,
-	ps.coherence,
-	ps.height,
-	ps.velocity,
-	u.id AS user_id,
-	d.id AS deal_id
-FROM ps, "user" u, deal d
-WHERE u.id = d.user_id 
-	AND st_within(ps.geom, d.geom)
-	AND ps.sensorid = d.sensorid
+SELECT a.id,
+	a.psid,
+	a.lat,
+	a.lon,
+	a.datasetid,
+	a.sensorid,
+	a.coherence,
+	a.geom,
+	a.height,
+	a.velocity,
+	b.id AS user_id,
+	c.id AS deal_id,
+	c.product_name AS ps_map_name,
+	c.geom AS user_aoi
+FROM ps a,
+	"user" b,
+	deal c
+WHERE b.id = c.user_id AND st_within(a.geom, c.geom);
 
 ALTER TABLE ps_user
-  OWNER TO postgres;
+	OWNER TO postgres;
   
   
 --------------------------------------------
 -- Insert data
 --------------------------------------------
-  
-INSERT INTO "user"(
-            name, surname, company, email, username, password)
-    VALUES ('test', 'test', 'test', 'test@test.test', 'usertest', 'pwdtest');
-INSERT INTO "user"(
-            name, surname, company, email, username, password)
-    VALUES ('demo', 'demo', 'demo', 'demo@demo.demo', 'userdemo', 'pwddemo');
-
-
+ 
+-- Insert utente anonymous con relativo contratto demo su Barritteri
+WITH A AS(
+        INSERT INTO "user"(name, surname, company, email, username, password)
+                VALUES ('anonymous', 'anonymous', 'anonymous', 'anonymous@anonymous.it', 'anonymous', 'pwdanonymous')
+                RETURNING id                
+)
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
-    VALUES ('test01', '2016-01-01', 'PRVTMAP_CSK_TRENTO_SUD'
-    , ST_GeomFromGeoJSON
-    (
-	'{
-	    "type":"Polygon",
-	    "coordinates":
-	    [
-		[
-		    [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
-		]
-	    ],
-	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
-	}'
-    )
-    , 1
-    , '2001-01-01'
-    , '2016-01-01'
-    , 'S01');
+    SELECT 'barritteri_01', '2016-04-01', 'DEMOMAP_CSK_BARITTERI'
+                , ST_GeomFromGeoJSON
+                (
+                '{
+                        "type":"Polygon",
+                        "coordinates":
+                        [
+                        [
+                                [15.83,38.33],[15.85,38.33],[15.85,38.32],[15.83,38.32],[15.83,38.33]
+                        ]
+                        ],
+                        "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+                }'
+                )
+                , id
+                , '2001-01-01'
+                , '2016-01-01'
+                , 'CSK'
+        FROM A
 
-INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
-    VALUES ('test02', '2016-03-01', 'PRVTMAP_CSK_TRENTO_NORD'
-    , ST_GeomFromGeoJSON
-    (
-	'{
-	    "type":"Polygon",
-	    "coordinates":
-	    [
-		[
-		    [11.14,46.09],[11.18,46.09],[11.18,46.06],[11.14,46.06],[11.14,46.09]
-		]
-	    ],
-	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
-	}'
-    )
-    , 1
-    , '2001-01-01'
-    , '2016-01-01'
-    , 'S01');
 
+-- Insert utente test su Trento
+WITH A AS(
+        INSERT INTO "user"(name, surname, company, email, username, password)
+                VALUES ('utente', 'trento', 'Comune di Trento', 'comune@trento.it', 'trento', 'pwdtrento')
+            RETURNING id                
+)
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
-    VALUES ('demo01', '2016-04-01', 'DEMOMAP_CSK_BARITTERI'
-    , ST_GeomFromGeoJSON
-    (
-	'{
-	    "type":"Polygon",
-	    "coordinates":
-	    [
-		[
-		    [15.83,38.33],[15.85,38.33],[15.85,38.32],[15.83,38.32],[15.83,38.33]
-		]
-	    ],
-	    "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
-	}'
-    )
-    , 2
-    , '2001-01-01'
-    , '2016-01-01'
-    , 'S01');
-	
+    SELECT 'trento_sud', '2016-01-01', 'PRVTMAP_CSK_TRENTO_SUD'
+                , ST_GeomFromGeoJSON
+                (
+                '{
+                        "type":"Polygon",
+                        "coordinates":
+                        [
+                        [
+                                [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+                        ]
+                        ],
+                        "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+                }'
+                )
+                , id
+                , '2001-01-01'
+                , '2016-01-01'
+                , 'CSK'
+    FROM A;
+
+WITH A AS(
+        SELECT id FROM "user" WHERE username = 'trento'
+)
+INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
+    SELECT 'trento_nord', '2016-03-01', 'PRVTMAP_CSK_TRENTO_NORD'
+                , ST_GeomFromGeoJSON
+                (
+                '{
+                        "type":"Polygon",
+                        "coordinates":
+                        [
+                        [
+							[11.14,46.09],[11.18,46.09],[11.18,46.06],[11.14,46.06],[11.14,46.09]
+                        ]
+                        ],
+                        "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+                }'
+                )
+                , id
+                , '2001-01-01'
+                , '2016-01-01'
+                , 'CSK'
+    FROM A
