@@ -19,7 +19,6 @@ var serverRouter = function(server) {
     var repository = require('../repository/repository.js');
     
     var dataFileRootPath =  __dirname + "/../data/";
-    var psTypeMeasureAllowed = ["DL", "VAL", "VASDL"];
 
 
     server.use(function (req, res, next) {
@@ -42,7 +41,7 @@ var serverRouter = function(server) {
     server.get({ path: '/authenticate', version: VERSION }, function (req, res, next) {
         console.log("Check autentication");
         var userNameAnonymous = "anonymous";
-        
+
 		var userName = req.query.username;
         if (userName == undefined || userName == null){
             userName = "";
@@ -54,7 +53,7 @@ var serverRouter = function(server) {
         var passwordPlain = new Buffer(passwordEncrypted, 'base64').toString('ascii');
         console.log("\tUsername  = -%s-", userName);
         console.log("\tPassword  = -%s-", passwordPlain);
-        
+
 		// Retrieve always the deal related to anonymous user
 		var anonymousDealPromise = repository.User.forge({username: userNameAnonymous})
 			.fetch({withRelated: ["deals"]});
@@ -451,8 +450,11 @@ var serverRouter = function(server) {
     // Misure di un PS di un dataset
     server.get({ path: '/datasets/:idDataset/pss/:idPs/measures', version: VERSION }, function (req, res, next) {
         console.log("Misure di un PS di un dataset");
+		var errorMessage4StrangePeriod = "Unknow time period. 'periods=from,to;from,to'. Where from > to and from/to in format YYYY-MM-DD";
 
-        var idDataset = req.params.idDataset;
+    	var psTypeMeasureAllowed = ["DL", "VAL", "VASDL"];
+        
+		var idDataset = req.params.idDataset;
         if (idDataset == undefined || idDataset == null){
             idDataset = "";
         }
@@ -468,6 +470,42 @@ var serverRouter = function(server) {
             next(new restify.BadRequestError("Unknow type measure. Sorry !"));
             return;
         }
+		
+		var periods4Filter = [];	
+		var periodsAreValid = false;	
+		var periods = req.query.periods;
+        console.log("\tPeriods = %s", periods);
+		var periodSeparatorInPeriods = ";"; 
+		var dateSeparatorInPeriod = ","; 
+        if (periods !== undefined){
+			var arrayPeriod = periods.split(periodSeparatorInPeriods);
+			for(var i = 0; i < arrayPeriod.length; i++){
+				var period = arrayPeriod[i].split(dateSeparatorInPeriod);
+				//console.log("\t%s Period = %s", i, period);
+				if (period.length === 2){
+					var from = validator.toDate(period[0]);
+					var to = validator.toDate(period[1])
+					//console.log("\t%s Period from = %s, to = %s", i, from, to);
+					periodsAreValid = (from !== null && to !== null && from < to && validator.isBefore(from) && validator.isBefore(to));
+					if (periodsAreValid === false){
+        				//console.log("\t\tPeriod isn't valid");
+						next(new restify.InvalidArgumentError(errorMessage4StrangePeriod));
+						return;
+					}
+					var periodArray = [];
+					periodArray.push(from);
+					periodArray.push(to);
+					periods4Filter.push(periodArray);
+				}
+				else{
+        			console.log("\t\tPeriod isn't valid");
+					next(new restify.InvalidArgumentError(errorMessage4StrangePeriod));
+					return;
+				}
+			}
+        }
+        console.log("\tPeriods are valid = %s", periodsAreValid);
+        console.log("\tPeriods len = %s", periods4Filter.length);
         console.log("\tDataset Id   = %s", req.params.idDataset);
         console.log("\tPs Id        = %s", req.params.idPs);
         console.log("\tMeasure type = %s", typeMeasure);
@@ -475,9 +513,21 @@ var serverRouter = function(server) {
         repository.PsMeasure.forge()
             .query(function queryBuilder(qb){
                 qb.where("datasetid", "=", idDataset)
-                    .andWhere("psid", "=", idPs);
+	                .andWhere("psid", "=", idPs);
                 if (typeMeasure.length > 0){
                     qb.andWhere("type", "=", typeMeasure)
+                }
+				if (periodsAreValid){
+					qb.andWhere(function(){
+						for(var i = 0; i < periods4Filter.length; i++){
+							var period = periods4Filter[i];
+							//console.log("\t%s Period from = %s, to = %s", i, period[0], period[1]);
+							this.orWhere(function(){
+								this.andWhere("data ", ">=", new Date(period[0]).toISOString())
+								this.andWhere("data ", "<=", new Date(period[1]).toISOString())
+							})
+						}
+					})
                 }
                 qb.orderBy("type", "asc");
                 qb.orderBy("data", "asc");
