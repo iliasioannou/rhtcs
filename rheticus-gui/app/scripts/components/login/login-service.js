@@ -27,8 +27,7 @@ angular.module('rheticus')
 						var message = (response.code && (response.code!=="")) ? response.code : "";
 						message += (response.message && (response.message!=="")) ? ((message!=="") ? " : " : "") + response.message : "";
             callback({"message":message});
-					}
-        );
+					});
 			};
 			service.SetCredentials = function (username, password, response) {
 				var authdata = Base64.encode(username + ":" + password);

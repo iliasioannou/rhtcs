@@ -1,0 +1,12 @@
+{
+  "name": "rheticus-gui",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Rheticus GUI",
+  "main": "server.js",
+  "author": "Planetek Eretico Team",
+  "dependencies": {
+    "express": "^4.13.3",
+    "http-proxy": "^1.12.0"
+  }
+}

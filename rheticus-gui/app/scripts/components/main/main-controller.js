@@ -239,7 +239,7 @@ angular.module('rheticus')
 							if (resultObj!==""){
 								eval("that."+resultObj+" = obj;"); // jshint ignore:line
 							}
-							if (callback!==null){
+							if ((callback!==undefined) && (typeof callback==="function")){
 								callback(obj);
 							}
 						}
@@ -410,7 +410,16 @@ angular.module('rheticus')
 					if (cqlFilter!==""){
 						cqlFilter += " OR ";
 					}
-					cqlFilter += SpatialService.getIntersectSpatialFilterCqlText(userDeals[i].geom_geo_json.type,userDeals[i].geom_geo_json.coordinates);
+					var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+						userDeals[i].geom_geo_json.type,
+						userDeals[i].geom_geo_json.coordinates
+					);
+					if (cqlText!==""){
+						if (userDeals[i].sensorid!==""){
+							cqlText = "("+cqlText+" AND (sensorid='"+userDeals[i].sensorid+"')"+")";
+						}
+						cqlFilter += cqlText;
+					}
 				}
 			}
 			advancedCqlFilters.spatial = (cqlFilter!=="") ? "("+cqlFilter+")" : "";

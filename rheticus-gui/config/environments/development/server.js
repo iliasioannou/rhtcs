@@ -35,10 +35,10 @@ var apiProxy = httpProxy.createProxyServer(proxyOptions);
 //  http.ServerResponse res, Object options). This mechanism is useful when
 // you need to modify the proxy request before the proxy connection
 // is made to the target.
-//
-apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
-	proxyReq.setHeader('Authorization', '');
-});
+
+//apiProxy.on('proxyReq', function(proxyReq, req, res, options) {
+//	proxyReq.setHeader('Authorization', '');
+//});
 
 // Grab all requests to the server with "/iffi".
 server.all("/iffi*", function(req, res) {

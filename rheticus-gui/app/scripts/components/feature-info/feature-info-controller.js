@@ -42,13 +42,15 @@ angular.module('rheticus')
 		$scope.$watch("iffi",function(iffi){
 			self.overlayName = $scope.getOverlayMetadata("iffi").legend.title;
 			configurationLayers = $scope.getOverlayMetadata("iffi").custom.LAYERS;
-			if ((iffi!==null) && (iffi.features!==null) && (iffi.features.length>0)) {
-				self.showFeatures(
-					generateData("iffi",iffi)
-				);
-			} else {
-				self.showFeatures(false);
-				Flash.create('warning', "Layer \""+self.overlayName+"\" returned no features!");
+			if (iffi!==null){
+				if (iffi.features && (iffi.features!==null) && (iffi.features.length>0)) {
+					self.showFeatures(
+						generateData("iffi",iffi)
+					);
+				} else {
+					self.showFeatures(false);
+					Flash.create('warning', "Layer \""+self.overlayName+"\" returned no features!");
+				}
 			}
 		});
 

@@ -9,7 +9,7 @@
  */
 
 angular.module('rheticus')
-	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http',function($rootScope,$scope,configuration,$http){
+	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http','GeocodingService',function($rootScope,$scope,configuration,$http,GeocodingService){
 
 		var self = this; //this controller
 
@@ -239,24 +239,14 @@ angular.module('rheticus')
 		 * Returns: null (change the global chart title)
 		 */
 		var getCity = function(){
-			var result="";
-			var url = configuration.geocoder.urlReverse+'lat='+self.lat+'&lon='+self.lon+configuration.geocoder.paramsReverse;
-			$http.get(url)
-				.success(function (response) {
-					//console.log(response);
-					var city = response.address.city;
-					if (typeof city!=='undefined'){
-						result=city+', '+response.address.state+', '+response.address.country;
-					} else {
-						city=response.address.village;
-						result=city+', '+response.address.state+', '+response.address.country;
-					}
-					//console.log("getCity:",result);
-					self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
-				})
-				.error(function(){
-					console.log("[ps-trends-controller] getCity :: ERROR");
-				});
+			GeocodingService.reverse(
+				{"lon":self.lon,"lat":self.lat},
+				getCityCallback
+			);
+		};
+
+		var getCityCallback = function(result){
+			self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
 		};
 
 		/**

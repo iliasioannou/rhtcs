@@ -7,7 +7,6 @@
 // use this if you want to recursively match all subfolders:
 // 'test/spec/**/*.js'
 
-
 module.exports = function (grunt) {
 
 	// Time how long tasks take. Can help when optimizing build times
@@ -26,7 +25,8 @@ module.exports = function (grunt) {
 		dist: 'dist'
 	};
 
-	grunt.loadNpmTasks('grunt-replace');
+	var target = grunt.option('target') || 'local';
+	//grunt.loadNpmTasks('grunt-replace');
 
 	// Define the configuration for all the tasks
 	grunt.initConfig({
@@ -322,12 +322,28 @@ module.exports = function (grunt) {
 		},
 
 		replace: {
+			dist: {
+				options: {
+					patterns: [{
+						json: grunt.file.readJSON('./config/environments/common.json')
+					},{
+						json: grunt.file.readJSON('./config/environments/'+target+'/'+target+'.json')
+					}]
+				},
+				files: [{
+					expand: true,
+					flatten: true,
+					src: ['./config/config.js'],
+					dest: '<%= yeoman.app %>/scripts/services/'
+				}]
+			}
+			/*
 			local: {
 				options: {
 					patterns: [{
 						json: grunt.file.readJSON('./config/environments/common.json')
 					},{
-						json: grunt.file.readJSON('./config/environments/local.json')
+						json: grunt.file.readJSON('./config/environments/local/local.json')
 					}]
 				},
 				files: [{
@@ -342,7 +358,7 @@ module.exports = function (grunt) {
 					patterns: [{
 						json: grunt.file.readJSON('./config/environments/common.json')
 					},{
-						json: grunt.file.readJSON('./config/environments/development.json')
+						json: grunt.file.readJSON('./config/environments/development/development.json')
 					}]
 				},
 				files: [{
@@ -357,7 +373,7 @@ module.exports = function (grunt) {
 					patterns: [{
 						json: grunt.file.readJSON('./config/environments/common.json')
 					},{
-						json: grunt.file.readJSON('./config/environments/production.json')
+						json: grunt.file.readJSON('./config/environments/production/production.json')
 					}]
 				},
 				files: [{
@@ -366,7 +382,7 @@ module.exports = function (grunt) {
 					src: ['./config/config.js'],
 					dest: '<%= yeoman.app %>/scripts/services/'
 				}]
-			}
+			}*/
 		},
 
 		// The following *-min tasks will produce minified files in the dist folder
@@ -480,12 +496,10 @@ module.exports = function (grunt) {
 					src: [
 					'*.{ico,png,txt}',
 					'.htaccess',
-//					'**/*.html',
 					'*.html',
 					'scripts/components/**/*.html',
 					'images/{,*/}*.{webp}',
-					'styles/fonts/{,*/}*.*',
-					'resources/*.*'
+					'styles/fonts/{,*/}*.*'
 					]
 				},{
 					expand: true,
@@ -497,13 +511,20 @@ module.exports = function (grunt) {
 					cwd: '.',
 					src: 'bower_components/bootstrap-sass-official/assets/fonts/bootstrap/*',
 					dest: '<%= yeoman.dist %>'
-				}]
-			},
-			styles: {
-				expand: true,
-				cwd: '<%= yeoman.app %>/styles',
-				dest: '.tmp/styles/',
-				src: '{,*/}*.css'
+				},{
+					expand: true,
+					flatten: true,
+					filter: 'isFile',
+					cwd: '.',
+					dest: '<%= yeoman.dist %>/',
+					src: ['config/environments/'+target+'/package.json','config/environments/'+target+'/server.js']
+				}],
+				styles: {
+					expand: true,
+					cwd: '<%= yeoman.app %>/styles',
+					dest: '.tmp/styles/',
+					src: '{,*/}*.css'
+				}
 			}
 		},
 
@@ -543,7 +564,7 @@ module.exports = function (grunt) {
 			'wiredep',
 			'concurrent:server',
 			'autoprefixer:server',
-//			'configureProxies:server', // added just before connect
+//		'configureProxies:server', // added just before connect
 			'connect:livereload',
 			'watch'
 		]);
@@ -563,11 +584,35 @@ module.exports = function (grunt) {
 		'karma'
 	]);
 
-	grunt.registerTask('build', function(target){
+	//grunt.registerTask('replace',['replace']);
+
+	grunt.registerTask('build',[
+		'clean:dist',
+		'replace:dist',
+		'wiredep',
+		'useminPrepare',
+		'concurrent:dist',
+		'autoprefixer',
+		'ngtemplates',
+		'concat',
+		'ngAnnotate',
+		'copy:dist',
+		'cdnify',
+		'cssmin',
+		'uglify',
+		'filerev',
+		'usemin',
+		'htmlmin'
+	]);
+
+/*
+	grunt.registerTask('build', function(t){
+		target = (t!==undefined) ? t : target;
+		target = (target!==undefined ? target : 'local';
 		grunt.task.run([
 			'clean:dist',
-			//'replace:' + (target==='dist' ? 'production' : 'development'),
-			'replace:' + (target===undefined ? 'production' : target),
+			//'replace:' + (target!==undefined ? target : 'local'),
+			'replace',
 			'wiredep',
 			'useminPrepare',
 			'concurrent:dist',
@@ -575,7 +620,8 @@ module.exports = function (grunt) {
 			'ngtemplates',
 			'concat',
 			'ngAnnotate',
-			'copy:dist',
+			//'copy:dist',
+			'copy',
 			'cdnify',
 			'cssmin',
 			'uglify',
@@ -584,7 +630,7 @@ module.exports = function (grunt) {
 			'htmlmin'
 		]);
 	});
-
+*/
 	grunt.registerTask('default', [
 		'newer:jshint',
 		'test',
