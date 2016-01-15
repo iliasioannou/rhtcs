@@ -326,7 +326,7 @@ CREATE TABLE deal
   CONSTRAINT pk_deal PRIMARY KEY (id),
   CONSTRAINT fk_user FOREIGN KEY (user_id)
       REFERENCES "user" (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+      ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT end_period CHECK (start_period <= end_period),
   CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSK'::text)
 )
@@ -392,6 +392,8 @@ ALTER TABLE ps_user
 --------------------------------------------
 -- Insert data
 --------------------------------------------
+
+-- DELETE FROM "user";
  
 -- Insert utente anonymous con relativo contratto demo su Barritteri
 WITH A AS(
@@ -400,7 +402,7 @@ WITH A AS(
                 RETURNING id                
 )
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
-    SELECT 'barritteri_01', '2016-04-01', 'DEMOMAP_CSK_BARITTERI'
+    SELECT 'barritteri_01', '2016-04-01', 'DEMOMAP_CSK_BARRITTERI'
                 , ST_GeomFromGeoJSON
                 (
                 '{
@@ -418,13 +420,13 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_p
                 , '2001-01-01'
                 , '2016-01-01'
                 , 'CSK'
-        FROM A
+        FROM A;
 
 
 -- Insert utente test su Trento
 WITH A AS(
         INSERT INTO "user"(name, surname, company, email, username, password)
-                VALUES ('utente', 'trento', 'Comune di Trento', 'comune@trento.it', 'trento', 'pwdtrento')
+                VALUES ('utente CSK', 'trento', 'Comune di Trento', 'comune@trento.it', 'trento_csk', 'pwdtrento')
             RETURNING id                
 )
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
@@ -436,20 +438,20 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_p
                         "coordinates":
                         [
                         [
-                                [11.12,46.035],[11.13,46.035],[11.13,46.036],[11.12,46.036],[11.12,46.035]
+							[11.100,46.05],[11.180,46.05],[11.180,46.0],[11.100,46.0],[11.100,46.05]
                         ]
                         ],
                         "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
                 }'
                 )
                 , id
-                , '2001-01-01'
+                , '2012-01-01'
                 , '2016-01-01'
                 , 'CSK'
     FROM A;
 
 WITH A AS(
-        SELECT id FROM "user" WHERE username = 'trento'
+        SELECT id FROM "user" WHERE username = 'trento_csk'
 )
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
     SELECT 'trento_nord', '2016-03-01', 'PRVTMAP_CSK_TRENTO_NORD'
@@ -460,7 +462,34 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_p
                         "coordinates":
                         [
                         [
-							[11.14,46.09],[11.18,46.09],[11.18,46.06],[11.14,46.06],[11.14,46.09]
+							[11.100,46.09],[11.190,46.09],[11.190,46.05],[11.100,46.05],[11.100,46.09]
+                        ]
+                        ],
+                        "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
+                }'
+                )
+                , id
+                , '2014-01-01'
+                , '2016-01-01'
+                , 'CSK'
+    FROM A;
+
+-- Insert utente test Sentinel su Trento
+WITH A AS(
+        INSERT INTO "user"(name, surname, company, email, username, password)
+                VALUES ('utente S1', 'trento', 'Comune di Trento', 'comune@trento.it', 'trento_s1', 'pwdtrento')
+            RETURNING id                
+)
+INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
+    SELECT 'trento_sud', '2016-01-01', 'PRVTMAP_S1_TRENTO_SUD'
+                , ST_GeomFromGeoJSON
+                (
+                '{
+                        "type":"Polygon",
+                        "coordinates":
+                        [
+                        [
+							[11.100,46.05],[11.180,46.05],[11.180,46.0],[11.100,46.0],[11.100,46.05]
                         ]
                         ],
                         "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
@@ -469,5 +498,5 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_p
                 , id
                 , '2001-01-01'
                 , '2016-01-01'
-                , 'CSK'
-    FROM A
+                , 'S01'
+    FROM A;
