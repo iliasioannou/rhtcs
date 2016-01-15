@@ -77,8 +77,10 @@ var serverRouter = function(server) {
 					next(new restify.NotAuthorizedError());
 				}
 				else{
-					// add anonymous user deals to user's deals
-					user.related("deals").add(anonymousUserDeals, {merge: false});
+					if (user.get("username") !== userNameAnonymous){
+						// add anonymous user deals to user's deals
+						user.related("deals").add(anonymousUserDeals, {merge: false});
+					}
 					res.send(user.toJSON());
 				}
 			}
@@ -510,22 +512,28 @@ var serverRouter = function(server) {
         console.log("\tPs Id        = %s", req.params.idPs);
         console.log("\tMeasure type = %s", typeMeasure);
 
+
         repository.PsMeasure.forge()
-            .query(function queryBuilder(qb){
+            .query(function(qb){
                 qb.where("datasetid", "=", idDataset)
 	                .andWhere("psid", "=", idPs);
                 if (typeMeasure.length > 0){
                     qb.andWhere("type", "=", typeMeasure)
                 }
 				if (periodsAreValid){
+					function createConditionOnPeriod(period){
+						return function(){
+							console.log("\t\tPeriod = %s", period);
+							this.andWhere("data", ">=", new Date(period[0]).toISOString());
+							this.andWhere("data", "<=", new Date(period[1]).toISOString());
+						}
+					} 
 					qb.andWhere(function(){
 						for(var i = 0; i < periods4Filter.length; i++){
 							var period = periods4Filter[i];
+							console.log("\t%s Period = %s", i, period);
 							//console.log("\t%s Period from = %s, to = %s", i, period[0], period[1]);
-							this.orWhere(function(){
-								this.andWhere("data ", ">=", new Date(period[0]).toISOString())
-								this.andWhere("data ", "<=", new Date(period[1]).toISOString())
-							})
+							this.orWhere(createConditionOnPeriod(period))
 						}
 					})
                 }
