@@ -77,7 +77,7 @@ var serverRouter = function(server) {
 					next(new restify.NotAuthorizedError());
 				}
 				else{
-					if (user.get("username" !== userNameAnonymous)){
+					if (user.get("username") !== userNameAnonymous){
 						// add anonymous user deals to user's deals
 						user.related("deals").add(anonymousUserDeals, {merge: false});
 					}
