@@ -12,14 +12,13 @@ var serverRouter = function(server) {
     var knex = require("knex")(dbConfig);
 
     var restify = require('restify');
-    var Promise = require("bluebird");
+    var promise = require("bluebird");
     var fs = require('fs');
 	var validator = require('validator');
 
     var repository = require('../repository/repository.js');
     
     var dataFileRootPath =  __dirname + "/../data/";
-    var psTypeMeasureAllowed = ["DL", "VAL", "VASDL"];
 
 
     server.use(function (req, res, next) {
@@ -41,7 +40,9 @@ var serverRouter = function(server) {
     // Check identity for user and return AOI
     server.get({ path: '/authenticate', version: VERSION }, function (req, res, next) {
         console.log("Check autentication");
-        var userName = req.query.username;
+        var userNameAnonymous = "anonymous";
+
+		var userName = req.query.username;
         if (userName == undefined || userName == null){
             userName = "";
         }
@@ -52,31 +53,45 @@ var serverRouter = function(server) {
         var passwordPlain = new Buffer(passwordEncrypted, 'base64').toString('ascii');
         console.log("\tUsername  = -%s-", userName);
         console.log("\tPassword  = -%s-", passwordPlain);
-        
-		repository.User.forge({username: userName})
-			.fetch({withRelated: ["deals"]})
-            .then(function(user){
-				if (user){
-					var userPassword = user.get("password");
-					console.log("\tUser from db = %s", JSON.stringify(user));
-					console.log("\tUser password from db = -%s-", userPassword);
-					if(userPassword !== passwordPlain) {
-						next(new restify.NotAuthorizedError());
-					}
-					else{
-						console.log("\tUser is OK");
-						res.send(user.toJSON());
-					}
-				}
-				else {
-					// Respond with { code: 'NotAuthorized', message: '' }
+
+		// Retrieve always the deal related to anonymous user
+		var anonymousDealPromise = repository.User.forge({username: userNameAnonymous})
+			.fetch({withRelated: ["deals"]});
+
+		var userDealPromise =  repository.User.forge({username: userName})
+			.fetch({withRelated: ["deals"]});
+
+		var joinPromise = promise.join;
+		joinPromise(anonymousDealPromise, userDealPromise,function(anonymousUser, user){
+			var anonymousUserDeals = [];
+			if (anonymousUser){
+				anonymousUserDeals = anonymousUser.serialize().deals;
+				console.log("\tDeal for anonymous user = %s", JSON.stringify(anonymousUserDeals));
+			}
+			else {
+				console.log("\tProblem during retrieve anonymous user");
+			}
+			if (user){
+				var userPassword = user.get("password");
+				if(userPassword !== passwordPlain) {
 					next(new restify.NotAuthorizedError());
 				}
+				else{
+					// add anonymous user deals to user's deals
+					user.related("deals").add(anonymousUserDeals, {merge: false});
+					res.send(user.toJSON());
+				}
+			}
+			else {
+				// Respond with { code: 'NotAuthorized', message: '' }
+				next(new restify.NotAuthorizedError());
+			}
+		})
+		.catch(function(error){
+			console.log(error);
+			next(new restify.NotAuthorizedError());
+		});       
 
-            })
-            .catch(function(error){
-                console.log(error);
-            });       
     });
 	
 
@@ -435,8 +450,11 @@ var serverRouter = function(server) {
     // Misure di un PS di un dataset
     server.get({ path: '/datasets/:idDataset/pss/:idPs/measures', version: VERSION }, function (req, res, next) {
         console.log("Misure di un PS di un dataset");
+		var errorMessage4StrangePeriod = "Unknow time period. 'periods=from,to;from,to'. Where from > to and from/to in format YYYY-MM-DD";
 
-        var idDataset = req.params.idDataset;
+    	var psTypeMeasureAllowed = ["DL", "VAL", "VASDL"];
+        
+		var idDataset = req.params.idDataset;
         if (idDataset == undefined || idDataset == null){
             idDataset = "";
         }
@@ -452,6 +470,42 @@ var serverRouter = function(server) {
             next(new restify.BadRequestError("Unknow type measure. Sorry !"));
             return;
         }
+		
+		var periods4Filter = [];	
+		var periodsAreValid = false;	
+		var periods = req.query.periods;
+        console.log("\tPeriods = %s", periods);
+		var periodSeparatorInPeriods = ";"; 
+		var dateSeparatorInPeriod = ","; 
+        if (periods !== undefined){
+			var arrayPeriod = periods.split(periodSeparatorInPeriods);
+			for(var i = 0; i < arrayPeriod.length; i++){
+				var period = arrayPeriod[i].split(dateSeparatorInPeriod);
+				//console.log("\t%s Period = %s", i, period);
+				if (period.length === 2){
+					var from = validator.toDate(period[0]);
+					var to = validator.toDate(period[1])
+					//console.log("\t%s Period from = %s, to = %s", i, from, to);
+					periodsAreValid = (from !== null && to !== null && from < to && validator.isBefore(from) && validator.isBefore(to));
+					if (periodsAreValid === false){
+        				//console.log("\t\tPeriod isn't valid");
+						next(new restify.InvalidArgumentError(errorMessage4StrangePeriod));
+						return;
+					}
+					var periodArray = [];
+					periodArray.push(from);
+					periodArray.push(to);
+					periods4Filter.push(periodArray);
+				}
+				else{
+        			console.log("\t\tPeriod isn't valid");
+					next(new restify.InvalidArgumentError(errorMessage4StrangePeriod));
+					return;
+				}
+			}
+        }
+        console.log("\tPeriods are valid = %s", periodsAreValid);
+        console.log("\tPeriods len = %s", periods4Filter.length);
         console.log("\tDataset Id   = %s", req.params.idDataset);
         console.log("\tPs Id        = %s", req.params.idPs);
         console.log("\tMeasure type = %s", typeMeasure);
@@ -459,9 +513,21 @@ var serverRouter = function(server) {
         repository.PsMeasure.forge()
             .query(function queryBuilder(qb){
                 qb.where("datasetid", "=", idDataset)
-                    .andWhere("psid", "=", idPs);
+	                .andWhere("psid", "=", idPs);
                 if (typeMeasure.length > 0){
                     qb.andWhere("type", "=", typeMeasure)
+                }
+				if (periodsAreValid){
+					qb.andWhere(function(){
+						for(var i = 0; i < periods4Filter.length; i++){
+							var period = periods4Filter[i];
+							//console.log("\t%s Period from = %s, to = %s", i, period[0], period[1]);
+							this.orWhere(function(){
+								this.andWhere("data ", ">=", new Date(period[0]).toISOString())
+								this.andWhere("data ", "<=", new Date(period[1]).toISOString())
+							})
+						}
+					})
                 }
                 qb.orderBy("type", "asc");
                 qb.orderBy("data", "asc");
