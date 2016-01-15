@@ -5,6 +5,32 @@ angular.module('rheticus')
     /**
      * Parameters:
      * list - {Object}
+     * idValue - {String}
+     *
+     * Returns:
+     * {Integer} - Position in list
+     */
+    this.getIndexByValue = function(list,idValue) {
+      var res = -1;
+      try {
+        if (list && (list!==null) && (list.length>0)) {
+          var i=0;
+          for (i=0; i<list.length; i++){
+            if (list[i]===idValue){
+              res = i;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        console.log("[ArrayService :: getIndexByValue] EXCEPTION : '"+e);
+      } finally {
+        return(res);
+      }
+    };
+    /**
+     * Parameters:
+     * list - {Object}
      * attribute - {String}
      * idValue - {String}
      *
