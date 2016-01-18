@@ -410,7 +410,7 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_p
                         "coordinates":
                         [
                         [
-                                [15.83,38.33],[15.85,38.33],[15.85,38.32],[15.83,38.32],[15.83,38.33]
+                                [15.84,38.335],[15.86,38.335],[15.86,38.32],[15.84,38.32],[15.84,38.335]
                         ]
                         ],
                         "crs":{"type":"name","properties":{"name":"EPSG:4326"}}
