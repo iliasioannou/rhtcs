@@ -53,13 +53,14 @@ angular.module('rheticus')
 						"tickFormat": function(d){
 							return d3.format(',.1f')(d); // jshint ignore:line
 						},
-						"axisLabelDistance": 12
+						"axisLabelDistance": 1
 					},
 					"yAxis2": {
 						"axisLabel": 'Precipitations (mm/day)',
 						"tickFormat": function(d) {
 							return d3.format(',.f')(d); // jshint ignore:line
-						}
+						},
+						"axisLabelDistance": 10
 					},
 					//custom Tooltip
 					"tooltip" : {
@@ -83,7 +84,7 @@ angular.module('rheticus')
 				},
 				"title" : {
 					enable : true,
-					html : ""
+					html : "Loading"
 				},
 				"subtitle" : {
 					"enable" : false
@@ -94,7 +95,9 @@ angular.module('rheticus')
 			},
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
+			"stringPeriod" : "",
 			"lastDatePs" : 0,
+			"firstDatePs" : new Date ().getTime(),
 			"lat" : 0,
 			"lon" : 0,
 			"data" : [], // PS line chart data
@@ -142,16 +145,39 @@ angular.module('rheticus')
 		 */
 		var generateChartData = function(ps){
 			self.chartDataMeasureCount = false; // reset flag for download weather
-			self.lastDatePs=0;					// reset Date(millisec.) value for download weather
+			self.lastDatePs=0;					// reset LastDate(millisec.) value
+			self.firstDatePs=new Date().getTime();					// reset FirstDate(millisec.) value
 			self.lat=ps.point[1];
 			self.lon=ps.point[0];
 			var res = false;
-			try {
-				getCity();
+			self.options.title.html = "<b>Displacements<b>";
+			var deals=$scope.getUserDeals(); // get user contracts
+			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
+			console.log("Total deals for selected point: ",deals.length);
+			if(deals.length>0) // if exists at least one contract in the selected point
+			{
+				try {
+				
+				//get contracts start&end period 
+				console.log("filter contracts for this point: ",point);
+				self.stringPeriod ="";
+				for (var i=0; i<deals.length; i++) {
+					var condition = inside(point,deals[i].geom_geo_json.coordinates[0]);
+					if(condition==true)
+					{
+						console.log("valore AFTER IF",condition);
+						self.stringPeriod+=d3.time.format("%Y-%m-%d")(new Date(deals[i].start_period))+","+d3.time.format("%Y-%m-%d")(new Date(deals[i].end_period))+";";
+					}
+					
+				}
+				self.stringPeriod = self.stringPeriod.substring(0, self.stringPeriod.length - 1);
+				console.log("Show period contracts in the selected point:",self.stringPeriod);
+			
+				getCity();  // get city info from Nomimatim and save in titleChart
 				self.chartData = []; // Data is represented as an array of {x,y} pairs.
 				var tableInfo = []; // PS details
 
-				for (var i=0; i<ps.features.length; i++) {
+				for (var i=0; i<ps.features.length; i++) {				
 					if (ps.features[i].properties){
 						var datasetId = eval("ps.features[i].properties."+datasetIdKey+";"); // jshint ignore:line
 						var psId = eval("ps.features[i].properties."+psIdKey+";"); // jshint ignore:line
@@ -177,9 +203,6 @@ angular.module('rheticus')
 
 					}
 				}
-
-
-
 				//Line chart data should be sent as an array of series objects.
 				self.data = self.chartData;
 				self.psDetails = tableInfo;
@@ -187,15 +210,42 @@ angular.module('rheticus')
 					$scope.$apply();
 				}
 				res = true;
-			} catch (e) {
-				console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
-			} finally {
-				// do nothing
-				return(res);
+				} catch (e) {
+					console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
+				} finally {
+					// do nothing
+					return(res);
+				}
+			}else{
+				return false;				// To do: notification to alert user.
 			}
+			
 		};
+		
+		/**
+		 * Check if a point belogs to a polygon.
+		 * Parameters:
+		 * features - {point,array of point}
+		 *
+		 * Returns: null (change the global chart title)
+		 */
+		
+		function inside(point, vs) {
+			var x = point[0], y = point[1];
+			console.log(point);
+			console.log(vs);
+			var inside = false;
+			for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+				var xi = vs[i][0], yi = vs[i][1];
+				var xj = vs[j][0], yj = vs[j][1];
 
-
+				var intersect = ((yi > y) != (yj > y))
+					&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+				if (intersect) inside = !inside;
+			}
+			console.log(inside);
+			return inside;
+		};
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */
@@ -203,20 +253,26 @@ angular.module('rheticus')
 		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
 
 		var getMeasures = function (datasetid,psid,idComplete){
+			
 			var ret = [];
 			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
 			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
 			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
-			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid);
+			
+			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid)+"&periods="+self.stringPeriod; // set the url with global period 
 			$http.get(url)
 				.success(function (measures) { //if request is successful
 					if ((measures!==null) && measures.length>0){
+						
 						for (var i=0; i<measures.length; i++) {
 							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
 							if (measureDate instanceof Date) {
 								var milliTime = measureDate.getTime();
 								if(self.lastDatePs < milliTime){				//update last valid date for PS
 									self.lastDatePs = milliTime;
+								}
+								else if(self.firstDatePs > milliTime){
+									self.firstDatePs = milliTime;
 								}
 								ret.push({
 									"x" : measureDate,
@@ -267,7 +323,7 @@ angular.module('rheticus')
 								result=city+', '+response.address.state+', '+response.address.country;
 							}
 							//console.log("getCity:",result);
-							self.options.title.html = "<b>Trend spostamenti PS <b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
+							self.options.title.html = "<b>Displacements<b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
 						})
 						.error(function(){
 							console.log("[ps-trends-controller] getCity :: ERROR");
@@ -288,7 +344,8 @@ angular.module('rheticus')
 					.success(function (response) {
 							var station = response[0].id;
 							var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs)); // jshint ignore:line
-							$http.get(configuration.weatherAPI.urlGetWeatherFromStation+station+"/measures?type=RAIN&period=2009-01-01,"+lastDatePs+"&aggregation=DAY")
+							var firstDatePs = d3.time.format("%Y-%m-%d")(new Date(self.firstDatePs)); // jshint ignore:line
+							$http.get(configuration.weatherAPI.urlGetWeatherFromStation+station+"/measures?type=RAIN&period="+firstDatePs+","+lastDatePs+"&aggregation=DAY")
 							.success(function (response) {
 								for (var i=0; i< response.length;i++) {
 									var dateWeather = new Date(response[i].data);
