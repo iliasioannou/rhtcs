@@ -5,9 +5,8 @@
  * @name rheticus.controller:CreditsController
  * @description
  * # CreditsController
- * Controller of the rheticus
+ * Credits Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('CreditsController',['$scope',function($scope){
 		angular.extend(this,{

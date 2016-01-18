@@ -5,9 +5,8 @@
  * @name rheticus.controller:FilterPopoupCtrl
  * @description
  * # FilterPopoupCtrl
- * Controller of the rheticus
+ * Filter Popoup Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('FilterPopoupCtrl',['$scope','configuration',function($scope,configuration){
 

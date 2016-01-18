@@ -5,9 +5,8 @@
  * @name rheticus.controller:FeatureInfoCtrl
  * @description
  * # FeatureInfoCtrl
- * Controller of the rheticus
+ * Feature Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('FeatureInfoCtrl',['$rootScope','$scope','ArrayService','Flash',function($rootScope,$scope,ArrayService,Flash){
 

@@ -2,22 +2,20 @@
 
 /**
  * @ngdoc function
- * @name rheticus.controller:LoginCtrl
+ * @name rheticus.controller:LoginButtonCtrl
  * @description
- * # LoginCtrl
- * Controller of the rheticus
+ * # LoginButtonCtrl
+ * Login Button Controller for rheticus project
  */
-
 angular.module('rheticus')
-	.controller('LoginCtrl',['$scope',function($scope){
-		var login = "login";
+	.controller('LoginButtonCtrl',['$scope',function($scope){
 		angular.extend(this,{
 			"loginPopup" : "scripts/components/login/login-popup-view.html",
 			"getShow" : function(){
-				return $scope.getController(login);
+				return $scope.getController("login");
 			},
 			"setShow" : function(){
-				$scope.setController(login);
+				$scope.setController("login");
 			}
 		});
 	}]);

@@ -1,7 +1,14 @@
 'use strict';
 
+/**
+ * @ngdoc function
+ * @name rheticus.controller:LoginPopoupCtrl
+ * @description
+ * # LoginPopoupCtrl
+ * Login Popup Controller for rheticus project
+ */
 angular.module('rheticus')
- 	.controller('LoginController',['$rootScope','$scope','AuthenticationService',
+ 	.controller('LoginPopoupCtrl',['$rootScope','$scope','AuthenticationService',
     function($rootScope,$scope,AuthenticationService){
 
       var self = this; //this controller

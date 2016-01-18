@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * @ngdoc function
+ * @name rheticus.service:AuthenticationService
+ * @description
+ * # AuthenticationService
+ * Authentication Service for rheticus project
+ */
 angular.module('rheticus')
 	.factory('AuthenticationService',['Base64','$http','$cookies','$rootScope','configuration','ArrayService',
 		function(Base64,$http,$cookies,$rootScope,configuration,ArrayService){

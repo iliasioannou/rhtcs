@@ -5,7 +5,7 @@
  * @name rheticus.controller:AboutCtrl
  * @description
  * # AboutCtrl
- * Controller of the rheticus
+ * About Controller for rheticus project
  */
 angular.module('rheticus')
     .controller('AboutCtrl', function () {

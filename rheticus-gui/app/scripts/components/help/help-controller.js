@@ -5,7 +5,7 @@
  * @name rheticus.controller:HelpCtrl
  * @description
  * # HelpCtrl
- * Controller of the rheticus
+ * Help Controller for rheticus project
  */
 angular.module('rheticus')
     .controller('HelpCtrl',['$scope',function($scope){

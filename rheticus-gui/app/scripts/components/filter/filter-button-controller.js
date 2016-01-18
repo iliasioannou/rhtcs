@@ -5,9 +5,8 @@
  * @name rheticus.controller:FilterButtonCtrl
  * @description
  * # FilterButtonCtrl
- * Controller of the rheticus
+ * Filter Button Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('FilterButtonCtrl',['$scope',function($scope){
 		angular.extend(this,{

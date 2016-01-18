@@ -41,7 +41,6 @@ module.exports = function (grunt) {
 				tasks: ['wiredep']
 			},
 			js: {
-				//files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
 				files: ['<%= yeoman.app %>/scripts/**/*.js'],
 				tasks: ['newer:jshint:all'],
 				options: {
@@ -64,7 +63,6 @@ module.exports = function (grunt) {
 					livereload: '<%= connect.options.livereload %>'
 				},
 				files: [
-//					'<%= yeoman.app %>/{,*/}*.html',
 					'<%= yeoman.app %>/*.html',
 					'<%= yeoman.app %>/scripts/components/**/*.html',
 					'.tmp/styles/{,*/}*.css',
@@ -162,7 +160,6 @@ module.exports = function (grunt) {
 			all: {
 				src: [
 					'Gruntfile.js',
-//					'<%= yeoman.app %>/scripts/{,*/}*.js'
 					'<%= yeoman.app %>/scripts/**/*.js'
 				]
 			},
@@ -276,7 +273,6 @@ module.exports = function (grunt) {
 		filerev: {
 			dist: {
 				src: [
-//					'<%= yeoman.dist %>/scripts/{,*/}*.js',
 					'<%= yeoman.dist %>/scripts/**/*.js',
 					'<%= yeoman.dist %>/styles/{,*/}*.css',
 					'<%= yeoman.dist %>/images/{,*/}*.{png,jpg,jpeg,gif,webp,svg}',
@@ -337,52 +333,6 @@ module.exports = function (grunt) {
 					dest: '<%= yeoman.app %>/scripts/services/'
 				}]
 			}
-			/*
-			local: {
-				options: {
-					patterns: [{
-						json: grunt.file.readJSON('./config/environments/common.json')
-					},{
-						json: grunt.file.readJSON('./config/environments/local/local.json')
-					}]
-				},
-				files: [{
-					expand: true,
-					flatten: true,
-					src: ['./config/config.js'],
-					dest: '<%= yeoman.app %>/scripts/services/'
-				}]
-			},
-			development: {
-				options: {
-					patterns: [{
-						json: grunt.file.readJSON('./config/environments/common.json')
-					},{
-						json: grunt.file.readJSON('./config/environments/development/development.json')
-					}]
-				},
-				files: [{
-					expand: true,
-					flatten: true,
-					src: ['./config/config.js'],
-					dest: '<%= yeoman.app %>/scripts/services/'
-				}]
-			},
-			production: {
-				options: {
-					patterns: [{
-						json: grunt.file.readJSON('./config/environments/common.json')
-					},{
-						json: grunt.file.readJSON('./config/environments/production/production.json')
-					}]
-				},
-				files: [{
-					expand: true,
-					flatten: true,
-					src: ['./config/config.js'],
-					dest: '<%= yeoman.app %>/scripts/services/'
-				}]
-			}*/
 		},
 
 		// The following *-min tasks will produce minified files in the dist folder
@@ -444,7 +394,6 @@ module.exports = function (grunt) {
 				files: [{
 					expand: true,
 					cwd: '<%= yeoman.dist %>',
-//					src: ['*.html'],
 					src: ['*.html', 'scripts/components/**/*.html'],
 					dest: '<%= yeoman.dist %>'
 				}]
@@ -459,7 +408,6 @@ module.exports = function (grunt) {
 					usemin: 'scripts/scripts.js'
 				},
 				cwd: '<%= yeoman.app %>',
-//				src: 'scripts/{,*/}*.html',
 				src: 'scripts/components/**/*.html',
 				dest: '.tmp/templateCache.js'
 			}
@@ -584,8 +532,6 @@ module.exports = function (grunt) {
 		'karma'
 	]);
 
-	//grunt.registerTask('replace',['replace']);
-
 	grunt.registerTask('build',[
 		'clean:dist',
 		'replace:dist',
@@ -605,32 +551,6 @@ module.exports = function (grunt) {
 		'htmlmin'
 	]);
 
-/*
-	grunt.registerTask('build', function(t){
-		target = (t!==undefined) ? t : target;
-		target = (target!==undefined ? target : 'local';
-		grunt.task.run([
-			'clean:dist',
-			//'replace:' + (target!==undefined ? target : 'local'),
-			'replace',
-			'wiredep',
-			'useminPrepare',
-			'concurrent:dist',
-			'autoprefixer',
-			'ngtemplates',
-			'concat',
-			'ngAnnotate',
-			//'copy:dist',
-			'copy',
-			'cdnify',
-			'cssmin',
-			'uglify',
-			'filerev',
-			'usemin',
-			'htmlmin'
-		]);
-	});
-*/
 	grunt.registerTask('default', [
 		'newer:jshint',
 		'test',

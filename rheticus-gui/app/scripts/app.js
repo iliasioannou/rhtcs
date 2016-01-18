@@ -6,7 +6,7 @@
  * @description
  * # rheticus
  *
- * Main module of the application.
+ * Main module for rheticus project
  */
 
 angular

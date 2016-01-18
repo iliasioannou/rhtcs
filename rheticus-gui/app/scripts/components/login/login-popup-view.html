@@ -1,4 +1,4 @@
-<div class="popover-login" ng-controller="LoginController as loginPop">
+<div class="popover-login" ng-controller="LoginPopoupCtrl as loginPop">
 	<div ng-show="loginPop.error" class="alert alert-danger">{{loginPop.error}}</div>
 	<form name="form" ng-submit="loginPop.login()" role="form" ng-hide="loginPop.getLoginStatus()">
 		<div class="form-group">

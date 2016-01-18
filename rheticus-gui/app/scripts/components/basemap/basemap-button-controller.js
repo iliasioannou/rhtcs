@@ -5,9 +5,8 @@
  * @name rheticus.controller:BasemapButtonCtrl
  * @description
  * # BasemapButtonCtrl
- * Controller of the rheticus
+ * Basemap Button Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('BasemapButtonCtrl',['$scope',function ($scope){
 		angular.extend(this,{

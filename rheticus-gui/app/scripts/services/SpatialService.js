@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * @ngdoc function
+ * @name rheticus.service:SpatialService
+ * @description
+ * # SpatialService
+ * Spatial Service for rheticus project
+ */
 angular.module('rheticus')
   .service('SpatialService', function() {
     /**

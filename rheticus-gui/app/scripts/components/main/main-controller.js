@@ -5,9 +5,8 @@
  * @name rheticus.controller:MainCtrl
  * @description
  * # MainCtrl
- * Controller of the rheticus
+ * Main Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService','SpatialService','Flash',
 	function ($rootScope,$scope,$http,olData,configuration,ArrayService,SpatialService,Flash){
@@ -156,13 +155,7 @@ angular.module('rheticus')
 		 */
 		//Switch PS layer
 		$scope.$watch("center.zoom", function () {
-			//if (showDetails()){
-				//setAdvancedFilters();
-				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.detail;
-			/*} else {
-				getOverlayParams("ps").source.params.CQL_FILTER = null;
-				getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.heatmap;
-			}*/
+			getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.detail;
 		});
 		//speedModel init watcher for adjusting CQL_FILTER view source parameter
 		$scope.$watch("speedModel.init", function (range) {

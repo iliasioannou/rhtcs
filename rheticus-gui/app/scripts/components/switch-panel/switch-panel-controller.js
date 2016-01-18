@@ -5,9 +5,8 @@
  * @name rheticus.controller:SwitchPanelCtrl
  * @description
  * # SwitchPanelCtrl
- * Controller of the rheticus
+ * Switch Panel Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('SwitchPanelCtrl',['$scope',function ($scope){
 

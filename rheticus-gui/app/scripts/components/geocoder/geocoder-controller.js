@@ -5,9 +5,8 @@
  * @name rheticus.controller:GeocoderCtrl
  * @description
  * # GeocoderCtrl
- * Controller of the rheticus
+ * Geocoder Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('GeocoderCtrl',['$scope','GeocodingService',function($scope,GeocodingService){
 

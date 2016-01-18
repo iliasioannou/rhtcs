@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * @ngdoc function
+ * @name rheticus.directive:draggable
+ * @description
+ * # draggable
+ * draggable directive for rheticus project
+ */
 angular.module('rheticus')
   .directive('draggable', function($document) {
     return function(scope, element, attr) { // jshint ignore:line

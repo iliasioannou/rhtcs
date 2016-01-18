@@ -5,9 +5,8 @@
  * @name rheticus.controller:BasemapPopoupCtrl
  * @description
  * # BasemapPopoupCtrl
- * Controller of the rheticus
+ * Basemap Popoup Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('BasemapPopoupCtrl',['$scope',function($scope){
 		angular.extend(this,{

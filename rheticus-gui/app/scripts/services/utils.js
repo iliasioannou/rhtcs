@@ -1,5 +1,9 @@
 'use strict';
 
+/**
+ * Cross-Browser String prototypes for rheticus project
+ */
+
 //For IE :: creating "startsWith" and "splice" methods for String Class - START
 if (typeof String.prototype.startsWith !== "function") {
 	String.prototype.startsWith = function (str) {

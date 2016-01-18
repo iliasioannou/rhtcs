@@ -5,9 +5,8 @@
  * @name rheticus.service:GeocodingService
  * @description
  * # GeocodingService
- * Geocoding Service for rheticus
+ * Geocoding Service for rheticus project
  */
-
 angular.module('rheticus')
   .service('GeocodingService',['$http','configuration',function($http,configuration){
     /**
@@ -42,7 +41,14 @@ angular.module('rheticus')
         //do nothing
 			}
     };
-
+    /**
+		 * Parameters:
+		 * coord - {Object}
+		 * callback - {Function}
+     *
+		 * Returns:
+		 * {String} - Address Message
+		 */
     this.reverse = function(coord,callback){
       if (!((callback!==undefined) && (typeof callback==="function"))){
         return;

@@ -5,9 +5,8 @@
  * @name rheticus.controller:HeaderCtrl
  * @description
  * # HeaderCtrl
- * Controller of the rheticus
+ * Header Controller for rheticus project
  */
-
 angular.module('rheticus')
 	.controller('HeaderCtrl',['configuration',function (configuration){
 		angular.extend(this,{

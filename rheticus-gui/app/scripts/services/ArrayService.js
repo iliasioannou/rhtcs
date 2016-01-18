@@ -1,5 +1,12 @@
 'use strict';
 
+/**
+ * @ngdoc function
+ * @name rheticus.service:ArrayService
+ * @description
+ * # ArrayService
+ * Array Service for rheticus project
+ */
 angular.module('rheticus')
   .service('ArrayService', function() {
     /**
