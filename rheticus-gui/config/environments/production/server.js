@@ -10,21 +10,20 @@ var usr = "pkrheticususer";
 var pwd = "rheticussupersecretpassword123";
 
 var auth = function(req, res, next){
-    var user = basicAuth(req);
-    if(user && user.name == usr && user.pass == pwd)
-        return next();
-    else{
-        res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
-        return res.sendStatus(401);
-    }
+  var user = basicAuth(req);
+  if(user && user.name && (user.name==usr) && user.pass && (user.pass==pwd)) {
+    return next();
+  } else {
+    res.set('WWW-Authenticate', 'Basic realm=Authorization Required');
+    return res.sendStatus(401);
+  }
 }
 server.use(auth);
-
 
 server.set('port', 80);
 server.use(express.static(__dirname + '/'));
 server.get('/',function(req, res) {
-    res.sendfile('./index.html');
+  res.sendfile('./index.html');
 });
 
 /*
@@ -42,7 +41,7 @@ httpProxy.prototype.onError = function (err) {
 };
 
 var proxyOptions = {
-    changeOrigin: true
+  changeOrigin: true
 };
 var apiProxy = httpProxy.createProxyServer(proxyOptions);
 
@@ -94,5 +93,5 @@ server.all("/geoserver*", function(req, res) {
  * Start Server.
  */
 server.listen(server.get('port'), function() {
-    console.log('Express server listening on port ' + server.get('port'));
+  console.log('Express server listening on port ' + server.get('port'));
 });
