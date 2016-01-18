@@ -51,8 +51,8 @@
 	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",
-		"params" : "&limit=5&format=json",
-		"paramsReverse" : "&limit=1&format=json&zoom=18",
+		"params" : "&limit=5&format=json&accept-language=en",
+		"paramsReverse" : "&limit=1&format=json&zoom=18&accept-language=en",
 		"urlReverse" : "http://nominatim.openstreetmap.org/reverse?"
 	}
 }

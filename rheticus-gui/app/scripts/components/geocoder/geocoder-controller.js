@@ -22,7 +22,7 @@ angular.module('rheticus')
 			"setShow" : function(){
 				$scope.setController("geocoder");
 			},
-			"getLocation" : function(index){
+			"getLocation" : function(index){			
 				var jsonLocation = self.results[index];
 				$scope.setCenter({
 					"lon" : parseFloat(jsonLocation.lon),
@@ -41,7 +41,7 @@ angular.module('rheticus')
 						});
 				} else {
 					self.results = {};
-				}
+				}			
 			}
 		});
 	}]);

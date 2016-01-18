@@ -54,7 +54,7 @@ angular
 	})
 	.constant("ANONYMOUS_USER", {
 		"username": "anonymous",
-		"password": "pwdanonymous"
+		"password": "anonymous"
 	})
 	//login service configuration
 	.run(['$rootScope','$cookies'/*,'$http'*/,'ANONYMOUS_USER','ArrayService','AuthenticationService',
@@ -75,9 +75,6 @@ angular
 							"authdata" : "",
 							"info" : response
 						};
-						if (($rootScope.login.details===null) && ($rootScope.anonymousDetails!==null)){
-							$rootScope.login.details = ArrayService.cloneObj($rootScope.anonymousDetails);
-						}
 					} else {
 						// do nothing
 					}
@@ -85,7 +82,7 @@ angular
 			);
 
 			//set anonymous details instead of "null" value
-			$rootScope.login.details = ($rootScope.login.details===null) ? ($cookies.getObject('rheticus.login.details') || null) : null;
+			$rootScope.login.details = $cookies.getObject('rheticus.login.details') || (($rootScope.anonymousDetails!==null) ? ArrayService.cloneObj($rootScope.anonymousDetails) : null);
 			if (($rootScope.login.details!==null) &&
 					$rootScope.login.details.info && ($rootScope.login.details.info!==null) &&
 					$rootScope.login.details.info.username && ($rootScope.login.details.info.username!==ANONYMOUS_USER.username)) {

@@ -316,9 +316,7 @@ angular.module('rheticus')
 					case "ImageWMS":
 						var idLayers = "";
 						for (var i=0; i<getOverlayMetadata(l.id).custom.LAYERS.length; i++) {
-							if (getOverlayMetadata(l.id).custom.LAYERS[i].queryable){
-								idLayers += getOverlayMetadata(l.id).custom.LAYERS[i].id + ",";
-							}
+							idLayers += getOverlayMetadata(l.id).custom.LAYERS[i].id + ",";
 						}
 						if (idLayers!==""){
 							idLayers = idLayers.substring(0, idLayers.length-1);
