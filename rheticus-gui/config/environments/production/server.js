@@ -32,8 +32,8 @@ server.get('/',function(req, res) {
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
-	"RHETICUS_API" : "http://kim.planetek.it:8081",
-	"GEOSERVER" : "http://kim.planetek.it:9080"
+	"RHETICUS_API" : "http://metis.planetek.it:8081",
+	"GEOSERVER" : "http://metis.planetek.it:9080"
 };
 
 var httpProxy = require('http-proxy');
