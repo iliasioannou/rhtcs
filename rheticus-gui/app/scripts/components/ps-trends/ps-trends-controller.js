@@ -94,7 +94,7 @@ angular.module('rheticus')
 			"chartData" : [],
 			"stringPeriod" : "",
 			"lastDatePs" : 0,
-			"firstDatePs" : new Date ().getTime(),
+			"firstDatePs" : 0,
 			"lat" : 0,
 			"lon" : 0,
 			"data" : [], // PS line chart data
@@ -138,12 +138,10 @@ angular.module('rheticus')
 		 */
 		var generateChartData = function(ps){
 			self.chartDataMeasureCount = false; // reset flag for download weather
-			self.lastDatePs=0;					// reset LastDate(millisec.) value
-			self.firstDatePs=new Date().getTime();					// reset FirstDate(millisec.) value
 			self.lat=ps.point[1];
 			self.lon=ps.point[0];
 			var res = false;
-			self.options.title.html = "<b>Displacements<b>";
+			self.options.title.html = "";
 			var deals=$scope.getUserDeals(); // get user contracts
 			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
 			//console.log("Total deals for selected point: ",deals.length);
@@ -151,8 +149,12 @@ angular.module('rheticus')
 				try {//get contracts start&end period
 					//console.log("filter contracts for this point: ",point);
 					self.stringPeriod ="";
+					var totalContract = 0 ;
 					for (var d=0; d<deals.length; d++) {
 						if(inside(point,deals[d].geom_geo_json.coordinates[0])){
+							self.firstDatePs=new Date(deals[d].end_period).getTime();
+							self.lastDatePs=0;
+							totalContract++;
 							self.stringPeriod+=d3.time.format("%Y-%m-%d")(new Date(deals[d].start_period))+","+d3.time.format("%Y-%m-%d")(new Date(deals[d].end_period))+";"; // jshint ignore:line
 						}
 					}
@@ -249,7 +251,8 @@ angular.module('rheticus')
 								var milliTime = measureDate.getTime();
 								if(self.lastDatePs < milliTime){				//update last valid date for PS
 									self.lastDatePs = milliTime;
-								} else if(self.firstDatePs > milliTime){
+								}
+								if(self.firstDatePs > milliTime){
 									self.firstDatePs = milliTime;
 								}
 								ret.push({
@@ -286,7 +289,7 @@ angular.module('rheticus')
 		};
 
 		var getCityCallback = function(result){
-			self.options.title.html = "<b>Displacements<b></br>"+result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
+			self.options.title.html = result+" [LAT: "+Math.round(self.lat*10000)/10000+"; LON: "+Math.round(self.lon*10000)/10000+"]";
 		};
 
 		/**

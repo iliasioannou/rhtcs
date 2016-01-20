@@ -364,7 +364,7 @@ body {
 	right: 10px;
 	z-index: 1060;
 
-	
+
 	background-color: rgba(255, 255, 255, 0.8);
 	border-radius: 4px;
 	padding: 2px;
@@ -510,9 +510,7 @@ table.gridtable td {
 }
 .psTrendsChart {
   width: auto;
-  height: 100%;
-  padding-bottom: 220px;
-  overflow: hidden;
+  height: auto;
 }
 .psTrendsTable {
     position: absolute;
@@ -523,26 +521,16 @@ table.gridtable td {
 }
 
 .psTrends {
-    transition: all .3s ease-in-out;
-    width: 50%;
-    height: 30%;
-	right: 100px;
 	position: fixed;
-    z-index: 1060;
-    bottom: 65px;
-
-}
-.psTrends {
-    &.active { left: 0; }
-    .resizable {
-        position: fixed;
-		right: 40px;
-		width: 50%;
-		z-index: 1060;
-		bottom: 65px;
-        min-width: 700px;
-        min-height: 430px;
-    }
+	background-color: rgba(255, 255, 255, 0.8);
+	border-radius: 4px;
+	padding: 2px;
+	right: 40px;
+	width: 50%;
+	z-index: 1060;
+	bottom: 65px;
+	min-width: 700px;
+	min-height: 430px;
 }
 .featureInfoHeader {
 	width: 100%;

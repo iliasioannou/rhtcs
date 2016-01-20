@@ -1,17 +1,23 @@
 <div ng-show="pstrends.show_trends" ng-controller="PsTrendsCtrl as pstrends">
-	<div class="psTrends" ng-class="{'active':false}">
-		<div resizable id="psTrends-standard-box" r-directions="['top','left']" r-centered-x="true" r-centered-y="true" r-width="500" r-height="300" draggable title="Drag me...">
+	<div class="psTrends" >
 			<div class="inner" data-intro="Persistent Scatterers Trends" data-position="bottom">
-				<div class="psTrendsClose">
-					<a class="close" ng-click="pstrends.showPsTrends(false);">&times;</a>
+				<div style="align:center;text-align:center">
+					<!--button style="margin-left:40px;margin-top:2px;" type="button" class="btn btn-default btn-xs pull-left" >
+						<span class="glyphicon glyphicon-chevron-left"></span>
+					</button-->
+					<b align="center" style="font-size:20px;">Displacements</b>
+					<a class="close pull-right" ng-click="pstrends.showPsTrends(false);">&times;</a>
+					<!--button style="margin-right:20px;margin-top:2px;"  type="button" class="btn btn-default btn-xs pull-right"  >
+						<span class="glyphicon glyphicon-chevron-right"></span>
+					</button-->
 				</div>
 				<div id="top-content" class="psTrendsChart">
 					<nvd3 options="pstrends.options" data="pstrends.data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
 				</div>
-				<div id="bottom-content" class="psTrendsTable table-responsive">
+				<div id="bottom-content" class="psTrendsTable">
 					<table st-safe-src="pstrends.psDetails" st-table="displayed" class="table table-striped table-condensed">
 						<thead>
-							<tr>
+							<tr align="center">
 								<td><b>Dataset&nbsp;ID</b></td>
 								<td><b>PS&nbsp;ID</b></td>
 								<td><b>Sensor&nbsp;ID</b></td>
@@ -21,8 +27,7 @@
 						</thead>
 						<tbody>
 							<ul lr-infinite-scroll="myEventHandler">
-							<tr ng-repeat="record in displayed">
-
+							<tr align="center" ng-repeat="record in displayed">
 								<td><tt style=" color: {{record.color}};" > &#x26AB;&nbsp;</tt>{{record.datasetid}}</td>
 								<td>{{record.psid}}</td>
 								<td>{{record.sensorid}}</td>
@@ -41,6 +46,5 @@
 					</table>
 				</div>
 			</div>
-		</div>
 	</div>
 </div>

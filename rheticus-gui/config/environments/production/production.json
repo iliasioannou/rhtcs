@@ -4,7 +4,8 @@
 			"name" : "OpenStreetMap",
 			"group" : "base",
 			"source" : {
-				"type" : "OSM"
+				"type" : "OSM",
+				"crossOrigin" : "null"
 			},
 			"active" : false,
 			"opacity" : 1,
@@ -17,15 +18,15 @@
 			"group" : "base",
 			"source" : {
 				"type" : "TileWMS",
-				"crossOrigin" : "null",
+				"crossOrigin" : "use-credentials",
 				"urls" : [
-					"http://www.rheticus.eu/geoserver/rheticus/gwc/service/wms"
+					"http://www.rheticus.eu/basemap"
 				],
 				"params" : {
-					"LAYERS" : "rheticus:rv1",
-					"TILED" : true
-				},
-				"serverType" : "geoserver"
+					"LAYERS" : "rv1",
+					"TILED" : true,
+					"FORMAT" : "image/jpeg"
+				}
 			},
 			"active" : true,
 			"opacity" : 1,
