@@ -12,6 +12,5 @@ angular
 		geocoder : @@geocoder,
 		//custom environment configuration
 		layers : @@layers,
-		authentication : @@authentication,
-		weatherAPI : @@weatherAPI
+		rheticusAPI : @@rheticusAPI
 	});

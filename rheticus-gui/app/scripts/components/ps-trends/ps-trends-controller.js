@@ -171,10 +171,13 @@ angular.module('rheticus')
 					self.chartData = []; // Data is represented as an array of {x,y} pairs.
 					var tableInfo = []; // PS details
 
+					var datasetidParamKey = configuration.rheticusAPI.measure.properties.datasetid;
+					var psidParamKey = configuration.rheticusAPI.measure.properties.psid;
+
 					for (var i=0; i<ps.features.length; i++) {
 						if (ps.features[i].properties){
-							var datasetId = eval("ps.features[i].properties."+datasetIdKey+";"); // jshint ignore:line
-							var psId = eval("ps.features[i].properties."+psIdKey+";"); // jshint ignore:line
+							var datasetId = eval("ps.features[i].properties."+datasetidParamKey+";"); // jshint ignore:line
+							var psId = eval("ps.features[i].properties."+psidParamKey+";"); // jshint ignore:line
 							self.chartData.push({
 								"key" : ps.features[i].id,
 								"type" : "line",
@@ -239,20 +242,28 @@ angular.module('rheticus')
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */
-		var datasetIdKey = $scope.getOverlayMetadata("ps").custom.datasetid;
-		var psIdKey = $scope.getOverlayMetadata("ps").custom.psid;
+		var getMeasureUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.measure.path;
+		var datasetidKey = configuration.rheticusAPI.measure.datasetid;
+		var psidKey = configuration.rheticusAPI.measure.psid;
+		var periodsKey = configuration.rheticusAPI.measure.periods;
 
 		var getMeasures = function (datasetid,psid,idComplete){
 			var ret = [];
-			var measureUrl = $scope.getOverlayMetadata("ps").custom.measureUrl;
-			var dateKey = $scope.getOverlayMetadata("ps").custom.date;
-			var measureKey = $scope.getOverlayMetadata("ps").custom.measure;
-			var url = measureUrl.replace(datasetIdKey,datasetid).replace(psIdKey,psid)+"&periods="+self.stringPeriod; // set the url with global period
+			// set the url with global period
+			var url = getMeasureUrl
+				.replace(datasetidKey,datasetid)
+				.replace(psidKey,psid)
+				.replace(periodsKey,self.stringPeriod);
+
 			$http.get(url)
 				.success(function (measures) { //if request is successful
+
+					var dateParamKey = configuration.rheticusAPI.measure.properties.date;
+					var measureParamKey = configuration.rheticusAPI.measure.properties.measure;
+
 					if ((measures!==null) && measures.length>0){
 						for (var i=0; i<measures.length; i++) {
-							var measureDate = new Date(eval("measures[i]."+dateKey+";")); // jshint ignore:line
+							var measureDate = new Date(eval("measures[i]."+dateParamKey+";")); // jshint ignore:line
 							if (measureDate instanceof Date) {
 								var milliTime = measureDate.getTime();
 								if(self.lastDatePs < milliTime){				//update last valid date for PS
@@ -263,7 +274,7 @@ angular.module('rheticus')
 								}
 								ret.push({
 									"x" : measureDate,
-									"y" : eval("measures[i]."+measureKey+";"), // jshint ignore:line
+									"y" : eval("measures[i]."+measureParamKey+";"), // jshint ignore:line
 									"key" : idComplete
 								});
 							}
@@ -305,12 +316,30 @@ angular.module('rheticus')
 		 */
 		var getWeather = function(){
 			var values = [];
-			$http.get(configuration.weatherAPI.urlFoundStation+self.lat+","+self.lon)
+
+			var getStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getStationId.path;
+			var latKey = configuration.rheticusAPI.weather.getStationId.lat;
+			var lonKey = configuration.rheticusAPI.weather.getStationId.lon;
+			var url1 = getStationIdUrl
+				.replace(latKey,self.lat)
+				.replace(lonKey,self.lon);
+
+			$http.get(url1)
 				.success(function (response) {
 					var station = response[0].id;
 					var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs)); // jshint ignore:line
 					var firstDatePs = d3.time.format("%Y-%m-%d")(new Date(self.firstDatePs)); // jshint ignore:line
-					$http.get(configuration.weatherAPI.urlGetWeatherFromStation+station+"/measures?type=RAIN&period="+firstDatePs+","+lastDatePs+"&aggregation=DAY")
+
+					var getWeatherMeasuresByStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
+					var stationidKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.stationid;
+					var begindateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.begindate;
+					var enddateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.enddate;
+					var url2 = getWeatherMeasuresByStationIdUrl
+						.replace(stationidKey,station)
+						.replace(begindateKey,firstDatePs)
+						.replace(enddateKey,lastDatePs);
+
+					$http.get(url2)
 						.success(function (response) {
 							for (var i=0; i< response.length;i++) {
 								var dateWeather = new Date(response[i].data);

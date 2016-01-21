@@ -49,7 +49,7 @@
 						"http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer"
 					],
 					"params" : {
-						"LAYERS" : "1,2,3,21,22,24,97,98,99",
+						"LAYERS" : "1,2,3,21,22,24,33,34,36,97,98,99",
 						"TILED" : true
 					}
 				},
@@ -243,7 +243,9 @@
 					}
 				},
 				"custom" : {
-					"LAYERS" : [{"id":"rheticus:slc","name":"sentinel 1","queryable":true}]
+					"LAYERS" : [
+						{"id":"rheticus:slc","name":"sentinel 1","queryable":true}
+					]
 				}
 			},{
 				"id" : "ps",
@@ -258,23 +260,48 @@
 					}
 				},
 				"custom" : {
-					"LAYERS" : [{"id":"rheticus:ps","name":"Persistent Scatterers","queryable":true}],
-					"heatmap" : "rheticus:ps",
-					"detail" : "rheticus:ps",
-					"measureUrl" : "http://www.rheticus.eu/rheticusapi/api/v1/datasets/datasetid/pss/psid/measures?type=DL",
-					"datasetid" : "datasetid",
-					"psid" : "psid",
-					"date" : "data",
-					"measure" : "measure"
+					"LAYERS" : [
+						{"id":"rheticus:ps","name":"Persistent Scatterers","queryable":true}
+					]
 				}
 			}]
 		}
 	},
-	"authentication" : {
-		"url" : "http://www.rheticus.eu/rheticusapi/api/v1/authenticate?"
-	},
-	"weatherAPI" : {
-		"urlFoundStation" : "http://www.rheticus.eu/rheticusapi/api/v1/meteostations?location=",
-		"urlGetWeatherFromStation" : "http://www.rheticus.eu/rheticusapi/api/v1/meteostations/"
+	"rheticusAPI" : {
+		"host" : "http://www.rheticus.eu/rheticusapi/api/v1",
+		"dataset" : {
+			"path" : "/datasets/#datasetid",
+			"datasetid" : "#datasetid"
+		},
+		"measure" : {
+			"path" : "/datasets/#datasetid/pss/#psid/measures?type=DL&periods=#periods",
+			"datasetid" : "#datasetid",
+			"psid" : "#psid",
+			"periods" : "#periods",
+			"properties" : {
+				"datasetid" : "datasetid",
+				"psid" : "psid",
+				"date" : "data",
+				"measure" : "measure"
+			}
+		},
+		"authentication" : {
+			"path" : "/authenticate?username=#username&password=#password",
+			"username" : "#username",
+			"password" : "#password"
+		},
+		"weather" : {
+			"getStationId" : {
+				"path" : "/meteostations?location=#lat,#lon",
+				"lat" : "#lat",
+				"lon" : "#lon"
+			},
+			"getWeatherMeasuresByStationId" : {
+				"path" : "/meteostations/#stationid/measures?type=RAIN&aggregation=DAY&period=#begindate,#enddate",
+				"stationid" : "#stationid",
+				"begindate" : "#begindate",
+				"enddate" : "#enddate"
+			}
+		}
 	}
 }
