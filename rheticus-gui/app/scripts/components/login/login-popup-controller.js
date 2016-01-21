@@ -49,9 +49,6 @@ angular.module('rheticus')
 			};
       var logout = function () {
 				AuthenticationService.ClearCredentials();
-        /*self.user = "";
-        self.username = "";
-        self.password = "";*/
 			};
 
       angular.extend(self,{

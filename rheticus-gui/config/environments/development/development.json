@@ -4,9 +4,11 @@
 			"name" : "OpenStreetMap",
 			"group" : "base",
 			"source" : {
-				"type" : "OSM"
+				"type" : "OSM",
+				"crossOrigin" : "null"
 			},
 			"active" : false,
+			"visible" : true,
 			"opacity" : 1,
 			"layerOptions" : {
 				"attribution" : "\u00A9 OpenStreetMap contributors",
@@ -19,15 +21,16 @@
 				"type" : "TileWMS",
 				"crossOrigin" : "null",
 				"urls" : [
-					"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
+					"http://kim.planetek.it:8080/basemap"
 				],
 				"params" : {
-					"LAYERS" : "rheticus:rv1",
-					"TILED" : true
-				},
-				"serverType" : "geoserver"
+					"LAYERS" : "rv1",
+					"TILED" : true,
+					"FORMAT" : "image/jpeg"
+				}
 			},
 			"active" : true,
+			"visible" : true,
 			"opacity" : 1,
 			"layerOptions" : {
 				"attribution" : "Imagery \u00A9 Realvista contributors",
@@ -50,7 +53,8 @@
 						"TILED" : true
 					}
 				},
-				"active" : false,
+				"active" : true,
+				"visible" : false,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "Progetto IFFI (Inventario dei Fenomeni Franosi in Italia) ISPRA",
@@ -76,7 +80,8 @@
 						"width": 3
 					}
 				},
-				"active" : false,
+				"active" : true,
+				"visible" : false,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "",
@@ -99,6 +104,7 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
+				"visible" : true,
 				"opacity" : 1.0,
 				"layerOptions" : {
 					"attribution" : "",
@@ -227,7 +233,7 @@
 			},{
 				"id" : "sentinel",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:8080/geoserver/rheticus/wms",
+				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms",
 				"legend" : {
 					"title" : "Sentinel Catalog",
 					"description" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
@@ -242,7 +248,7 @@
 			},{
 				"id" : "ps",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:8080/geoserver/rheticus/wms",
+				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms",
 				"legend" : {
 					"title":"Displacement Maps",
 					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",

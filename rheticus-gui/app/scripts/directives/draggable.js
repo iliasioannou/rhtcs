@@ -10,7 +10,7 @@
 angular.module('rheticus')
   .directive('draggable', function($document) {
     return function(scope, element, attr) { // jshint ignore:line
-      var startX = 0, startY = 0, x = 0, y = 0;
+      var startX = 0, startY = 0, x = 600, y = 600;
       element.css({
         cursor: 'pointer'
       });
@@ -20,14 +20,14 @@ angular.module('rheticus')
         });
         // Prevent default dragging of selected content
         event.preventDefault();
-        startX = event.screenX - x;
-        startY = event.screenY - y;
+        startX = event.clientX - x;
+        startY = event.clientY - y;
         $document.on('mousemove', mousemove);
         $document.on('mouseup', mouseup);
       });
       function mousemove(event) {
-        y = event.screenY - startY;
-        x = event.screenX - startX;
+        y = event.clientY - startY;
+        x = event.clientX - startX;
         element.css({
           top: y + 'px',
           left:  x + 'px',

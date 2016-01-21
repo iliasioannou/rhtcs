@@ -36,8 +36,8 @@
 			"lon" : 15.85,
 			"lat" : 38.325,
 			"zoom" : 14,
-			"bounds" : [],
-			"projection": "EPSG:4326"
+			"bounds": [],
+  		"projection": "EPSG:4326"
 		},
 		"query" : {
 			"zoom" : 16
@@ -51,7 +51,7 @@
 	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",
-		"params" : "&limit=5&format=json&accept-language=en",
+		"params" : "&limit=5&format=json&accept-language=en&polygon_geojson=1",
 		"paramsReverse" : "&limit=1&format=json&zoom=18&accept-language=en",
 		"urlReverse" : "http://nominatim.openstreetmap.org/reverse?"
 	}

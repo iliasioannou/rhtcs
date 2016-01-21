@@ -58,13 +58,8 @@ angular.module('rheticus')
         $http.get(url)
           .success(function (response) {
             var result = "";
-            var city = response.address.city;
-            if (typeof city!=="undefined") {
-              result = city+", "+response.address.state+', '+response.address.country;
-            } else {
-              city = response.address.village;
-              result = city+', '+response.address.state+', '+response.address.country;
-            }
+            var location = response.address.city || response.address.town || response.address.village || "";
+            result = location+", "+response.address.state+', '+response.address.country;
             callback(result);
           })
           .error(function (response) { // jshint ignore:line
