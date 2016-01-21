@@ -13,6 +13,15 @@ angular.module('rheticus')
 
 		var self = this; //this controller
 
+		var setCrossOrigin = function() { // Review "CrossOrigin" openlayers parameter from overlays configuration
+			var overlays = configuration.layers.overlays.olLayers;
+			for(var o=0; o<overlays.length; o++){
+				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin==="null")) ? null : "";
+			}
+			return overlays;
+		};
+		var overlays = setCrossOrigin();
+
 		/**
 		 * PUBLIC VARIABLES AND METHODS
 		 */
@@ -125,7 +134,7 @@ angular.module('rheticus')
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
 			"baselayers" : configuration.layers.baselayers, // basemap layer list
-			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
+			"overlays" : overlays, // overlay layer list
 			"metadata" : configuration.layers.overlays.metadata // overlay layer list
 		});
 
