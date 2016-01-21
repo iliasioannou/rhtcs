@@ -13,15 +13,6 @@ angular.module('rheticus')
 
 		var self = this; //this controller
 
-		var setCrossOrigin = function() { // Review "CrossOrigin" openlayers parameter from overlays configuration
-			var overlays = configuration.layers.overlays.olLayers;
-			for(var o=0; o<overlays.length; o++){
-				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin==="null")) ? null : "";
-			}
-			return overlays;
-		};
-		var overlays = setCrossOrigin();
-
 		/**
 		 * PUBLIC VARIABLES AND METHODS
 		 */
@@ -52,11 +43,18 @@ angular.module('rheticus')
 		var getController = function(openController){
 			return activeController===openController;
 		};
-		//Setter map view center
-		var setCenter = function(center){
-			$scope.center.lon = (center.lon && !isNaN(center.lon)) ? center.lon : $scope.center.lon;
-			$scope.center.lat = (center.lat && !isNaN(center.lat)) ? center.lat : $scope.center.lat;
-			$scope.center.zoom = (center.zoom && !isNaN(center.zoom)) ? center.zoom : $scope.center.zoom;
+		// Setter map view extent on GeoJSON bounds
+		var setMapViewExtent = function(geometryType,geoJSON){
+			if (geoJSON && (geoJSON!==null)){
+				var geom = eval("new ol.geom."+geometryType+"(geoJSON);"); // jshint ignore:line
+				olData.getMap().then(function (map) {
+					map.getView().fit(geom, map.getSize());
+					// Reflect center/zoom in directive setup
+	        $scope.center.lon = map.getView().getCenter()[0];
+	        $scope.center.lat = map.getView().getCenter()[1];
+	        $scope.zoom = map.getView().getZoom();
+				});
+			}
 		};
 		//Getter overlay ols parameters
 		var getOverlayParams = function(id){
@@ -84,6 +82,12 @@ angular.module('rheticus')
 		var getUserDeals = function(){
 			return userDeals;
 		};
+		//Setter map view center
+		var setCenter = function(center){
+			$scope.center.lon = (center.lon && !isNaN(center.lon)) ? center.lon : $scope.center.lon;
+			$scope.center.lat = (center.lat && !isNaN(center.lat)) ? center.lat : $scope.center.lat;
+			$scope.center.zoom = (center.zoom && !isNaN(center.zoom)) ? center.zoom : $scope.center.zoom;
+		};
 		var setSentinelExtent = function(geojson) {
 			getOverlayParams("sentinel").source = {
 				"type": "GeoJSON",
@@ -106,9 +110,11 @@ angular.module('rheticus')
 				}
 			};
 			if (getFeatureInfoPoint.length>0 && geojson.length>0){
-				$scope.center.zoom = 7;
-				$scope.center.lat = getFeatureInfoPoint[1];
-				$scope.center.lon = getFeatureInfoPoint[0];
+				setCenter({
+					"lon" : getFeatureInfoPoint[0],
+					"lat" : getFeatureInfoPoint[1],
+					"zoom" : 7
+				});
 			}
 		};
 
@@ -121,7 +127,7 @@ angular.module('rheticus')
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
 			"baselayers" : configuration.layers.baselayers, // basemap layer list
-			"overlays" : overlays, // overlay layer list
+			"overlays" : configuration.layers.overlays.olLayers, // overlay layer list
 			"metadata" : configuration.layers.overlays.metadata // overlay layer list
 		});
 
@@ -139,7 +145,7 @@ angular.module('rheticus')
 			// externalized scope methods for children controllers
 			"setController" : setController,
 			"getController" : getController,
-			"setCenter" : setCenter,
+			"setMapViewExtent" : setMapViewExtent,
 			"getOverlayParams" : getOverlayParams,
 			"getOverlayMetadata" : getOverlayMetadata,
 			"showDetails" : showDetails,
@@ -431,9 +437,7 @@ angular.module('rheticus')
 							"geom_geo_json" : coords, //geojson Object
 							"sensorid" : (item.sensorid && item.sensorid!=="") ? item.sensorid : "",
 							"start_period" : (item.start_period && item.start_period!=="") ? item.start_period : "",
-							"end_period" : (item.end_period && item.end_period!=="") ? item.end_period : "",
-							// for OLs extent management
-							"center" : SpatialService.getCenterWithinPolyCoords(coords.coordinates)
+							"end_period" : (item.end_period && item.end_period!=="") ? item.end_period : ""
 						});
 					}
 				);

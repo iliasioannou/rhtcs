@@ -34,11 +34,10 @@ angular.module('rheticus')
 		var updateSelectionArea = function(position, entities) {
 			angular.forEach(entities, function(subscription, index) {
 				if (position === index) {
-					$scope.setCenter({
-						"lon" : entities[position].center.lon,
-						"lat" : entities[position].center.lat,
-						"zoom" : $scope.center.zoom
-					});
+					$scope.setMapViewExtent(
+						entities[position].geom_geo_json.type,
+						entities[position].geom_geo_json.coordinates
+					);
 				}
 			});
 		};
@@ -103,7 +102,7 @@ angular.module('rheticus')
 		});
 
 		/**
-		 * PRIVATE  VARIABLES AND METHODS
+		 * PRIVATE VARIABLES AND METHODS
 		 */
 		var toggleOverlay = function(overlay){
 			var visibility = eval("self.view_overlay_"+overlay+";"); // jshint ignore:line

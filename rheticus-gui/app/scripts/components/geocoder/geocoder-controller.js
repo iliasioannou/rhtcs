@@ -22,10 +22,11 @@ angular.module('rheticus')
 
 		var getLocation = function(index){
 			var jsonLocation = self.results[index];
-			$scope.setCenter({
-				"lon" : parseFloat(jsonLocation.lon),
-				"lat" : parseFloat(jsonLocation.lat)
-			});
+			//jsonLocation.geojson.type == Polygon
+			$scope.setMapViewExtent(
+				jsonLocation.geojson.type,
+				jsonLocation.geojson.coordinates
+			);
 			self.results = {};
 			self.location = "";
 		};

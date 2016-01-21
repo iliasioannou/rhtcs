@@ -70,7 +70,7 @@
 				},
 				"style": {
 					"fill": {
-						"color": "rgba(255, 0, 0, 0.6)"
+						"color": "rgba(255, 0, 0, 0.05)"
 					},
 					"stroke": {
 						"color": "white",

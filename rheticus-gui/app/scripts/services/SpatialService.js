@@ -87,6 +87,8 @@ angular.module('rheticus')
 		 * Returns:
 		 * {Object} - Center within Bounding Box Coordinates
 		 */
+     /*
+    //NOT USED WITHIN THIS PROJECT
     this.getCenterWithinPolyCoords = function(coords) {
       var bbox = this.boundingBoxAroundPolyCoords(coords);
       return {
@@ -94,4 +96,43 @@ angular.module('rheticus')
         "lat" : (((bbox.bottom+bbox.top)/2)*1000)/1000 //rounded to third decimal
       };
     };
+    */
+    /**
+		 * Parameters:
+		 * bbox - {Object} with the following keys: minx,miny,maxx,maxy
+		 *
+		 * Returns:
+		 * {Object} - GeoJSON rectangle polygon object
+		 */
+     /*
+     //NOT USED WITHIN THIS PROJECT
+		this.getGeoJSONBoundingBox = function(bbox){
+			var geoJSON = null;
+			if ((bbox!=null) &&
+          (bbox.minx && !isNaN(bbox.minx)) &&
+          (bbox.miny && !isNaN(bbox.miny)) &&
+          (bbox.maxx && !isNaN(bbox.maxx)) &&
+          (bbox.maxy && !isNaN(bbox.maxy))
+        ){
+
+          var setCoord = function(x,y){
+            var coord = [];
+            coord.push(x);
+            coord.push(y);
+            return coord;
+          };
+
+          var rect = [];
+          rect.push(setCoord(bbox.minx,bbox.miny));
+          rect.push(setCoord(bbox.maxx,bbox.miny));
+          rect.push(setCoord(bbox.maxx,bbox.maxy));
+          rect.push(setCoord(bbox.minx,bbox.maxy));
+          rect.push(setCoord(bbox.minx,bbox.miny));
+
+          geoJSON = [];
+          geoJSON.push(rect);
+			}
+			return geoJSON;
+		};
+    */
   });
