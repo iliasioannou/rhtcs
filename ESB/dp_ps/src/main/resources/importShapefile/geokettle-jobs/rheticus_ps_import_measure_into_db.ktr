@@ -239,15 +239,15 @@ trans_Status = SKIP_TRANSFORMATION;
 
 
 function isDisplacementField(fieldName){
-	return (&#47;^(DL)&#47;.test(fieldName))
+	return (&#47;^(DL)&#47;.test(fieldName));
 }
 
 function isVelocityField(fieldName){
-	return (&#47;^(VAL)&#47;.test(fieldName))
+	return (&#47;^(V_LOS)$&#47;.test(fieldName)); &#47;&#47; (&#47;^(VAL)&#47;.test(fieldName))
 }
 
 function isVelocityDevStdField(fieldName){
-	return (&#47;^(VASDL)&#47;.test(fieldName))
+	return (&#47;^(V_LOS_STD)$&#47;.test(fieldName)); &#47;&#47;(&#47;^(VASDL)&#47;.test(fieldName))
 }
 
 
@@ -256,7 +256,8 @@ function getDataFromDisplacementField(fieldName){
 }
 
 function getDataFromVelocityField(fieldName){
-	return (getDataFromDisplacementField(fieldName) + &quot;01&quot;);
+	&#47;&#47;return (getDataFromDisplacementField(fieldName) + &quot;01&quot;);
+	return &quot;20000101&quot;;
 }
 
 
