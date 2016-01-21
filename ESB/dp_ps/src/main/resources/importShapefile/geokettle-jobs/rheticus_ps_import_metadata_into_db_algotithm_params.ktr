@@ -180,7 +180,7 @@
       </field>
       <field>
         <name>datasetid</name>
-        <xpath>..&#47;..&#47;output_product&#47;S1_Dataset_id</xpath>
+        <xpath>..&#47;..&#47;output_product&#47;dataset_id</xpath>
         <element_type>node</element_type>
         <type>String</type>
         <format/>
