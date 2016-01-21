@@ -54,7 +54,7 @@ angular.module('rheticus')
 			if (geoJSON && (geoJSON!==null)){
 				var geom = eval("new ol.geom."+geometryType+"(geoJSON);"); // jshint ignore:line
 				var extent = geom.getExtent();
-				extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
+				extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", "EPSG:3857")); // jshint ignore:line
 				olData.getMap().then(function (map) {
 					map.getView().fit(extent, map.getSize());
 				});
