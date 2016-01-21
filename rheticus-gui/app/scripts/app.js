@@ -33,11 +33,6 @@ angular
 	//routing configuration
 	.config(function ($routeProvider) {
 		$routeProvider
-		.when('/login', {
-            controller: 'LoginController',
-            templateUrl: 'scripts/components/login/login-template-view.html',
-            hideMenus: true
-        })
 		.when('/',{
 			"templateUrl" : "scripts/components/main/main-view.html",
 			"controller" : "MainCtrl",

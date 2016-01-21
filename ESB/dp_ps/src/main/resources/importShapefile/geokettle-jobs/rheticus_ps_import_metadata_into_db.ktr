@@ -138,7 +138,7 @@
     <fields>
       <field>
         <name>datasetid</name>
-        <xpath>S1_Dataset_id</xpath>
+        <xpath>dataset_id</xpath>
         <element_type>node</element_type>
         <type>String</type>
         <format/>
@@ -152,7 +152,7 @@
       </field>
       <field>
         <name>supermaster</name>
-        <xpath>S1_SuperMaster_id</xpath>
+        <xpath>supermaster_id</xpath>
         <element_type>node</element_type>
         <type>String</type>
         <format/>
@@ -222,7 +222,7 @@
       </field>
       <field>
         <name>timestampelaborationstart</name>
-        <xpath>..&#47;elaboration_time&#47;start</xpath>
+        <xpath>..&#47;processing_time&#47;start</xpath>
         <element_type>node</element_type>
         <type>Date</type>
         <format>yyyy-MM-dd HH:mm:ss</format>
@@ -236,7 +236,7 @@
       </field>
       <field>
         <name>timestampelaborationend</name>
-        <xpath>..&#47;elaboration_time&#47;end</xpath>
+        <xpath>..&#47;processing_time&#47;end</xpath>
         <element_type>node</element_type>
         <type>Date</type>
         <format>yyyy-MM-dd HH:mm:ss</format>

@@ -44,7 +44,7 @@ angular.module('rheticus')
 			if (iffi!==null){
 				if (iffi.features && (iffi.features!==null) && (iffi.features.length>0)) {
 					self.showFeatures(
-						generateData("iffi",iffi)
+						generateData("iffi",iffi.features)
 					);
 				} else {
 					self.showFeatures(false);
@@ -60,22 +60,22 @@ angular.module('rheticus')
 		/**
 		 * Parameters:
 		 * idService - {String}
-		 * featureCollection - {Object}
+		 * features - {Array<Object>}
 		 *
 		 * Returns:
 		 */
-		var generateData = function(idService, featureCollection){
+		var generateData = function(idService, features){
 			var res = false;
 			var layerList = []; // feature details
 			try {
 				// parse all features
-				for (var i=0; i<featureCollection.features.length; i++) {
+				for (var i=0; i<features.length; i++) {
 					// retrieve features that have "properties" and "layerName" fields following geojson standard
-					if ((featureCollection.features[i].properties) && (featureCollection.features[i].layerName)){
+					if ((features[i].properties) && (features[i].layerName)){
 
 						//retrieve its layer name
 						var index;
-						var layerName = featureCollection.features[i].layerName;
+						var layerName = features[i].layerName;
 						var queryable = false;
 						if (configurationLayers.length>0){
 							index = ArrayService.getIndexByAttributeValue(configurationLayers,"id",layerName);
@@ -106,11 +106,11 @@ angular.module('rheticus')
 									}
 
 									var attributes = [];
-									for (var prop in featureCollection.features[i].properties) {
+									for (var prop in features[i].properties) {
 										// layer attributes (i.e. name of its properties)
 										if (
 											//valid layer attribute
-											featureCollection.features[i].properties.hasOwnProperty(prop) &&
+											features[i].properties.hasOwnProperty(prop) &&
 											(
 												// layer attributes are configured for this layer and only display configured ones
 												(layerFound && (configurationAttributes.length>0) && (ArrayService.getIndexByValue(configurationAttributes,prop)!==-1)) ||
@@ -119,7 +119,7 @@ angular.module('rheticus')
 											)
 										){
 											attributes.push(prop);
-											eval("record."+prop+" = featureCollection.features[i].properties."+prop+";"); // jshint ignore:line
+											eval("record."+prop+" = features[i].properties."+prop+";"); // jshint ignore:line
 										}
 									}
 									layerList.push({
@@ -129,7 +129,7 @@ angular.module('rheticus')
 									});
 								} else { // update existing layer with current feature
 									for (var k=0; k<layerList[index].attributes.length; k++) {
-										eval("record."+layerList[index].attributes[k]+" = featureCollection.features[i].properties."+layerList[index].attributes[k]+";"); // jshint ignore:line
+										eval("record."+layerList[index].attributes[k]+" = features[i].properties."+layerList[index].attributes[k]+";"); // jshint ignore:line
 									}
 									layerList[index].records.push(record);
 								}
