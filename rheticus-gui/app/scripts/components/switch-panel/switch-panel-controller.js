@@ -74,25 +74,25 @@ angular.module('rheticus')
 			"isCollapsed" : true, // not minimize
 			"minimize" : minimize,
 			//PS
-			"show_panel_ps" : true, //self.ps.active,
+			"show_panel_ps" : true,
 			"show_panel_ps_aoi" : false,
-			"view_overlay_ps" : self.ps.active, // overlay visibility
-			"ps_layer_visibility_text" : self.ps.active ? "Layer off" : "Layer on",
+			"view_overlay_ps" : self.ps.visible, // overlay visibility
+			"ps_layer_visibility_text" : self.ps.visible ? "Layer off" : "Layer on",
 			"switchOverlayPs" : switchOverlayPs,
 			"viewPanelPs" : viewPanelPs,
 			"viewPanelPsProviders" : viewPanelPsProviders,
 			"viewPanelPsAoi" : viewPanelPsAoi,
 			"updateSelectionArea" : updateSelectionArea,
 			//IFFI
-			"show_panel_iffi" : false, //self.iffi.active,
-			"view_overlay_iffi" : self.iffi.active,
-			"iffi_layer_visibility_text" : self.iffi.active ? "Layer off" : "Layer on",
+			"show_panel_iffi" : false,
+			"view_overlay_iffi" : self.iffi.visible,
+			"iffi_layer_visibility_text" : self.iffi.visible ? "Layer off" : "Layer on",
 			"switchOverlayIffi" : switchOverlayIffi,
 			"viewPanelIffi" : viewPanelIffi,
 			//SENTINEL
-			"show_panel_sentinel" : false, //self.sentinel.active,
-			"view_overlay_sentinel" : self.sentinel.active,
-			"sentinel_layer_visibility_text" : self.sentinel.active ? "Layer off" : "Layer on",
+			"show_panel_sentinel" : false,
+			"view_overlay_sentinel" : self.sentinel.visible,
+			"sentinel_layer_visibility_text" : self.sentinel.visible ? "Layer off" : "Layer on",
 			"switchOverlaySentinel" : switchOverlaySentinel,
 			"viewPanelSentinel" : viewPanelSentinel
 		});
@@ -106,13 +106,13 @@ angular.module('rheticus')
 		 */
 		var toggleOverlay = function(overlay){
 			var visibility = eval("self.view_overlay_"+overlay+";"); // jshint ignore:line
-			if (visibility === false){
-			eval("self."+overlay+"_layer_visibility_text = \"Layer off\";"); // jshint ignore:line
+			if (!visibility){
+				eval("self."+overlay+"_layer_visibility_text = \"Layer off\";"); // jshint ignore:line
 			} else {
-			eval("self."+overlay+"_layer_visibility_text = \"Layer on\";"); // jshint ignore:line
+				eval("self."+overlay+"_layer_visibility_text = \"Layer on\";"); // jshint ignore:line
 			}
 			eval("self.view_overlay_"+overlay+" = !self.view_overlay_"+overlay+";"); // jshint ignore:line
-			eval("self."+overlay+".active = self.view_overlay_"+overlay+";"); // jshint ignore:line
+			eval("self."+overlay+".visible = self.view_overlay_"+overlay+";"); // jshint ignore:line
 		};
 		var viewPanel = function(panel){
 			self.show_panel_ps_aoi = false;

@@ -8,6 +8,7 @@
 				"crossOrigin" : "null"
 			},
 			"active" : false,
+			"visible" : true,
 			"opacity" : 1,
 			"layerOptions" : {
 				"attribution" : "\u00A9 OpenStreetMap contributors",
@@ -29,6 +30,7 @@
 				}
 			},
 			"active" : true,
+			"visible" : true,
 			"opacity" : 1,
 			"layerOptions" : {
 				"attribution" : "Imagery \u00A9 Realvista contributors",
@@ -51,7 +53,8 @@
 						"TILED" : true
 					}
 				},
-				"active" : false,
+				"active" : true,
+				"visible" : false,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "Progetto IFFI (Inventario dei Fenomeni Franosi in Italia) ISPRA",
@@ -77,7 +80,8 @@
 						"width": 3
 					}
 				},
-				"active" : false,
+				"active" : true,
+				"visible" : false,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "",
@@ -100,6 +104,7 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
+				"visible" : true,
 				"opacity" : 1.0,
 				"layerOptions" : {
 					"attribution" : "",

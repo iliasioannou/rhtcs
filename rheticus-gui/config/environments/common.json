@@ -35,7 +35,9 @@
 		"center" : {
 			"lon" : 15.85,
 			"lat" : 38.325,
-			"zoom" : 14
+			"zoom" : 14,
+			"bounds": [],
+  		"projection": "EPSG:4326"
 		},
 		"query" : {
 			"zoom" : 16

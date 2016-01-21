@@ -363,13 +363,10 @@ body {
 	position: absolute;
 	right: 10px;
 	z-index: 1060;
-
-
 	background-color: rgba(255, 255, 255, 0.8);
 	border-radius: 4px;
 	padding: 2px;
-	min-height: 50px;
-	height: auto;
+	height: 270px;
 	width: 50%;
 }
 table.gridtable {
@@ -529,8 +526,10 @@ table.gridtable td {
 	width: 50%;
 	z-index: 1060;
 	bottom: 65px;
-	min-width: 700px;
-	min-height: 430px;
+	/*min-width: 700px;
+	min-height: 430px;*/
+  width: 700px;
+	height: 430px;
 }
 .featureInfoHeader {
 	width: 100%;

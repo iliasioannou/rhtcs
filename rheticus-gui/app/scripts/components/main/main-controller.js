@@ -43,16 +43,20 @@ angular.module('rheticus')
 		var getController = function(openController){
 			return activeController===openController;
 		};
+		//Setter map view center
+		var setCenter = function(center){
+			$scope.center.lon = (center.lon && !isNaN(center.lon)) ? center.lon : $scope.center.lon;
+			$scope.center.lat = (center.lat && !isNaN(center.lat)) ? center.lat : $scope.center.lat;
+			$scope.center.zoom = (center.zoom && !isNaN(center.zoom)) ? center.zoom : $scope.center.zoom;
+		};
 		// Setter map view extent on GeoJSON bounds
 		var setMapViewExtent = function(geometryType,geoJSON){
 			if (geoJSON && (geoJSON!==null)){
 				var geom = eval("new ol.geom."+geometryType+"(geoJSON);"); // jshint ignore:line
+				var extent = geom.getExtent();
+				extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", "EPSG:3857"));
 				olData.getMap().then(function (map) {
-					map.getView().fit(geom, map.getSize());
-					// Reflect center/zoom in directive setup
-	        $scope.center.lon = map.getView().getCenter()[0];
-	        $scope.center.lat = map.getView().getCenter()[1];
-	        $scope.zoom = map.getView().getZoom();
+					map.getView().fit(extent, map.getSize());
 				});
 			}
 		};
@@ -81,12 +85,6 @@ angular.module('rheticus')
 		var userDeals = [];
 		var getUserDeals = function(){
 			return userDeals;
-		};
-		//Setter map view center
-		var setCenter = function(center){
-			$scope.center.lon = (center.lon && !isNaN(center.lon)) ? center.lon : $scope.center.lon;
-			$scope.center.lat = (center.lat && !isNaN(center.lat)) ? center.lat : $scope.center.lat;
-			$scope.center.zoom = (center.zoom && !isNaN(center.zoom)) ? center.zoom : $scope.center.zoom;
 		};
 		var setSentinelExtent = function(geojson) {
 			getOverlayParams("sentinel").source = {
@@ -349,7 +347,7 @@ angular.module('rheticus')
 			map.on("singleclick", function (evt) {
 				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
-					if (l.active){
+					if (l./*active*/visible){
 						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");
 						var params = null;
 						switch(l.id) {

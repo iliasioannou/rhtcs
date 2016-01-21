@@ -19,6 +19,7 @@ angular.module('rheticus')
 			"options" : { // PS Line chart options
 				"chart" : {
 					"type" : "multiChart",
+					"height": 190,
 					"margin": {
 						"top": 30,
 						"right": 80,
@@ -44,7 +45,8 @@ angular.module('rheticus')
 						"axisLabel" : "Date",
 						"tickFormat" : function (d) {
 							return d3.time.format("%d/%m/%Y")(new Date(d)); // jshint ignore:line
-						}
+						},
+						"axisLabelDistance": 1
 					},
 					"yAxis1": {
 						"axisLabel": 'Displacement Maps (mm/year)',
@@ -80,8 +82,9 @@ angular.module('rheticus')
 					"showLegend" : false,
 				},
 				"title" : {
-					enable : true,
-					html : "Loading"
+					"enable" : true,
+					"text" : "",
+					"html" : "Loading"
 				},
 				"subtitle" : {
 					"enable" : false
@@ -155,7 +158,10 @@ angular.module('rheticus')
 							self.firstDatePs=new Date(deals[d].end_period).getTime();
 							self.lastDatePs=0;
 							totalContract++;
-							self.stringPeriod+=d3.time.format("%Y-%m-%d")(new Date(deals[d].start_period))+","+d3.time.format("%Y-%m-%d")(new Date(deals[d].end_period))+";"; // jshint ignore:line
+							self.stringPeriod+=d3.time.format("%Y-%m-%d")(new Date(deals[d].start_period))+","+d3.time.format("%Y-%m-%d")(new Date())+";"; // jshint ignore:line
+							if(new Date(deals[d].end_period).getTime()<new Date().getTime()){
+				      	self.stringPeriod+=d3.time.format("%Y-%m-%d")(new Date(deals[d].start_period))+","+d3.time.format("%Y-%m-%d")(new Date(deals[d].end_period))+";"; // jshint ignore:line
+							}
 						}
 					}
 					self.stringPeriod = self.stringPeriod.substring(0, self.stringPeriod.length - 1);
