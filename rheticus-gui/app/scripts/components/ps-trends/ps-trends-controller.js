@@ -133,6 +133,28 @@ angular.module('rheticus')
 			}
 		});
 
+		var setTitle = function (response,datasetId,psId) {
+			//console.log("featureinfo_"+datasetId+"_"+psId);
+			document.getElementById("featureinfo_"+datasetId+"_"+psId).title = response;
+		};
+
+		var setDatasetTitle = function(datasetId,psId){
+			var getDatasetUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.dataset.path;
+			var _datasetidKey = configuration.rheticusAPI.dataset.datasetid;
+			var urlGetDataset = getDatasetUrl
+				.replace(_datasetidKey,datasetId);
+			$http.get(urlGetDataset)
+				.success(function (result) {
+					var r = "PS: "+result.datasetid+"\n"+
+					"Algorithm Name: "+result.algorithmname+"\n"+
+					"Algorithm Description: "+result.algorithmdescription+"\n"+
+					"Supermaster: "+result.supermaster+"\n"+
+					"Timestamp Elaboration Start: "+result.timestampelaborationstart+"\n"+
+					"Timestamp Elaboration End: "+result.timestampelaborationend;
+					setTitle(r,datasetId,psId);
+				});
+		};
+
 		/**
 		 * Parameters:
 		 * features - {Object}
@@ -193,6 +215,7 @@ angular.module('rheticus')
 								}
 							}
 							featureInfo.color =  self.options.chart.color[i];
+							setDatasetTitle(datasetId,psId);
 							tableInfo.push(featureInfo);
 							//console.log(tableInfo);
 						}
