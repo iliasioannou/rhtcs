@@ -43,16 +43,21 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
 		<json:json-to-object-transformer
 			returnClass="java.util.HashMap" doc:name="JSON to HashMap" />
         <set-variable variableName="typeFilter" value="producttype:#[payload.get(&quot;type&quot;)]" doc:name="typeFilter"/>
-		<set-variable variableName="aoiFilter"
-			value="footprint:&quot;Intersects(#[URLEncoder.encode(payload.get(&quot;AOI&quot;), &quot;UTF-8&quot;)])&quot;"
-			doc:name="aoiFilter" />
+        <choice doc:name="Choice">
+            <when expression="payload.get(&quot;AOI&quot;)==null">
+                <set-variable variableName="aoiFilter" value="" doc:name="aoiFilterNotExists"/>
+            </when>
+            <otherwise>
+                <set-variable variableName="aoiFilter" value="AND+footprint:&quot;Intersects(#[URLEncoder.encode(payload.get(&quot;AOI&quot;), &quot;UTF-8&quot;)])&quot;+" doc:name="aoiFilter"/>
+            </otherwise>
+        </choice>
+
 		<set-variable variableName="dateFilter"
 			value="[#[payload.get(&quot;startDate&quot;)]%20TO%20#[payload.get(&quot;endDate&quot;)]]"
 			doc:name="dateFilter" />
         <set-variable variableName="startRows" value="start=#[payload.get(&quot;startRows&quot;)]" doc:name="startRows"/>
-		<set-variable variableName="querystr"
-			value="#[typeFilter]+AND+#[aoiFilter]+AND+beginPosition:#[dateFilter]+AND+endPosition:#[dateFilter]${sentinel.queryoptions}&amp;#[startRows]"
-			doc:name="querystr" />
+        <set-variable variableName="querystr" value="#[typeFilter]+#[aoiFilter]AND+beginPosition:#[dateFilter]+AND+endPosition:#[dateFilter]${sentinel.queryoptions}&amp;#[startRows]" doc:name="querystr"/>
+
         <until-successful maxRetries="${sentinel.search.retries}" synchronous="true" doc:name="Until Successful" millisBetweenRetries="${sentinel.search.timebetween.retries}">
             <processor-chain doc:name="Processor Chain">
                 <component class="org.mule.transformers.sentinelHTTPSearch" doc:name="sentinelHTTPSearch"/>
