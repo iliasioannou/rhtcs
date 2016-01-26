@@ -115,16 +115,30 @@ var serverRouter = function(server) {
 
     // ----------------------------------    
     // List Meteo Station
-	// Whitout parameter return all station
+	// Without parameter return all station
 	// With location=LAT,LONG where LAT=+/-GG.MMMMM and LONG=GGG.MMMMM in SRID=4326
+	// With country=COD where COD is country abbreviations (2 char) from ISO 3166 (ftp://ftp.fu-berlin.de/doc/iso/iso3166-countrycodes.txt)
     server.get({ path: '/meteostations', version: VERSION }, function (req, res, next) {
 		var LIMIT = 1;
 		var SRID = 4326;
 		var TO_SRID = 32633;
 		var errorMessage4StrangeLocation = "location=LAT,LONG where LAT=+/-GG.MMMM [-90.0000,90.0000] and LONG=GGG.MMMM [-180.0000,180.0000] in SRID=" + SRID ;
+		var errorMessage4StrangeCountryCod = "Country code not valid (2 char in ISO 3166-1)";
+
         console.log("Elenco delle stazioni meteo");
         var location = req.query.location;
         console.log("\tLocation = %s", location);
+
+        var countryCode = req.query.country;
+        console.log("\tCountry = %s", countryCode);
+        if (countryCode === undefined || countryCode === null){
+            countryCode	= "";
+        }
+		else if (countryCode.length != 2){
+			console.log(errorMessage4StrangeCountryCod);
+			next(new restify.BadRequestError(errorMessage4StrangeCountryCod));
+		}
+
         if (location !== undefined){
 			var arrayCoord = location.split(",");
 			if (arrayCoord.length == 2){
@@ -164,6 +178,9 @@ var serverRouter = function(server) {
 		else{
 			repository.MeteoStation.forge()
 				.query(function queryBuilder(qb){
+					if (countryCode.length > 0){
+						qb.andWhere("codcountry", "=", countryCode)
+					}
 					qb.orderBy("id", "asc");
 					})
 				.fetchAll()
