@@ -53,7 +53,8 @@ angular.module('rheticus')
 						"tickFormat": function(d){
 							return d3.format(',.1f')(d); // jshint ignore:line
 						},
-						"axisLabelDistance": 1
+						"axisLabelDistance": 1,
+						"ticks":5,
 					},
 					"yAxis2": {
 						"axisLabel": 'Precipitations (mm/day)',
@@ -72,7 +73,7 @@ angular.module('rheticus')
 							//console.log(d);
 							var dataPoint = (d3.time.format("%d/%m/%Y")(d.value)); // jshint ignore:line
 							if (typeof d.point!=='undefined'){
-								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: '+d.point.color+';" > &#x25CF;</a><b>'+dataPoint+'</b></div><b>&nbsp;Name: </b>'+d.point.key+'&nbsp;</br><b>&nbsp;Velocity:  </b> '+d.point.y+' mm/year ' ;
+								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: '+d.point.color+';" > &#x25CF;</a><b>'+dataPoint+'</b></div><b>&nbsp;Name: </b>'+d.point.key+'&nbsp;</br><b>&nbsp;Displacement:  </b> '+d.point.y+' mm ' ;
 							} else{
 								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/day </b></p>' ;
 							}
@@ -98,6 +99,10 @@ angular.module('rheticus')
 			"stringPeriod" : "",
 			"lastDatePs" : 0,
 			"firstDatePs" : 0,
+			"maxVelPs":0,
+			"minVelPs":0,
+			"psLength":0,
+			"psTempLength":0,
 			"lat" : 0,
 			"lon" : 0,
 			"data" : [], // PS line chart data
@@ -163,6 +168,8 @@ angular.module('rheticus')
 		 */
 		var generateChartData = function(ps){
 			self.chartDataMeasureCount = false; // reset flag for download weather
+			self.maxVelPs=-100;
+			self.minVelPs=100;
 			self.lat=ps.point[1];
 			self.lon=ps.point[0];
 			var res = false;
@@ -197,6 +204,8 @@ angular.module('rheticus')
 					var psidParamKey = configuration.rheticusAPI.measure.properties.psid;
 
 					for (var i=0; i<ps.features.length; i++) {
+						self.psLength=ps.features.length;
+						self.psTempLength=0;
 						if (ps.features[i].properties){
 							var datasetId = eval("ps.features[i].properties."+datasetidParamKey+";"); // jshint ignore:line
 							var psId = eval("ps.features[i].properties."+psidParamKey+";"); // jshint ignore:line
@@ -220,8 +229,9 @@ angular.module('rheticus')
 							//console.log(tableInfo);
 						}
 					}
+
 					//Line chart data should be sent as an array of series objects.
-					self.data = self.chartData;
+
 					self.psDetails = tableInfo;
 					if(!$scope.$$phase) {
 						$scope.$apply();
@@ -281,12 +291,18 @@ angular.module('rheticus')
 			$http.get(url)
 				.success(function (measures) { //if request is successful
 
+
 					var dateParamKey = configuration.rheticusAPI.measure.properties.date;
 					var measureParamKey = configuration.rheticusAPI.measure.properties.measure;
-
 					if ((measures!==null) && measures.length>0){
 						for (var i=0; i<measures.length; i++) {
 							var measureDate = new Date(eval("measures[i]."+dateParamKey+";")); // jshint ignore:line
+							if(measures[i].measure<self.minVelPs){
+								self.minVelPs=measures[i].measure;
+							}else if (measures[i].measure>self.maxVelPs) {
+								self.maxVelPs=measures[i].measure;
+							}
+
 							if (measureDate instanceof Date) {
 								var milliTime = measureDate.getTime();
 								if(self.lastDatePs < milliTime){				//update last valid date for PS
@@ -302,6 +318,8 @@ angular.module('rheticus')
 								});
 							}
 						}
+						self.psTempLength ++;
+						updateyDomain1();
 					}
 					if (!self.chartDataMeasureCount){
 						var values = getWeather(); // get weather data
@@ -320,7 +338,28 @@ angular.module('rheticus')
 				});
 			return ret;
 		};
+		var updateyDomain1 = function(){
+			if(self.psTempLength===self.psLength)
+			{
+				//console.log("lunghezza temp ps",self.psTempLength);
+				var absValue=Math.abs(self.maxVelPs-self.minVelPs);
+				if(absValue<10)
+				{
+					self.options.chart.yDomain1=[self.minVelPs-(10-absValue)/2,self.maxVelPs+(10-absValue)/2];
+					self.options.chart.yAxis1.showMaxMin=false;
+				//	console.log("added",self.options.chart.yDomain1);
+				}else{
+					self.options.chart.yDomain1=[self.minVelPs,self.maxVelPs];
+					self.options.chart.yAxis1.showMaxMin=true;
+				//	console.log("normal",self.options.chart.yDomain1);
+				}
+				self.data = self.chartData;
+				//console.log(absValue);
+				//console.log("lunghezza ps",self.psLength);
+			}
 
+
+		}
 		var getCity = function(){
 			GeocodingService.reverse(
 				{"lon":self.lon,"lat":self.lat},
@@ -385,11 +424,6 @@ angular.module('rheticus')
 			return values;
 		};
 
-		$scope.$on("angular-resizable.resizeEnd", function (event, args) { // jshint ignore:line
-			$scope.rc.api.update();
-			if(!$scope.$$phase) {
-				$scope.$apply();
-			}
-    });
+
 
 	}]);
