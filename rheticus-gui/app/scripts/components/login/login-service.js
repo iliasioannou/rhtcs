@@ -20,7 +20,14 @@ angular.module('rheticus')
 					}
 				);*/
 				var psw64 = Base64.encode(password);
-				var url = configuration.authentication.url + "username="+username+"&password="+psw64;
+
+				var authurl = configuration.rheticusAPI.host+configuration.rheticusAPI.authentication.path;
+				var usnKey = configuration.rheticusAPI.authentication.username;
+				var pwdKey = configuration.rheticusAPI.authentication.password;
+				var url = authurl
+					.replace(usnKey,username)
+					.replace(pwdKey,psw64);
+
 				$http.get(url)
           .success(function (response) {
             if (response.username){

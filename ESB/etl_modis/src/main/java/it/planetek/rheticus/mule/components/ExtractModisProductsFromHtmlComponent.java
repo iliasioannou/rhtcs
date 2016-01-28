@@ -41,7 +41,8 @@ public class ExtractModisProductsFromHtmlComponent implements Callable
 
 			for( Element link : links ) {
 				if (!link.text().isEmpty()) {
-					modisProductList.add(link.text()+".nc");
+					String productName = link.text();
+					modisProductList.add(productName.toLowerCase().endsWith(".nc") ? productName : productName+".nc");
 				}
 			}
 			return modisProductList;
