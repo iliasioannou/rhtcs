@@ -76,17 +76,15 @@ echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$
 echo ""
 
 # Kettle configuration
-KETTLE_PAN_HOME=/opt/data-integration_ce-6.0.1.0/
+KETTLE_PAN_HOME=/opt/data-integration/
 KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
 KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr 
 echo "Kettle Home: $KETTLE_PAN_HOME"
 echo "Kettle job import misure: $KETTLE_JOB_IMPORT_MEASURE"
 
-#RHETICUS_API_ENDPOINT="http://kim.planetek.it:8081"
-RHETICUS_API_ENDPOINT="http://localhost:8081"
+RHETICUS_API_ENDPOINT="http://kim.planetek.it:8081"
+#RHETICUS_API_ENDPOINT="http://localhost:8081"
 echo "API RHETICUS END-POINT: $RHETICUS_API_ENDPOINT"
-
-
 
 echo "${SEPARATOR_100// /*}"
 
@@ -127,8 +125,7 @@ fi
 # ------------------------------------------
 # Elimino le misure giornaliere delle stazioni del paese
 
-KETTLE_PAN_PATH=/opt/data-integration_ce-6.0.1.0/
-KETTLE_JOB_PATH=/home/coletta/pkt284/dati_meteo/kettle_jobs
+KETTLE_JOB_PATH=${METEO_INSTALL_HOME}/kettle_jobs
 KETTLE_JOB_DELETE_STATION_MEASURE=$KETTLE_JOB_PATH/METEO_delete_misure_giorno.ktr 
 LOG_FILE_KETTLE=${WORKING_DIRECTORY}/kettle_job_delete.log
 echo "Kettle job delete misure esistenti: $KETTLE_JOB_DELETE_STATION_MEASURE"
@@ -136,7 +133,7 @@ echo ""
 
 echo "Elimino le misure di tutte le stazioni del paese (${COUNTRY_CODE_FETCH}) scelto per il giorno ${DAY_FETCH}"
 
-$KETTLE_PAN_PATH/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Giorno=${DAY_FETCH} -param:PAR_Country_Cod=${COUNTRY_CODE_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
+${KETTLE_PAN_PATH}/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Giorno=${DAY_FETCH} -param:PAR_Country_Cod=${COUNTRY_CODE_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
 
 
 # ------------------------------------------

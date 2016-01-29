@@ -12,6 +12,8 @@ echo "${SEPARATOR_50// /*}"
 echo ""
 
 # ------------------------------------------
+# Check execution 
+# ------------------------------------------
 if [[ $EUID -ne 0 ]]; then
 	echo "Run this installation script like root user (use sudo)"
 	echo ""
@@ -20,28 +22,18 @@ fi
 
 # ------------------------------------------
 # configuro la directory di lavoro temporanea
-WORKING_DIRECTORY_BASE=/tmp/rheticus
-WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/install_meteo
+# ------------------------------------------
+WORKING_DIRECTORY_BASE=/tmp/rheticus/meteo
+WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/install
 if [ -d "$WORKING_DIRECTORY" ]
 	then # esiste: la svuoto
-		rm  $WORKING_DIRECTORY/*
+		rm -rf  $WORKING_DIRECTORY/*
 	else # non esiste: la creo
 		mkdir -p $WORKING_DIRECTORY
 fi
 
-download (){
-	local url=$1
-    echo -n "    "
-    #wget -P "${WORKING_DIRECTORY}"  --progress=dot "$url" 2>&1 | grep --line-buffered "%" | sed -u -e "s,\.,,g" | awk '{printf("\b\b\b\b%4s", $2)}'
-    wget -P ${WORKING_DIRECTORY}  --progress=dot $url 
-	if [[ "$?" != 0 ]]; then
-		echo "Problem during download Pentaho Kettle"
-		exit 1
-	fi
-    echo -ne "\b\b\b\b"
-    echo " DONE"
-}
-
+# ------------------------------------------
+# Package install
 # ------------------------------------------
 echo "${SEPARATOR_50// /-}"
 PACKAGE_TO_INSTALL=jq
@@ -60,11 +52,13 @@ fi
 
 
 # ------------------------------------------
+# Check rheticus user
+# ------------------------------------------
 echo "${SEPARATOR_50// /-}"
 USER_NAME=rheticus
 USER_PASSWORD=rheticus
 echo "Step 2: Create user ${USER_NAME} with password ${USER_PASSWORD}"
-USER_PASSWORD_CRYPTED=$(perl -e 'print crypt($ARGV[0], "password")' ${USER_PASSWORD})
+USER_PASSWORD_CRYPTED=$(perl -e 'print crypt($ARGV[0], "password")' ${USER_PASSWORD}) > /dev/null 2>&1
 
 #userdel -r ${USER_NAME} > /dev/null 2>&1
 id -u ${USER_NAME} > /dev/null 2>&1
@@ -72,7 +66,7 @@ if [ $? -eq 0 ]; then
 	echo -e "\tUser is already present to system."
 else
 	echo -e "\tUser is missing. Create it ...."
-	useradd -s /bin/bash -p ${USER_PASSWORD_CRYPTED} ${USER_NAME}
+	useradd -s /bin/bash -p ${USER_PASSWORD_CRYPTED} ${USER_NAME} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo -e "\tUser has been added into system."
 	else
@@ -83,59 +77,98 @@ fi
 
 
 # ------------------------------------------
-echo "${SEPARATOR_50// /-}"
-KETTLE_NAME="pdi-ce-6.0.1.0-386"
-KETTLE_REMOTE_REPO="http://sourceforge.net/projects/pentaho/files/Data%20Integration/6.0/${KETTLE_NAME}.zip/download"
-#KETTLE_NAME="brochure_it"
-#KETTLE_REMOTE_REPO="http://out.planetek.it/${KETTLE_NAME}.zip"
-KETTLE_NAME_UNZIP="data-integration"
-KETTLE_INSTALL_HOME="/opt"
-
-echo "Step 3: Download and install Pentahos Data Integration (Kettle) ${KETTLE_NAME}"
-
-#wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
-
-echo "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip"
-curl -L "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip" -#
-if [[ "$?" != 0 ]]; then
-    echo "Problem during download Pentaho Kettle"
-       exit 1
-fi
-
-unzip -o ${WORKING_DIRECTORY}/${KETTLE_NAME}.zip  > /dev/null 2>&1
-if [[ "$?" != 0 ]]; then
-    echo "Problem during unzip of ${WORKING_DIRECTORY}/${KETTLE_NAME}.zip"
-        exit 1
-fi
-
-mkdir ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
-if [[ "$?" != 0 ]]; then
-    echo "Problem during folder creation  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
-        exit 1
-fi
-
-cp ${WORKING_DIRECTORY}/${KETTLE_NAME_UNZIP}/*  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
-if [[ "$?" != 0 ]]; then
-    echo "Problem during copy in ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
-        exit 1
-fi
-
-chown -R rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
-if [[ "$?" != 0 ]]; then
-    echo "Problem during change permission on ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
-        exit 1
-fi
-
-chmod +x ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}/*.sh > /dev/null 2>&1
-
+# Kettle install
 # ------------------------------------------
 echo "${SEPARATOR_50// /-}"
-echo "Step 4: Install KETTLE ETL for import meteo data"
+KETTLE_NAME_VER="pdi-ce-6.0.1.0-386"
+KETTLE_REMOTE_REPO="http://sourceforge.net/projects/pentaho/files/Data%20Integration/6.0/${KETTLE_NAME_VER}.zip/download"
+#KETTLE_NAME="brochure_it"
+#KETTLE_REMOTE_REPO="http://out.planetek.it/${KETTLE_NAME}.zip"
+KETTLE_NAME="data-integration"
+KETTLE_INSTALL_HOME="/opt"
+
+echo "Step 3: Download and install Pentaho Data Integration (Kettle)"
+echo ""
+
+echo -e "\tDownloading ${KETTLE_NAME_VER} ..."
+#wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
+curl -L "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip" -#
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during download Pentaho Kettle"
+   exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tUnziping ${KETTLE_NAME_VER} ..."
+unzip -o ${WORKING_DIRECTORY}/${KETTLE_NAME_VER}.zip -d ${WORKING_DIRECTORY} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during unzip of ${WORKING_DIRECTORY}/${KETTLE_NAME_VER}.zip"
+	exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tCreate installation folder ..."
+mkdir ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during folder creation  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}"
+	exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tCopy file to install destination ..."
+cp -R ${WORKING_DIRECTORY}/${KETTLE_NAME}/*  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during copy in ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}"
+	exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tChange owner ..."
+chown -R rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during change permission on ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}"
+	exit 1
+fi
+chown -R rheticus ${WORKING_DIRECTORY_BASE} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during change permission on ${WORKING_DIRECTORY_BASE}"
+	exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tSet mode bit to runable for kettle script ..."
+chmod +x ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}/*.sh > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during change mode bit"
+	exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tCreating symbolic link to Kettle ..."
+ln -s  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER} ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}  > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during symbolic link creation"
+	exit 1
+fi
+echo -e "\tDone"
+
+
+# ------------------------------------------
+# Install meteo script
+# ------------------------------------------
+echo "${SEPARATOR_50// /-}"
+echo "Step 4: Installing Rheticus import meteo data ..."
 
 METEO_INSTALL_HOME="/opt/rheticus_meteo"
 if ! [ -d "${METEO_INSTALL_HOME}" ]; then 
 	# non esiste: la creo
-	mkdir ${METEO_INSTALL_HOME} > /dev/null 2>&1
+	mkdir -f ${METEO_INSTALL_HOME} > /dev/null 2>&1
 fi
 
 cp  ./Import_dati*.sh ${METEO_INSTALL_HOME} > /dev/null 2>&1
@@ -144,15 +177,22 @@ cp -r  ./kettle_jobs  ${METEO_INSTALL_HOME} > /dev/null 2>&1
 chown -R rheticus ${METEO_INSTALL_HOME} > /dev/null 2>&1
 chmod +x ${METEO_INSTALL_HOME}/*.sh > /dev/null 2>&1
 
+echo -e "\tDone"
 
 # ------------------------------------------
+# Configure CRON
+# ------------------------------------------
 echo "${SEPARATOR_50// /-}"
-echo "Step 5: Configure Cron"
+echo "Step 5: Configuring CRON Jobs ..."
 
 crontab -u ${USER_NAME} ./cron_config.txt > /dev/null 2>&1
+echo -e "\tDone"
 
 # ------------------------------------------
+# Delete temp file
+# ------------------------------------------
 echo "${SEPARATOR_50// /-}"
-echo "Step 6: Purge temp file"
+echo "Step 6: Removing temp file ..."
 rm -r ${WORKING_DIRECTORY} 
+echo -e "\tDone"
 

@@ -16,7 +16,8 @@ SEPARATOR_200=$(printf "%200s")
 
 # ------------------------------------------
 # configuro la directory di lavoro temporanea
-WORKING_DIRECTORY=/tmp/meteo/measure_history/import_run_$(date +%Y-%m-%d_%H_%M_%S)
+WORKING_DIRECTORY_BASE=/tmp/rheticus/meteo/measure_history
+WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/import_run_$(date +%Y-%m-%d_%H_%M_%S)
 if [ -d "$WORKING_DIRECTORY" ]
 	then # esiste: la svuoto
 		rm  $WORKING_DIRECTORY/*
@@ -46,7 +47,7 @@ echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$
 echo ""
 
 # Kettle configuration
-KETTLE_PAN_HOME=/opt/data-integration_ce-6.0.1.0/
+KETTLE_PAN_HOME=/opt/data-integration/
 KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
 KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr 
 echo "Kettle Home: $KETTLE_PAN_HOME"
