@@ -91,8 +91,6 @@ KETTLE_REMOTE_REPO="http://sourceforge.net/projects/pentaho/files/Data%20Integra
 #KETTLE_REMOTE_REPO="http://out.planetek.it/${KETTLE_NAME}.zip"
 
 #wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
-
-echo "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip"
 curl -L "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip" -#
 if [[ "$?" != 0 ]]; then
     echo "Problem during download Pentaho Kettle"
