@@ -1,5 +1,6 @@
 #!/bin/bash
 
+
 SEPARATOR_50=$(printf "%50s")
 SEPARATOR_100=$(printf "%100s")
 SEPARATOR_150=$(printf "%150s")
@@ -27,6 +28,19 @@ if [ -d "$WORKING_DIRECTORY" ]
 	else # non esiste: la creo
 		mkdir -p $WORKING_DIRECTORY
 fi
+
+download (){
+	local url=$1
+    echo -n "    "
+    #wget -P "${WORKING_DIRECTORY}"  --progress=dot "$url" 2>&1 | grep --line-buffered "%" | sed -u -e "s,\.,,g" | awk '{printf("\b\b\b\b%4s", $2)}'
+    wget -P ${WORKING_DIRECTORY}  --progress=dot $url 
+	if [[ "$?" != 0 ]]; then
+		echo "Problem during download Pentaho Kettle"
+		exit 1
+	fi
+    echo -ne "\b\b\b\b"
+    echo " DONE"
+}
 
 # ------------------------------------------
 echo "${SEPARATOR_50// /-}"
@@ -70,15 +84,17 @@ fi
 
 # ------------------------------------------
 echo "${SEPARATOR_50// /-}"
-#KETTLE_NAME="pdi-ce-6.0.1.0-386"
-KETTLE_NAME="brochure_it"
+KETTLE_NAME="pdi-ce-6.0.1.0-386"
+#KETTLE_NAME="brochure_it"
 echo "Step 3: Download and install Pentaho’s Data Integration (Kettle) ${KETTLE_NAME}"
-#KETTLE_REMOTE_REPO="http://sourceforge.net/projects/pentaho/files/Data Integration/6.0/${KETTLE_NAME}.zip"
-KETTLE_REMOTE_REPO="http://out.planetek.it/${KETTLE_NAME}.zip"
-wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
+KETTLE_REMOTE_REPO="http://sourceforge.net/projects/pentaho/files/Data%20Integration/6.0/${KETTLE_NAME}.zip/download"
+#KETTLE_REMOTE_REPO="http://out.planetek.it/${KETTLE_NAME}.zip"
+
+#wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
+curl -L -O "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip" -#
 if [[ "$?" != 0 ]]; then
     echo "Problem during download Pentaho Kettle"
-	exit 1
+       exit 1
 fi
 
 KETTLE_INSTALL_HOME="/opt"
