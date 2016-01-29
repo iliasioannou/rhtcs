@@ -15,6 +15,7 @@ target/
 **/*.mflow
 .mule
 mappings
+catalog
 
 
 # python
