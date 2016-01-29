@@ -85,29 +85,45 @@ fi
 # ------------------------------------------
 echo "${SEPARATOR_50// /-}"
 KETTLE_NAME="pdi-ce-6.0.1.0-386"
-#KETTLE_NAME="brochure_it"
-echo "Step 3: Download and install Pentaho’s Data Integration (Kettle) ${KETTLE_NAME}"
 KETTLE_REMOTE_REPO="http://sourceforge.net/projects/pentaho/files/Data%20Integration/6.0/${KETTLE_NAME}.zip/download"
+#KETTLE_NAME="brochure_it"
 #KETTLE_REMOTE_REPO="http://out.planetek.it/${KETTLE_NAME}.zip"
+KETTLE_NAME_UNZIP="data-integration"
+KETTLE_INSTALL_HOME="/opt"
+
+echo "Step 3: Download and install Pentahos Data Integration (Kettle) ${KETTLE_NAME}"
 
 #wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
+
+echo "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip"
 curl -L "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip" -#
 if [[ "$?" != 0 ]]; then
     echo "Problem during download Pentaho Kettle"
        exit 1
 fi
 
-KETTLE_INSTALL_HOME="/opt"
-unzip -o ${WORKING_DIRECTORY}/${KETTLE_NAME}.zip -d ${KETTLE_INSTALL_HOME} > /dev/null 2>&1
+unzip -o ${WORKING_DIRECTORY}/${KETTLE_NAME}.zip  > /dev/null 2>&1
 if [[ "$?" != 0 ]]; then
     echo "Problem during unzip of ${WORKING_DIRECTORY}/${KETTLE_NAME}.zip"
-	exit 1
+        exit 1
+fi
+
+mkdir ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo "Problem during folder creation  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
+        exit 1
+fi
+
+cp ${WORKING_DIRECTORY}/${KETTLE_NAME_UNZIP}/*  ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo "Problem during copy in ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
+        exit 1
 fi
 
 chown -R rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
 if [[ "$?" != 0 ]]; then
-    echo "Problem during change permissio on ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
-	exit 1
+    echo "Problem during change permission on ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}"
+        exit 1
 fi
 
 chmod +x ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}/*.sh > /dev/null 2>&1
