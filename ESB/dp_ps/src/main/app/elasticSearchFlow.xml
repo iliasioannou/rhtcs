@@ -35,8 +35,7 @@ Example (modis):
                 <expression-component doc:name="add Pagination args to EL query"><![CDATA[payload.put("from", resultCounter);
 payload.put("size", paginationSize);]]></expression-component>
                 <json:object-to-json-transformer doc:name="Object to JSON"/>
-
-                <http:request config-ref="HTTP_Request_ES" path="#[esIndex]/#[esType]/_search" method="POST" doc:name="get page from ElasticSearch"/>
+				<http:request config-ref="HTTP_Request_ES" path="#[esIndex]/#[esType]/_search" method="POST" doc:name="get page from ElasticSearch"/>
                 <set-payload value="#[json:hits/hits]" doc:name="Extract Result"/>
                 <foreach doc:name="For Each">
                     <set-payload value="#[json:_source]" doc:name="Extract actual data"/>
@@ -56,11 +55,14 @@ payload.put("size", paginationSize);]]></expression-component>
                 <set-variable variableName="resultCounter" value="#[new Integer(0)]" doc:name="init resultCounter"/>
                 <set-variable variableName="resultList" value="#[new java.util.ArrayList()]" doc:name="resultList"/>
                 <json:object-to-json-transformer doc:name="Object to JSON"/>
-                <logger message="ESFlow count:  #[payload]" level="DEBUG" doc:name="ESFlow count: "/>
+                <set-payload value="{ &quot;query&quot; : #[json:query] }" doc:name="Set Count Query"/>
+                <logger message="ESFlow count req:  #[payload]" level="DEBUG" doc:name="ESFlow count req"/>
 
                 <http:request config-ref="HTTP_Request_ES" path="#[esIndex]/#[esType]/_count" method="POST" doc:name="count total ElasticSearch results">
                     <http:failure-status-code-validator values="100"/>
                 </http:request>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger message="ESflow count resp #[payload]" level="DEBUG" doc:name="ESflow count resp"/>
                 <set-variable variableName="totalCount" value="#[json:count]" doc:name="totalCount"/>
             </otherwise>
         </choice>

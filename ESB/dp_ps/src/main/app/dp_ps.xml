@@ -36,7 +36,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 	<!--  "HTTP Request Elastisearch" declared in elasticSearchFlow -->
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
-	<db:generic-config name="Postgres_Database_Configuration" url="jdbc:postgresql://kim.planetek.it:5432/RHETICUS?password=postgres&amp;user=postgres" driverClassName="org.postgresql.Driver" doc:name="Generic Database Configuration"/>
+	<db:generic-config name="Postgres_Database_Configuration" url="jdbc:postgresql://${db.host}:${db.port}/${db.name}?password=${db.password}&amp;user=${db.user}" driverClassName="org.postgresql.Driver" doc:name="Generic Database Configuration"/>
     
     <!-- Add needed orchestrator properties to the JMS message to pass them to LogStash -->
     <message-properties-transformer name="Logstash-Properties" doc:name="Message Properties">
@@ -57,25 +57,26 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
     
 
 	<flow name="dp_psFlow">
+        <http:inbound-endpoint exchange-pattern="one-way" host="0.0.0.0" port="9999" doc:name="Temp slovenia HTTP"/>
 	<!-- 
 		<quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 00 10 ? * WED">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
     -->
-    	<quartz:inbound-endpoint jobName="runAtStartup" repeatInterval="1" repeatCount="0" responseTimeout="10000" doc:name="Quartz">
-            <quartz:event-generator-job/>
-        </quartz:inbound-endpoint>
         <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct DatasetIds">
             <db:parameterized-query><![CDATA[SELECT distinct dataset_id, timestamp_last_acquisition_proc FROM deal_dataset;]]></db:parameterized-query>
+
         </db:select>
         <logger message="SQL query res: #[payload]" level="INFO" doc:name="SQL result as ArrayList"/>
         <set-variable variableName="orbitalDate" value="#[server.dateTime.plusDays(-22).format(&quot;yyyy-MM-dd&quot;)]" doc:name="orbitalDate"/>
         <foreach doc:name="For Each">
             <logger message="New sql record: #[payload]" level="INFO" doc:name="New sql record"/>
             <set-variable variableName="datasetId" value="#[payload.get(&quot;dataset_id&quot;)]" doc:name="datasetId"/>
+            <expression-filter expression="#[datasetId=='Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5']" doc:name="dataset i want"/>
+            <logger message="Found dataset i wanted! #[datasetId]" level="INFO" doc:name="Found dataset i wanted!"/>
             <set-variable variableName="procDataLastDate" value="#[payload.get(&quot;timestamp_last_acquisition_proc&quot;)==null ? &quot;1-1-1&quot; : new java.text.SimpleDateFormat(&quot;yyyy-MM-dd&quot;).format(payload.get(&quot;timestamp_last_acquisition_proc&quot;)) ]" doc:name="procDataLastDate"/>
             <logger message="Found #[datasetId] last updated on #[procDataLastDate] (new orbitalDate: #[orbitalDate])" level="INFO" doc:name="Found dataset"/>
-            <set-payload value="{ &quot;esIndex&quot;:&quot;sentinel1&quot;, &quot;esType&quot;:&quot;slc&quot;, &quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;ingestion&quot;:{&quot;gte&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}}} }" doc:name="Set ES flow request"/>
+            <set-payload value="{&quot;esIndex&quot;:&quot;${elasticsearch.sentinel.index}&quot;,&quot;esType&quot;:&quot;${elasticsearch.sentinel.type}&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;ingestion&quot;:{&quot;gte&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}},&quot;sort&quot;:{&quot;ingestion&quot;:{&quot;order&quot;:&quot;desc&quot;}}}}" doc:name="Set ES flow request"/>
             <logger message="ES for #[datasetId]: #[payload]" level="INFO" doc:name="ES for dataset"/>
             <flow-ref name="elasticSearchFlow" doc:name="elasticSearchFlow"/>
             <set-variable variableName="procDataLastDate" value="#[payload[0].get(&quot;ingestion&quot;).replace(&quot;T&quot;, &quot; &quot;).split(&quot;\\.&quot;)[0]]" doc:name="update procDataLastDate"/>
@@ -157,16 +158,16 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 			doc:name="mapForS1TB" />
 		<expression-component doc:name="populate mapForS1TB"><![CDATA[mapForS1TB.put("datasetId", datasetId);
 mapForS1TB.put("supermasterId", superMasterId);
+mapForS1TB.put("swath", "IW1");
+mapForS1TB.put("polarisation", "VV");
 mapForS1TB.put("data", datasetDataArrayList);
+
 ]]></expression-component>
 		<set-payload value="#[mapForS1TB]" doc:name="mapForS1TB" />
 		<json:object-to-json-transformer
 			doc:name="Object to JSON" />
 		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
-        <logger message="S1TBX pay: #[payload]" level="INFO" doc:name="Logger"/>
-        <scripting:component doc:name="STOOOOOOP">
-            <scripting:script engine="Groovy"><![CDATA[throw new Exception("STOOOOOOOOOOOOP!");]]></scripting:script>
-        </scripting:component>
+
 
 		<request-reply doc:name="Request-Reply" timeout="0">
 			<jms:outbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1" transformer-refs="Logstash-Properties S1-Properties"/>
