@@ -50,7 +50,7 @@ angular.module('rheticus')
 						"tickPadding":10
 					},
 					"yAxis1": {
-						"axisLabel": 'Displacement Maps (mm/year)',
+						"axisLabel": 'Displacement Maps (mm)',
 						"tickFormat": function(d){
 							return d3.format(',.1f')(d); // jshint ignore:line
 						},
