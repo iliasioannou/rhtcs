@@ -39,7 +39,8 @@ echo "${SEPARATOR_100// /*}"
 
 
 # DB connection configuration
-DB_HOST=kim.planetek.it
+#DB_HOST=kim.planetek.it
+DB_HOST=localhost
 DB_NAME=RHETICUS_DEV
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
@@ -93,7 +94,7 @@ read -n 1 START_IMPORT
 regex_check_user_confermation="^[y]$"
 if ! [[ $START_IMPORT =~ $regex_check_user_confermation ]]
 	then
-		echo -e "\nImport aborted"
+		echo -e "\nImport aborted"exit 1
 		exit 1
 fi
 echo ""
@@ -131,15 +132,16 @@ if [[ "$NUM_STATIONS" == "0" ]]; then
 fi
 
 # ------------------------------------------
-KETTLE_PAN_PATH=/opt/data-integration_ce-6.0.1.0/
-KETTLE_JOB_PATH=/home/coletta/pkt284/dati_meteo/kettle_jobs
-KETTLE_JOB_DELETE_STATION_MEASURE=$KETTLE_JOB_PATH/METEO_delete_misure_anno.ktr 
+# Elimino le misure annuali delle stazioni del paese
+
+KETTLE_JOB_PATH=${METEO_INSTALL_HOME}/kettle_jobs
+KETTLE_JOB_DELETE_STATION_MEASURE=${KETTLE_JOB_PATH}/METEO_delete_misure_anno.ktr 
 LOG_FILE_KETTLE=${WORKING_DIRECTORY}/kettle_job_delete.log
 echo "Kettle job delete misure esistenti: $KETTLE_JOB_DELETE_STATION_MEASURE"
 echo ""
 
 echo "Elimino le misure di tutte le stazioni del paese scelto per l'anno" $YEAR_FETCH  
-$KETTLE_PAN_PATH/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Anno=${YEAR_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
+${KETTLE_PAN_HOME}/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Anno=${YEAR_FETCH} -param:PAR_Country_Cod=${COUNTRY_CODE_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
 
 
 # ------------------------------------------
@@ -247,7 +249,7 @@ START_TIME=$SECONDS
 
 LOG_FILE_KETTLE=${WORKING_DIRECTORY}/kettle_job_import.log
 
-$KETTLE_PAN_HOME/pan.sh -file=${KETTLE_JOB_IMPORT_MEASURE} -level=Basic -param:PAR_File_cvs_misure=${FILE_STATIONS_MEASURE} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} >${LOG_FILE_KETTLE}
+${KETTLE_PAN_HOME}/pan.sh -file=${KETTLE_JOB_IMPORT_MEASURE} -level=Basic -param:PAR_File_cvs_misure=${FILE_STATIONS_MEASURE} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} >${LOG_FILE_KETTLE}
 
 if ! [ $? -eq 0 ]
 then

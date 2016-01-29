@@ -23,8 +23,8 @@ fi
 # ------------------------------------------
 # configuro la directory di lavoro temporanea
 # ------------------------------------------
-WORKING_DIRECTORY_BASE=/tmp/rheticus/meteo
-WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/install
+WORKING_DIRECTORY_BASE=/tmp/rheticus
+WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/meteo/install
 if [ -d "$WORKING_DIRECTORY" ]
 	then # esiste: la svuoto
 		rm -rf  $WORKING_DIRECTORY/*
@@ -63,10 +63,10 @@ USER_PASSWORD_CRYPTED=$(perl -e 'print crypt($ARGV[0], "password")' ${USER_PASSW
 #userdel -r ${USER_NAME} > /dev/null 2>&1
 id -u ${USER_NAME} > /dev/null 2>&1
 if [ $? -eq 0 ]; then
-	echo -e "\tUser is already present to system."
+	echo -e "\tUser is already present into system."
 else
 	echo -e "\tUser is missing. Create it ...."
-	useradd -s /bin/bash -p ${USER_PASSWORD_CRYPTED} ${USER_NAME} > /dev/null 2>&1
+	useradd -m -s /bin/bash -p ${USER_PASSWORD_CRYPTED} ${USER_NAME} > /dev/null 2>&1
 	if [ $? -eq 0 ]; then
 		echo -e "\tUser has been added into system."
 	else
@@ -92,7 +92,7 @@ echo ""
 
 echo -e "\tDownloading ${KETTLE_NAME_VER} ..."
 #wget -q --show-progress  -P ${WORKING_DIRECTORY} "${KETTLE_REMOTE_REPO}"
-curl -L "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME}.zip" -#
+curl -L "${KETTLE_REMOTE_REPO}"  -o "${WORKING_DIRECTORY}/${KETTLE_NAME_VER}.zip" -#
 if [[ "$?" != 0 ]]; then
     echo -e "\tProblem during download Pentaho Kettle"
    exit 1
@@ -129,11 +129,13 @@ echo -e "\tDone"
 echo ""
 echo -e "\tChange owner ..."
 chown -R rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER} > /dev/null 2>&1
+chgrp -R rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER} > /dev/null 2>&1
 if [[ "$?" != 0 ]]; then
     echo -e "\tProblem during change permission on ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}"
 	exit 1
 fi
 chown -R rheticus ${WORKING_DIRECTORY_BASE} > /dev/null 2>&1
+chgrp -R rheticus ${WORKING_DIRECTORY_BASE} > /dev/null 2>&1
 if [[ "$?" != 0 ]]; then
     echo -e "\tProblem during change permission on ${WORKING_DIRECTORY_BASE}"
 	exit 1
@@ -142,7 +144,7 @@ echo -e "\tDone"
 
 echo ""
 echo -e "\tSet mode bit to runable for kettle script ..."
-chmod +x ${KETTLE_INSTALL_HOME}/${KETTLE_NAME}/*.sh > /dev/null 2>&1
+chmod +x ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}/*.sh > /dev/null 2>&1
 if [[ "$?" != 0 ]]; then
     echo -e "\tProblem during change mode bit"
 	exit 1
@@ -158,6 +160,8 @@ if [[ "$?" != 0 ]]; then
 fi
 echo -e "\tDone"
 
+chown rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
+chgrp rheticus ${KETTLE_INSTALL_HOME}/${KETTLE_NAME} > /dev/null 2>&1
 
 # ------------------------------------------
 # Install meteo script
@@ -166,15 +170,39 @@ echo "${SEPARATOR_50// /-}"
 echo "Step 4: Installing Rheticus import meteo data ..."
 
 METEO_INSTALL_HOME="/opt/rheticus_meteo"
+echo ""
+echo -e "\tCreating installation folder ..."
 if ! [ -d "${METEO_INSTALL_HOME}" ]; then 
-	# non esiste: la creo
-	mkdir -f ${METEO_INSTALL_HOME} > /dev/null 2>&1
+        # non esiste: la creo
+        mkdir  ${METEO_INSTALL_HOME}  > /dev/null 2>&1
+        if [[ "$?" != 0 ]]; then
+            echo -e "\tProblem during create meteo install folder"
+            exit 1
+        fi
 fi
 
-cp  ./Import_dati*.sh ${METEO_INSTALL_HOME} > /dev/null 2>&1
-cp -r  ./kettle_jobs  ${METEO_INSTALL_HOME} > /dev/null 2>&1
+echo ""
+echo -e "\tCopy meteo import script to installation folder ..."
+cp  Import*.sh ${METEO_INSTALL_HOME} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during copy meteo import script"
+        exit 1
+fi
+echo -e "\tDone"
 
+echo ""
+echo -e "\tCopy kettle ETL to installation folder ..."
+cp -r  kettle_jobs  ${METEO_INSTALL_HOME} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during copy kettle trasformation"
+        exit 1
+fi
+echo -e "\tDone"
+
+echo ""
+echo -e "\tChange permission ..."
 chown -R rheticus ${METEO_INSTALL_HOME} > /dev/null 2>&1
+chgrp -R rheticus ${METEO_INSTALL_HOME} > /dev/null 2>&1
 chmod +x ${METEO_INSTALL_HOME}/*.sh > /dev/null 2>&1
 
 echo -e "\tDone"

@@ -68,7 +68,8 @@ echo "${SEPARATOR_100// /*}"
 
 
 # DB connection configuration
-DB_HOST=kim.planetek.it
+#DB_HOST=kim.planetek.it
+DB_HOST=localhost
 DB_NAME=RHETICUS_DEV
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
@@ -133,7 +134,7 @@ echo ""
 
 echo "Elimino le misure di tutte le stazioni del paese (${COUNTRY_CODE_FETCH}) scelto per il giorno ${DAY_FETCH}"
 
-${KETTLE_PAN_PATH}/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Giorno=${DAY_FETCH} -param:PAR_Country_Cod=${COUNTRY_CODE_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
+${KETTLE_PAN_HOME}/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Giorno=${DAY_FETCH} -param:PAR_Country_Cod=${COUNTRY_CODE_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
 
 
 # ------------------------------------------

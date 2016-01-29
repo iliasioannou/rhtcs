@@ -27,7 +27,8 @@ echo "Working directory <${WORKING_DIRECTORY}>"
 # ------------------------------------------
 
 # DB connection configuration
-DB_HOST=kim.planetek.it
+#DB_HOST=kim.planetek.it
+DB_HOST=localhost
 DB_NAME=RHETICUS_DEV
 DB_USERNAME=postgres
 DB_PASSWORD=postgres

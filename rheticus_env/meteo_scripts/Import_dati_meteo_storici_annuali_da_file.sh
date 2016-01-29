@@ -27,7 +27,8 @@ METEO_INSTALL_HOME="/opt/rheticus_meteo"
 echo "Meteo home: <${METEO_INSTALL_HOME}>"
 
 # DB connection configuration
-DB_HOST=kim.planetek.it
+#DB_HOST=kim.planetek.it
+DB_HOST=localhost
 DB_NAME=RHETICUS_DEV
 DB_USERNAME=postgres
 DB_PASSWORD=postgres

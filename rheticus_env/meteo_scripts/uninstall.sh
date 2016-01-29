@@ -40,7 +40,7 @@ KETTLE_INSTALL_HOME="/opt"
 
 echo "Step 2: Uninstall Pentaho Data Integration (Kettle) ${KETTLE_NAME}"
 echo -e "\tRemoving symbolic link ..."
-rm -f ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}
+rm -rf ${KETTLE_INSTALL_HOME}/${KETTLE_NAME_VER}
 echo -e "\tDone"
 
 echo ""
