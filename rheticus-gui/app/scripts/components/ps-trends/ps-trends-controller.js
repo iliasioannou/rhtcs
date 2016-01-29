@@ -46,10 +46,11 @@ angular.module('rheticus')
 						"tickFormat" : function (d) {
 							return d3.time.format("%d/%m/%Y")(new Date(d)); // jshint ignore:line
 						},
-						"axisLabelDistance": 1
+						"axisLabelDistance": 1,
+						"tickPadding":10
 					},
 					"yAxis1": {
-						"axisLabel": 'Displacement Maps (mm/year)',
+						"axisLabel": 'Displacement Maps (mm)',
 						"tickFormat": function(d){
 							return d3.format(',.1f')(d); // jshint ignore:line
 						},
@@ -59,7 +60,7 @@ angular.module('rheticus')
 					"yAxis2": {
 						"axisLabel": 'Precipitations (mm/day)',
 						"tickFormat": function(d) {
-							return d3.format(',.f')(d); // jshint ignore:line
+							return d3.format(',.1f')(d); // jshint ignore:line
 						},
 						"axisLabelDistance": 10
 					},
@@ -338,14 +339,15 @@ angular.module('rheticus')
 				});
 			return ret;
 		};
+
 		var updateyDomain1 = function(){
 			if(self.psTempLength===self.psLength)
 			{
 				//console.log("lunghezza temp ps",self.psTempLength);
-				var absValue=Math.abs(self.maxVelPs-self.minVelPs);
-				if(absValue<10)
+				var delta=Math.abs(self.maxVelPs-self.minVelPs);
+				if(delta<10)
 				{
-					self.options.chart.yDomain1=[self.minVelPs-(10-absValue)/2,self.maxVelPs+(10-absValue)/2];
+					self.options.chart.yDomain1=[self.minVelPs-(10-delta)/2,self.maxVelPs+(10-delta)/2];
 					self.options.chart.yAxis1.showMaxMin=false;
 				//	console.log("added",self.options.chart.yDomain1);
 				}else{
