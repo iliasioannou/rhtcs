@@ -10,7 +10,8 @@ SEPARATOR_200=$(printf "%200s")
 
 # ------------------------------------------
 # configuro la directory di lavoro temporanea
-WORKING_DIRECTORY=/tmp/meteo/stations/import_run_$(date +%Y-%m-%d_%H_%M_%S)
+WORKING_DIRECTORY_BASE=/tmp/rheticus/meteo/stations
+WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/import_run_$(date +%Y-%m-%d_%H_%M_%S)
 if [ -d "$WORKING_DIRECTORY" ]
 	then # esiste: la svuoto
 		rm  $WORKING_DIRECTORY/*
@@ -24,6 +25,8 @@ exec &> >(tee -a "${LOG_FILE}")
 
 echo "Working directory <${WORKING_DIRECTORY}>"
 
+METEO_INSTALL_HOME="/opt/rheticus_meteo"
+echo "Meteo home: <${METEO_INSTALL_HOME}>"
 # ------------------------------------------
 
 # DB connection configuration
@@ -36,8 +39,8 @@ echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$
 echo ""
 
 # Kettle configuration
-KETTLE_PAN_HOME=/opt/data-integration_ce-6.0.1.0/
-KETTLE_JOB_HOME=/home/coletta/pkt284/dati_meteo/kettle_jobs
+KETTLE_PAN_HOME=/opt/data-integration/
+KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
 KETTLE_JOB_IMPORT_STATIONS=${KETTLE_JOB_HOME}/METEO_Import_stazioni.ktr 
 echo "Kettle Home: $KETTLE_PAN_HOME"
 echo "Kettle job import stazioni: $KETTLE_JOB_IMPORT_STATIONS"
