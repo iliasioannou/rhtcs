@@ -147,9 +147,9 @@ var serverRouter = function(server) {
 				if (!isNaN(lat) && !isNaN(lon)){
 					console.log("\tLat = %s; Lon = %s", lat, lon);
 					var querySelectDistanceDegree = "round(st_distance(ST_SetSRID(geom, " + SRID + "), 'SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry)::numeric, 4) AS distance_degree";
-					var querySelectDistanceMeter = "floor(st_distance(ST_Transform(ST_SetSRID(geom, " + SRID + "), " + TO_SRID + "), ST_Transform('SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry, " + TO_SRID + "))) AS Distance_meter";
+					//var querySelectDistanceMeter = "floor(st_distance(ST_Transform(ST_SetSRID(geom, " + SRID + "), " + TO_SRID + "), ST_Transform('SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry, " + TO_SRID + "))) AS Distance_meter";
+					var querySelectDistanceMeter =  "floor(ST_Distance(geography(ST_SetSRID(geom," + SRID + ")), ST_GeographyFromText('SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'))) AS Distance_meter"
 					var queryOrderBy = "st_distance(ST_SetSRID(geom, " + SRID + "), 'SRID=" + SRID + ";POINT(" + lon + " " + lat + ")'::geometry)";
-					
 					repository.MeteoStation.forge()
 						.query(function(qb) {
 							qb.offset(0).limit(LIMIT);
