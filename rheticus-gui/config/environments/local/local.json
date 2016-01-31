@@ -281,7 +281,7 @@
 			"properties" : {
 				"datasetid" : "datasetid",
 				"psid" : "psid",
-				"date" : "data",
+				"date" : "day",
 				"measure" : "measure"
 			}
 		},
