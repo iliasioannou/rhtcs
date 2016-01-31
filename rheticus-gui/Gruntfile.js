@@ -40,6 +40,10 @@ module.exports = function (grunt) {
 				files: ['bower.json'],
 				tasks: ['wiredep']
 			},
+			syncfile: {
+				files: ['<%= yeoman.app %>/**/*.*'],
+				tasks: ['sync']
+			},
 			js: {
 				files: ['<%= yeoman.app %>/scripts/**/*.js'],
 				tasks: ['newer:jshint:all'],
@@ -76,43 +80,15 @@ module.exports = function (grunt) {
 			options: {
 				port: 9000,
 				// Change this to '0.0.0.0' to access the server from outside.
-				hostname: '0.0.0.0',
+				//hostname: '0.0.0.0',
+				hostname: "localhost",
 				livereload: 35729
 			},
-//			proxies: [{
-//				//http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer?service=WMS&version=1.3.0&request=getCapabilities
-//				context: "/iffi", // the context of the data service
-//				//host: "www.geoservices.isprambiente.it",
-//				//port: 80, // the port that the data service is running on
-//				//changeOrigin: true,
-//				host: "localhost",
-//				port: 8080,
-//				changeOrigin: true,
-//				https: false,
-//				//secure: false,
-//				//xforward: false,
-//				//headers: {
-//				//	"host": "www.geoservices.isprambiente.it"
-//				//},
-//				rewrite: {
-//					'^/iffi': '/iffi'
-//				},
-//				errorHandler: function(req, res, next, err) {
-//					log.console("gruntfile proxy error handler: "+err.code);
-//					if (err.code === 404) {
-//						res.send('Some error page');
-//					} else {
-//						next();
-//					}
-//				}
-//			}],
 			livereload: {
 				options: {
 					open: true,
 					middleware: function (connect) {
 						return [
-//							// Setup the proxy
-//							require('grunt-connect-proxy/lib/utils').proxyRequest,
 							connect.static('.tmp'),
 							connect().use(
 								'/bower_components',
@@ -473,6 +449,40 @@ module.exports = function (grunt) {
 					dest: '.tmp/styles/',
 					src: '{,*/}*.css'
 				}
+			},
+			distDev: {
+				files: [{
+					expand: true,
+					dot: true,
+					cwd: '<%= yeoman.app %>',
+					dest: '<%= yeoman.dist %>',
+					src: [
+					'*.{ico,png,txt}',
+					'.htaccess',
+					'*.html',
+					'scripts/components/**/*.html',
+					'scripts/**/*.js',
+					'images/{,*/}*.{png,jpg,ico}',
+					'styles/fonts/{,*/}*.*'
+					]
+				},{
+					expand: true,
+					cwd: '.tmp',
+					dest: '<%= yeoman.dist %>',
+					src: 'styles/{,*/}*.css'
+				},{
+					expand: true,
+					cwd: '.',
+					src: 'bower_components/**',
+					dest: '<%= yeoman.dist %>'
+				},{
+					expand: true,
+					flatten: true,
+					filter: 'isFile',
+					cwd: '.',
+					dest: '<%= yeoman.dist %>/',
+					src: ['config/environments/'+target+'/package.json','config/environments/'+target+'/server.js']
+				}]
 			}
 		},
 
@@ -497,11 +507,25 @@ module.exports = function (grunt) {
 				configFile: 'test/karma.conf.js',
 				singleRun: true
 			}
+		},
+
+		// Sync folder
+		sync: { 
+			main: {
+				files: [ 
+					{cwd: 'app', src: ['scripts/**/*.*', 'styles/**/*.*', 'images/**/*.*', '!**/*.scss'], dest: 'dist/'}
+				],
+				//pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much. 
+				verbose: true, // Display log messages when copying files 
+				failOnError: true, // Fail the task when copying is not possible. Default: false 
+				//ignoreInDest: "**/*.js", // Never remove js files from destination. Default: none 
+				//updateAndDelete: true, // Remove all files from dest that are not found in src. Default: false 
+				//compareUsing: "md5" // compares via md5 hash of file contents, instead of file modification time. Default: "mtime" 
+			}
 		}
+		
 	});
 
-//	grunt.loadNpmTasks('grunt-connect-proxy');
-//	grunt.loadNpmTasks('grunt-contrib-connect');
 
 	grunt.registerTask('serve', 'Compile then start a connect web server', function (target) {
 		if (target === 'dist') {
@@ -549,6 +573,29 @@ module.exports = function (grunt) {
 		'filerev',
 		'usemin',
 		'htmlmin'
+	]);
+
+	// lanciare nell'ordine:
+	// grunt build-local --target=local
+	// grunt watch	
+	grunt.registerTask('build-local',[
+		'clean:dist',
+		'replace:dist',
+		'wiredep',
+		'useminPrepare',
+		'concurrent:dist',
+		'compass:dist',
+		//'autoprefixer',
+		'ngtemplates',
+		//'concat',
+		'ngAnnotate',
+		'copy:distDev',
+		//'cdnify',
+		//'cssmin',
+		//'uglify',
+		//'filerev',
+		//'usemin',
+		//'htmlmin'
 	]);
 
 	grunt.registerTask('default', [
