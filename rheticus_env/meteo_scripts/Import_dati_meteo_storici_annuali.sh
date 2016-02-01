@@ -41,7 +41,8 @@ echo "${SEPARATOR_100// /*}"
 # DB connection configuration
 #DB_HOST=kim.planetek.it
 DB_HOST=localhost
-DB_NAME=RHETICUS_DEV
+#DB_NAME=RHETICUS_DEV
+DB_NAME=RHETICUS
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"
@@ -74,6 +75,12 @@ fi
 echo "Year to import: "$YEAR_FETCH
 echo ""
 
+CURRENT_YEAR=$(date +%Y)
+if [ "${CURRENT_YEAR}" -lt "${YEAR_FETCH}" ]; then
+	echo "L'anno di import è nel futuro. Import aborted"
+	exit 1
+fi
+
 # ------------------------------------------
 # Ask to user country code for filter meteo stations
 echo -e "Insert country code (XX). Default is IT. For all stations insert ALL: \c"
@@ -94,7 +101,7 @@ read -n 1 START_IMPORT
 regex_check_user_confermation="^[y]$"
 if ! [[ $START_IMPORT =~ $regex_check_user_confermation ]]
 	then
-		echo -e "\nImport aborted"exit 1
+		echo -e "\nImport aborted"
 		exit 1
 fi
 echo ""
@@ -169,6 +176,14 @@ mv ${FILE_STATION_MEASURE_HEADER}.tmp ${FILE_STATION_MEASURE_HEADER}
 # ------------------------------------------
 echo "Ora importo le misure delle stazioni meteo per l'anno " $YEAR_FETCH
 
+MAX_MONTH=12
+CURRENT_YEAR=$(date +%Y)
+if [ "${CURRENT_YEAR}" -eq "${YEAR_FETCH}" ]; then
+	MAX_MONTH=$(date +%m)
+	echo "L'anno di import è il corrente, verranno richiesti i report mensili fino al mese ${MAX_MONTH}"
+fi
+
+		
 FILE_STATIONS_MEASURE=${WORKING_DIRECTORY}/stations_measure_${YEAR_FETCH}.csv
 cat ${FILE_STATION_MEASURE_HEADER} >> ${FILE_STATIONS_MEASURE}
 
@@ -191,12 +206,11 @@ do
 
 		HEADER_LOG="$(printf %05d $INDEX)/$(printf %05d $NUM_STATIONS). Stazione = $STATION_ID. [$(date  +%H:%M:%S)] "
 
-		#FILE_STATION_MEASURE_YEARLY=${WORKING_DIRECTORY}/${STATION_ID}_${YEAR_FETCH}.csv
-		#cat ${FILE_STATION_MEASURE_HEADER} >> ${FILE_STATION_MEASURE_YEARLY}
-
 		# Ciclo sui mesi, scarico i dati meteo di una stazione e creo un unico file di import con i dati di un anno
-		for MONTH in {01..12}
+		#for MONTH in {01..12}
+		for (( IndexMonth=1; IndexMonth<=${MAX_MONTH}; IndexMonth++ ))
 		do
+			MONTH=$(printf "%02d" ${IndexMonth})
 			FILE_STATION_MEASURE_MONTHLY=${WORKING_DIRECTORY}/${STATION_ID}_${YEAR_FETCH}_${MONTH}.csv
 			#echo -ne "$HEADER_LOG [$(date +%H:%M:%S)]. Download dati meteo del mese  $MONTH ... \r"
 			wget -q -O ${FILE_STATION_MEASURE_MONTHLY}  $METEO_API_ENDPOINT/$STATION_CODE/$YEAR_FETCH/$MONTH/01/MonthlyHistory.html?format=0
@@ -227,10 +241,6 @@ do
 			echo -ne "$HEADER_LOG $MESSAGE_LOG \r"
 		done
 
-#		# Import dei dati annui della stazione
-#		KETTLE_JOB_IMPORT_STATION_MEASURE=$KETTLE_JOB_PATH/Import_stazioni_meteo_misure_annue_singola_stazione.ktr 
-#		$KETTLE_PAN_PATH/pan.sh -file=${KETTLE_JOB_IMPORT_STATION_MEASURE} -param:PAR_File_cvs_misure=${FILE_STATION_MEASURE_YEARLY} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > /dev/null
-		
 
 		duration=$SECONDS
 		TOTAL_SECOND=$[TOTAL_SECOND + duration]

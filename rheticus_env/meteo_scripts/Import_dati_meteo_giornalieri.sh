@@ -70,7 +70,8 @@ echo "${SEPARATOR_100// /*}"
 # DB connection configuration
 #DB_HOST=kim.planetek.it
 DB_HOST=localhost
-DB_NAME=RHETICUS_DEV
+#DB_NAME=RHETICUS_DEV
+DB_NAME=RHETICUS
 DB_USERNAME=postgres
 DB_PASSWORD=postgres
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"

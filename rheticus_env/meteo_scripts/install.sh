@@ -200,6 +200,15 @@ fi
 echo -e "\tDone"
 
 echo ""
+echo -e "\tCopy script for import meteo data history by means csv to installation folder ..."
+cp -r  import_dati_meteo_UE  ${METEO_INSTALL_HOME} > /dev/null 2>&1
+if [[ "$?" != 0 ]]; then
+    echo -e "\tProblem during copy script for import data history"
+        exit 1
+fi
+echo -e "\tDone"
+
+echo ""
 echo -e "\tChange permission ..."
 chown -R rheticus ${METEO_INSTALL_HOME} > /dev/null 2>&1
 chgrp -R rheticus ${METEO_INSTALL_HOME} > /dev/null 2>&1

@@ -162,7 +162,15 @@ Per l'import dei dati storici è necessario eseguire manualmente gli opportuni s
 
 
 # Installazione
-Per l'installazione e la configurazione lancoare lo script **install.sh**
+Per l'installazione e la configurazione lanciare lo script **install.sh**
+
+Per il popolamento iniziale del db con i dati meteo è possibile lanciare manualmente gli script:
+* Import_stazioni_meteo.sh
+* Import_dati_meteo_storici_annuali.sh (per ogni anno da importare)
+
+Comuque per semplificare tale fase di inizializzazione nella directory **import_dati_meteo_UE** si è predisposto uno script **Import_dati_meteo_UE.sh** che esegue l'import dei file csv già scaricati relativi alle stazioni UE ed alle relative misure per gli anni che vanno dal 2009 al 2015 (compattati nel file **dati_meteo_UE.tar.gzip**).
+Utilizzando questi file cvs già scaricati l'import delle stazioni Europee con le relative misure dal 2009 al 2015 impiega circa 1 ora, rispetto ai tempi sotto indicati.
+
 
 ## Tempi di esecuzione
 Di seguito alcune indicazioni sui tempi di esecuzione.
@@ -170,7 +178,6 @@ Di seguito alcune indicazioni sui tempi di esecuzione.
 ### Import dato storico
 * L'esecuzione dell'import delle misure storiche esteso alle sole **148** stazioni ricadenti sul territorio italiano richiede circa 25 min.
 * L'esecuzione dell'import delle misure storiche esteso alle **1290** stazioni europee (aventi codice ICAO che inizia con L/E) richiede 3 ore.
-
 
 ### Import dato giornaliero
 * L'esecuzione dell'import delle misure giornaliere esteso alle sole **148** stazioni italiane richiede meno di 3 min.
