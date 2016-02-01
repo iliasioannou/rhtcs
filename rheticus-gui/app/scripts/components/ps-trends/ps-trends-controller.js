@@ -406,7 +406,7 @@ angular.module('rheticus')
 					$http.get(url2)
 						.success(function (response) {
 							for (var i=0; i< response.length;i++) {
-								var dateWeather = new Date(response[i].data);
+								var dateWeather = new Date(response[i].day);
 								values.push({
 									"x" : dateWeather ,
 									"y": response[i].measure
