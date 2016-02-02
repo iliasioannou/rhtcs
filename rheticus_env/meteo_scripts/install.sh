@@ -73,6 +73,15 @@ else
 		echo -e "\tFailed to add a user!"
 		exit 1
 	fi
+
+	echo -e "\tAdd user ${USER_NAME} to sudo group. Adding it ...."
+	adduser ${USER_NAME} sudo > /dev/null 2>&1
+	if [ $? -eq 0 ]; then
+		echo -e "\tUser has been added to sudo group."
+	else
+		echo -e "\tFailed to add a user to sudo group!"
+		exit 1
+	fi
 fi
 
 
