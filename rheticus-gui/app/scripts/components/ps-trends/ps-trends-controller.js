@@ -361,7 +361,7 @@ angular.module('rheticus')
 			}
 
 
-		}
+		};
 		var getCity = function(){
 			GeocodingService.reverse(
 				{"lon":self.lon,"lat":self.lat},

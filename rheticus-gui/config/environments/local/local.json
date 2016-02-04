@@ -21,7 +21,7 @@
 				"type" : "TileWMS",
 				"crossOrigin" : "null",
 				"urls" : [
-					"http://localhost:8080/basemap"
+					"http://mazinga.planetek.it:8080/basemap"
 				],
 				"params" : {
 					"LAYERS" : "rv1",
@@ -268,7 +268,7 @@
 		}
 	},
 	"rheticusAPI" : {
-		"host" : "http://localhost:8080/rheticusapi/api/v1",
+		"host" : "http://mazinga.planetek.it:8080/rheticusapi/api/v1",
 		"dataset" : {
 			"path" : "/datasets/#datasetid",
 			"datasetid" : "#datasetid"
