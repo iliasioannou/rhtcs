@@ -345,9 +345,10 @@ angular.module('rheticus')
 			{
 				//console.log("lunghezza temp ps",self.psTempLength);
 				var delta=Math.abs(self.maxVelPs-self.minVelPs);
-				if(delta<10)
+				console.log("delta",delta);
+				if(delta<20)
 				{
-					self.options.chart.yDomain1=[self.minVelPs-(10-delta)/2,self.maxVelPs+(10-delta)/2];
+					self.options.chart.yDomain1=[self.minVelPs-(20-delta)/2,self.maxVelPs+(20-delta)/2];
 					self.options.chart.yAxis1.showMaxMin=false;
 				//	console.log("added",self.options.chart.yDomain1);
 				}else{
