@@ -62,7 +62,6 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
         </quartz:inbound-endpoint>
         <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct DatasetIds">
             <db:parameterized-query><![CDATA[SELECT distinct dataset_id, swath, polarisation, timestamp_last_acquisition_proc FROM deal_dataset;]]></db:parameterized-query>
-
         </db:select>
         <logger message="SQL deals datasets: #[payload]" level="INFO" doc:name="SQL deals datasets"/>
 
@@ -75,12 +74,12 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
             <set-variable variableName="procDataLastDate" value="#[payload.get(&quot;timestamp_last_acquisition_proc&quot;)==null ? new org.mule.el.datetime.DateTime(&quot;1970-01-01&quot;) : new org.mule.el.datetime.DateTime(payload.get(&quot;timestamp_last_acquisition_proc&quot;))]" doc:name="procDataLastDate"/>
             <expression-filter expression="#[procDataLastDate.isBefore(orbitalDate)]" doc:name="procDataLastDate&lt;orbitalDate"/>
             <logger message="Found #[datasetId] with possible new acquisitions. Last updated on #[procDataLastDate] and new orbitalDate: #[orbitalDate]" level="INFO" doc:name="Found dataset"/>
-            <set-payload value="{&quot;esIndex&quot;:&quot;${elasticsearch.sentinel.index}&quot;,&quot;esType&quot;:&quot;${elasticsearch.sentinel.type}&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;ingestion&quot;:{&quot;gt&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}},&quot;sort&quot;:{&quot;ingestion&quot;:{&quot;order&quot;:&quot;desc&quot;}}}}" doc:name="Set ES flow request"/>
+            <set-payload value="{&quot;esIndex&quot;:&quot;${elasticsearch.sentinel.index}&quot;,&quot;esType&quot;:&quot;${elasticsearch.sentinel.type}&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;startTime&quot;:{&quot;gt&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}},&quot;sort&quot;:{&quot;startTime&quot;:{&quot;order&quot;:&quot;desc&quot;}}}}" doc:name="Set ES flow request"/>
             <logger message="ES query for #[datasetId]: #[payload]" level="INFO" doc:name="ES query for dataset"/>
             <flow-ref name="elasticSearchFlow" doc:name="elasticSearchFlow"/>
             <expression-filter expression="#[payload.size()&gt;0]" doc:name="Check if any new data available"/>
-            <set-variable variableName="procDataLastDate" value="#[new org.mule.el.datetime.DateTime(payload[0].get(&quot;ingestion&quot;))]" doc:name="update procDataLastDate" doc:description="Date of the last ingested processed data "/>
-            <logger message="New acquisitions found! New procDataLastDate: #[procDataLastDate] (parsed from #[payload[0].get(&quot;ingestion&quot;)])" level="INFO" doc:name="New procDataLastDate"/>
+            <set-variable variableName="procDataLastDate" value="#[new org.mule.el.datetime.DateTime(payload[0].get(&quot;startTime&quot;))]" doc:name="update procDataLastDate" doc:description="Date of the last ingested processed data "/>
+            <logger message="New acquisitions found! New procDataLastDate: #[procDataLastDate] (parsed from #[payload[0].get(&quot;startTime&quot;)])" level="INFO" doc:name="New procDataLastDate"/>
             <logger message="Launching processing flow for dataset #[datasetId] with swath #[swath] and polarisation #[polarisation]" level="INFO" doc:name="Process Dataset"/> 
 			<flow-ref name="dp_ps_datasetFlow" doc:name="dp_ps_datasetFlow" />
             <db:update config-ref="Postgres_Database_Configuration" doc:name="Update Last proc timestamp">
