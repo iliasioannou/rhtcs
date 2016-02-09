@@ -12,18 +12,7 @@ angular.module('rheticus')
 
 		var self = this; //this controller
 
-		/**
-		 * PUBLIC VARIABLES AND METHODS
-		 */
-		var showTimeline = function (show){
-			self.show_timeline = show;
-			self.trendDataset = false;
-			$rootScope.markerVisibility = show;
-			$scope.setSentinelExtent([]);
-			if (!show){
-				self.data = [];
-			}
-		};
+
 
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
@@ -35,6 +24,8 @@ angular.module('rheticus')
 			"data" : [],
 			"tableData" :[],
 			"dataTrend" : [],
+			"totalProduct" : 0,
+			"totalDataset" : 0,
 			// Chart options
 			"options" : {
 				"chart" : {
@@ -126,13 +117,7 @@ angular.module('rheticus')
 					"showDistY" : true,
 					"useInteractiveGuideline" : false,
 					"interactive" : true,
-					"lines": {
-						"dispatch": {
-							"elementClick": function(e) {}, // jshint ignore:line
-							"elementMouseout": function(e) {}, // jshint ignore:line
-							"elementMouseover": function(e) {}, // jshint ignore:line
-						}
-					},
+
 					"tooltip" : {
 						enable : true,
 						contentGenerator : function(d) {
@@ -153,15 +138,28 @@ angular.module('rheticus')
 				},
 			}
 		});
+
+		/**
+		 * PUBLIC VARIABLES AND METHODS
+		 */
+		var showTimeline = function (show){
+			self.show_timeline = show;
+			self.trendDataset = false;
+			$rootScope.markerVisibility = show;
+			$scope.setSentinelExtent([]);
+			if (!show){
+				self.data = [];
+			}
+		};
 		/**
 		 * WATCHERS
 		 */
 		// ps watcher for rendering chart line data
 		$scope.$watch("sentinel",function(timeline) {
+
 			if ((timeline!==null) && (timeline.features!==null) && (timeline.features.length)) {
 				var datasetList = normalizeDatasetList(timeline);
-				showTimeline(
-					generateChartData(datasetList)
+				showTimeline(generateChartData(datasetList)
 				);
 			} else {
 				showTimeline(false);
@@ -231,6 +229,7 @@ angular.module('rheticus')
 			var datasetIdAttribute = configuration.timeSlider.attributes.datasetIdentifier;
 			var datasetList = [];
 			try {
+				self.totalProduct=timeline.features.length;
 				for (var i=0; i<timeline.features.length; i++) {
 					if (timeline.features[i].properties){
 						var datasetValue = timeline.features[i].properties.datasetId;
@@ -281,6 +280,7 @@ angular.module('rheticus')
 		 */
 		var generateChartData = function(datasetList){
 			var alphabet =['A','B','C','D','E','F','G','H','I','L','M','N','0','P'] ;
+			self.totalDataset=0;
 			var res = false;
 			if (datasetList.length>9){
 				datasetList.length=10; // max array size to be displayed
@@ -292,6 +292,7 @@ angular.module('rheticus')
 					for (var i=0; i<datasetList.length; i++) {
 						try {
 							if(datasetList[i].features.length>5){ // set a minimum cardinality to view a dataset
+								self.totalDataset++;
 								chartData.push({
 									"label" : alphabet[i], // alias dataset ID value
 									"id" : datasetList[i].id, // dataset id
@@ -317,6 +318,7 @@ angular.module('rheticus')
 			} catch (e) {
 				console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
 			} finally {
+				console.log(res);
 				return(res);
 			}
 		};
