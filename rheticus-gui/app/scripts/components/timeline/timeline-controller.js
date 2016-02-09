@@ -12,6 +12,18 @@ angular.module('rheticus')
 
 		var self = this; //this controller
 
+		/**
+		 * PUBLIC VARIABLES AND METHODS
+		 */
+		var showTimeline = function (show){
+			self.show_timeline = show;
+			self.trendDataset = false;
+			$rootScope.markerVisibility = show;
+			$scope.setSentinelExtent([]);
+			if (!show){
+				self.data = [];
+			}
+		};
 
 
 		/**
@@ -139,18 +151,7 @@ angular.module('rheticus')
 			}
 		});
 
-		/**
-		 * PUBLIC VARIABLES AND METHODS
-		 */
-		var showTimeline = function (show){
-			self.show_timeline = show;
-			self.trendDataset = false;
-			$rootScope.markerVisibility = show;
-			$scope.setSentinelExtent([]);
-			if (!show){
-				self.data = [];
-			}
-		};
+
 		/**
 		 * WATCHERS
 		 */
@@ -318,7 +319,6 @@ angular.module('rheticus')
 			} catch (e) {
 				console.log("[ps-trends-controller :: generateChartData] EXCEPTION : '"+e);
 			} finally {
-				console.log(res);
 				return(res);
 			}
 		};
