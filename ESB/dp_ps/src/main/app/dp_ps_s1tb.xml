@@ -39,7 +39,7 @@ return payload]]></scripting:script>
         <set-variable variableName="requestId" value="#[json:requestId]" doc:name="requestId"/>
 
         <logger message="STATUS AFTER START REQUEST: #[requestStatus]" level="INFO" doc:name="STATUS AFTER START REQUEST"/>
-        <until-successful maxRetries="${s1toolbox.polling.retries}" synchronous="true" doc:name="Until not COMPLETED or FAILED" failureExpression="#[!requestStatus.equals('COMPLETED') &amp;&amp; !requestStatus.equals('FAILED')]" millisBetweenRetries="${s1toolbox.polling.wait}">
+        <until-successful maxRetries="${s1toolbox.polling.retries}" synchronous="true" doc:name="Until not COMPLETED, PARTIALLY_COMPLETED or FAILED" failureExpression="#[!requestStatus.equals('COMPLETED') &amp;&amp; !requestStatus.equals('PARTIALLY_COMPLETED') &amp;&amp; !requestStatus.equals('FAILED')]" millisBetweenRetries="${s1toolbox.polling.wait}">
             <processor-chain doc:name="Processor Chain">
                 <http:request config-ref="HTTP_Request_S1TB" path="#[requestId]" method="GET" doc:name="request polling status S1TBX">
                     <http:request-builder>
@@ -53,8 +53,8 @@ return payload]]></scripting:script>
             </processor-chain>
         </until-successful>
         <object-to-string-transformer doc:name="Object to String"/>
-        <scripting:component doc:name="Check requestStatus">
-            <scripting:script engine="Groovy"><![CDATA[if(flowVars['requestStatus'] != "COMPLETED")
+        <scripting:component doc:name="Exception if requestStatus FAILED">
+            <scripting:script engine="Groovy"><![CDATA[if(flowVars['requestStatus'] == "FAILED")
 	throw new Exception("S1TBX processing failed")
 return payload]]></scripting:script>
         </scripting:component>
