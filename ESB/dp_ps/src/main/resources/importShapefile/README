@@ -172,8 +172,11 @@ import.shapefile.db.table_commit_size=5000
 ------------------------------
 Lancio manuale del job ETL GeoKettle
 
-/opt/geokettle-2.5/kitchen.sh -file=/opt/geokettle-jobs/rheticus_ps_import.kjb -param:VAR_RHETICUS_DB_HOST=kim.planetek.it -param:VAR_RHETICUS_DB_PORT=5432 -param:VAR_RHETICUS_DB_NAME=RHETICUS_DEV -param:VAR_RHETICUS_DB_USER=postgres -param:VAR_RHETICUS_DB_PASSWORD=postgres -param:VAR_RHETICUS_IMPORT_PS_FOLDER=/home/coletta/pkt284/importPS/niscemi -param:VAR_DATASETID=entinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5 -param:VAR_SENSORID=S01 -param:VAR_SHP_NAME=SPINUA1_17856.shp -level:Basic
+/opt/geokettle-2.5/kitchen.sh -file=/opt/geokettle-jobs/rheticus_ps_import.kjb -param:VAR_RHETICUS_DB_HOST=localhost -param:VAR_RHETICUS_DB_PORT=5432 -param:VAR_RHETICUS_DB_NAME=RHETICUS -param:VAR_RHETICUS_DB_USER=postgres -param:VAR_RHETICUS_DB_PASSWORD=postgres -param:VAR_RHETICUS_IMPORT_PS_FOLDER=/home/coletta/importPS/niscemi/Stack4_SPINUA_Sentinel_ASC_Niscemi_Coh095 -param:VAR_DATASETID=Sentinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5 -param:VAR_SENSORID=S01 -param:VAR_SHP_NAME=SPINUA_Sentinel_ASC.shp -level:Basic
 
 
 
-/opt/geokettle-2.5/kitchen.sh -file=/home/coletta/pkt284/geokettle-jobs/s01/rheticus_ps_import.kjb -param:VAR_RHETICUS_DB_HOST=kim.planetek.it -param:VAR_RHETICUS_DB_PORT=5432 -param:VAR_RHETICUS_DB_NAME=RHETICUS_DEV -param:VAR_RHETICUS_DB_USER=postgres -param:VAR_RHETICUS_DB_PASSWORD=postgres -param:VAR_RHETICUS_IMPORT_PS_FOLDER=/home/coletta/pkt284/importPS/niscemi -param:VAR_DATASETID=entinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5 -param:VAR_SENSORID=S01 -param:VAR_SHP_NAME=SPINUA1_17856.shp -level:Basic
+
+
+
+

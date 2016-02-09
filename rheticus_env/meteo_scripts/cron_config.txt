@@ -1,0 +1,1 @@
+15 02 * * * /opt/rheticus_meteo/Import_dati_meteo_giornalieri.sh

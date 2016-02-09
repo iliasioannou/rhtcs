@@ -1,6 +1,7 @@
 var dbConfig = require("./dbConfig.js");
 var knex = require("knex")(dbConfig);
 var bookshelf = require("bookshelf")(knex);
+var moment = require('moment');
 
 bookshelf.plugin("visibility");
 bookshelf.plugin("virtuals");
@@ -34,11 +35,17 @@ var MeteoStation = bookshelf.Model.extend({
 
 var MeteoStationMeasure = bookshelf.Model.extend({
     tableName: "meteo_stations_measure",
-    hidden: ["id"],
+    hidden: ["id", "data"],
 	virtuals: {
 		aggregation: {
 			get: function(){return "DAY"}
-		}		
+		},
+	    day : {
+            get : function () {
+				//Terrible workaround
+                return moment(this.get('data')).add("hours", 12).format("YYYY-MM-DD");
+            }
+        }		
 	}
 });
 

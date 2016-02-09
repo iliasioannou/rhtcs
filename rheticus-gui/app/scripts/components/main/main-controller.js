@@ -166,10 +166,6 @@ angular.module('rheticus')
 		/**
 		 * WATCHERS
 		 */
-		//Switch PS layer
-		$scope.$watch("center.zoom", function () {
-			getOverlayParams("ps").source.params.LAYERS = getOverlayMetadata("ps").custom.detail;
-		});
 		//speedModel init watcher for adjusting CQL_FILTER view source parameter
 		$scope.$watch("speedModel.init", function (range) {
 			setSpeedModelFilter(range);

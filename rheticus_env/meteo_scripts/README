@@ -1,0 +1,184 @@
+# Dati meteo precipitazioni
+
+Per l'archiviazione dei dati meteo si ricorre alle risorse online segnalate da Davide Nitti (vedi email martedì 15 dicembre 2015 05:41).
+
+## Stazioni meteo
+L'elenco delle stazioni (a livello mondiale) e la loro collocazione geografica è reperibile 
+sul sito del [consorzio di università americane USAR](http://weather.rap.ucar.edu/surface/stations.txt).
+
+Di seguito un estratto del file, che come si nota non è in formato csv.
+
+'''
+	!   CD = 2 letter state (province) abbreviation
+	!   STATION = 16 character station long name
+	!   ICAO = 4-character international id
+	!   IATA = 3-character (FAA) id
+	!   SYNOP = 5-digit international synoptic number
+	!   LAT = Latitude (degrees minutes)
+	!   LON = Longitude (degree minutes)
+	!   ELEV = Station elevation (meters)
+	!   M = METAR reporting station.   Also Z=obsolete? site
+	!   N = NEXRAD (WSR-88D) Radar site
+	!   V = Aviation-specific flag (V=AIRMET/SIGMET end point, A=ARTCC T=TAF U=T+V)
+	!   U = Upper air (rawinsonde=X) or Wind Profiler (W) site
+	!   A = Auto (A=ASOS, W=AWOS, M=Meso, H=Human, G=Augmented) (H/G not yet impl.)
+	!   C = Office type F=WFO/R=RFC/C=NCEP Center
+	!   Digit that follows is a priority for plotting (0=highest)
+	!   Country code (2-char) is last column
+	!
+	!23456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+
+	000000000111111111122222222223333333333444444444445555555556666666666777777777788888888889
+	123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890
+	!
+	ALASKA             16-DEC-13                                                  
+	CD  STATION         ICAO  IATA  SYNOP   LAT     LONG   ELEV   M  N  V  U  A  C
+	AK ADAK NAS         PADK  ADK   70454  51 53N  176 39W    4   X     T          7 US
+	AK AKHIOK           PAKH  AKK          56 56N  154 11W   14   X                8 US 
+	....
+	ALABAMA            16-DEC-13
+	CD  STATION         ICAO  IATA  SYNOP   LAT     LONG   ELEV   M  N  V  U  A  C
+	AL ALABASTER        KEET  EET          33 11N  086 47W  173   X     T     A    3 US
+	AL ALBERTVILLE MUNI K8A0  8A0          34 14N  086 15W  315   X                7 US
+	AL ALEXANDER/RUSSEL KALX  ALX          32 55N  085 58W  209   X           W    7 US
+	...
+'''
+
+
+Le informazioni sulle stazioni meteo verranno inserite nella tabella **meteo_stations**.
+Le colonne estratte dal file *stations.txt* saranno:
+* ICAO, codice della stazione (univoco a livello mondiale)
+* STATION, archiviato come descrizione
+* country cod, codice ISO 3166-1 del paese di appartenenza
+* lat, latitudine convertita in gradi decimali da gradi e minuti
+* lon, longitudine convertita in gradi decimali da gradi e minuti
+* elevation
+
+Le stazioni meteo vengono recuperate da uno script bash da lanciare a mano.
+
+Lo script bash che esegue l'import delle stazioni è **iImport_stazioni_meteo.sh** che esegue i seguenti passaggi:
+1. scarica il file *stations.txt*
+2. estrae dal file le stazioni ricadenti in Europa. tale filtro viene fatto considerando le caratteristiche del [codice ICAO](https://it.wikipedia.org/wiki/Codice_aeroportuale_ICAO) che con il primo carattere suddivide in aree geografiche il globo. Per l'Europa i codici ICAO iniziano con una *L* per il sud europa ed *E* per il nord europa.
+3. Successivamente viene generato un file in formato csv
+4. che viene passato alla trasformazione ETL Kettle per l'import. Tale ETL effettua l'insert delle nuove stazioni ed  elimina quelle già presenti nella tabella ma non presenti nel file di import.
+
+
+## Misure delle stazioni meteo
+Le misure meteo rilevate dalle stazioni sono recuperabili dal seguente url:
+
+'''
+http://www.wunderground.com/history/airport/<ICAO CODE>/YYYY/MM/DD/MonthlyHistory.html?format=1
+'''
+
+dove:
+* <ICAO CODE>: è il codice ICAO della stazione
+* YYYY: anno
+* MM: mese (è indifferente l'uso di 1 cifra o due, ossia 1 e 01 sono equivalenti )
+* GG: giorno (è indifferente l'uso di 1 cifra o due, ossia 1 e 01 sono equivalenti). Da considerare che se il valore di GG supera il numero di giorni max del mese viene restituito il report mensile del mese successivo.
+
+Quindi per il recupero del report mensile delle misure di una stazione, poichè il giorno non influisce sulla risposta a meno di non inserire un valore eccessivo rispetto al mese in considerazione, è consigliabile impostare il valore di GG = 01.
+
+Nel caso in cui si richiede il report mensile di un mese non ancora iniziato verrà restituito un file contenente la sola intestazione.
+
+Nel caso in cui si richiede il report mensile del mese corrente verrà restituito un file contenente le misure fino al giorno corrente.
+
+Ipotizzando NOW = 2015-01-10 effettuando la seguente richiesta al sistema:
+
+'''
+http://www.wunderground.com/history/airport/LIRF/2016/1/01/MonthlyHistory.html?format=1
+'''
+
+si ottiene il seguente file di testo in risposta:
+
+'''
+CET,Max TemperatureC,Mean TemperatureC,Min TemperatureC,Dew PointC,MeanDew PointC,Min DewpointC,Max Humidity, Mean Humidity, Min Humidity, Max Sea Level PressurehPa, Mean Sea Level PressurehPa, Min Sea Level PressurehPa, Max VisibilityKm, Mean VisibilityKm, Min VisibilitykM, Max Wind SpeedKm/h, Mean Wind SpeedKm/h, Max Gust SpeedKm/h,Precipitationmm, CloudCover, Events,WindDirDegrees
+2016-1-1,11,9,7,7,5,4,87,77,64,1027,1025,1024,10,8,6,13,8,,0.25,4,Rain,77
+2016-1-2,15,11,8,14,8,4,94,83,66,1024,1018,1011,10,9,6,26,13,,2.03,6,Rain,116
+2016-1-3,15,10,6,13,7,3,87,73,53,1010,1008,1007,31,13,9,40,18,,0.00,3,Thunderstorm,328
+2016-1-4,15,10,6,13,9,3,94,85,71,1007,1001,997,31,11,5,26,13,,2.03,4,Rain,227
+2016-1-5,13,11,9,11,10,8,100,91,80,1002,1000,999,19,9,4,14,8,,6.10,4,Fog-Rain,69
+2016-1-6,14,11,7,10,7,5,100,83,61,1003,1001,999,26,10,6,40,13,60,1.02,3,Fog-Rain-Thunderstorm,112
+2016-1-7,13,8,3,10,7,3,100,86,56,1008,1006,1002,26,10,2,16,10,,0.76,3,Fog-Rain,100
+2016-1-8,16,12,8,13,11,7,100,89,78,1012,1010,1007,14,10,8,19,13,,0.00,4,,127
+2016-1-9,17,14,12,14,13,12,94,88,77,1012,1010,1009,14,10,10,29,18,40,0.00,2,,142
+2016-1-10,18,16,13,14,12,9,94,78,52,1011,1009,1007,26,11,8,27,16,,0.00,2,Rain,188
+'''
+
+Come si può notare abbiamo un file di testo csv.
+
+Per l'import delle misure  abbiamo due fasi:
+1. La prima, che richiede necessariamente la presenza nel sistema RHETICUS stazioni meteo importate precedentemente, effettua l'import dello storico su un anno in modo da popolare il database con una base storica
+2. la seconda effettua l'import delle misure giornaliere in modo da tener il repository delle misure aggiornato 
+
+Di seguito sono descritte le due fasi.
+
+### Import delle misure storiche
+L'import delle misure storiche viene eseguito mediante lo script bash **Import_dati_meteo_storici_annuali**.
+Lo script effettua l'import delle misure di *precipitazione* e *temperatura media* che una stazione ha registrato in un anno.
+
+Lo script lavora sulle stazioni già presenti nel sistema RHETICUS.
+Esso fa uso delle API REST RHETICUS per ottenere la lista delle stazioni già importate, eventualmente filtrandole per nazione di appartenenza (di default considera le stazioni aventi *country cod* = IT).
+
+Altro parametro di cui lo script necessita è l'anno di riferimento.
+
+Per la singola stazione lo script effettua il download dei 12 report mensili dell'anno di riferimento.
+Tutte le misure vengono inserite in un unico file csv che viene successimante dato in input all'ETL Kettle che ne effettua l'import.
+Da considerare che l'ETL Kettle, prima di importare le misure, elimina le misure già esistenti delle stazioni selezionate e nell'anno di riferimento.
+
+
+
+### Import delle misure giornaliere (real-time)
+L'import delle misure giornaliere viene eseguito mediante lo script bash **Import_dati_meteo_storici_giornalieri**.
+Lo script effettua l'import delle misure di *precipitazione* e *temperatura media* che una stazione ha registrato in un giorno.
+
+Lo script lavora sulle stazioni già presenti nel sistema RHETICUS.
+Esso fa uso delle API REST RHETICUS per ottenere la lista delle stazioni già importate, eventualmente filtrandole per nazione di appartenenza (di default considera le stazioni aventi *country cod* = IT).
+
+Altro parametro di cui lo script necessita è il giorno di riferimento.
+
+Per la singola stazione lo script effettua il download del report del mese corrente da cui estrae l'informqazione del giorno di riferimento..
+Tutte le misure giornaliere delle singole stazioni vengono inserite in un unico file csv che viene successivamente dato in input all'ETL Kettle che ne effettua l'import.
+Da considerare che l'ETL Kettle, prima di importare le misure, elimina le misure già esistenti delle stazioni selezionate nel giorno di riferimento.
+
+## ETL Kettle
+Tutte le operazioni di import delle informazioni (stazioni e misure storiche/giornaliere) avvengonosecondo il seguente schema:
+1. uno script bash di import esegue le operazioni di download dei dati (lista delle stazioni e report misure mensili), pulizia del dato scaricato, estrazione delle informazioni utili e creazione del file CSV, eventualmente mettendo insieme più file, che poi viene passato alla trasformazione KETTLE. Da notare che lo script bash può richiamare, in base al cotesto, anche un ETL KETTLE di eliminazione delle precedenti misure.
+2. una strasformazione ETL di KETTLE esegue l'import/aggiornamento del dato nel database leggendo ed interpretando il file CSV.
+
+Le trasformazioni ETL KETTLE utilizzate sono:
+
+* METEO_delete_misure_anno.ktr
+* METEO_delete_misure_anno_singola_stazione.ktr
+* METEO_delete_misure_giorno.ktr
+* METEO_Import_misure.ktr
+* METEO_Import_stazioni.ktr
+
+
+Tali trasformazioni sono state create con *data-integration_ce-6.0.1.0* (Penthao Kettle)
+
+## Installazione e configurazione
+Di seguito la procedura di installazione e configurazione della procedura di import dei dati meteo giornalieri.
+Per l'import dei dati storici è necessario eseguire manualmente gli opportuni script.
+
+
+# Installazione
+Per l'installazione e la configurazione lanciare lo script **install.sh**
+
+Per il popolamento iniziale del db con i dati meteo è possibile lanciare manualmente gli script:
+* Import_stazioni_meteo.sh
+* Import_dati_meteo_storici_annuali.sh (per ogni anno da importare)
+
+Comuque per semplificare tale fase di inizializzazione nella directory **import_dati_meteo_UE** si è predisposto uno script **Import_dati_meteo_UE.sh** che esegue l'import dei file csv già scaricati relativi alle stazioni UE ed alle relative misure per gli anni che vanno dal 2009 al 2015 (compattati nel file **dati_meteo_UE.tar.gzip**).
+Utilizzando questi file cvs già scaricati l'import delle stazioni Europee con le relative misure dal 2009 al 2015 impiega circa 1 ora, rispetto ai tempi sotto indicati.
+
+
+## Tempi di esecuzione
+Di seguito alcune indicazioni sui tempi di esecuzione.
+
+### Import dato storico
+* L'esecuzione dell'import delle misure storiche esteso alle sole **148** stazioni ricadenti sul territorio italiano richiede circa 25 min.
+* L'esecuzione dell'import delle misure storiche esteso alle **1290** stazioni europee (aventi codice ICAO che inizia con L/E) richiede 3 ore.
+
+### Import dato giornaliero
+* L'esecuzione dell'import delle misure giornaliere esteso alle sole **148** stazioni italiane richiede meno di 3 min.
+* L'esecuzione dell'import delle misure giornaliere esteso alle **1290** stazioni europee (aventi codice ICAO che inizia con L/E) richiede circa 25 min.

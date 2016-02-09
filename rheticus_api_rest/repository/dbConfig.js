@@ -1,11 +1,14 @@
 var dbConfig = {
-    client: 'postgres',
+    client    : 'postgres',
+    debug     : true,
     connection: {
         host     : 'kim.planetek.it',
         user     : 'postgres',
         password : 'postgres',
-        database : 'RHETICUS',
-        charset  : 'utf8'
+        //database : 'RHETICUS',
+        database : 'RHETICUS_DEV',
+        charset  : 'utf8',
+        timezone : 'UTC'
   }
 };
 
