@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:jbossts="http://www.mulesoft.org/schema/mule/jbossts" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz" xmlns:jbossts="http://www.mulesoft.org/schema/mule/jbossts" xmlns:vm="http://www.mulesoft.org/schema/mule/vm" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
 	xmlns:context="http://www.springframework.org/schema/context"
@@ -13,7 +13,8 @@ http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/fil
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd
-http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/jbossts/current/mule-jbossts.xsd">
+http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/jbossts/current/mule-jbossts.xsd
+http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd">
 
 	<spring:beans>
 		<context:property-placeholder location="classpath:etl_modis${mule.env:#{null}}.properties" system-properties-mode="OVERRIDE" />
@@ -26,9 +27,14 @@ http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/
 	
     <http:listener-config name="HTTP_Listener_Modis" host="0.0.0.0" port="9096" basePath="modis" doc:name="HTTP Listener Configuration"/>
     <http:request-config name="HTTP_Request_Modis" host="${modis.search.host}" port="${modis.search.port}" basePath="${modis.search.path}" doc:name="HTTP Request Configuration"/>
+    <file:connector name="SyncronousFileConnector" validateConnections="true" doc:name="File">
+    	<dispatcher-threading-profile doThreading="false"/>
+    </file:connector>
 
     <flow name="etl_modisFlow1" >
-        <http:listener config-ref="HTTP_Listener_Modis" path="/" doc:name="HTTP"/>
+        <quartz:inbound-endpoint jobName="ModisUpdates" repeatInterval="0" responseTimeout="10000" doc:name="EveryDay at 10am" cronExpression="0 00 10 ? * *">
+            <quartz:event-generator-job/>
+        </quartz:inbound-endpoint>
         <logger message="Modis Connector Started." level="INFO" doc:name="Modis connector started"/>
         <object-to-string-transformer doc:name="Object to String"/>
         <set-variable variableName="inputPayload" value="#[payload]" doc:name="inputPayload"/>
@@ -42,7 +48,8 @@ http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/
 	            <logger message="Added modis query filter: #[qryField] = #[payload]" level="INFO" doc:name="Log query filter"/>
 	            <set-variable variableName="qryString" value="#[qryString +&quot;&amp;&quot;+qryField+&quot;=&quot;+payload]" doc:name="update qryString"/>
 	        </foreach>
-	        <logger message="http://${modis.search.host}:${modis.search.port}/${modis.search.path}#[qryString]" level="INFO" doc:name="Logger"/>
+        <expression-component doc:name="Add day field to queryString"><![CDATA[qryString  =+"&day="+System.currentTimeMillis()/86400000]]></expression-component>
+	        <logger message="Modis query string: http://${modis.search.host}:${modis.search.port}/${modis.search.path}#[qryString] " level="INFO" doc:name="Modis query string"/>
             <!--  <http:request config-ref="HTTP_Request_Modis" path="#[qryString]" method="GET" doc:name="Search on Modis Browser" />  -->
             <!--  <logger message="#[message]" level="INFO" doc:name="Logger"/>  -->
 	        <http:outbound-endpoint exchange-pattern="request-response" host="${modis.search.host}" port="${modis.search.port}" path="${modis.search.path}#[qryString]" method="GET" doc:name="Search on Modis Browser"/>
@@ -51,21 +58,21 @@ http://www.mulesoft.org/schema/mule/jbossts http://www.mulesoft.org/schema/mule/
 	            <logger message="ForEach: #[payload] #[&quot;\n&quot;] Downloading http://${modis.download.host}:${modis.download.port}/${modis.download.path}#[payload]" level="INFO" doc:name="Logger"/>
 	            <set-variable variableName="prodFilename" value="#[payload]" doc:name="prodFilename"/>
 	            <http:outbound-endpoint exchange-pattern="request-response" host="${modis.download.host}" port="${modis.download.port}" path="${modis.download.path}#[payload]" method="GET" mimeType="binary/octet-stream" contentType="binary/octet-stream" doc:name="Download Modis Product"/>
-	            <file:outbound-endpoint path="${download.temp.dir}" outputPattern="#[prodFilename]" responseTimeout="10000" doc:name="File"/>
+	            <file:outbound-endpoint path="${download.temp.dir}" outputPattern="#[prodFilename]" responseTimeout="10000" doc:name="File" connector-ref="SyncronousFileConnector"/>
 	            <logger message="Res: #[payload]" level="INFO" doc:name="Logger"/>
 	            <component class="it.planetek.rheticus.mule.components.MODISMetadataReaderComponent" doc:name="MODIS Metadata Reader"/>
 	            <set-variable variableName="platform" value="#[payload.get(&quot;platform&quot;)]" doc:name="Set platform as MODIS data type"/>
 	            <set-variable variableName="product_name" value="#[payload.get(&quot;product_name&quot;)]" doc:name="Set product_name as MODIS product uuid"/>
-	            <json:object-to-json-transformer doc:name="HashMap to GeoJSON"/>
-	            <logger message="Metadata in JSON: #[payload]" level="INFO" doc:name="Logger"/>
+	            <json:object-to-json-transformer doc:name="HashMap to JSON"/>
+	            <logger message="Metadata in JSON: #[payload]" level="INFO" doc:name="Metadata in JSON"/>
 	
 				<http:outbound-endpoint exchange-pattern="request-response" host="${elastic.search.host}" port="${elastic.search.port}" path="${elastic.search.path}#[platform]/#[product_name]" method="POST" doc:name="Ingestion in Elastic Search (Deprecated)"/>
 				<logger level="INFO" doc:name="Elastic Search Response"/>
 	
 	        </foreach>
+        <logger message="Modis Connector ended" level="INFO" doc:name="END"/>
 	    <!--  </async> -->
-   		<set-payload value="&lt;HTML&gt;&lt;BODY&gt;ETL_MODIS ... Elastic Search Ingestion COMPLETED!&lt;/BODY&gt;&lt;/HTML&gt;" doc:name="Set Payload"/>
-        <http:response-builder status="200" contentType="text/html" doc:name="HTTP Response Builder"/>
+
     </flow>
 
 </mule>
