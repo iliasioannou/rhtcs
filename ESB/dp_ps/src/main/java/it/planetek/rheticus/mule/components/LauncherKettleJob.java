@@ -143,11 +143,11 @@ public class LauncherKettleJob
             {
                 kettleInstallationFolder = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.kettle.app.folder"));
                 kettleAppName = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.kettle.app.name"));
-                dbHost = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.host"));
-                dbPort = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.port"));
-                dbName = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.name"));
-                dbUser = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.user"));
-                dbPassword = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.db.password"));
+                dbHost = StringUtils.trimToEmpty(psProps.getProperty("db.host"));
+                dbPort = StringUtils.trimToEmpty(psProps.getProperty("db.port"));
+                dbName = StringUtils.trimToEmpty(psProps.getProperty("db.name"));
+                dbUser = StringUtils.trimToEmpty(psProps.getProperty("db.user"));
+                dbPassword = StringUtils.trimToEmpty(psProps.getProperty("db.password"));
                 inputFolder = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.folder"));
                 jobFolder = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.kettle.job.folder"));
                 jobName = StringUtils.trimToEmpty(psProps.getProperty("import.shapefile.kettle.job.name"));
