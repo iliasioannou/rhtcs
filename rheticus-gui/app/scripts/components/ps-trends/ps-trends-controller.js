@@ -300,7 +300,8 @@ angular.module('rheticus')
 							var measureDate = new Date(eval("measures[i]."+dateParamKey+";")); // jshint ignore:line
 							if(measures[i].measure<self.minVelPs){
 								self.minVelPs=measures[i].measure;
-							}else if (measures[i].measure>self.maxVelPs) {
+							}
+							if (measures[i].measure>self.maxVelPs) {
 								self.maxVelPs=measures[i].measure;
 							}
 
