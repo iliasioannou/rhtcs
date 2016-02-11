@@ -1,0 +1,69 @@
+-- Il presente script serve a creare le strutture per far accedere il partner sloveno Kaliopa ai dati dei ps appartenenti ai dataset di loro interesse
+-- L'utenza postgres è (username/password): RHETICUS_kaliopa/kaliopa
+
+-- Role: RHETICUS_kaliopa
+
+-- DROP ROLE "RHETICUS_kaliopa";
+
+CREATE ROLE "RHETICUS_kaliopa" LOGIN
+  ENCRYPTED PASSWORD 'md590251bc5669cf2a3e9e5bd085c24dcf2'
+  NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
+COMMENT ON ROLE "RHETICUS_kaliopa" IS 'Utenza del db rheticus associata al partner sloveno Kaliopa';
+
+
+-- Schema: kaliopa
+
+-- DROP SCHEMA kaliopa;
+
+CREATE SCHEMA kaliopa
+  AUTHORIZATION postgres;
+
+GRANT ALL ON SCHEMA kaliopa TO postgres;
+GRANT USAGE ON SCHEMA kaliopa TO "RHETICUS_kaliopa";
+
+
+
+-- View: kaliopa.vw_kaliopa_ps
+
+-- DROP VIEW kaliopa.vw_kaliopa_ps;
+
+CREATE OR REPLACE VIEW kaliopa.vw_kaliopa_ps AS 
+ SELECT ps.datasetid,
+    ps.psid,
+    ps.lat,
+    ps.lon,
+    ps.sensorid,
+    ps.coherence,
+    ps.height,
+    ps.velocity
+   FROM ps
+  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5'::text, 'Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5'::text]);
+
+ALTER TABLE kaliopa.vw_kaliopa_ps
+  OWNER TO postgres;
+GRANT ALL ON TABLE kaliopa.vw_kaliopa_ps TO postgres;
+GRANT SELECT ON TABLE kaliopa.vw_kaliopa_ps TO "RHETICUS_kaliopa";
+COMMENT ON VIEW kaliopa.vw_kaliopa_ps
+  IS 'Vista che consente l''accesso ai PS dei dataset di interesse per il partner kaliopa';
+  
+  -- View: kaliopa.vw_kaliopa_ps_measure
+
+-- DROP VIEW kaliopa.vw_kaliopa_ps_measure;
+
+CREATE OR REPLACE VIEW kaliopa.vw_kaliopa_ps_measure AS 
+ SELECT ps_measure.datasetid,
+    ps_measure.psid,
+    ps_measure.type,
+    ps_measure.data,
+    ps_measure.measure
+   FROM ps_measure
+  WHERE (ps_measure.datasetid IN ( SELECT vw_kaliopa_ps.datasetid
+           FROM kaliopa.vw_kaliopa_ps));
+
+ALTER TABLE kaliopa.vw_kaliopa_ps_measure
+  OWNER TO postgres;
+GRANT ALL ON TABLE kaliopa.vw_kaliopa_ps_measure TO postgres;
+GRANT SELECT ON TABLE kaliopa.vw_kaliopa_ps_measure TO "RHETICUS_kaliopa";
+COMMENT ON VIEW kaliopa.vw_kaliopa_ps_measure
+  IS 'Vista che consente l''accesso alle misure dei PS dei dataset di interesse per il partner kaliopa';
+
