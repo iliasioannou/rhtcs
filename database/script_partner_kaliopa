@@ -23,11 +23,11 @@ GRANT USAGE ON SCHEMA kaliopa TO "RHETICUS_kaliopa";
 
 
 
--- View: kaliopa.vw_kaliopa_ps
+-- View: kaliopa.vw_ps
 
--- DROP VIEW kaliopa.vw_kaliopa_ps;
+-- DROP VIEW kaliopa.vw_ps;
 
-CREATE OR REPLACE VIEW kaliopa.vw_kaliopa_ps AS 
+CREATE OR REPLACE VIEW kaliopa.vw_ps AS 
  SELECT ps.datasetid,
     ps.psid,
     ps.lat,
@@ -39,31 +39,31 @@ CREATE OR REPLACE VIEW kaliopa.vw_kaliopa_ps AS
    FROM ps
   WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5'::text, 'Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5'::text]);
 
-ALTER TABLE kaliopa.vw_kaliopa_ps
+ALTER TABLE kaliopa.vw_ps
   OWNER TO postgres;
-GRANT ALL ON TABLE kaliopa.vw_kaliopa_ps TO postgres;
-GRANT SELECT ON TABLE kaliopa.vw_kaliopa_ps TO "RHETICUS_kaliopa";
-COMMENT ON VIEW kaliopa.vw_kaliopa_ps
-  IS 'Vista che consente l''accesso ai PS dei dataset di interesse per il partner kaliopa';
+GRANT ALL ON TABLE kaliopa.vw_ps TO postgres;
+GRANT SELECT ON TABLE kaliopa.vw_ps TO "RHETICUS_kaliopa";
+COMMENT ON VIEW kaliopa.vw_ps
+  IS 'View for read PS inside dataset concerns kaliopa';
   
-  -- View: kaliopa.vw_kaliopa_ps_measure
+  -- View: kaliopa.vw_ps_measure
 
--- DROP VIEW kaliopa.vw_kaliopa_ps_measure;
+-- DROP VIEW kaliopa.vw_ps_measure;
 
-CREATE OR REPLACE VIEW kaliopa.vw_kaliopa_ps_measure AS 
+CREATE OR REPLACE VIEW kaliopa.vw_ps_measure AS 
  SELECT ps_measure.datasetid,
     ps_measure.psid,
     ps_measure.type,
     ps_measure.data,
     ps_measure.measure
    FROM ps_measure
-  WHERE (ps_measure.datasetid IN ( SELECT vw_kaliopa_ps.datasetid
-           FROM kaliopa.vw_kaliopa_ps));
+  WHERE (ps_measure.datasetid IN ( SELECT vw_ps.datasetid
+           FROM kaliopa.vw_ps));
 
-ALTER TABLE kaliopa.vw_kaliopa_ps_measure
+ALTER TABLE kaliopa.vw_ps_measure
   OWNER TO postgres;
-GRANT ALL ON TABLE kaliopa.vw_kaliopa_ps_measure TO postgres;
-GRANT SELECT ON TABLE kaliopa.vw_kaliopa_ps_measure TO "RHETICUS_kaliopa";
-COMMENT ON VIEW kaliopa.vw_kaliopa_ps_measure
-  IS 'Vista che consente l''accesso alle misure dei PS dei dataset di interesse per il partner kaliopa';
+GRANT ALL ON TABLE kaliopa.vw_ps_measure TO postgres;
+GRANT SELECT ON TABLE kaliopa.vw_ps_measure TO "RHETICUS_kaliopa";
+COMMENT ON VIEW kaliopa.vw_ps_measure
+  IS 'View for read the measure of displacement';
 
