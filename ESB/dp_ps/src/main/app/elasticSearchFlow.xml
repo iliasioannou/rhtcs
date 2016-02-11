@@ -1,27 +1,41 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+<mule xmlns:metadata="http://www.mulesoft.org/schema/mule/metadata" xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
 	xmlns:spring="http://www.springframework.org/schema/beans" 
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
 http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+    
+    <http:request-config name="HTTP_Request_ES" host="${elasticsearch.host}" port="${elasticsearch.rest.port}"  doc:name="HTTP Request Configuration" basePath="/"/>
+    
     <flow name="elasticSearchFlow" doc:description="Query ElasticSearch with automatic pagination management, and return an ArrayList containing the result data.
 
 INPUT (json)
-{&quot;query&quot;: { &quot;match&quot;: {&quot;datasetId&quot;:&quot;d34d9a33455834004af81d23ee96ea8c&quot; }}}
+{
+  &quot;esIndex&quot;: &quot;index-name&quot;,
+  &quot;esType&quot;: &quot;type-name&quot;,
+  &quot;esQuery&quot;: {
+            &quot;query&quot;: {                         &quot;match&quot;: &quot;datasetId&quot;:&quot;d34d9a33455834004af81d23ee96ea8c&quot; }}
+    }
+}
 
 OUTPUT (ArrayList):
-[{ ... }, { ... }, { ... }, { ... }, { ... }, { ... }, ... ]" processingStrategy="synchronous">
+[{ ... }, { ... }, { ... }, { ... }, { ... }, { ... }, ... ]
+
+
+
+Example (modis):
+{&quot;esIndex&quot;:&quot;modis&quot;,&quot;esType&quot;:&quot;Aqua&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;should&quot;:[{&quot;match&quot;:{&quot;processing_control_input_parameters_suite&quot;:&quot;SST&quot;}},{&quot;match&quot;:{&quot;processing_control_input_parameters_suite&quot;:&quot;OC&quot;}}]}}}}" processingStrategy="synchronous">
         <choice doc:name="EL first request or next pages?">
             <when expression="#[flowVars[&quot;resultCounter&quot;]!=null]">
-                <logger message="ElasticSearch read new page, from #[resultCounter] to #[resultCounter+paginationSize]" level="INFO" doc:name="Read new page"/>
-                <set-payload value="#[inputPayload]" doc:name="Restore originalPayload"/>
+                <logger message="ESFlow read new page, from #[resultCounter] to #[resultCounter+paginationSize]" level="INFO" doc:name="Read new page"/>
+                <set-payload value="#[inputPayload]" doc:name="Restore inputPayload"/>
                 <expression-component doc:name="add Pagination args to EL query"><![CDATA[payload.put("from", resultCounter);
 payload.put("size", paginationSize);]]></expression-component>
                 <json:object-to-json-transformer doc:name="Object to JSON"/>
-                <http:request config-ref="HTTP_Request_Elastisearch" path="/_search" method="POST" doc:name="get page from ElasticSearch"/>
+				<http:request config-ref="HTTP_Request_ES" path="#[esIndex]/#[esType]/_search" method="POST" doc:name="get page from ElasticSearch"/>
                 <set-payload value="#[json:hits/hits]" doc:name="Extract Result"/>
                 <foreach doc:name="For Each">
                     <set-payload value="#[json:_source]" doc:name="Extract actual data"/>
@@ -31,13 +45,24 @@ payload.put("size", paginationSize);]]></expression-component>
                 <expression-component doc:name="update resultCounter"><![CDATA[resultCounter+=paginationSize]]></expression-component>
             </when>
             <otherwise>
-                <logger message="ElasticSearch Pagination Flow started." level="INFO" doc:name="Start new ElasticSearch Pagination"/>
+                <logger message="ESFlow started." level="INFO" doc:name="Start new ElasticSearch Pagination"/>
                 <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
-                <set-variable variableName="inputPayload" value="#[payload]" doc:name="save originalPayload"/>
+                <set-variable variableName="esIndex" value="#[payload.get(&quot;esIndex&quot;)]" doc:name="esIndex"/>
+                <set-variable variableName="esType" value="#[payload.get(&quot;esType&quot;)]" doc:name="esType"/>
+                <set-payload value="#[payload.get(&quot;esQuery&quot;)]" doc:name="Set Payload to esQuery"/>
+                <set-variable variableName="inputPayload" value="#[payload]" doc:name="save inputPayload"/>
                 <set-variable variableName="paginationSize" value="#[Integer.parseInt(${elasticsearch.pagination})]" doc:name="init paginationSize"/>
                 <set-variable variableName="resultCounter" value="#[new Integer(0)]" doc:name="init resultCounter"/>
                 <set-variable variableName="resultList" value="#[new java.util.ArrayList()]" doc:name="resultList"/>
-                <http:request config-ref="HTTP_Request_Elastisearch" path="/_count" method="GET" doc:name="count total ElasticSearch results"/>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+                <set-payload value="{ &quot;query&quot; : #[json:query] }" doc:name="Set Count Query"/>
+                <logger message="ESFlow count req:  #[payload]" level="DEBUG" doc:name="ESFlow count req"/>
+
+                <http:request config-ref="HTTP_Request_ES" path="#[esIndex]/#[esType]/_count" method="POST" doc:name="count total ElasticSearch results">
+                    <http:failure-status-code-validator values="100"/>
+                </http:request>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger message="ESflow count resp #[payload]" level="DEBUG" doc:name="ESflow count resp"/>
                 <set-variable variableName="totalCount" value="#[json:count]" doc:name="totalCount"/>
             </otherwise>
         </choice>
@@ -46,6 +71,7 @@ payload.put("size", paginationSize);]]></expression-component>
                 <flow-ref name="elasticSearchFlow" doc:name="go to next page"/>
             </when>
             <otherwise>
+                <remove-variable variableName="resultCounter" doc:name="Reset flow (resultCounter)"/>
                 <set-payload value="#[resultList]" doc:name="Return resultList ArrayList"/>
             </otherwise>
         </choice>

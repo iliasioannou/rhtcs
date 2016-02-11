@@ -1,6 +1,6 @@
-<div draggable class="timeline" ng-show="timeline.show_timeline" ng-controller="TimelineCtrl as timeline">
-	<div data-intro="Sentinel 1 Datasets Identifier" data-position="top">
-		<a class="close" ng-click="timeline.showTimeline(false);">&times;</a>
+<div  class="timeline" ng-show="timeline.show_timeline===true" ng-controller="TimelineCtrl as timeline">
+	<a class="close" ng-click="timeline.showTimeline(false);">&times;</a>
+	<div data-intro="Sentinel 1 Datasets Identifier" data-position="top"style="margin=20px;">
 		<div data-position="top" ng-show="timeline.trendDataset===false">
 			<nvd3
 				id="bar1"
@@ -8,8 +8,9 @@
 				data="timeline.data"
 				api="api" >
 			</nvd3>
+			<p style="margin-left:35px;">Found {{timeline.totalDataset}} datasets (with more than 5 products). Total products: {{timeline.totalProduct}} .</p>
 		</div>
-		<div  ng-show="timeline.trendDataset===true">
+		<div ng-show="timeline.trendDataset===true">
 			<button style="margin: 5px;" type="button" class="btn btn-default btn-xs pull-left"  ng-show="timeline.trendDataset===true" ng-click="timeline.trendDataset=false">
 				<span class="glyphicon glyphicon-chevron-left"></span>
 			</button>
