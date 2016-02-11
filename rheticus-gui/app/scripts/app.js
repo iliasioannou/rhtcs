@@ -43,6 +43,9 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
+		.when('/3d', {
+			"redirectTo": "http://orbis.planetek.it/apps/rheticus"
+		})
 		.otherwise({
 			"redirectTo": "/"
 		});
