@@ -10,6 +10,7 @@ angular
 		map : @@map,
 		dataProviders : @@dataProviders,
 		geocoder : @@geocoder,
+		cesiumViewer : @@cesiumViewer,
 		//custom environment configuration
 		layers : @@layers,
 		rheticusAPI : @@rheticusAPI
