@@ -21,7 +21,8 @@ angular.module('rheticus')
               "?west="+extent[0]+
               "&south="+extent[1]+
               "&east="+extent[2]+
-              "&north="+extent[3]
+              "&north="+extent[3]+
+              "&mapId="+configuration.cesiumViewer.mapId
             );
           });
   			}
