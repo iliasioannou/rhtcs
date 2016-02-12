@@ -30,9 +30,6 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 		</spring:bean>
 	</spring:beans>
 
-	<http:listener-config name="HTTP_Listener_Configuration"
-		host="${dp.ps.host}" port="${dp.ps.port}" basePath="${dp.ps.path}"
-		doc:name="HTTP Listener Configuration" />
 	<!--  "HTTP Request Elastisearch" declared in elasticSearchFlow -->
 	<jms:activemq-connector name="Active_MQ"
 		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
@@ -57,7 +54,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
     
 
 	<flow name="dp_psFlow">
-        <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 15 10 ? * FRI">
+        <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 30 16 ? * FRI">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
         <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct DatasetIds">
