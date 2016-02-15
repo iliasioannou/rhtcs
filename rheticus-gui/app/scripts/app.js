@@ -31,7 +31,7 @@ angular
 	])
 
 	//routing configuration
-	.config(function ($routeProvider) {
+	.config(['$routeProvider','configuration',function($routeProvider,configuration) {
 		$routeProvider
 		.when('/',{
 			"templateUrl" : "scripts/components/main/main-view.html",
@@ -43,10 +43,15 @@ angular
 			"controller": "AboutCtrl",
 			"controllerAs": "about"
 		})
+		.when('/3d', {
+			"redirectTo": function() {
+					window.location = configuration.cesiumViewer.url;
+				}
+		})
 		.otherwise({
 			"redirectTo": "/"
 		});
-	})
+	}])
 	.constant("ANONYMOUS_USER", {
 		"username": "anonymous",
 		"password": "pwdanonymous"
