@@ -21,13 +21,11 @@ CREATE SCHEMA kaliopa
 GRANT ALL ON SCHEMA kaliopa TO postgres;
 GRANT USAGE ON SCHEMA kaliopa TO "RHETICUS_kaliopa";
 
+-- Materialized View: kaliopa.vw_ps
 
+-- DROP MATERIALIZED VIEW kaliopa.vw_ps;
 
--- View: kaliopa.vw_ps
-
--- DROP VIEW kaliopa.vw_ps;
-
-CREATE OR REPLACE VIEW kaliopa.vw_ps AS 
+CREATE MATERIALIZED VIEW kaliopa.vw_ps AS 
  SELECT ps.datasetid,
     ps.psid,
     ps.lat,
@@ -37,33 +35,39 @@ CREATE OR REPLACE VIEW kaliopa.vw_ps AS
     ps.height,
     ps.velocity
    FROM ps
-  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5'::text, 'Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5'::text]);
+  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5'::text, 'Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5'::text, 'Sentinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5'::text])
+	-- L'ultimo dataset della lista è quello di Niscemi usato per test. E' da eliminare dopo la verifica
+WITH DATA;
 
 ALTER TABLE kaliopa.vw_ps
   OWNER TO postgres;
 GRANT ALL ON TABLE kaliopa.vw_ps TO postgres;
 GRANT SELECT ON TABLE kaliopa.vw_ps TO "RHETICUS_kaliopa";
-COMMENT ON VIEW kaliopa.vw_ps
+COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps
   IS 'View for read PS inside dataset concerns kaliopa';
-  
-  -- View: kaliopa.vw_ps_measure
+ 
 
--- DROP VIEW kaliopa.vw_ps_measure;
 
-CREATE OR REPLACE VIEW kaliopa.vw_ps_measure AS 
+
+-- Materialized View: kaliopa.vw_ps_measure
+
+-- DROP MATERIALIZED VIEW kaliopa.vw_ps_measure;
+
+CREATE MATERIALIZED VIEW kaliopa.vw_ps_measure AS 
  SELECT ps_measure.datasetid,
     ps_measure.psid,
     ps_measure.type,
     ps_measure.data,
     ps_measure.measure
    FROM ps_measure
-  WHERE (ps_measure.datasetid IN ( SELECT vw_ps.datasetid
-           FROM kaliopa.vw_ps));
+  WHERE ps_measure.type = 'DL'::text AND (ps_measure.datasetid IN ( SELECT vw_ps.datasetid
+           FROM kaliopa.vw_ps))
+WITH DATA;
 
 ALTER TABLE kaliopa.vw_ps_measure
   OWNER TO postgres;
 GRANT ALL ON TABLE kaliopa.vw_ps_measure TO postgres;
 GRANT SELECT ON TABLE kaliopa.vw_ps_measure TO "RHETICUS_kaliopa";
-COMMENT ON VIEW kaliopa.vw_ps_measure
+COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps_measure
   IS 'View for read the measure of displacement';
 
