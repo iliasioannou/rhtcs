@@ -1,5 +1,9 @@
 -- Il presente script serve a creare le strutture per far accedere il partner sloveno Kaliopa ai dati dei ps appartenenti ai dataset di loro interesse
 -- L'utenza postgres è (username/password): RHETICUS_kaliopa/kaliopa
+-- Sono state create delle viste materializzate (vw_ps, vw_ps_materialized) che vanno refreshate in caso di modifica dei dati o della loro definizione mediante le seguenti query:
+-- REFRESH MATERIALIZED VIEW vw_ps;
+-- REFRESH MATERIALIZED VIEW vw_ps_measure;
+
 
 -- Role: RHETICUS_kaliopa
 
