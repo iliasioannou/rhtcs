@@ -1,3 +1,23 @@
+-- SE è necessario cambiare l'owner degli oggetti del DB
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -At -c "SELECT 'ALTER TABLE '||schemaname||'.'||tablename||' OWNER TO rheticus;' FROM pg_tables WHERE schemaname = 'public';" -o table.txt
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f table.txt
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -At -c "SELECT 'ALTER TABLE '||table_schema||'.'||table_name||' OWNER TO rheticus;' FROM information_schema.views WHERE table_schema = 'public';" -o view.txt
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f view.txt
+
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -At -c "SELECT 'ALTER TABLE '||sequence_name||'.'||sequence_schema||' OWNER TO rheticus;' FROM information_schema.views WHERE sequence_schema = 'public';" -o sequence.txt
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f view.txt
+
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -qAXt -c "select 'ALTER FUNCTION ' || n.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ') OWNER TO rheticus;' from pg_proc p, pg_namespace n where p.pronamespace = n.oid and n.nspname = 'public'" -o function.sql
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f function.sql
+
+
+
+----------------------------------------------------------------------
+
 -- L'utenza per il progetto rheticus è (username/password): rheticus/pkt284restiCUS
 
 CREATE ROLE rheticus LOGIN
