@@ -176,7 +176,7 @@ import.shapefile.db.host=kim.planetek.it
 import.shapefile.db.port=5432
 import.shapefile.db.name=RHETICUS
 import.shapefile.db.user=postgres
-import.shapefile.db.password=postgres
+import.shapefile.db.password=PKT284postgRHES
 import.shapefile.db.table.ps=ps
 import.shapefile.db.table.ps_measure=ps_measure
 #folder where find the shapefile to import. The name of shapefile to import (with .shp extention) is setted into VAR_SHP_NAME variable

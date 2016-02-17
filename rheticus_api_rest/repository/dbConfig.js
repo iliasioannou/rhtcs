@@ -4,7 +4,7 @@ var dbConfig = {
     connection: {
         host     : 'kim.planetek.it',
         user     : 'postgres',
-        password : 'postgres',
+        password : 'PKT284postgRHES',
         //database : 'RHETICUS',
         database : 'RHETICUS_DEV',
         charset  : 'utf8',

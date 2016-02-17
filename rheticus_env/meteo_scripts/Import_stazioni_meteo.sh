@@ -34,7 +34,7 @@ echo "Meteo home: <${METEO_INSTALL_HOME}>"
 DB_HOST=localhost
 DB_NAME=RHETICUS_DEV
 DB_USERNAME=postgres
-DB_PASSWORD=postgres
+DB_PASSWORD=PKT284postgRHES
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"
 echo ""
 
