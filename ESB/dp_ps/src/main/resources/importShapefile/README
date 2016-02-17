@@ -1,5 +1,5 @@
 ======================================
-Struttura del database necessarie  
+Struttura del database necessarie
 ======================================
 
 
@@ -11,7 +11,7 @@ TABLE ps_dataset_metadata_algo_params;
 TABLE ps_dataset_metadata;
 
 ======================================
-Import dello shapefile dei PS 
+Import dello shapefile dei PS
 ======================================
 
 L'import dello shapefile fa uso di un job, che richiama due trasformation, di GeoKettle (ver 3.5).
@@ -58,13 +58,13 @@ import.shapefile.db.name=RHETICUS
 #folder where find the shapefile to import. The name of shapefile to import (with .shp extention) is setted into VAR_SHP_NAME variable
 #import.shapefile.folder=C:\\rheticus\\import_PS\\files
 import.shapefile.folder=/var/pkt284/importPS
-import.shapefile.db.table_commit_size=5000     
+import.shapefile.db.table_commit_size=5000
 
 
 ------------------------------
 Lancio manuale del job ETL GeoKettle
 
-/opt/geokettle-2.5/kitchen.sh -file=/opt/geokettle-jobs/rheticus_ps_import.kjb -param:VAR_RHETICUS_DB_HOST=localhost -param:VAR_RHETICUS_DB_PORT=5432 -param:VAR_RHETICUS_DB_NAME=RHETICUS -param:VAR_RHETICUS_DB_USER=postgres -param:VAR_RHETICUS_DB_PASSWORD=PKT284postgRHES -param:VAR_RHETICUS_IMPORT_PS_FOLDER=/home/coletta/importPS/niscemi/Stack4_SPINUA_Sentinel_ASC_Niscemi_Coh095 -param:VAR_DATASETID=Sentinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5 -param:VAR_SENSORID=S01 -param:VAR_SHP_NAME=SPINUA_Sentinel_ASC.shp -level:Basic
+/opt/geokettle-2.5/kitchen.sh -file=/opt/geokettle-jobs/rheticus_ps_import.kjb -param:VAR_RHETICUS_DB_HOST=localhost -param:VAR_RHETICUS_DB_PORT=5432 -param:VAR_RHETICUS_DB_NAME=RHETICUS -param:VAR_RHETICUS_DB_USER=rheticus -param:VAR_RHETICUS_DB_PASSWORD=pkt284restiCUS -param:VAR_RHETICUS_IMPORT_PS_FOLDER=/home/coletta/importPS/niscemi/Stack4_SPINUA_Sentinel_ASC_Niscemi_Coh095 -param:VAR_DATASETID=Sentinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5 -param:VAR_SENSORID=S01 -param:VAR_SHP_NAME=SPINUA_Sentinel_ASC.shp -level:Basic
 
 
 

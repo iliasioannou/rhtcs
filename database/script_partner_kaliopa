@@ -29,7 +29,7 @@ GRANT USAGE ON SCHEMA kaliopa TO "RHETICUS_kaliopa";
 
 -- DROP MATERIALIZED VIEW kaliopa.vw_ps;
 
-CREATE MATERIALIZED VIEW kaliopa.vw_ps AS 
+CREATE MATERIALIZED VIEW kaliopa.vw_ps AS
  SELECT ps.datasetid,
     ps.psid,
     ps.lat,
@@ -49,7 +49,7 @@ GRANT ALL ON TABLE kaliopa.vw_ps TO postgres;
 GRANT SELECT ON TABLE kaliopa.vw_ps TO "RHETICUS_kaliopa";
 COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps
   IS 'View for read PS inside dataset concerns kaliopa';
- 
+
 
 
 
@@ -57,7 +57,7 @@ COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps
 
 -- DROP MATERIALIZED VIEW kaliopa.vw_ps_measure;
 
-CREATE MATERIALIZED VIEW kaliopa.vw_ps_measure AS 
+CREATE MATERIALIZED VIEW kaliopa.vw_ps_measure AS
  SELECT ps_measure.datasetid,
     ps_measure.psid,
     ps_measure.type,

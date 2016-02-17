@@ -72,15 +72,15 @@ echo "${SEPARATOR_100// /*}"
 DB_HOST=localhost
 #DB_NAME=RHETICUS_DEV
 DB_NAME=RHETICUS
-DB_USERNAME=postgres
-DB_PASSWORD=PKT284postgRHES
+DB_USERNAME=rheticus
+DB_PASSWORD=pkt284restiCUS
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"
 echo ""
 
 # Kettle configuration
 KETTLE_PAN_HOME=/opt/data-integration/
 KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
-KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr 
+KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr
 echo "Kettle Home: $KETTLE_PAN_HOME"
 echo "Kettle job import misure: $KETTLE_JOB_IMPORT_MEASURE"
 
@@ -128,7 +128,7 @@ fi
 # Elimino le misure giornaliere delle stazioni del paese
 
 KETTLE_JOB_PATH=${METEO_INSTALL_HOME}/kettle_jobs
-KETTLE_JOB_DELETE_STATION_MEASURE=$KETTLE_JOB_PATH/METEO_delete_misure_giorno.ktr 
+KETTLE_JOB_DELETE_STATION_MEASURE=$KETTLE_JOB_PATH/METEO_delete_misure_giorno.ktr
 LOG_FILE_KETTLE=${WORKING_DIRECTORY}/kettle_job_delete.log
 echo "Kettle job delete misure esistenti: $KETTLE_JOB_DELETE_STATION_MEASURE"
 echo ""
@@ -153,7 +153,7 @@ fi
 
 #Ora ripulisco il file scaricati da caratteri errati
 sed -e "s/<br \/>//g" -i ${FILE_STATION_MEASURE_HEADER}
-sed "/^$/d" -i ${FILE_STATION_MEASURE_HEADER} 
+sed "/^$/d" -i ${FILE_STATION_MEASURE_HEADER}
 
 # Aggiungo il codice stazione all'inizio della intestazione
 grep "CET" ${FILE_STATION_MEASURE_HEADER} >  ${FILE_STATION_MEASURE_HEADER}.tmp
@@ -171,12 +171,12 @@ INDEX=0
 TOTAL_SECOND=0
 
 echo "Leggo i codici stazione e per ognuna di esse scarico ed importo le misure"
-while read station; 
+while read station;
 do
 	if [ $station ]
 	then
 		INDEX=$[INDEX + 1]
-		
+
 		#splitto la coppia ID e COD di una stazione in un array
 		IFS="," read -r -a arrayStation <<< "$station"
 		STATION_ID=${arrayStation[0]}
@@ -195,11 +195,11 @@ do
 		#Ora ripulisco il file scaricati da caratteri errati
 		sed -e "s/<br \/>//g" -i ${FILE_STATION_MEASURE_MONTHLY}
 		sed "/^$/d" -i ${FILE_STATION_MEASURE_MONTHLY}
-		
+
 		# Estraggo dal report mensile il dato di misura del giorno in esame
 		FILE_STATION_MEASURE_DEALY=${WORKING_DIRECTORY}/station_measure_${STATION_ID}_${DAY_FETCH}.csv
 		grep "${DAY_FETCH//-0/-}" ${FILE_STATION_MEASURE_MONTHLY} > ${FILE_STATION_MEASURE_DEALY}
-		
+
 		#aggiungo il codice stazione all'inizio del file delle misure
 		sed -i "1s/^/$STATION_ID,/" ${FILE_STATION_MEASURE_DEALY}
 

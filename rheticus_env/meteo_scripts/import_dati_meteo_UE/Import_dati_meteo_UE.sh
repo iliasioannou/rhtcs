@@ -17,10 +17,10 @@ echo "${SEPARATOR_100// /*}"
 WORKING_DIRECTORY_BASE=/tmp/rheticus/meteo/measure_history
 WORKING_DIRECTORY=${WORKING_DIRECTORY_BASE}/import_file_run_$(date +%Y-%m-%d_%H_%M_%S)
 if [ -d "$WORKING_DIRECTORY" ]
-	then # esiste: la svuoto
-		rm  $WORKING_DIRECTORY/*
-	else # non esiste: la creo
-		mkdir -p $WORKING_DIRECTORY
+then # esiste: la svuoto
+	rm  $WORKING_DIRECTORY/*
+else # non esiste: la creo
+	mkdir -p $WORKING_DIRECTORY
 fi
 echo "Working directory <${WORKING_DIRECTORY}>"
 
@@ -39,16 +39,16 @@ exec &> >(tee -a "${LOG_FILE}")
 DB_HOST=localhost
 DB_NAME=RHETICUS
 #DB_NAME=RHETICUS_DEV
-DB_USERNAME=postgres
-DB_PASSWORD=PKT284postgRHES
+DB_USERNAME=rheticus
+DB_PASSWORD=pkt284restiCUS
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"
 echo ""
 
 # Kettle configuration
 KETTLE_PAN_HOME=/opt/data-integration/
 KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
-KETTLE_JOB_IMPORT_STATIONS=$KETTLE_JOB_HOME/METEO_Import_stazioni.ktr 
-KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr 
+KETTLE_JOB_IMPORT_STATIONS=$KETTLE_JOB_HOME/METEO_Import_stazioni.ktr
+KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr
 echo "Kettle Home: $KETTLE_PAN_HOME"
 echo "Kettle job import stations: $KETTLE_JOB_IMPORT_STATIONS"
 echo "Kettle job import measure: $KETTLE_JOB_IMPORT_MEASURE"
@@ -60,9 +60,9 @@ read -n 1 START_IMPORT
 
 regex_check_user_confermation="^[y]$"
 if ! [[ $START_IMPORT =~ $regex_check_user_confermation ]]
-	then
-		echo -e "\nImport aborted"exit 1
-		exit 1
+then
+	echo -e "\nImport aborted"exit 1
+	exit 1
 fi
 echo ""
 echo ""
@@ -80,7 +80,7 @@ CURRENT_WORKING_DIRECTORY=$(pwd)
 FILE_EU_STATIONS_TO_IMPORT=${CURRENT_WORKING_DIRECTORY}/${ZIP_FILE_WITH_DATA}/stations_UE.csv
 PURGE_TABLE=TRUE
 
-echo "Import stations file <${FILE_EU_STATIONS_TO_IMPORT}>"  
+echo "Import stations file <${FILE_EU_STATIONS_TO_IMPORT}>"
 START_TIME=$SECONDS
 
 LOG_FILE_KETTLE=${WORKING_DIRECTORY}/kettle_job_import_stations.log
@@ -89,7 +89,7 @@ ${KETTLE_PAN_HOME}/pan.sh -file=${KETTLE_JOB_IMPORT_STATIONS} -param:PAR_File_cv
 
 if ! [ $? -eq 0 ]
 then
-  echo "Problem during KETTLE job import. View ${LOG_FILE_KETTLE}"
+	echo "Problem during KETTLE job import. View ${LOG_FILE_KETTLE}"
 fi
 
 ELAPSED_TIME=$(($SECONDS - $START_TIME))
@@ -97,8 +97,8 @@ echo "Import meteo station ended in $(($ELAPSED_TIME / 60)) minutes and $(($ELAP
 echo ""
 
 # ------------------------------------------
-# Import measure 
-echo "Import measures"  
+# Import measure
+echo "Import measures"
 
 echo "${SEPARATOR_100// /*}" >> ${LOG_FILE_KETTLE}
 echo "Import measures" >> ${LOG_FILE_KETTLE}
@@ -106,8 +106,8 @@ echo ""
 
 for FILE_STATIONS_MEASURE in ${ZIP_FILE_WITH_DATA}/*measure*.csv; do
 	FILE_STATIONS_MEASURE_TO_IMPORT=${CURRENT_WORKING_DIRECTORY}/${FILE_STATIONS_MEASURE}
-	echo -e "\tImport measures from file <${FILE_STATIONS_MEASURE_TO_IMPORT}>"  
-	
+	echo -e "\tImport measures from file <${FILE_STATIONS_MEASURE_TO_IMPORT}>"
+
 	echo "${SEPARATOR_100// /-}" >> ${LOG_FILE_KETTLE}
 	echo "Import measures from file <${FILE_STATIONS_MEASURE_TO_IMPORT}>" >> ${LOG_FILE_KETTLE}
 
@@ -119,18 +119,18 @@ for FILE_STATIONS_MEASURE in ${ZIP_FILE_WITH_DATA}/*measure*.csv; do
 
 	if ! [ $? -eq 0 ]
 	then
-	  echo "Problem during KETTLE job import. View ${LOG_FILE_KETTLE}"
+		echo "Problem during KETTLE job import. View ${LOG_FILE_KETTLE}"
 	fi
 
 	ELAPSED_TIME=$(($SECONDS - $START_TIME))
 	echo -e "\t\tImport meteo station ended in $(($ELAPSED_TIME / 60)) minutes and $(($ELAPSED_TIME % 60)) seconds"
-done	
-	
+done
+
 ELAPSED_TIME=$SECONDS
 echo ""
 echo "Import ended in $(($ELAPSED_TIME / 60)) minutes and $(($ELAPSED_TIME % 60)) seconds"
 
 # ------------------------------------------
-# Remove unziped directory 
-echo "Remove unzip folder ${ZIP_FILE_WITH_DATA}" 
+# Remove unziped directory
+echo "Remove unzip folder ${ZIP_FILE_WITH_DATA}"
 rm -r ${ZIP_FILE_WITH_DATA}

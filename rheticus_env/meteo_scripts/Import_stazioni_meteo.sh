@@ -33,15 +33,15 @@ echo "Meteo home: <${METEO_INSTALL_HOME}>"
 #DB_HOST=kim.planetek.it
 DB_HOST=localhost
 DB_NAME=RHETICUS_DEV
-DB_USERNAME=postgres
-DB_PASSWORD=PKT284postgRHES
+DB_USERNAME=rheticus
+DB_PASSWORD=pkt284restiCUS
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"
 echo ""
 
 # Kettle configuration
 KETTLE_PAN_HOME=/opt/data-integration/
 KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
-KETTLE_JOB_IMPORT_STATIONS=${KETTLE_JOB_HOME}/METEO_Import_stazioni.ktr 
+KETTLE_JOB_IMPORT_STATIONS=${KETTLE_JOB_HOME}/METEO_Import_stazioni.ktr
 echo "Kettle Home: $KETTLE_PAN_HOME"
 echo "Kettle job import stazioni: $KETTLE_JOB_IMPORT_STATIONS"
 
