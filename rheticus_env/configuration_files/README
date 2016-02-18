@@ -1,5 +1,5 @@
 ======================================
-LOGGING dello stato dell'orchestratore 
+LOGGING dello stato dell'orchestratore
 ======================================
 
 Il logging dello stato dell'orchestrare utilizza la seguente catena:
@@ -12,12 +12,12 @@ Le code utilizzate sono le seguenti:
 per lo step S0 (SuperMaster):
     rheticus.processor.ps.s0.request
     rheticus.processor.ps.s0.reply
-    
-per lo step S1 (S1TBX): 
+
+per lo step S1 (S1TBX):
     rheticus.processor.ps.s1.request
     rheticus.processor.ps.s1.reply
 
-per lo step S2 (PSInSAR):   
+per lo step S2 (PSInSAR):
     rheticus.processor.ps.s2.request
     rheticus.processor.ps.s2.reply
 
@@ -27,11 +27,11 @@ La doppia coda è necessaria per avere fisicamente una comunicazione asincrona f
 
 Il broker ACTIVEMQ è stato configurato in modo da avere il mirroring delle code attraverso dei topic secondo EIP Wire-Tap.
 
-        
+
     <!--  Queue Mirroring   -->
     <destinationInterceptors>
         <mirroredQueue copyMessage = "true" postfix=".mirror" prefix=""/>
-    </destinationInterceptors> 
+    </destinationInterceptors>
 
 
 Quindi nel broker JMS abbiamo i seguenti "topic":
@@ -39,12 +39,12 @@ Quindi nel broker JMS abbiamo i seguenti "topic":
 per lo step S0 (SuperMaster):
     rheticus.processor.ps.s0.request.mirror
     rheticus.processor.ps.s0.reply.mirror
-    
-per lo step S1 (S1TBX): 
+
+per lo step S1 (S1TBX):
     rheticus.processor.ps.s1.request.mirror
     rheticus.processor.ps.s1.reply.mirror
 
-per lo step S2 (PSInSAR):   
+per lo step S2 (PSInSAR):
     rheticus.processor.ps.s2.request.mirror
     rheticus.processor.ps.s2.reply.mirror
 
@@ -61,7 +61,7 @@ dove:
 
 Tale messaggio JSON viene inserito come body in un messaggio JMS che viene inserito nella queue:
     rheticus.processor.ps.log
-    
+
 A questo punto i messaggi JMS vengono letti da LOGSTASH da tale coda ed inseriti in ELASTICSEARCH nell'indice "rheticusorchestratorlog" secondo il seguente mapping:
     "mappings": {
             "logs": {
@@ -100,7 +100,7 @@ A questo punto i messaggi JMS vengono letti da LOGSTASH da tale coda ed inseriti
 
 di seguito un esempio di documento
     {
-    
+
         "_index": "rheticusorchestratoractivemqlog",
         "_type": "logs",
         "_id": "AVC2PU07o2L6sVByYjOe",
@@ -126,12 +126,12 @@ IMPORTANTE:
 LOGSTASH ha un plugin di input per JMS (di nome rabbitmq) che si interfaccia con un broker JMS utilizzando il protocollo AMQP (Advanced Message Queuing Protocol).
 Ho provato ad usarlo ma con ACTIVEMQ si verifica un errore imputabile alla diversa versione di AMQP utilizzata.
 Per ovviare a questo ho utilizzato un altro input plugin di LOGSTASH che comunica con un broker JMS attraverso il protocollo STOMP .
-Il plugin in questione è logstash-input-stomp che di default non fa parte dell'installazione del tool per cui è necessario installarlo: 
+Il plugin in questione è logstash-input-stomp che di default non fa parte dell'installazione del tool per cui è necessario installarlo:
     bin\plugin install logstash-input-stomp
 
 
 ======================================
-Import dello shapefile dei PS 
+Import dello shapefile dei PS
 ======================================
 
 L'import dello shapefile fa uso di un job, che richiama due trasformation, di GeoKettle (ver 3.5).
@@ -175,11 +175,11 @@ import.shapefile.kettle.job.log.level=Basic
 import.shapefile.db.host=kim.planetek.it
 import.shapefile.db.port=5432
 import.shapefile.db.name=RHETICUS
-import.shapefile.db.user=postgres
-import.shapefile.db.password=postgres
+import.shapefile.db.user=rheticus
+import.shapefile.db.password=pkt284restiCUS
 import.shapefile.db.table.ps=ps
 import.shapefile.db.table.ps_measure=ps_measure
 #folder where find the shapefile to import. The name of shapefile to import (with .shp extention) is setted into VAR_SHP_NAME variable
 #import.shapefile.folder=C:\\rheticus\\import_PS\\files
 import.shapefile.folder=/var/pkt284/importPS
-import.shapefile.db.table_commit_size=5000     
+import.shapefile.db.table_commit_size=5000

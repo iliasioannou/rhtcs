@@ -2,7 +2,7 @@ Il file (dati_meteo_UE.tar.gz) contenente i file csv con l'elenco delle stazioni
 
 Evito di mettere in GIT questo file, questo al fine di rendere più snelle le operazioni con GIT.
 
-Nel caso in cui sia necessario popolare per la prima volta il db con i dati storici delle misure meteo è necessario copiare il file 
+Nel caso in cui sia necessario popolare per la prima volta il db con i dati storici delle misure meteo è necessario copiare il file
 
 "K:\progetti\progetti_t\pkt284_SHIRA\OR9 Centro Fusione Dati\Dati_Meteo_Storici_wunderground\dati_meteo_UE.tar.gz"
 

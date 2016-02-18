@@ -54,5 +54,9 @@
 		"params" : "&limit=5&format=json&accept-language=en&polygon_geojson=1",
 		"paramsReverse" : "&limit=1&format=json&zoom=18&accept-language=en",
 		"urlReverse" : "http://nominatim.openstreetmap.org/reverse?"
+	},
+	"cesiumViewer" : {
+		"url" : "http://orbis.planetek.it/apps/rheticus",
+		"mapId" : "RHETICUS_PS"
 	}
 }

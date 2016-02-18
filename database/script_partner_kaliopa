@@ -1,0 +1,77 @@
+-- Il presente script serve a creare le strutture per far accedere il partner sloveno Kaliopa ai dati dei ps appartenenti ai dataset di loro interesse
+-- L'utenza postgres è (username/password): RHETICUS_kaliopa/kaliopa
+-- Sono state create delle viste materializzate (vw_ps, vw_ps_materialized) che vanno refreshate in caso di modifica dei dati o della loro definizione mediante le seguenti query:
+-- REFRESH MATERIALIZED VIEW vw_ps;
+-- REFRESH MATERIALIZED VIEW vw_ps_measure;
+
+
+-- Role: RHETICUS_kaliopa
+
+-- DROP ROLE "RHETICUS_kaliopa";
+
+CREATE ROLE "RHETICUS_kaliopa" LOGIN
+  ENCRYPTED PASSWORD 'md590251bc5669cf2a3e9e5bd085c24dcf2'
+  NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
+COMMENT ON ROLE "RHETICUS_kaliopa" IS 'Utenza del db rheticus associata al partner sloveno Kaliopa';
+
+
+-- Schema: kaliopa
+
+-- DROP SCHEMA kaliopa;
+
+CREATE SCHEMA kaliopa
+  AUTHORIZATION postgres;
+
+GRANT ALL ON SCHEMA kaliopa TO postgres;
+GRANT USAGE ON SCHEMA kaliopa TO "RHETICUS_kaliopa";
+
+-- Materialized View: kaliopa.vw_ps
+
+-- DROP MATERIALIZED VIEW kaliopa.vw_ps;
+
+CREATE MATERIALIZED VIEW kaliopa.vw_ps AS
+ SELECT ps.datasetid,
+    ps.psid,
+    ps.lat,
+    ps.lon,
+    ps.sensorid,
+    ps.coherence,
+    ps.height,
+    ps.velocity
+   FROM ps
+  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5'::text, 'Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5'::text, 'Sentinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5'::text])
+	-- L'ultimo dataset della lista è quello di Niscemi usato per test. E' da eliminare dopo la verifica
+WITH DATA;
+
+ALTER TABLE kaliopa.vw_ps
+  OWNER TO postgres;
+GRANT ALL ON TABLE kaliopa.vw_ps TO postgres;
+GRANT SELECT ON TABLE kaliopa.vw_ps TO "RHETICUS_kaliopa";
+COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps
+  IS 'View for read PS inside dataset concerns kaliopa';
+
+
+
+
+-- Materialized View: kaliopa.vw_ps_measure
+
+-- DROP MATERIALIZED VIEW kaliopa.vw_ps_measure;
+
+CREATE MATERIALIZED VIEW kaliopa.vw_ps_measure AS
+ SELECT ps_measure.datasetid,
+    ps_measure.psid,
+    ps_measure.type,
+    ps_measure.data,
+    ps_measure.measure
+   FROM ps_measure
+  WHERE ps_measure.type = 'DL'::text AND (ps_measure.datasetid IN ( SELECT vw_ps.datasetid
+           FROM kaliopa.vw_ps))
+WITH DATA;
+
+ALTER TABLE kaliopa.vw_ps_measure
+  OWNER TO postgres;
+GRANT ALL ON TABLE kaliopa.vw_ps_measure TO postgres;
+GRANT SELECT ON TABLE kaliopa.vw_ps_measure TO "RHETICUS_kaliopa";
+COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps_measure
+  IS 'View for read the measure of displacement';
+

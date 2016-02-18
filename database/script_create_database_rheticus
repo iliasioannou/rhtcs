@@ -1,6 +1,34 @@
+-- SE è necessario cambiare l'owner degli oggetti del DB
 
-CREATE DATABASE "RHETICUS_DEV"
-  WITH OWNER = postgres
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -At -c "SELECT 'ALTER TABLE '||schemaname||'.'||tablename||' OWNER TO rheticus;' FROM pg_tables WHERE schemaname = 'public';" -o table.txt
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f table.txt
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -At -c "SELECT 'ALTER TABLE '||table_schema||'.'||table_name||' OWNER TO rheticus;' FROM information_schema.views WHERE table_schema = 'public';" -o view.txt
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f view.txt
+
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -At -c "SELECT 'ALTER TABLE '||sequence_name||'.'||sequence_schema||' OWNER TO rheticus;' FROM information_schema.views WHERE sequence_schema = 'public';" -o sequence.txt
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f view.txt
+
+
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -qAXt -c "select 'ALTER FUNCTION ' || n.nspname || '.' || p.proname || '(' || pg_catalog.pg_get_function_identity_arguments(p.oid) || ') OWNER TO rheticus;' from pg_proc p, pg_namespace n where p.pronamespace = n.oid and n.nspname = 'public'" -o function.sql
+psql -d RHETICUS_DEV -h kim.planetek.it -U postgres -f function.sql
+
+
+
+----------------------------------------------------------------------
+
+-- L'utenza per il progetto rheticus è (username/password): rheticus/pkt284restiCUS
+
+CREATE ROLE rheticus LOGIN
+  ENCRYPTED PASSWORD 'md5492492ec32205320eacb92ce0d2685ba'
+  NOSUPERUSER NOINHERIT NOCREATEDB NOCREATEROLE NOREPLICATION;
+COMMENT ON ROLE rheticus IS 'Rheticus application user';
+
+
+
+CREATE DATABASE "RHETICUS"
+  WITH OWNER = rheticus
        ENCODING = 'UTF8'
        TABLESPACE = pg_default
        LC_COLLATE = 'it_IT.UTF-8'
@@ -10,14 +38,14 @@ CREATE DATABASE "RHETICUS_DEV"
 CREATE EXTENSION postgis
   SCHEMA public
   VERSION "2.1.2";
-  
+
 ===========================================
 -- Tabelle ps_dataset_metedata, ps, ps_measure
 ===========================================
 
--------------------------------------------  
+-------------------------------------------
 -- Table: ps_dataset_metadata
--------------------------------------------  
+-------------------------------------------
 
 -- DROP TABLE ps_dataset_metadata;
 
@@ -40,10 +68,10 @@ WITH (
 ALTER TABLE ps_dataset_metadata
   OWNER TO postgres;
 
-  
--------------------------------------------  
+
+-------------------------------------------
 -- Table: ps_dataset_metadata_algo_params
--------------------------------------------  
+-------------------------------------------
 
 -- DROP TABLE ps_dataset_metadata_algo_params;
 
@@ -64,10 +92,10 @@ WITH (
 ALTER TABLE ps_dataset_metadata_algo_params
   OWNER TO postgres;
 
-   
--------------------------------------------  
+
+-------------------------------------------
 -- Table: ps_dataset_products
--------------------------------------------  
+-------------------------------------------
 
 -- DROP TABLE ps_dataset_products;
 
@@ -86,10 +114,10 @@ WITH (
 ALTER TABLE ps_dataset_products
   OWNER TO postgres;
 
-  
--------------------------------------------  
+
+-------------------------------------------
 -- Table: ps
--------------------------------------------  
+-------------------------------------------
 
 -- DROP TABLE ps;
 
@@ -117,10 +145,10 @@ WITH (
 ALTER TABLE ps
   OWNER TO postgres;
 
-  
--------------------------------------------  
+
+-------------------------------------------
 -- Table: ps_measure
--------------------------------------------  
+-------------------------------------------
 
 -- DROP TABLE ps_measure;
 
@@ -142,10 +170,10 @@ WITH (
 ALTER TABLE ps_measure
   OWNER TO postgres;
 
-  
--------------------------------------------  
+
+-------------------------------------------
 -- Function: get_geometry_as_geojson()
--------------------------------------------  
+-------------------------------------------
 
 -- DROP FUNCTION get_geometry_as_geojson();
 
@@ -163,9 +191,9 @@ ALTER FUNCTION get_geometry_as_geojson()
   OWNER TO postgres;
 
 
--------------------------------------------  
+-------------------------------------------
 -- Function: get_geometry_from_lat_lon()
--------------------------------------------  
+-------------------------------------------
 
 -- DROP FUNCTION get_geometry_from_lat_lon();
 
@@ -184,12 +212,12 @@ ALTER FUNCTION get_geometry_from_lat_lon()
 
 
 ===========================================
--- Tabelle: meteo_stations, meteo_stations_measure 
+-- Tabelle: meteo_stations, meteo_stations_measure
 ===========================================
 
--------------------------------------------  
+-------------------------------------------
 -- DROP TABLE meteo_stations;
--------------------------------------------  
+-------------------------------------------
 
 CREATE TABLE meteo_stations
 (
@@ -231,9 +259,9 @@ CREATE TRIGGER tr_02_get_geometry_as_geojson
   EXECUTE PROCEDURE get_geometry_as_geojson();
 
 
--------------------------------------------  
+-------------------------------------------
 -- Table: meteo_stations_measure
--------------------------------------------  
+-------------------------------------------
 
 -- DROP TABLE meteo_stations_measure;
 
@@ -256,13 +284,13 @@ ALTER TABLE meteo_stations_measure
   OWNER TO postgres;
 
 
--------------------------------------------  
+-------------------------------------------
 -- View: vw_meteo_stations_measure
--------------------------------------------  
+-------------------------------------------
 
 -- DROP VIEW vw_meteo_stations_measure;
 
-CREATE OR REPLACE VIEW vw_meteo_stations_measure AS 
+CREATE OR REPLACE VIEW vw_meteo_stations_measure AS
  SELECT meteo_stations_measure.id_station,
     meteo_stations_measure.type,
     date_part('year'::text, meteo_stations_measure.data) AS y,
@@ -275,11 +303,11 @@ CREATE OR REPLACE VIEW vw_meteo_stations_measure AS
 ALTER TABLE vw_meteo_stations_measure
   OWNER TO postgres;
 
-  
+
 ===========================================
 -- Tabelle user, deal
 ===========================================
-  
+
 --------------------------------------------
 -- Table: "user"
 --------------------------------------------
@@ -303,7 +331,7 @@ WITH (
 ALTER TABLE "user"
   OWNER TO postgres;
 
-  
+
 --------------------------------------------
 -- Table: deal
 --------------------------------------------
@@ -359,7 +387,7 @@ CREATE TRIGGER getgeometryasgeojson
   EXECUTE PROCEDURE getgeometryasgeojson();
 
 
-  
+
 --------------------------------------------
 -- View: ps_user
 --------------------------------------------
@@ -387,17 +415,17 @@ WHERE b.id = c.user_id AND st_within(a.geom, c.geom);
 
 ALTER TABLE ps_user
 	OWNER TO postgres;
-  
-  
+
+
 --------------------------------------------
 -- Insert data
 --------------------------------------------
- 
+
 -- Insert utente anonymous con relativo contratto demo su Barritteri
 WITH A AS(
         INSERT INTO "user"(name, surname, company, email, username, password)
                 VALUES ('anonymous', 'anonymous', 'anonymous', 'anonymous@anonymous.it', 'anonymous', 'pwdanonymous')
-                RETURNING id                
+                RETURNING id
 )
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
     SELECT 'barritteri_01', '2016-04-01', 'DEMOMAP_CSK_BARITTERI'
@@ -425,7 +453,7 @@ INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_p
 WITH A AS(
         INSERT INTO "user"(name, surname, company, email, username, password)
                 VALUES ('utente', 'trento', 'Comune di Trento', 'comune@trento.it', 'trento', 'pwdtrento')
-            RETURNING id                
+            RETURNING id
 )
 INSERT INTO deal(seller_id, signature_date, product_name, geom, user_id, start_period, end_period, sensorid)
     SELECT 'trento_sud', '2016-01-01', 'PRVTMAP_CSK_TRENTO_SUD'

@@ -3,8 +3,8 @@ var dbConfig = {
     debug     : true,
     connection: {
         host     : 'kim.planetek.it',
-        user     : 'postgres',
-        password : 'postgres',
+        user     : 'rheticus',
+        password : 'pkt284restiCUS ',
         //database : 'RHETICUS',
         database : 'RHETICUS_DEV',
         charset  : 'utf8',

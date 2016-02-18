@@ -43,15 +43,15 @@ echo "${SEPARATOR_100// /*}"
 DB_HOST=localhost
 #DB_NAME=RHETICUS_DEV
 DB_NAME=RHETICUS
-DB_USERNAME=postgres
-DB_PASSWORD=postgres
+DB_USERNAME=rheticus
+DB_PASSWORD=pkt284restiCUS
 echo "Destination database  <"$DB_NAME"> on server <"$DB_HOST"> ("$DB_USERNAME/$DB_PASSWORD")"
 echo ""
 
 # Kettle configuration
 KETTLE_PAN_HOME=/opt/data-integration/
 KETTLE_JOB_HOME=${METEO_INSTALL_HOME}/kettle_jobs
-KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr 
+KETTLE_JOB_IMPORT_MEASURE=$KETTLE_JOB_HOME/METEO_Import_misure.ktr
 echo "Kettle Home: $KETTLE_PAN_HOME"
 echo "Kettle job import misure: $KETTLE_JOB_IMPORT_MEASURE"
 
@@ -142,12 +142,12 @@ fi
 # Elimino le misure annuali delle stazioni del paese
 
 KETTLE_JOB_PATH=${METEO_INSTALL_HOME}/kettle_jobs
-KETTLE_JOB_DELETE_STATION_MEASURE=${KETTLE_JOB_PATH}/METEO_delete_misure_anno.ktr 
+KETTLE_JOB_DELETE_STATION_MEASURE=${KETTLE_JOB_PATH}/METEO_delete_misure_anno.ktr
 LOG_FILE_KETTLE=${WORKING_DIRECTORY}/kettle_job_delete.log
 echo "Kettle job delete misure esistenti: $KETTLE_JOB_DELETE_STATION_MEASURE"
 echo ""
 
-echo "Elimino le misure di tutte le stazioni del paese scelto per l'anno" $YEAR_FETCH  
+echo "Elimino le misure di tutte le stazioni del paese scelto per l'anno" $YEAR_FETCH
 ${KETTLE_PAN_HOME}/pan.sh -file=${KETTLE_JOB_DELETE_STATION_MEASURE} -param:PAR_Anno=${YEAR_FETCH} -param:PAR_Country_Cod=${COUNTRY_CODE_FETCH} -param:PAR_DB_host=${DB_HOST} -param:PAR_DB_nameDb=${DB_NAME} -param:PAR_DB_password=${DB_PASSWORD} -param:PAR_DB_username=${DB_USERNAME} > ${LOG_FILE_KETTLE}
 
 
@@ -166,7 +166,7 @@ fi
 
 #Ora ripulisco il file scaricati da caratteri errati
 sed -e "s/<br \/>//g" -i ${FILE_STATION_MEASURE_HEADER}
-sed "/^$/d" -i ${FILE_STATION_MEASURE_HEADER} 
+sed "/^$/d" -i ${FILE_STATION_MEASURE_HEADER}
 
 # Aggiungo il codice stazione all'inizio della intestazione
 grep "CET" ${FILE_STATION_MEASURE_HEADER} >  ${FILE_STATION_MEASURE_HEADER}.tmp
@@ -183,7 +183,7 @@ if [ "${CURRENT_YEAR}" -eq "${YEAR_FETCH}" ]; then
 	echo "L'anno di import è il corrente, verranno richiesti i report mensili fino al mese ${MAX_MONTH}"
 fi
 
-		
+
 FILE_STATIONS_MEASURE=${WORKING_DIRECTORY}/stations_measure_${YEAR_FETCH}.csv
 cat ${FILE_STATION_MEASURE_HEADER} >> ${FILE_STATIONS_MEASURE}
 
@@ -192,13 +192,13 @@ TOTAL_SECOND=0
 SECONDS=0
 
 echo "Leggo i codici stazione e per ognuna di esse scarico ed importo le misure"
-while read station; 
+while read station;
 do
 	if [ $station ]
 	then
 		INDEX=$[INDEX + 1]
 		#SECONDS=0
-		
+
 		# splitto la coppia ID e COD di una stazione in un array
 		IFS="," read -r -a arrayStation <<< "$station"
 		STATION_ID=${arrayStation[0]}
@@ -218,23 +218,23 @@ do
 				echo "Problem during remote access to" ${METEO_API_ENDPOINT}
 				exit 1
 			fi
-			
+
 			#Ora ripulisco il file scaricato da caratteri errati
 			sed -e "s/<br \/>//g" -i ${FILE_STATION_MEASURE_MONTHLY}
 			sed "/^$/d" -i ${FILE_STATION_MEASURE_MONTHLY}
-			
+
 			# elimino dal file delle misure la prima riga di intestazione
 			# NB: without "tail ... && mv .. " tail command result into empty file
-			# view http://stackoverflow.com/questions/339483/how-can-i-remove-the-first-line-of-a-text-file-using-bash-sed-script 
+			# view http://stackoverflow.com/questions/339483/how-can-i-remove-the-first-line-of-a-text-file-using-bash-sed-script
 			tail -n +2 $FILE_STATION_MEASURE_MONTHLY > $FILE_STATION_MEASURE_MONTHLY.tmp
 			mv $FILE_STATION_MEASURE_MONTHLY.tmp $FILE_STATION_MEASURE_MONTHLY
-			
+
 			#aggiungo il codice stazione all'inizio del file delle misure
 			sed -i "s/^/$STATION_ID,/" ${FILE_STATION_MEASURE_MONTHLY}
 			# aggiungo le misure del mese della stazione al file globale
 			#cat ${FILE_STATION_MEASURE_MONTHLY} >> ${FILE_STATION_MEASURE_YEARLY}
 			cat ${FILE_STATION_MEASURE_MONTHLY} >> ${FILE_STATIONS_MEASURE}
-		
+
 			duration=$SECONDS
 			TOTAL_SECOND=$[TOTAL_SECOND + duration]
 			MESSAGE_LOG="[$(date +%H:%M:%S)]. Dati del mese $MONTH scaricati in [$(($duration / 60)) min:$(($duration % 60)) sec]        "
@@ -247,7 +247,7 @@ do
 		MESSAGE_LOG="[$(date +%H:%M:%S)]. Dati scaricati in [$(($duration / 60)) min:$(($duration % 60)) sec]                  "
 		echo -ne "$HEADER_LOG $MESSAGE_LOG \r"
 	fi
-done < $FILE_STATIONS.txt 
+done < $FILE_STATIONS.txt
 
 duration=$SECONDS
 echo "Fine download misure di tutte le stazioni in $(($duration / 60)) minutes and $(($duration % 60)) seconds                           "
