@@ -386,7 +386,25 @@ CREATE TRIGGER getgeometryasgeojson
   FOR EACH ROW
   EXECUTE PROCEDURE getgeometryasgeojson();
 
+--------------------------------------------
+-- Table: deal_dataset
+--------------------------------------------
 
+-- DROP TABLE deal_dataset;
+
+CREATE TABLE deal_dataset
+(
+  deal_id serial NOT NULL,
+  dataset_id text NOT NULL,
+  swath character varying(10) NOT NULL,
+  polarisation character varying(5) NOT NULL,
+  timestamp_last_acquisition_proc timestamp with time zone
+)
+WITH (
+  OIDS=FALSE
+);
+ALTER TABLE deal_dataset
+  OWNER TO rheticus;
 
 --------------------------------------------
 -- View: ps_user
