@@ -75,8 +75,10 @@ angular.module('rheticus')
 							var dataPoint = (d3.time.format("%d/%m/%Y")(d.value)); // jshint ignore:line
 							if (typeof d.point!=='undefined'){
 								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: '+d.point.color+';" > &#x25CF;</a><b>'+dataPoint+'</b></div><b>&nbsp;Name: </b>'+d.point.key+'&nbsp;</br><b>&nbsp;Displacement:  </b> '+d.point.y+' mm ' ;
-							} else{
-								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/day </b></p>' ;
+							} else if(self.isCumulative){
+								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/year </b></p>' ;
+							}else{
+									return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/day </b></p>' ;
 							}
 						}
 					},
@@ -95,8 +97,14 @@ angular.module('rheticus')
 					"enable" : false
 				}
 			},
+			"checkboxModel" : {
+       "box" : false,
+		 },
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
+			"ps" : [],
+			"isCumulative" : false,
+			"yearCumulativeWeather" : 0,
 			"stringPeriod" : "",
 			"lastDatePs" : 0,
 			"firstDatePs" : 0,
@@ -115,8 +123,12 @@ angular.module('rheticus')
 				if (!show){
 					self.data = [];
 					self.psDetails = [];
-				}
-			}
+					}
+				},
+			 "changeCumulativeView":function(){
+				 self.isCumulative = !self.isCumulative;
+				 generateChartData(self.ps);
+			 		}
 		});
 
 		$scope.$on("setPsTrendsClosure",function(e){ // jshint ignore:line
@@ -131,6 +143,7 @@ angular.module('rheticus')
 		// ps watcher for rendering chart line data
 		$scope.$watch("ps",function(ps){
 			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
+				self.ps=ps;
 				self.showPsTrends(
 					generateChartData(ps)
 				);
@@ -169,6 +182,7 @@ angular.module('rheticus')
 		 */
 		var generateChartData = function(ps){
 			self.chartDataMeasureCount = false; // reset flag for download weather
+			self.currentWeather=[];
 			self.maxVelPs=-100;
 			self.minVelPs=100;
 			self.lat=ps.point[1];
@@ -332,6 +346,7 @@ angular.module('rheticus')
 							"values" : values,
 							"color" : "#1e90ff"
 						});
+
 						self.chartDataMeasureCount = true;
 					}
 				})
@@ -358,9 +373,54 @@ angular.module('rheticus')
 				//	console.log("normal",self.options.chart.yDomain1);
 				}
 				self.data = self.chartData;
-				//console.log(absValue);
-				//console.log("lunghezza ps",self.psLength);
+				if(self.psLength==1)
+				{
+					//minimi quadrati per la retta di interpolazione
+					var values=[];
+					var x=0,y=0,x2=0,y2=0,xy=0;
+					var coeff=0,q=0;
+					var i=0;
+					for (i=0;i<self.data[0].values.length;i++)
+					{
+						x+=new Date(self.data[0].values[i].x).getTime();
+						y+=self.data[0].values[i].y;
+						x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+						y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+						xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+
+					}
+					x=x/self.data[0].values.length;
+					y=y/self.data[0].values.length;
+					x2=x2/self.data[0].values.length;
+					y2=y2/self.data[0].values.length;
+					xy=xy/self.data[0].values.length;
+					coeff=(xy-(x*y))/(x2-(x*x));
+					q=y-(coeff*x);
+					var firstY=coeff*self.data[0].values[0].x+q;
+					var lastY=coeff*self.data[0].values[self.data[0].values.length-1].x+q;
+					values.push({
+						"x" : self.data[0].values[0].x ,
+						"y": firstY
+					});
+					values.push({
+						"x" : self.data[0].values[self.data[0].values.length-1].x ,
+						"y": lastY
+					});
+					self.chartData.push({
+						"key" : "InterPolation",
+						"yAxis" : 1,
+						"type" : "line",
+						"values" : values,
+						"color" : "#00cc00"
+					});
+					//console.log(self.chartData);
+					//console.log(coeff);
+					//console.log(q);
+
+
+				}
 			}
+
 
 
 		};
@@ -382,7 +442,7 @@ angular.module('rheticus')
 		 */
 		var getWeather = function(){
 			var values = [];
-
+			var currentWeatherValue=0;
 			var getStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getStationId.path;
 			var latKey = configuration.rheticusAPI.weather.getStationId.lat;
 			var lonKey = configuration.rheticusAPI.weather.getStationId.lon;
@@ -395,7 +455,7 @@ angular.module('rheticus')
 					var station = response[0].id;
 					var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs)); // jshint ignore:line
 					var firstDatePs = d3.time.format("%Y-%m-%d")(new Date(self.firstDatePs)); // jshint ignore:line
-
+					var yearCumulativeWeather=0;
 					var getWeatherMeasuresByStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
 					var stationidKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.stationid;
 					var begindateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.begindate;
@@ -409,11 +469,28 @@ angular.module('rheticus')
 						.success(function (response) {
 							for (var i=0; i< response.length;i++) {
 								var dateWeather = new Date(response[i].day);
-								values.push({
-									"x" : dateWeather ,
-									"y": response[i].measure
-								});
+								if (i==0){
+									yearCumulativeWeather= dateWeather.getFullYear();
+								}
+								if (dateWeather.getFullYear()> yearCumulativeWeather){
+									currentWeatherValue=0;
+									yearCumulativeWeather=dateWeather.getFullYear();
+								}
+								currentWeatherValue+=Math.round(response[i].measure);
+								if(self.isCumulative){
+									values.push({
+										"x" : dateWeather ,
+										"y": currentWeatherValue
+									});
+								}else{
+									values.push({
+										"x" : dateWeather ,
+										"y": response[i].measure
+									});
+								}
+
 							}
+
 						})
 						.error(function (response) { // jshint ignore:line
 							//HTTP STATUS != 200
@@ -427,6 +504,7 @@ angular.module('rheticus')
 
 			return values;
 		};
+
 
 
 
