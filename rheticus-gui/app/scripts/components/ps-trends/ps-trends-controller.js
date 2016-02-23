@@ -400,11 +400,13 @@ angular.module('rheticus')
 					var lastY=coeff*self.data[0].values[self.data[0].values.length-1].x+q;
 					values.push({
 						"x" : self.data[0].values[0].x ,
-						"y": firstY
+						"y": Math.round(firstY*100)/100,
+						"key" : "Interpolation"
 					});
 					values.push({
 						"x" : self.data[0].values[self.data[0].values.length-1].x ,
-						"y": lastY
+						"y": Math.round(lastY*100)/100,
+						"key" : "Interpolation"
 					});
 					self.chartData.push({
 						"key" : "InterPolation",
