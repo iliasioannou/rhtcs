@@ -15,8 +15,17 @@
 					<nvd3 options="pstrends.options" data="pstrends.data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
 				</div>
 
-				<input type="checkbox" ng-model="pstrends.checkboxModel.box" ng-change="pstrends.changeCumulativeView()"> Show comulative precipitations
-
+				<label>Precipitations: </label>
+				<select id="CumulativeSelect" ng-model="pstrends.comboboxModel" ng-change="pstrends.changeCumulativeView()">
+				 <option value="">Daily</option>
+				 <option value="Cumulative 30 day">Cumulative 30 day</option>
+				 <option value="Cumulative 60 day">Cumulative 60 day</option>
+				 <option value="Cumulative 90 day">Cumulative 90 day</option>
+				 <option value="Cumulative 120 day">Cumulative 120 day</option>
+				</select>
+				<label ng-show="pstrends.checkboxModelView">
+					 Regression line <input style="vertical-align: bottom;position: relative;" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModel" ng-change="pstrends.setRegressionView()"></input>
+				</label>
 				<div id="bottom-content" class="psTrendsTable">
 					<table st-safe-src="pstrends.psDetails" st-table="displayed" class="table table-striped table-condensed">
 						<thead>

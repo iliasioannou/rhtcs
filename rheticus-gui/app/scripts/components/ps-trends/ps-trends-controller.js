@@ -75,8 +75,14 @@ angular.module('rheticus')
 							var dataPoint = (d3.time.format("%d/%m/%Y")(d.value)); // jshint ignore:line
 							if (typeof d.point!=='undefined'){
 								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: '+d.point.color+';" > &#x25CF;</a><b>'+dataPoint+'</b></div><b>&nbsp;Name: </b>'+d.point.key+'&nbsp;</br><b>&nbsp;Displacement:  </b> '+d.point.y+' mm ' ;
-							} else if(self.isCumulative){
-								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/year </b></p>' ;
+							} else if(self.isCumulative30){
+								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/30 days </b></p>' ;
+							}else if(self.isCumulative60){
+								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/60 days </b></p>' ;
+							}else if(self.isCumulative90){
+								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/90 days </b></p>' ;
+							}else if(self.isCumulative120){
+								return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/120 days </b></p>' ;
 							}else{
 									return '<div id="circle" style="height=20px; width=20px;" ><a style="font-size: 20px; color: #1e90ff; " > &#x25CF;</a><b>'+dataPoint+'</b></div><p>'+d.data.key+'<b>  '+d.data.y+' mm/day </b></p>' ;
 							}
@@ -97,13 +103,20 @@ angular.module('rheticus')
 					"enable" : false
 				}
 			},
-			"checkboxModel" : {
-       "box" : false,
-		 },
+			"comboboxModel" : null,
+			"checkboxModel" : null,
+			"checkboxModelView":false,
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"ps" : [],
-			"isCumulative" : false,
+			"checkboxModel2": ['Daily','Cumulative 30 day','Cumulative 60 day','Cumulative 90 day','Cumulative 120 day'],
+			"checkboxModel2": null,
+			"isRegressiveActivated" : false,
+			"isCumulative30" : false,
+			"isCumulative60" : false,
+			"isCumulative90" : false,
+			"isCumulative120" : false,
+
 			"yearCumulativeWeather" : 0,
 			"stringPeriod" : "",
 			"lastDatePs" : 0,
@@ -125,8 +138,41 @@ angular.module('rheticus')
 					self.psDetails = [];
 					}
 				},
+			 "setRegressionView":function(){
+				 self.isRegressiveActivated=!self.isRegressiveActivated;
+				 generateChartData(self.ps);
+			 },
 			 "changeCumulativeView":function(){
-				 self.isCumulative = !self.isCumulative;
+
+				document.getElementById("CumulativeSelect").className ="";
+				var combo = document.getElementById('CumulativeSelect');
+				if(combo.selectedIndex==0){
+					self.isCumulative30 =false;
+					self.isCumulative60 =false;
+					self.isCumulative90 =false;
+					self.isCumulative120 =false;
+				}else if (combo.selectedIndex==1) {
+					self.isCumulative30 =true;
+					self.isCumulative60 =false;
+					self.isCumulative90 =false;
+					self.isCumulative120 =false;
+				}else if (combo.selectedIndex==2) {
+					self.isCumulative30 =false;
+					self.isCumulative60 =true;
+					self.isCumulative90 =false;
+					self.isCumulative120 =false;
+				}else if (combo.selectedIndex==3) {
+					self.isCumulative30 =false;
+					self.isCumulative60 =false;
+					self.isCumulative90 =true;
+					self.isCumulative120 =false;
+				}else if (combo.selectedIndex==4) {
+					self.isCumulative30 =false;
+					self.isCumulative60 =false;
+					self.isCumulative90 =false;
+					self.isCumulative120 =true;
+				}
+
 				 generateChartData(self.ps);
 			 		}
 		});
@@ -344,7 +390,7 @@ angular.module('rheticus')
 							"yAxis" : 2,
 							"type" : "bar",
 							"values" : values,
-							"color" : "#1e90ff"
+							"color" : "#67C8FF"
 						});
 
 						self.chartDataMeasureCount = true;
@@ -373,8 +419,14 @@ angular.module('rheticus')
 				//	console.log("normal",self.options.chart.yDomain1);
 				}
 				self.data = self.chartData;
-				if(self.psLength==1)
+				if(self.psLength==1){
+					self.checkboxModelView=true;
+				}else{
+					self.checkboxModelView=false;
+				}
+				if(self.psLength==1 && self.isRegressiveActivated)
 				{
+
 					//minimi quadrati per la retta di interpolazione
 					var values=[];
 					var x=0,y=0,x2=0,y2=0,xy=0;
@@ -445,6 +497,10 @@ angular.module('rheticus')
 		var getWeather = function(){
 			var values = [];
 			var currentWeatherValue=0;
+			var currentWeatherValue30=0;
+			var currentWeatherValue60=0;
+			var currentWeatherValue90=0;
+			var currentWeatherValue120=0;
 			var getStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getStationId.path;
 			var latKey = configuration.rheticusAPI.weather.getStationId.lat;
 			var lonKey = configuration.rheticusAPI.weather.getStationId.lon;
@@ -471,29 +527,90 @@ angular.module('rheticus')
 						.success(function (response) {
 							for (var i=0; i< response.length;i++) {
 								var dateWeather = new Date(response[i].day);
-								if (i==0){
-									yearCumulativeWeather= dateWeather.getFullYear();
-								}
-								if (dateWeather.getFullYear()> yearCumulativeWeather){
-									currentWeatherValue=0;
-									yearCumulativeWeather=dateWeather.getFullYear();
-								}
-								currentWeatherValue+=Math.round(response[i].measure);
-								if(self.isCumulative){
-									values.push({
-										"x" : dateWeather ,
-										"y": currentWeatherValue
-									});
-								}else{
-									values.push({
-										"x" : dateWeather ,
-										"y": response[i].measure
-									});
-								}
+									currentWeatherValue+=Math.round(response[i].measure);
+									if(self.isCumulative30){
+										if(i<30){
+											values.push({
+												"x" : dateWeather ,
+												"y": currentWeatherValue
+											});
+											//console.log(currentWeatherValue);
+										}else{
+											currentWeatherValue30=0;
+											for (var j=i; j> i-30;j--) {
+												currentWeatherValue30+=Math.round(response[j].measure);
+											}
+											//console.log(currentWeatherValue30);
+											values.push({
+												"x" : dateWeather ,
+												"y": currentWeatherValue30
+											});
+										}
 
-							}
+									}else if(self.isCumulative60){
+										if(i<60){
+											values.push({
+												"x" : dateWeather ,
+												"y": currentWeatherValue
+											});
+											//console.log(currentWeatherValue);
+										}else{
+											currentWeatherValue60=0;
+											for (var j=i; j> i-60;j--) {
+												currentWeatherValue60+=Math.round(response[j].measure);
+											}
+											//console.log(currentWeatherValue60);
+											values.push({
+												"x" : dateWeather ,
+												"y": currentWeatherValue60
+											});
+										}
+									}else if(self.isCumulative90){
+											if(i<90){
+												values.push({
+													"x" : dateWeather ,
+													"y": currentWeatherValue
+												});
+												//console.log(currentWeatherValue);
+											}else{
+												currentWeatherValue90=0;
+												for (var j=i; j> i-90;j--) {
+													currentWeatherValue90+=Math.round(response[j].measure);
+												}
+												//console.log(currentWeatherValue90);
+												values.push({
+													"x" : dateWeather ,
+													"y": currentWeatherValue90
+												});
+											}
+										}else if(self.isCumulative120){
+												if(i<120){
+													values.push({
+														"x" : dateWeather ,
+														"y": currentWeatherValue
+													});
+													//console.log(currentWeatherValue);
+												}else{
+													currentWeatherValue120=0;
+													for (var j=i; j> i-120;j--) {
+														currentWeatherValue120+=Math.round(response[j].measure);
+													}
+													//console.log(currentWeatherValue120);
+													values.push({
+														"x" : dateWeather ,
+														"y": currentWeatherValue120
+													});
+												}
+											}else{
+										values.push({
+											"x" : dateWeather ,
+											"y": response[i].measure
+										});
+										}
 
-						})
+
+
+						}})
 						.error(function (response) { // jshint ignore:line
 							//HTTP STATUS != 200
 							//do nothing
