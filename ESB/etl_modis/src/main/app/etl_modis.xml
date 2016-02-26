@@ -32,7 +32,7 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
     </file:connector>
 
     <flow name="etl_modisFlow1" >
-        <quartz:inbound-endpoint jobName="ModisUpdates" repeatInterval="0" responseTimeout="10000" doc:name="EveryDay at 10am" cronExpression="0 00 10 ? * *">
+        <quartz:inbound-endpoint jobName="ModisUpdates" repeatInterval="0" responseTimeout="10000" doc:name="EveryDay" cronExpression="0 45 23 ? * *">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
         <logger message="Modis Connector Started." level="INFO" doc:name="Modis connector started"/>
@@ -48,7 +48,7 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
 	            <logger message="Added modis query filter: #[qryField] = #[payload]" level="INFO" doc:name="Log query filter"/>
 	            <set-variable variableName="qryString" value="#[qryString +&quot;&amp;&quot;+qryField+&quot;=&quot;+payload]" doc:name="update qryString"/>
 	        </foreach>
-        <expression-component doc:name="Add day field to queryString"><![CDATA[qryString  =+"&day="+System.currentTimeMillis()/86400000]]></expression-component>
+        <expression-component doc:name="Add day field to queryString"><![CDATA[qryString  =+"&day="+(System.currentTimeMillis()/86400000)]]></expression-component>
 	        <logger message="Modis query string: http://${modis.search.host}:${modis.search.port}/${modis.search.path}#[qryString] " level="INFO" doc:name="Modis query string"/>
             <!--  <http:request config-ref="HTTP_Request_Modis" path="#[qryString]" method="GET" doc:name="Search on Modis Browser" />  -->
             <!--  <logger message="#[message]" level="INFO" doc:name="Logger"/>  -->

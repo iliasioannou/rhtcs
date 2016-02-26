@@ -54,7 +54,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
     
 
 	<flow name="dp_psFlow">
-        <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 30 16 ? * FRI">
+        <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 00 11 ? * FRI">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
         <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct DatasetIds">
