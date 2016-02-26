@@ -24,7 +24,10 @@
 				 <option value="Cumulative 120 day">Cumulative 120 day</option>
 				</select>
 				<label ng-show="pstrends.checkboxModelView">
-					 Regression line <input style="vertical-align: bottom;position: relative;" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModel" ng-change="pstrends.setRegressionView()"></input>
+					 Regression line <input style="vertical-align: bottom;position: relative;" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModelRegression" ng-change="pstrends.setRegressionView()"></input>
+				</label>
+				<label ng-show="pstrends.checkboxModelView">
+					 Noise filter <input style="vertical-align: bottom;position: relative;" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModelErrorFilter" ng-change="pstrends.filterErrorView()"></input>
 				</label>
 				<div id="bottom-content" class="psTrendsTable">
 					<table st-safe-src="pstrends.psDetails" st-table="displayed" class="table table-striped table-condensed">
