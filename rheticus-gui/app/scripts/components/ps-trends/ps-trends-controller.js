@@ -241,8 +241,13 @@ angular.module('rheticus')
 					 }
 
 				 }else{
+					 var j=0;
 					 for (var k=0;k<self.databkp.length;k++){
-					 		self.data[0].values.splice(self.databkpCount[k],0,self.databkp[k]);
+
+						 //console.log(self.databkpCount[k]);
+						 //console.log(self.databkp[k]);
+					 		self.data[0].values.splice(self.databkpCount[k]+j,0,self.databkp[k]);
+							j++;
 				 		}
 
 				 }
@@ -304,16 +309,97 @@ angular.module('rheticus')
 			}
 		});
 
-		var cloneObj = function(obj) {
-			var clone = null;
-			if (obj!=null){
-				clone = new Object();
-				for (var p in obj){
-					eval("clone."+p+" = obj[p];");   // jshint ignore:line
-				}
-			}
-			return clone;
+		var calculateRegressionLine = function() {
+			console.log("attivo");
+			if(self.psLength==1 && self.isRegressiveActivated)
+		 {
+			 //minimi quadrati per la retta di interpolazione
+			 var values=[];
+			 var x=0,y=0,x2=0,y2=0,xy=0;
+			 var coeff=0,q=0;
+			 var i=0;
+			 for (i=0;i<self.data[0].values.length;i++)
+			 {
+				 x+=new Date(self.data[0].values[i].x).getTime();
+				 y+=self.data[0].values[i].y;
+				 x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+				 y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+				 xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+
+			 }
+			 x=x/self.data[0].values.length;
+			 y=y/self.data[0].values.length;
+			 x2=x2/self.data[0].values.length;
+			 y2=y2/self.data[0].values.length;
+			 xy=xy/self.data[0].values.length;
+			 coeff=(xy-(x*y))/(x2-(x*x));
+			 q=y-(coeff*x);
+			 var firstY=coeff*self.data[0].values[0].x+q;
+			 var lastY=coeff*self.data[0].values[self.data[0].values.length-1].x+q;
+			 if (self.isRegressiveActivated){
+				 values.push({
+					 "x" : self.data[0].values[0].x ,
+					 "y": Math.round(firstY*100)/100,
+					 "key" : "Interpolation"
+				 });
+				 values.push({
+					 "x" : self.data[0].values[self.data[0].values.length-1].x ,
+					 "y": Math.round(lastY*100)/100,
+					 "key" : "Interpolation"
+				 });
+				 self.chartData.push({
+					 "key" : "InterPolation",
+					 "yAxis" : 1,
+					 "type" : "line",
+					 "values" : values,
+					 "color" : "#00cc00"
+				 });
+			 }
+		 }
+
 		};
+
+		var useNoiseFilter=function(){
+			if (self.psLength==1 && self.isFilterErrorActivated){
+				//minimi quadrati per la retta di interpolazione
+					self.databkp=[];
+					self.databkpCount=[];
+				 var values=[];
+				 var x=0,y=0,x2=0,y2=0,xy=0;
+				 var coeff=0,q=0;
+				 var i=0;
+				 for (i=0;i<self.data[0].values.length;i++)
+				 {
+					 x+=new Date(self.data[0].values[i].x).getTime();
+					 y+=self.data[0].values[i].y;
+					 x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+					 y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+					 xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+
+				 }
+				 x=x/self.data[0].values.length;
+				 y=y/self.data[0].values.length;
+				 x2=x2/self.data[0].values.length;
+				 y2=y2/self.data[0].values.length;
+				 xy=xy/self.data[0].values.length;
+				 coeff=(xy-(x*y))/(x2-(x*x));
+				 q=y-(coeff*x);
+				var yaxisLinear;
+				var thresold= 2*Math.sqrt(Math.log(self.coherence));
+				console.log(thresold);
+				for (var c=0;c<self.data[0].values.length;c++){
+					yaxisLinear=coeff*self.data[0].values[c].x+q;
+					if(Math.abs((yaxisLinear-self.data[0].values[c].y))>thresold){
+						//console.log(self.data[0].values[c]);
+						self.databkp.push(self.data[0].values[c]);
+						self.databkpCount.push(c);
+						self.data[0].values.splice( c, 1 );
+
+					}
+				}
+
+			}
+		}
 
 		var setTitle = function (response,datasetId,psId) {
 			//console.log("featureinfo_"+datasetId+"_"+psId);
@@ -543,6 +629,8 @@ angular.module('rheticus')
 					self.checkboxModelView=false;
 				}
 
+				calculateRegressionLine();
+				useNoiseFilter();
 
 
 					//console.log(self.chartData);
