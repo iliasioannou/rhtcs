@@ -283,8 +283,26 @@ angular.module('rheticus')
 					self.isCumulative90 =false;
 					self.isCumulative120 =true;
 				}
+				console.log(self.data);
 
-				 generateChartData(self.ps);
+				for (var i=0;i<self.data.length;i++)
+				{
+					if(self.data[i].key==="Precipitations")
+					{
+						self.data.splice( i, 1 );
+					}
+				}
+				console.log(self.data);
+
+				var values = getWeather(); // get weather data
+				self.chartData.push({
+					"key" : "Precipitations",
+					"yAxis" : 2,
+					"type" : "bar",
+					"values" : values,
+					"color" : "#67C8FF"
+				});
+				 
 			 		}
 		});
 
