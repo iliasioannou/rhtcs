@@ -283,7 +283,6 @@ angular.module('rheticus')
 					self.isCumulative90 =false;
 					self.isCumulative120 =true;
 				}
-				console.log(self.data);
 
 				for (var i=0;i<self.data.length;i++)
 				{
@@ -292,7 +291,6 @@ angular.module('rheticus')
 						self.data.splice( i, 1 );
 					}
 				}
-				console.log(self.data);
 
 				var values = getWeather(); // get weather data
 				self.chartData.push({
@@ -302,7 +300,7 @@ angular.module('rheticus')
 					"values" : values,
 					"color" : "#67C8FF"
 				});
-				 
+
 			 		}
 		});
 
@@ -328,7 +326,6 @@ angular.module('rheticus')
 		});
 
 		var calculateRegressionLine = function() {
-			console.log("attivo");
 			if(self.psLength==1 && self.isRegressiveActivated)
 		 {
 			 //minimi quadrati per la retta di interpolazione
