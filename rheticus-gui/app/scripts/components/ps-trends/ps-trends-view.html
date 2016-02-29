@@ -19,14 +19,14 @@
 					 Regression line <input style="vertical-align: bottom;position: relative;margin-top:5px" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModelRegression" ng-change="pstrends.setRegressionView()"></input>
 				</label>
 				<label style="margin-left:10px"ng-show="pstrends.checkboxModelView">
-					 Noise filter <input style="vertical-align: bottom;position: relative;margin-top:5px" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModelErrorFilter" ng-change="pstrends.filterErrorView()"></input>
+					 Noise filter <input id="errorFilter" style="vertical-align: bottom;position: relative;margin-top:5px" type="checkbox" style="margin-left=10px;" ng-model="pstrends.checkboxModelErrorFilter" ng-change="pstrends.filterErrorView()"  ></input>
 				</label>
 
 				<div style="float: right !important;margin-right:15px" class="block">
 					<label style="margin-top:5px">Precipitations: </label>
 					<select style="float: right !important;" id="CumulativeSelect" ng-model="pstrends.comboboxModel" ng-change="pstrends.changeCumulativeView()">
-					 <option value="">Daily</option>
-					 <option value="Cumulative 30 day">Cumulative 30 day</option>
+					 <option value="Daily">Daily</option>
+					 <option value="">Cumulative 30 day</option>
 					 <option value="Cumulative 60 day">Cumulative 60 day</option>
 					 <option value="Cumulative 90 day">Cumulative 90 day</option>
 					 <option value="Cumulative 120 day">Cumulative 120 day</option>

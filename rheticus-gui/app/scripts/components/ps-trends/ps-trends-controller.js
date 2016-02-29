@@ -115,7 +115,7 @@ angular.module('rheticus')
 			"isRegressiveActivated" : false,
 			"isFilterErrorActivated": false,
 			"coherence":0,
-			"isCumulative30" : false,
+			"isCumulative30" : true,
 			"isCumulative60" : false,
 			"isCumulative90" : false,
 			"isCumulative120" : false,
