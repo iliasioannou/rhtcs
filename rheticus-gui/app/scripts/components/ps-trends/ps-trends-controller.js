@@ -105,7 +105,7 @@ angular.module('rheticus')
 			},
 			"comboboxModel" : null,
 			"checkboxModelRegression" : null,
-			"checkboxModelErrorFilter" : null,
+			"checkboxModelErrorFilter" : true,
 			"checkboxModelView":false,
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
@@ -113,7 +113,7 @@ angular.module('rheticus')
 			"checkboxModel2": ['Daily','Cumulative 30 day','Cumulative 60 day','Cumulative 90 day','Cumulative 120 day'],
 			"checkboxModel2": null,
 			"isRegressiveActivated" : false,
-			"isFilterErrorActivated": false,
+			"isFilterErrorActivated": true,
 			"coherence":0,
 			"isCumulative30" : true,
 			"isCumulative60" : false,
@@ -375,6 +375,7 @@ angular.module('rheticus')
 		};
 
 		var useNoiseFilter=function(){
+			//console.log(self.isFilterErrorActivated);
 			if (self.psLength==1 && self.isFilterErrorActivated){
 				//minimi quadrati per la retta di interpolazione
 					self.databkp=[];
@@ -401,7 +402,7 @@ angular.module('rheticus')
 				 q=y-(coeff*x);
 				var yaxisLinear;
 				var thresold= 2*Math.sqrt(Math.log(self.coherence));
-				console.log(thresold);
+				//console.log(thresold);
 				for (var c=0;c<self.data[0].values.length;c++){
 					yaxisLinear=coeff*self.data[0].values[c].x+q;
 					if(Math.abs((yaxisLinear-self.data[0].values[c].y))>thresold){
