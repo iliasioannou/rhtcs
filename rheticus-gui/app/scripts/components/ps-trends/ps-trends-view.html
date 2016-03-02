@@ -19,12 +19,12 @@
 					<label style="margin-left:15px;margin-bottom:10px;vertical-align: middle;"ng-show="pstrends.checkboxModelView">
 						 Regression line
 					</label>
-					<input  type="checkbox" ng-model="pstrends.checkboxModelRegression" ng-change="pstrends.setRegressionView()"></input>
+					<input  type="checkbox" ng-model="pstrends.checkboxModelRegression" ng-change="pstrends.setRegressionView()" ng-show="pstrends.checkboxModelView"></input>
 
-					<label style="margin-left:10px;margin-bottom:10px;vertical-align: middle;"ng-show="pstrends.checkboxModelView">
+					<label style="margin-left:10px;margin-bottom:10px;vertical-align: middle;"ng-show="pstrends.checkboxModelView" >
 						 Noise filter
 					</label>
-					<input id="errorFilter" type="checkbox" ng-model="pstrends.checkboxModelErrorFilter" ng-change="pstrends.filterErrorView()"  ></input>
+					<input id="errorFilter" type="checkbox" ng-model="pstrends.checkboxModelErrorFilter" ng-change="pstrends.filterErrorView()" ng-show="pstrends.checkboxModelView"  ></input>
 
 					<div style="float: right;margin-right:15px;">
 						<label id="Precipitations">

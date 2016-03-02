@@ -407,7 +407,7 @@ table.gridtable td {
 }
 
 .map-control-panel {
-	z-index:3;
+	z-index:4;
 	top: 7.4em;
 	right:.5em;
 }
@@ -497,6 +497,10 @@ table.gridtable td {
 
 .chardinjs-helper-layer {
     z-index: 2;
+}
+.chardinjs-helper-layer.chardinjs-left {
+    border-left: 1px solid white;
+    margin-left: -30px;
 }
 
 .psTrendsClose {
