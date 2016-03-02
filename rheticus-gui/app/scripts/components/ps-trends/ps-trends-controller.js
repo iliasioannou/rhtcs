@@ -111,7 +111,6 @@ angular.module('rheticus')
 			"chartData" : [],
 			"ps" : [],
 			"checkboxModel2": ['Daily','Cumulative 30 day','Cumulative 60 day','Cumulative 90 day','Cumulative 120 day'],
-			"checkboxModel2": null,
 			"isRegressiveActivated" : false,
 			"isFilterErrorActivated": true,
 			"coherence":0,
@@ -145,7 +144,7 @@ angular.module('rheticus')
 				},
 			 "setRegressionView":function(){
 				 self.isRegressiveActivated=!self.isRegressiveActivated;
-				 if(self.psLength==1 && self.isRegressiveActivated)
+				 if(self.psLength===1 && self.isRegressiveActivated)
  				{
 					//minimi quadrati per la retta di interpolazione
  					var values=[];
@@ -202,11 +201,10 @@ angular.module('rheticus')
 			 },
 			 "filterErrorView":function(){
 				 self.isFilterErrorActivated=!self.isFilterErrorActivated;
-				 if (self.psLength==1 && self.isFilterErrorActivated){
+				 if (self.psLength===1 && self.isFilterErrorActivated){
 					 //minimi quadrati per la retta di interpolazione
 						 self.databkp=[];
 						 self.databkpCount=[];
-  					var values=[];
   					var x=0,y=0,x2=0,y2=0,xy=0;
   					var coeff=0,q=0;
   					var i=0;
@@ -257,27 +255,27 @@ angular.module('rheticus')
 
 				document.getElementById("CumulativeSelect").className ="";
 				var combo = document.getElementById('CumulativeSelect');
-				if(combo.selectedIndex==0){
+				if(combo.selectedIndex===0){
 					self.isCumulative30 =false;
 					self.isCumulative60 =false;
 					self.isCumulative90 =false;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==1) {
+				}else if (combo.selectedIndex===1) {
 					self.isCumulative30 =true;
 					self.isCumulative60 =false;
 					self.isCumulative90 =false;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==2) {
+				}else if (combo.selectedIndex===2) {
 					self.isCumulative30 =false;
 					self.isCumulative60 =true;
 					self.isCumulative90 =false;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==3) {
+				}else if (combo.selectedIndex===3) {
 					self.isCumulative30 =false;
 					self.isCumulative60 =false;
 					self.isCumulative90 =true;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==4) {
+				}else if (combo.selectedIndex===4) {
 					self.isCumulative30 =false;
 					self.isCumulative60 =false;
 					self.isCumulative90 =false;
@@ -326,7 +324,7 @@ angular.module('rheticus')
 		});
 
 		var calculateRegressionLine = function() {
-			if(self.psLength==1 && self.isRegressiveActivated)
+			if(self.psLength===1 && self.isRegressiveActivated)
 		 {
 			 //minimi quadrati per la retta di interpolazione
 			 var values=[];
@@ -376,11 +374,10 @@ angular.module('rheticus')
 
 		var useNoiseFilter=function(){
 			//console.log(self.isFilterErrorActivated);
-			if (self.psLength==1 && self.isFilterErrorActivated){
+			if (self.psLength===1 && self.isFilterErrorActivated){
 				//minimi quadrati per la retta di interpolazione
 					self.databkp=[];
 					self.databkpCount=[];
-				 var values=[];
 				 var x=0,y=0,x2=0,y2=0,xy=0;
 				 var coeff=0,q=0;
 				 var i=0;
@@ -391,7 +388,6 @@ angular.module('rheticus')
 					 x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
 					 y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
 					 xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
-
 				 }
 				 x=x/self.data[0].values.length;
 				 y=y/self.data[0].values.length;
@@ -400,22 +396,21 @@ angular.module('rheticus')
 				 xy=xy/self.data[0].values.length;
 				 coeff=(xy-(x*y))/(x2-(x*x));
 				 q=y-(coeff*x);
-				var yaxisLinear;
-				var thresold= 2*Math.sqrt(Math.log(self.coherence));
-				//console.log(thresold);
-				for (var c=0;c<self.data[0].values.length;c++){
-					yaxisLinear=coeff*self.data[0].values[c].x+q;
-					if(Math.abs((yaxisLinear-self.data[0].values[c].y))>thresold){
-						//console.log(self.data[0].values[c]);
-						self.databkp.push(self.data[0].values[c]);
-						self.databkpCount.push(c);
-						self.data[0].values.splice( c, 1 );
+					var yaxisLinear;
+					var thresold= 2*Math.sqrt(Math.log(self.coherence));
+					//console.log(thresold);
+					for (var c=0;c<self.data[0].values.length;c++){
+						yaxisLinear=coeff*self.data[0].values[c].x+q;
+						if(Math.abs((yaxisLinear-self.data[0].values[c].y))>thresold){
+							//console.log(self.data[0].values[c]);
+							self.databkp.push(self.data[0].values[c]);
+							self.databkpCount.push(c);
+							self.data[0].values.splice( c, 1 );
 
+						}
 					}
 				}
-
-			}
-		}
+		};
 
 		var setTitle = function (response,datasetId,psId) {
 			//console.log("featureinfo_"+datasetId+"_"+psId);
@@ -639,7 +634,7 @@ angular.module('rheticus')
 				//	console.log("normal",self.options.chart.yDomain1);
 				}
 				self.data = self.chartData;
-				if(self.psLength==1){
+				if(self.psLength===1){
 					self.checkboxModelView=true;
 				}else{
 					self.checkboxModelView=false;
@@ -695,7 +690,6 @@ angular.module('rheticus')
 					var station = response[0].id;
 					var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs)); // jshint ignore:line
 					var firstDatePs = d3.time.format("%Y-%m-%d")(new Date(self.firstDatePs)); // jshint ignore:line
-					var yearCumulativeWeather=0;
 					var getWeatherMeasuresByStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
 					var stationidKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.stationid;
 					var begindateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.begindate;
@@ -707,6 +701,7 @@ angular.module('rheticus')
 
 					$http.get(url2)
 						.success(function (response) {
+							var j=0;
 							for (var i=0; i< response.length;i++) {
 								var dateWeather = new Date(response[i].day);
 									currentWeatherValue+=Math.round(response[i].measure);
@@ -719,7 +714,7 @@ angular.module('rheticus')
 											//console.log(currentWeatherValue);
 										}else{
 											currentWeatherValue30=0;
-											for (var j=i; j> i-30;j--) {
+											for (j=i; j> i-30;j--) {
 												currentWeatherValue30+=Math.round(response[j].measure);
 											}
 											//console.log(currentWeatherValue30);
@@ -738,7 +733,7 @@ angular.module('rheticus')
 											//console.log(currentWeatherValue);
 										}else{
 											currentWeatherValue60=0;
-											for (var j=i; j> i-60;j--) {
+											for (j=i; j> i-60;j--) {
 												currentWeatherValue60+=Math.round(response[j].measure);
 											}
 											//console.log(currentWeatherValue60);
@@ -756,7 +751,7 @@ angular.module('rheticus')
 												//console.log(currentWeatherValue);
 											}else{
 												currentWeatherValue90=0;
-												for (var j=i; j> i-90;j--) {
+												for (j=i; j> i-90;j--) {
 													currentWeatherValue90+=Math.round(response[j].measure);
 												}
 												//console.log(currentWeatherValue90);
@@ -774,7 +769,7 @@ angular.module('rheticus')
 													//console.log(currentWeatherValue);
 												}else{
 													currentWeatherValue120=0;
-													for (var j=i; j> i-120;j--) {
+													for (j=i; j> i-120;j--) {
 														currentWeatherValue120+=Math.round(response[j].measure);
 													}
 													//console.log(currentWeatherValue120);
@@ -805,8 +800,5 @@ angular.module('rheticus')
 
 			return values;
 		};
-
-
-
 
 	}]);

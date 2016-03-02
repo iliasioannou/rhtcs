@@ -509,6 +509,10 @@ table.gridtable td {
   width: auto;
   height: auto;
 }
+.psTrendsOptions {
+  width: auto;
+  height: auto;
+}
 .psTrendsTable {
     position: absolute;
     bottom: 0;
@@ -516,6 +520,7 @@ table.gridtable td {
     width: 100%;
     max-height: 200px;
 }
+
 
 .psTrends {
 	position: fixed;
