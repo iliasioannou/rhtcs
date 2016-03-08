@@ -6,8 +6,8 @@ var server = express();
 
 /*** Basic Auth for Production ***/
 var basicAuth = require('basic-auth');
-var usr = "planetek";
-var pwd = "agosto";
+var usr = "demo";
+var pwd = "displacement";
 
 var auth = function(req, res, next){
   var user = basicAuth(req);
