@@ -26,7 +26,6 @@
 
 <!-- Google Fonts -->
 <link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Lato:300,400,700'>
-<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Varela+Round'>
 
 <!-- Main Stylesheet -->
 <link rel="stylesheet" type='text/css' href="./css/main.css">
@@ -106,14 +105,14 @@
 
 		<!-- Hero -->
 			<section id="image-hero" class="fullscreen-content">
-		<div class="fullscreen-image hero-image" data-0-top="background-position-y: 0px" data-top-bottom="background-position-y: -400px"></div>
+		<div id="background-hero" class="fullscreen-image hero-image" data-0-top="background-position-y: 0px" data-top-bottom="background-position-y: -400px"></div>
 		<div class="container">
 			<div class="row">
 				<div class="col-lg-12">
 					<!-- Welcome text -->
 					<div class="welcome" data-0="opacity: 1" data-200="opacity: 0">
 						<h1 class="text-brand-custom-color">Rheticus</h1>
-						<h4 class="text-white">lorem ipsum</h4>
+						<h4 class="text-brand-custom-color">lorem ipsum</h4>
 					</div>
 					<!-- End Welcome text -->
 
@@ -289,6 +288,42 @@
     var contactLongitude = 16.844;
     var markerTitle      = "Planetek Italia";
     var markerAddress    = "Via Massaua 12, I-70132 Bari, Italy";
+
+    //change background hero-image
+    var currentBackground = 0;
+    var backgrounds = [];
+    backgrounds[0] = './media/img/displacement.png';
+    backgrounds[1] = './media/img/marine.png';
+    backgrounds[2] = './media/img/burned.png';
+    backgrounds[3] = './media/img/displacement2.png';
+    backgrounds[4] = './media/img/marine2.png';
+    backgrounds[5] = './media/img/burned2.png';
+    backgrounds[6] = './media/img/displacement.png';
+    backgrounds[7] = './media/img/marine.png';
+    backgrounds[8] = './media/img/burned.png';
+    backgrounds[9] = './media/img/displacement2.png';
+    backgrounds[10] = './media/img/marine2.png';
+    backgrounds[11] = './media/img/burned2.png';
+    function changeBackground() {
+
+        if(currentBackground > 11) currentBackground = 0;
+
+        console.log(backgrounds[currentBackground]);
+        console.log(currentBackground);
+        $('#background-hero').fadeOut(500,function() {
+            $('#background-hero').css({
+                'background-image' : "url('" + backgrounds[currentBackground] + "')"
+            });
+            $('#background-hero').fadeIn(800);
+        });
+        currentBackground++;
+        setTimeout(changeBackground, 10000);
+    }
+    $(document).ready(function() {
+
+        setTimeout(changeBackground, 10000);
+
+    });
 </script>
 
 <script src="./js/main.js"></script>

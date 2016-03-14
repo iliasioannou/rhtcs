@@ -556,7 +556,7 @@ body {
 }
 
 .hero-image {
-    background: transparent url('../media/img/hero-image.jpg') center 0 no-repeat fixed;
+    background: transparent url('../media/img/displacement.png') center 0 no-repeat fixed;
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -1155,7 +1155,7 @@ p {
 }
 
 .text-brand-custom-color {
-    color: #ffffff
+    color: #003a57
 }
 
 .ir {
