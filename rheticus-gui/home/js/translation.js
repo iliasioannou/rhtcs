@@ -45,8 +45,10 @@ $(document).ready(function() {
   if(userLang.indexOf("it")<0){
     userLang="en-US";
     document.getElementById("imageLanguage").src="./media/img/it.png"
+    document.getElementById("imageLanguage").title="Click to change language"
   }else{
     document.getElementById("imageLanguage").src="./media/img/gb.png"
+    document.getElementById("imageLanguage").title="Clicca per cambiare lingua"
   }
   currentLanguage=userLang;
   //translation i18next
@@ -58,9 +60,11 @@ $(document).ready(function() {
 var changeLanguage = function() {
   if(currentLanguage=="en-US"){
     document.getElementById("imageLanguage").src="./media/img/gb.png";
+    document.getElementById("imageLanguage").title="Clicca per cambiare lingua"
     currentLanguage="it";
   }else{
     document.getElementById("imageLanguage").src="./media/img/it.png";
+    document.getElementById("imageLanguage").title="Click to change language"
     currentLanguage="en-US";
   }
   updateLanguage();
