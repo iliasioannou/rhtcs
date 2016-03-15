@@ -1159,6 +1159,11 @@ p {
     text-shadow: 1px 1px 4px #ffffff
 }
 
+.text-description-custom-color {
+    color: #003a57;
+    text-shadow: 1px 0px 2px #ffffff
+}
+
 .ir {
     overflow: hidden;
     *text-indent: -9999px;
