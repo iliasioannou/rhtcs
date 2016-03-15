@@ -37,54 +37,37 @@ var languagesJson={
   }
 };
 
-
+// On document loaded set browser language.
 $(document).ready(function() {
 
   var userLang = navigator.language || navigator.browserLanguage;
 
   if(userLang.indexOf("it")<0){
     userLang="en-US";
-    document.getElementById("imageLanguage").src="./media/img/gb.png"
-    console.log("set default language");
-  }else{
     document.getElementById("imageLanguage").src="./media/img/it.png"
+  }else{
+    document.getElementById("imageLanguage").src="./media/img/gb.png"
   }
   currentLanguage=userLang;
   //translation i18next
-  i18next.init({
-    lng: userLang,
-    resources: languagesJson
-  }, function(err, t) {
-    // initialized and ready to go!
-    document.getElementById("navHome").innerHTML = i18next.t('navHome');
-    document.getElementById("navServices").innerHTML = i18next.t('navServices');
-    document.getElementById("navContact").innerHTML = i18next.t('navContact');
-    document.getElementById("welcomeTextSecondary").innerHTML = i18next.t('welcomeTextSecondary');
-    document.getElementById("servicesText").innerHTML = i18next.t('servicesText');
-    document.getElementById("servicesTextDisplacement").innerHTML = i18next.t('servicesTextDisplacement');
-    document.getElementById("servicesTextDisplacementDescription").innerHTML = i18next.t('servicesTextDisplacementDescription');
-    document.getElementById("servicesTextMarine").innerHTML = i18next.t('servicesTextMarine');
-    document.getElementById("servicesTextMarineDescription").innerHTML = i18next.t('servicesTextMarineDescription');
-    document.getElementById("servicesTextBurned").innerHTML = i18next.t('servicesTextBurned');
-    document.getElementById("servicesTextBurnedDescription").innerHTML = i18next.t('servicesTextBurnedDescription');
-    document.getElementById("contactText").innerHTML = i18next.t('contactText');
-    document.getElementById("contactAddress").innerHTML = i18next.t('contactAddress');
-  });
+  updateLanguage();
 
 });
 
-
+//switch language between en-US and it
 var changeLanguage = function() {
   if(currentLanguage=="en-US"){
-    document.getElementById("imageLanguage").src="./media/img/it.png";
+    document.getElementById("imageLanguage").src="./media/img/gb.png";
     currentLanguage="it";
   }else{
-    document.getElementById("imageLanguage").src="./media/img/gb.png";
+    document.getElementById("imageLanguage").src="./media/img/it.png";
     currentLanguage="en-US";
   }
   updateLanguage();
 }
 
+
+// Update the language with the current language.
 var updateLanguage = function(){
   i18next.init({
     lng: currentLanguage,
