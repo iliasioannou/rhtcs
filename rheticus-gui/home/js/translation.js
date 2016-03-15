@@ -47,7 +47,7 @@ $(document).ready(function() {
         }
       }
     }
-  }, (err, t) => {
+  }, function(err, t) {
     // initialized and ready to go!
     document.getElementById("navHome").innerHTML = i18next.t('navHome');
     document.getElementById("navServices").innerHTML = i18next.t('navServices');
