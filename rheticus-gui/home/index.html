@@ -5,7 +5,7 @@
 <!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
 
-<html lang="en">
+<html>
 
 <head>
   <meta charset="utf-8">
@@ -45,10 +45,11 @@
 
 <!-- Javascript-->
 <script src="./js/modernizr-2.6.2.min.js"></script>
-<script type="text/javascript" src="i18next.min.js"></script>
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script type="text/javascript" src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="./js/respond.min.js"></script>
+<script type="text/javascript" src="./js/i18next.min.js"></script>
+<script type="text/javascript" src="./js/translation.js"></script>
 <script type="text/javascript" src="./js/retina.min.js"></script>
 <script type="text/javascript" src="./js/skrollr.min.js"></script>
 <script type="text/javascript" src="./js/jquery.hidenavbaronscroll.js"></script>
@@ -97,11 +98,11 @@
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav navbar-right">
 
-						<li><a href="#image-hero">Home</a></li>
+						<li><a id="navHome" href="#image-hero">Home</a></li>
 
-						<li><a href="#services">Services</a></li>
+						<li><a id="navServices" href="#services">Services</a></li>
 
-						<li><a href="#contact">Contact</a></li>
+						<li><a id="navContact" href="#contact">Contact</a></li>
 
 					</ul>
 				</div>
@@ -122,7 +123,7 @@
 					<!-- Welcome text -->
 					<div class="welcome" data-0="opacity: 1" data-200="opacity: 0">
 						<h1 class="text-brand-custom-color">Rheticus</h1>
-						<h4 class="text-brand-custom-color">lorem ipsum</h4>
+						<h4 id="welcomeTextSecondary" style="margin-left:5px;font-weight: bold;" class="text-brand-custom-color">Lorem ipsum</h4>
 					</div>
 					<!-- End Welcome text -->
 
@@ -144,18 +145,18 @@
 		<div class="container padding-top-50 padding-bottom-50">
 			<div class="row">
 				<div class="col-lg-12">
-					<h1 class="text-center">Services.</h1>
+					<h1 id="servicesText" class="text-center">Services.</h1>
 					<hr class="margin-bottom-50">
 
 					<!-- Features -->
 					<div class="margin-top-30 margin-bottom-30">
 						<div class="row">
 
-							<div style="cursor: pointer;"onclick="window.location.href = '../displacement'" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+							<div style="cursor: pointer;" onclick="window.location.href = '../displacement'" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
 								<!-- Feature Thumb -->
 								<div class="features-thumb">
 									<div class="thumb-header">
-										<h3 class="text-center">Displacement</h3>
+										<h3 id="servicesTextDisplacement" class="text-center">Displacement</h3>
 									</div>
 
 									<div class="thumb-content">
@@ -167,17 +168,17 @@
 										</div>
 										<!-- End Icon -->
 
-										<p>A geoinformation service designed specifically to detect and report earth’s surface movements, aimed at monitoring areas subject to landslides and subsidence, and the stability of infrastructures, as buildings, roads and railways.</p>
+										<p id="servicesTextDisplacementDescription">A geoinformation service designed specifically to detect and report earth’s surface movements, aimed at monitoring areas subject to landslides and subsidence, and the stability of infrastructures, as buildings, roads and railways.</p>
 									</div>
 								</div>
 								<!-- End Feature Thumb -->
 							</div>
 
-							<div style="cursor: pointer;"onclick="window.location.href = 'http://www.google.com'" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+							<div style="cursor: pointer;" onclick="window.location.href = 'http://www.google.com'" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
 								<!-- Feature Thumb -->
 								<div class="features-thumb">
 									<div class="thumb-header">
-										<h3 class="text-center">Marine</h3>
+										<h3 id="servicesTextMarine" class="text-center">Marine</h3>
 									</div>
 
 									<div class="thumb-content">
@@ -189,17 +190,17 @@
 										</div>
 										<!-- End Icon -->
 
-										<p>A geoinformation service designed for the monitoring of coastal seawaters quality, in order to meet the environmental reporting requirements of local governments in compliance with the EU Directive on "Marine Strategy".</p>
+										<p id="servicesTextMarineDescription">A geoinformation service designed for the monitoring of coastal seawaters quality, in order to meet the environmental reporting requirements of local governments in compliance with the EU Directive on "Marine Strategy".</p>
 									</div>
 								</div>
 								<!-- End Feature Thumb -->
 							</div>
 
-							<div style="cursor: pointer;"onclick="window.location.href = 'http://www.google.com'" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+							<div style="cursor: pointer;" onclick="window.location.href = 'http://www.google.com'" class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
 								<!-- Feature Thumb -->
 								<div class="features-thumb">
 									<div class="thumb-header">
-										<h3 class="text-center">Burned area</h3>
+										<h3 id="servicesTextBurned" class="text-center">Burned area</h3>
 									</div>
 
 									<div class="thumb-content">
@@ -211,7 +212,7 @@
 										</div>
 										<!-- End Icon -->
 
-										<p>A geoinformation service designed to support burned area monitoring, through burned area mapping and detection of illegal land use changes.</p>
+										<p id="servicesTextBurnedDescription">A geoinformation service designed to support burned area monitoring, through burned area mapping and detection of illegal land use changes.</p>
 									</div>
 								</div>
 								<!-- End Feature Thumb -->
@@ -244,7 +245,7 @@
 				<div class="row">
 					<div class="col-lg-12">
 
-						<h1 class="text-center">Contact.</h1>
+						<h1 id="contactText" class="text-center">Contact.</h1>
 						<hr class="margin-bottom-50">
 
 						<div class="col-lg-4 col-md-4 col-sm-4">
@@ -264,7 +265,7 @@
 						<div class="col-lg-4 col-md-4 col-sm-4">
 							<div class="text-center">
 								<i class="fa fa-3x fa-building-o text-brand-main-color margin-top-20 margin-bottom-20"></i>
-								<h4>Via Massaua 12, I-70132 Bari, Italy</h4>
+								<h4 id="contactAddress">Via Massaua 12, I-70132 Bari, Italy</h4>
 							</div>
 						</div>
 
@@ -288,7 +289,17 @@
     var contactLatitude  = 41.1376;
     var contactLongitude = 16.844;
     var markerTitle      = "Planetek Italia";
-    var markerAddress    = "Via Massaua 12, I-70132 Bari, Italy";
+    var markerAddress;
+    var userLang = navigator.language || navigator.browserLanguage;
+
+    if(userLang.indexOf("it")<0){
+      markerAddress    = "Via Massaua 12, I-70132 Bari, Italy";
+    }else {
+      markerAddress    = "Via Massaua 12, I-70132 Bari, Italia";
+    }
+
+
+
 
     //change background hero-image
     var currentBackground = 0;

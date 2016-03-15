@@ -1155,7 +1155,8 @@ p {
 }
 
 .text-brand-custom-color {
-    color: #003a57
+    color: #003a57;
+    text-shadow: 1px 1px 4px #ffffff
 }
 
 .ir {
