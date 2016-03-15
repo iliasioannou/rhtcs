@@ -83,7 +83,6 @@ var changeLanguage = function() {
     currentLanguage="en-US";
   }
   updateLanguage();
-  console.log("work");
 }
 
 var updateLanguage = function(){
