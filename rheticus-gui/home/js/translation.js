@@ -62,7 +62,6 @@ $(document).ready(function() {
     document.getElementById("servicesTextBurnedDescription").innerHTML = i18next.t('servicesTextBurnedDescription');
     document.getElementById("contactText").innerHTML = i18next.t('contactText');
     document.getElementById("contactAddress").innerHTML = i18next.t('contactAddress');
-    var markerAddress    = i18next.t('contactAddress');
   });
 
 });
