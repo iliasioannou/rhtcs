@@ -525,7 +525,7 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #29dcb2;
+    background: #003a57;
     -webkit-border-radius: 0;
     border-radius: 0
 }
@@ -561,10 +561,7 @@ body {
     -moz-background-size: cover;
     -o-background-size: cover;
     background-size: cover;
-    transition: background 1s linear;
-    -moz-transition: background 1s linear; /* Firefox 4 */
-    -webkit-transition: background 1s linear; /* Safari and Chrome */
-    -o-transition: background 1s linear; /* Opera */
+
 }
 
 @media(max-device-width:1024px) {
@@ -1156,12 +1153,12 @@ p {
 
 .text-brand-custom-color {
     color: #003a57;
-    text-shadow: 1px 1px 4px #ffffff
+    text-shadow: #ffffff -1px -1px 1px, #ffffff -1px 1px 1px, #ffffff 1px 1px 1px, #ffffff 1px -1px 1px
 }
 
 .text-description-custom-color {
     color: #003a57;
-    text-shadow: 1px 0px 2px #ffffff
+    text-shadow: #ffffff -0.5px -0.5px 0px, #ffffff -0.5px 0.5px 0px, #ffffff 1px 1px 0px, #ffffff 0.5px -0.5px 0px
 }
 
 .ir {

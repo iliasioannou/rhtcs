@@ -54,7 +54,6 @@
 <script type="text/javascript" src="./js/skrollr.min.js"></script>
 <script type="text/javascript" src="./js/jquery.hidenavbaronscroll.js"></script>
 
-
 </head>
 
 <body>
@@ -316,22 +315,11 @@
     backgrounds[4] = './media/img/marine2.png';
     backgrounds[5] = './media/img/burned2.png';
     backgrounds[6] = './media/img/displacement.png';
-    backgrounds[7] = './media/img/marine.png';
-    backgrounds[8] = './media/img/burned.png';
-    backgrounds[9] = './media/img/displacement2.png';
-    backgrounds[10] = './media/img/marine2.png';
-    backgrounds[11] = './media/img/burned2.png';
-    backgrounds[12] = './media/img/displacement.png';
-    backgrounds[13] = './media/img/marine.png';
-    backgrounds[14] = './media/img/burned.png';
-    backgrounds[15] = './media/img/displacement2.png';
-    backgrounds[16] = './media/img/marine2.png';
-    backgrounds[17] = './media/img/burned2.png';
-    backgrounds[18] = './media/img/displacement.png';
+
 
     function changeBackground() {
 
-        if(currentBackground > 17) currentBackground = 1;
+        if(currentBackground > 5) currentBackground = 1;
 
         $('#background-hero').fadeOut(500,function() {
             $('#background-hero').css({
@@ -348,6 +336,8 @@
 
     });
 </script>
+
+
 
 <script src="./js/main.js"></script>
 </body>

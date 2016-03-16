@@ -5,7 +5,7 @@ var languagesJson={
       "navHome"     : "Home",
       "navServices" :"Services",
       "navContact"  :"Contact",
-      "welcomeTextSecondary":"Cloud-based geoinformation service platform for monitoring the evolution of the earth's surface.",
+      "welcomeTextSecondary":"Lorem ipsum",
       "servicesText" :"Services",
       "servicesTextDisplacement":"Displacement",
       "servicesTextDisplacementDescription":"A geoinformation service designed specifically to detect and report earth’s surface movements, aimed at monitoring areas subject to landslides and subsidence, and the stability of infrastructures, as buildings, roads and railways.",
