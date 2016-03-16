@@ -11,7 +11,9 @@ angular.module('rheticus')
 	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http','GeocodingService',function($rootScope,$scope,configuration,$http,GeocodingService){
 
 		var self = this; //this controller
-
+		var host = (configuration.rheticusAPI.host.indexOf("locationHost")!=-1)
+			? configuration.rheticusAPI.host.replace("locationHost",document.location.host)
+			: configuration.rheticusAPI.host;
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */
@@ -118,7 +120,6 @@ angular.module('rheticus')
 			"isCumulative60" : false,
 			"isCumulative90" : false,
 			"isCumulative120" : false,
-
 			"yearCumulativeWeather" : 0,
 			"stringPeriod" : "",
 			"lastDatePs" : 0,
@@ -418,7 +419,10 @@ angular.module('rheticus')
 		};
 
 		var setDatasetTitle = function(datasetId,psId){
-			var getDatasetUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.dataset.path;
+
+
+
+			var getDatasetUrl = host+configuration.rheticusAPI.dataset.path;
 			var _datasetidKey = configuration.rheticusAPI.dataset.datasetid;
 			var urlGetDataset = getDatasetUrl
 				.replace(_datasetidKey,datasetId);
@@ -551,7 +555,7 @@ angular.module('rheticus')
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */
-		var getMeasureUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.measure.path;
+		var getMeasureUrl = host+configuration.rheticusAPI.measure.path;
 		var datasetidKey = configuration.rheticusAPI.measure.datasetid;
 		var psidKey = configuration.rheticusAPI.measure.psid;
 		var periodsKey = configuration.rheticusAPI.measure.periods;
@@ -678,7 +682,7 @@ angular.module('rheticus')
 			var currentWeatherValue60=0;
 			var currentWeatherValue90=0;
 			var currentWeatherValue120=0;
-			var getStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getStationId.path;
+			var getStationIdUrl = host+configuration.rheticusAPI.weather.getStationId.path;
 			var latKey = configuration.rheticusAPI.weather.getStationId.lat;
 			var lonKey = configuration.rheticusAPI.weather.getStationId.lon;
 			var url1 = getStationIdUrl
@@ -690,7 +694,7 @@ angular.module('rheticus')
 					var station = response[0].id;
 					var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs)); // jshint ignore:line
 					var firstDatePs = d3.time.format("%Y-%m-%d")(new Date(self.firstDatePs)); // jshint ignore:line
-					var getWeatherMeasuresByStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
+					var getWeatherMeasuresByStationIdUrl = host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
 					var stationidKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.stationid;
 					var begindateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.begindate;
 					var enddateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.enddate;

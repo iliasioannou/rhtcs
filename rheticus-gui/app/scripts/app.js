@@ -57,9 +57,14 @@ angular
 		"password": "pwdanonymous"
 	})
 	//login service configuration
-	.run(['$rootScope','$cookies'/*,'$http'*/,'ANONYMOUS_USER','ArrayService','AuthenticationService',
-		function($rootScope,$cookies/*,$http*/,ANONYMOUS_USER,ArrayService,AuthenticationService) {
+	.run(['$rootScope','$cookies'/*,'$http'*/,'ANONYMOUS_USER','ArrayService','AuthenticationService','configuration',
+		function($rootScope,$cookies/*,$http*/,ANONYMOUS_USER,ArrayService,AuthenticationService,configuration) {
+
+			var configurationText = JSON.stringify(configuration).replace(/locationHost/g,document.location.host);
+			var configurationCurrentHost = JSON.parse(configurationText);
+
 			angular.extend($rootScope,{
+				"configurationCurrentHost" : configurationCurrentHost,
 				"markerVisibility" : false,
 				"login" : {
 					"logged" : false,

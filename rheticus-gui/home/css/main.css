@@ -1158,7 +1158,7 @@ p {
 
 .text-description-custom-color {
     color: #003a57;
-    text-shadow: #ffffff -0.5px -0.5px 0px, #ffffff -0.5px 0.5px 0px, #ffffff 1px 1px 0px, #ffffff 0.5px -0.5px 0px
+    text-shadow: #FFFFFF 0px -0.5px 0px, #FFFFFF 0px 0.5px 0px, #FFFFFF -0.5px 0px 0px, #FFFFFF 0.5px 0px 0px
 }
 
 .ir {

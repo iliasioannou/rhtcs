@@ -5,7 +5,7 @@ var languagesJson={
       "navHome"     : "Home",
       "navServices" :"Services",
       "navContact"  :"Contact",
-      "welcomeTextSecondary":"Lorem ipsum",
+      "welcomeTextSecondary":"Lorem ipsum...(en)",
       "servicesText" :"Services",
       "servicesTextDisplacement":"Displacement",
       "servicesTextDisplacementDescription":"A geoinformation service designed specifically to detect and report earth’s surface movements, aimed at monitoring areas subject to landslides and subsidence, and the stability of infrastructures, as buildings, roads and railways.",
@@ -13,6 +13,8 @@ var languagesJson={
       "servicesTextMarineDescription":"A geoinformation service designed for the monitoring of coastal seawaters quality, in order to meet the environmental reporting requirements of local governments in compliance with the EU Directive on 'Marine Strategy'.",
       "servicesTextBurned":"Burned area",
       "servicesTextBurnedDescription":"A geoinformation service designed to support burned area monitoring, through burned area mapping and detection of illegal land use changes.",
+      "servicesTextUrban":"Urban...",
+      "servicesTextUrbanDescription":"Lorem ipsum...(en)",
       "contactText":"Contact",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italy"
 
@@ -23,14 +25,16 @@ var languagesJson={
       "navHome"     : "Home",
       "navServices" :"Servizi",
       "navContact"  :"Contatti",
-      "welcomeTextSecondary":"Lorem ipsum",
+      "welcomeTextSecondary":"Lorem ipsum...(it)",
       "servicesText" :"Servizi",
       "servicesTextDisplacement":"Displacement",
       "servicesTextDisplacementDescription":"Il servizio di monitoraggio degli spostamenti superficiali. Tieni sotto controllo le aree in frana o in subsidenza. Controlla la stabilità delle tue infrastrutture.",
       "servicesTextMarine":"Marine",
-      "servicesTextMarineDescription":"Lorem ipsum",
+      "servicesTextMarineDescription":"Lorem ipsum...(it)",
       "servicesTextBurned":"Burned area",
-      "servicesTextBurnedDescription":"Lorem ipsum",
+      "servicesTextBurnedDescription":"Lorem ipsum...(it)",
+      "servicesTextUrban":"Urban...(it)",
+      "servicesTextUrbanDescription":"Lorem ipsum...(it)",
       "contactText":"Contatti",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italia"
     }
@@ -89,6 +93,8 @@ var updateLanguage = function(){
     document.getElementById("servicesTextMarineDescription").innerHTML = i18next.t('servicesTextMarineDescription');
     document.getElementById("servicesTextBurned").innerHTML = i18next.t('servicesTextBurned');
     document.getElementById("servicesTextBurnedDescription").innerHTML = i18next.t('servicesTextBurnedDescription');
+    document.getElementById("servicesTextUrban").innerHTML = i18next.t('servicesTextUrban');
+    document.getElementById("servicesTextUrbanDescription").innerHTML = i18next.t('servicesTextUrbanDescription');
     document.getElementById("contactText").innerHTML = i18next.t('contactText');
     document.getElementById("contactAddress").innerHTML = i18next.t('contactAddress');
   });

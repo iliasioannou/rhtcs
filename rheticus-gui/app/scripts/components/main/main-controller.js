@@ -133,9 +133,9 @@ angular.module('rheticus')
 			"controls" : olControls,
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
-			"baselayers" : configuration.layers.baselayers, // basemap layer list
+			"baselayers" : $rootScope.configurationCurrentHost.layers.baselayers,
 			"overlays" : overlays, // overlay layer list
-			"metadata" : configuration.layers.overlays.metadata // overlay layer list
+			"metadata" : $rootScope.configurationCurrentHost.layers.overlays.metadata // overlay layer list
 		});
 
 		/**

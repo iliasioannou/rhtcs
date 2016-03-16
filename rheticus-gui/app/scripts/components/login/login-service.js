@@ -11,6 +11,8 @@ angular.module('rheticus')
 	.factory('AuthenticationService',['Base64','$http','$cookies','$rootScope','configuration','ArrayService',
 		function(Base64,$http,$cookies,$rootScope,configuration,ArrayService){
 			var service = {};
+
+
 			service.Login = function (username, password, callback) {
 				//Use this for real authentication in POST
 				/* $http.post(configuration.authentication.url,
@@ -21,7 +23,7 @@ angular.module('rheticus')
 				);*/
 				var psw64 = Base64.encode(password);
 
-				var authurl = configuration.rheticusAPI.host+configuration.rheticusAPI.authentication.path;
+				var authurl = $rootScope.configurationCurrentHost.rheticusAPI.host+configuration.rheticusAPI.authentication.path;
 				var usnKey = configuration.rheticusAPI.authentication.username;
 				var pwdKey = configuration.rheticusAPI.authentication.password;
 				var url = authurl
