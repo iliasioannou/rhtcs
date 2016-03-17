@@ -21,7 +21,7 @@
 				"type" : "TileWMS",
 				"crossOrigin" : "null",
 				"urls" : [
-					"http://kim.planetek.it:8080/basemap"
+					"http://locationHost/basemap"
 				],
 				"params" : {
 					"LAYERS" : "rv1",
@@ -95,7 +95,7 @@
 					"type" : "TileWMS",
 					"crossOrigin" : "null",
 					"urls" : [
-						"http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms"
+						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
 						"LAYERS" : "rheticus:ps",
@@ -114,7 +114,7 @@
 			"metadata" : [{
 				"id" : "iffi",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:8080/iffi",
+				"queryUrl" : "http://locationHost/iffi",
 				"legend" : {
 					"title" : "Landslide Maps",
 					"description" : "Here you will control the visualization of landslide maps covering the area (IFFI catalog).Single-clicking a point in the landslide enables the access to the features of the landlside.",
@@ -233,7 +233,7 @@
 			},{
 				"id" : "sentinel",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms",
+				"queryUrl" : "http://locationHost/geoserver/rheticus/gwc/service/wms",
 				"legend" : {
 					"title" : "Sentinel Catalog",
 					"description" : "Here you will query the whole Sentinel-1 (S1) catalog by single-clicking a point on the map.Then you will check the S1 population and dataset identification for PS processing. ",
@@ -250,7 +250,7 @@
 			},{
 				"id" : "ps",
 				"type" : "ImageWMS",
-				"queryUrl" : "http://kim.planetek.it:9080/geoserver/rheticus/gwc/service/wms",
+				"queryUrl" : "http://locationHost/geoserver/rheticus/gwc/service/wms",
 				"legend" : {
 					"title":"Displacement Maps",
 					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
@@ -268,7 +268,7 @@
 		}
 	},
 	"rheticusAPI" : {
-		"host" : "http://kim.planetek.it:8080/rheticusapi/api/v1",
+		"host" : "http://locationHost/rheticusapi/api/v1",
 		"dataset" : {
 			"path" : "/datasets/#datasetid",
 			"datasetid" : "#datasetid"

@@ -769,6 +769,48 @@ hr {
     color: #f3f3f3
 }
 
+
+
+
+
+
+
+
+
+
+.features-thumb .thumb-content-notactive {
+    padding: 15px 15px;
+    border-left: 1px solid #000000;
+    border-bottom-right-radius: 60px;
+    -webkit-transition-duration: .4s;
+    -moz-transition-duration: .4s;
+    -o-transition-duration: .4s;
+    transition-duration: .4s;
+    -webkit-transition-property: all;
+    -moz-transition-property: all;
+    -o-transition-property: all;
+    transition-property: all;
+    -webkit-transition-timing-function: ease;
+    -moz-transition-timing-function: ease;
+    -o-transition-timing-function: ease;
+    transition-timing-function: ease
+}
+
+.features-thumb .thumb-content-notactive {
+    background-color: #e5e5e5
+}
+
+.features-thumb .thumb-content-notactive * {
+    color: #808080;
+}
+
+
+
+
+
+
+
+
 .mosaic-gallery-wrapper {
     overflow: hidden
 }
