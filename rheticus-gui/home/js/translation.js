@@ -33,7 +33,7 @@ var languagesJson={
       "servicesTextMarineDescription":"Monitoraggio della qualità delle acque marino-costiere a supporto delle attività di reporting ambientale dei governi locali, dell'acquacoltura e degli impianti di dissalazione",
       "servicesTextBurned":"Wildfires",
       "servicesTextBurnedDescription":"Servizio di monitoraggio delle aree percorse dagli incendi, attraverso la perimetrazione e mappatura delle aree e la rilevazione dei cambiamenti di uso del suolo illegali nel tempo",
-      "servicesTextUrban":"Urban...(it)",
+      "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoraggio e reporting dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria",
       "contactText":"Contatti",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italia"
