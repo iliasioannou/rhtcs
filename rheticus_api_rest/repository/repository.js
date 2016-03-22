@@ -17,10 +17,16 @@ var User = bookshelf.Model.extend({
 	}
 });
 
-
 var Deal = bookshelf.Model.extend({
     tableName: "deal",
     hidden: ["id", "seller_id", "user_id", "geom"],
+	dataset: function(){
+			return this.hasMany(DatasetOfDeal, "deal_id");
+		}
+});
+
+var DatasetOfDeal = bookshelf.Model.extend({
+	tableName: "deal_dataset"
 });
 
 // ------------ Meteo station and measures -------------
