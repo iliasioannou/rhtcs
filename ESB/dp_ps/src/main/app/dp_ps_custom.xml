@@ -20,70 +20,49 @@ http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/
 http://www.mulesoft.org/schema/mule/mulerequester http://www.mulesoft.org/schema/mule/mulerequester/current/mule-mulerequester.xsd
 http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
 
-	<context:property-placeholder location="classpath*:dp_ps${mule.env:#{null}}.properties"
-		system-properties-mode="OVERRIDE" />
-	<spring:beans>
-		<spring:bean id="psProps"
-			class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-			<spring:property name="singleton" value="true" />
-			<spring:property name="location" value="classpath:dp_ps${mule.env:#{null}}.properties" />
-		</spring:bean>
-	</spring:beans>
 
-	<!--  "HTTP Request Elastisearch" declared in elasticSearchFlow -->
-	<jms:activemq-connector name="Active_MQ"
-		validateConnections="true" doc:name="Active MQ" brokerURL="tcp://127.0.0.1:61616" persistentDelivery="true"/>
-	<db:generic-config name="Postgres_Database_Configuration" url="jdbc:postgresql://${db.host}:${db.port}/${db.name}?password=${db.password}&amp;user=${db.user}" driverClassName="org.postgresql.Driver" doc:name="Generic Database Configuration"/>
-    
-    <!-- Add needed orchestrator properties to the JMS message to pass them to LogStash -->
-    <message-properties-transformer name="Logstash-Properties" doc:name="Message Properties">
-        <add-message-property key="orchestratorId" value="#[orchestratorId]"/>
-        <add-message-property key="datasetId" value="#[datasetId]"/>
-        <add-message-property key="timeToLive" value="${dp.ps.jms.timetolive}"/>
-    </message-properties-transformer>
-    <!-- Set specific JMS (and then Logstash) properties depending on the specific processing level -->
-    <message-properties-transformer name="S0-Properties" doc:name="Message Properties">
-    	<add-message-property key="step" value="S0"/>
-    </message-properties-transformer>
-    <message-properties-transformer name="S1-Properties" doc:name="Message Properties">
-    	<add-message-property key="step" value="S1"/>
-    </message-properties-transformer>
-    <message-properties-transformer name="S2-Properties" doc:name="Message Properties">
-    	<add-message-property key="step" value="S2"/>
-    </message-properties-transformer>
-    
-
-	<flow name="dp_psFlow">
-        <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 30 10 ? * THU *">
+	<flow name="dp_ps_customFlow">
+        <http:inbound-endpoint exchange-pattern="one-way" host="localhost" port="9999" doc:name="HTTP"/>
+        <!-- <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 30 10 ? * THU *">
             <quartz:event-generator-job/>
-        </quartz:inbound-endpoint>
+        </quartz:inbound-endpoint> -->
         
-        <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct DatasetIds">
-            <db:parameterized-query><![CDATA[SELECT distinct dataset_id, swath, polarisation, timestamp_last_acquisition_proc FROM deal_dataset;]]></db:parameterized-query>
+        <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct CUSTOM  DatasetIds">
+            <db:parameterized-query><![CDATA[select dataset_id, swath, polarisation, timestamp_last_acquisition_proc, dataset_prefix, geom_geo_json from deal_dataset left join deal on deal.id = deal_dataset.deal_id where dataset_prefix is not null;]]></db:parameterized-query>
+
         </db:select>
         <logger message="SQL deals datasets: #[payload]" level="INFO" doc:name="SQL deals datasets"/>
 
         <set-variable variableName="orbitalDate" value="#[server.dateTime.plusDays(-22)]" doc:name="orbitalDate"/>
-        <foreach doc:name="For Each">
+        <foreach doc:name="For Each custom dataset">
             <logger message="Deal SQL record: #[payload]" level="INFO" doc:name="New sql record"/>
             <set-variable variableName="datasetId" value="#[payload.get(&quot;dataset_id&quot;)]" doc:name="datasetId"/>
 
             <set-variable variableName="swath" value="#[payload.get(&quot;swath&quot;)]" doc:name="swath"/>
             <set-variable variableName="polarisation" value="#[payload.get(&quot;polarisation&quot;)]" doc:name="polarisation"/>
             <set-variable variableName="procDataLastDate" value="#[payload.get(&quot;timestamp_last_acquisition_proc&quot;)==null ? new org.mule.el.datetime.DateTime(&quot;1970-01-01&quot;) : new org.mule.el.datetime.DateTime(payload.get(&quot;timestamp_last_acquisition_proc&quot;))]" doc:name="procDataLastDate"/>
+            <set-variable variableName="datasetPrefix" value="#[payload.get(&quot;dataset_prefix&quot;)]" doc:name="datasetPrefix"/>
+            <set-variable variableName="geomGeojson" value="#[payload.get(&quot;geom_geo_json&quot;)]" doc:name="geomGeojson"/>
             <expression-filter expression="#[procDataLastDate.isBefore(orbitalDate)]" doc:name="procDataLastDate&lt;orbitalDate"/>
             <logger message="Found #[datasetId] with possible new acquisitions. Last updated on #[procDataLastDate] and new orbitalDate: #[orbitalDate]" level="INFO" doc:name="Found dataset"/>
-            <set-payload value="{&quot;esIndex&quot;:&quot;${elasticsearch.sentinel.index}&quot;,&quot;esType&quot;:&quot;${elasticsearch.sentinel.type}&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;match&quot;:{&quot;datasetId&quot;:&quot;#[datasetId]&quot;}},{&quot;range&quot;:{&quot;startTime&quot;:{&quot;gt&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}},&quot;sort&quot;:{&quot;startTime&quot;:{&quot;order&quot;:&quot;desc&quot;}}}}" doc:name="Set ES flow request"/>
+            <set-payload value="{&quot;esIndex&quot;:&quot;${elasticsearch.sentinel.index}&quot;,&quot;esType&quot;:&quot;${elasticsearch.sentinel.type}&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;prefix&quot;:{&quot;datasetId&quot;:{&quot;value&quot;:&quot;#[datasetPrefix]&quot;}}},{&quot;geo_shape&quot;:{&quot;location&quot;:{&quot;shape&quot;:#[geomGeojson]}}},{&quot;range&quot;:{&quot;startTime&quot;:{&quot;gt&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}},&quot;sort&quot;:{&quot;startTime&quot;:{&quot;order&quot;:&quot;desc&quot;}}}}" doc:name="Set ES flow request"/>
             <logger message="ES query for #[datasetId]: #[payload]" level="INFO" doc:name="ES query for dataset"/>
             <flow-ref name="elasticSearchFlow" doc:name="elasticSearchFlow"/>
             <expression-filter expression="#[payload.size()&gt;0]" doc:name="Check if any new data available"/>
+            <foreach doc:name="For Each product">
+                <expression-component doc:name="Update datasetId with custom"><![CDATA[payload.put("datasetId", datasetId);]]></expression-component>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+                <http:request config-ref="HTTP_Request_ES" path="${elasticsearch.sen1custom.path}/#[json:uuid]" method="POST" doc:name="Insert into Custom dataset index"/>
+            </foreach>
             <set-variable variableName="procDataLastDate" value="#[new org.mule.el.datetime.DateTime(payload[0].get(&quot;startTime&quot;))]" doc:name="update procDataLastDate" doc:description="Date of the last ingested processed data "/>
             <logger message="New acquisitions found! New procDataLastDate: #[procDataLastDate] (parsed from #[payload[0].get(&quot;startTime&quot;)])" level="INFO" doc:name="New procDataLastDate"/>
             <logger message="Launching processing flow for dataset #[datasetId] with swath #[swath] and polarisation #[polarisation]" level="INFO" doc:name="Process Dataset"/> 
-			<flow-ref name="dp_ps_datasetFlow" doc:name="dp_ps_datasetFlow" />
-            <db:update config-ref="Postgres_Database_Configuration" doc:name="Update Last proc timestamp">
+			<flow-ref name="dp_ps_custom_datasetFlow" doc:name="dp_ps_custom_datasetFlow" />
+            
+<!--             <db:update config-ref="Postgres_Database_Configuration" doc:name="Update Last proc timestamp">
                 <db:parameterized-query><![CDATA[update deal_dataset set timestamp_last_acquisition_proc=#[procDataLastDate.format("yyyy-MM-dd HH:mm:ss.SSSZ")] where dataset_id=#[datasetId];]]></db:parameterized-query>
-            </db:update>
+            </db:update> -->
+            
             <logger message="DB update on dataset #[datasetId] result: #[payload]" level="INFO" doc:name="DB update result"/>
         </foreach>
         <choice-exception-strategy doc:name="Choice Exception Strategy">
@@ -99,7 +78,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 	</flow>
 	
 	
-	<sub-flow name="dp_ps_datasetFlow">
+	<sub-flow name="dp_ps_custom_datasetFlow">
 		<logger message="DATASETID: #[datasetId]" level="INFO"
 			doc:name="Show datasetId" />
 		<set-variable variableName="datasetDataArrayList" value="#[payload]"
@@ -111,7 +90,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"
 			doc:name="Query getsuperMaster" />
 		<http:request config-ref="HTTP_Request_ES"
-			path="${elasticsearch.sentinel.path}/_search" method="POST" doc:name="ElasticSearch" />
+			path="${elasticsearch.sen1custom.path}/_search" method="POST" doc:name="ElasticSearch" />
 		<set-variable variableName="resSize" value="#[json:hits/total]"
 			doc:name="resSize" />
 		<choice doc:name="SuperMaster exists?">
@@ -146,7 +125,7 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
                 <set-variable variableName="superMasterId" value="#[json:superMasterId]" doc:name="superMasterId"/>
 
                 <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : true    }}" doc:name="Update SM value"/>
-                <http:request config-ref="HTTP_Request_ES" path="${elasticsearch.sentinel.path}/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
+                <http:request config-ref="HTTP_Request_ES" path="${elasticsearch.sen1custom.path}/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
 			</otherwise>
 		</choice>
 		<logger message="********superMasterId: #[superMasterId]"
@@ -166,6 +145,9 @@ mapForS1TB.put("data", datasetDataArrayList);
 		<json:object-to-json-transformer
 			doc:name="Object to JSON" />
 		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
+        <scripting:component doc:name="STOP!">
+            <scripting:script engine="Groovy"><![CDATA[throw new Exception("STOP, DIMENTICA");]]></scripting:script>
+        </scripting:component>
 
 
 		<request-reply doc:name="Request-Reply" timeout="0">
