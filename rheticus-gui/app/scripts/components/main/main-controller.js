@@ -8,13 +8,13 @@
  * Main Controller for rheticus project
  */
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService','SpatialService','Flash',
-	function ($rootScope,$scope,$http,olData,configuration,ArrayService,SpatialService,Flash){
+	.controller('MainCtrl',['$rootScope','$scope','$http','olData','ArrayService','SpatialService','Flash',
+	function ($rootScope,$scope,$http,olData,ArrayService,SpatialService,Flash){
 
 		var self = this; //this controller
 
 		var setCrossOrigin = function() { // Review "CrossOrigin" openlayers parameter from overlays configuration
-			var overlays = configuration.layers.overlays.olLayers;
+			var overlays = $rootScope.configurationCurrentHost.layers.overlays.olLayers;
 			for(var o=0; o<overlays.length; o++){
 				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin==="null")) ? null : "";
 			}
@@ -79,7 +79,7 @@ angular.module('rheticus')
 		};
 		// check on zoom level to enable getFeatureInfo query on PS
 		var showDetails = function() {
-			return $scope.center.zoom>=configuration.map.query.zoom;
+			return $scope.center.zoom>=$rootScope.configurationCurrentHost.map.query.zoom;
 		};
 		//Getter active baselayer useful for basemap controller
 		var getActiveBaselayer = function() {
@@ -133,9 +133,9 @@ angular.module('rheticus')
 			"controls" : olControls,
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
-			"baselayers" : configuration.layers.baselayers, // basemap layer list
+			"baselayers" : $rootScope.configurationCurrentHost.layers.baselayers,
 			"overlays" : overlays, // overlay layer list
-			"metadata" : configuration.layers.overlays.metadata // overlay layer list
+			"metadata" : $rootScope.configurationCurrentHost.layers.overlays.metadata // overlay layer list
 		});
 
 		/**
@@ -143,12 +143,12 @@ angular.module('rheticus')
 		 */
 		angular.extend($scope,{
 			// externalized scope variables for watchers
-			"speedModel" : configuration.filters.speedSlider, // PS speed filter
-			"coherenceModel" : configuration.filters.coherenceSlider, // PS coherence filter
+			"speedModel" : $rootScope.configurationCurrentHost.filters.speedSlider, // PS speed filter
+			"coherenceModel" : $rootScope.configurationCurrentHost.filters.coherenceSlider, // PS coherence filter
 			"iffi" : null, // IFFI overlay getFeatureInfoResponse
 			"sentinel" : null, // SENTINEL overlay getFeatureInfoResponse
 			"ps" : null, // PS overlay getFeatureInfoResponse
-			"center" : configuration.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
+			"center" : $rootScope.configurationCurrentHost.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
 			// externalized scope methods for children controllers
 			"setController" : setController,
 			"getController" : getController,
@@ -222,10 +222,10 @@ angular.module('rheticus')
 		};
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayer,olParams,resultObj,callback){
-			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,configuration.map.crs); // jshint ignore:line
+			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
-			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,olParams);
+			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,$rootScope.configurationCurrentHost.map.crs,olParams);
 			if (url) {
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
@@ -235,7 +235,7 @@ angular.module('rheticus')
 						} else {
 							Flash.dismiss();
 							var obj = {
-								"point" : ol.proj.toLonLat(coordinate,configuration.map.crs), // jshint ignore:line
+								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs), // jshint ignore:line
 								"features" : (response.features.length>0) ? response.features : null
 							};
 							if (resultObj!==""){
@@ -350,7 +350,7 @@ angular.module('rheticus')
 		olData.getMap().then(function (map) {
 			//singleclick event
 			map.on("singleclick", function (evt) {
-				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs); // jshint ignore:line
+				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
 						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");

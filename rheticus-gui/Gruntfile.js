@@ -22,7 +22,8 @@ module.exports = function (grunt) {
 	// Configurable paths for the application
 	var appConfig = {
 		app: require('./bower.json').appPath || 'app',
-		dist: 'dist'
+		dist: 'dist/rheticus',
+		server_node: 'dist'
 	};
 
 	var target = grunt.option('target') || 'local';
@@ -299,7 +300,7 @@ module.exports = function (grunt) {
 					patterns: [{
 						json: grunt.file.readJSON('./config/environments/common.json')
 					},{
-						json: grunt.file.readJSON('./config/environments/'+target+'/'+target+'.json')
+						json: grunt.file.readJSON('./config/environments/mapServices.json')
 					}]
 				},
 				files: [{
@@ -440,8 +441,19 @@ module.exports = function (grunt) {
 					flatten: true,
 					filter: 'isFile',
 					cwd: '.',
-					dest: '<%= yeoman.dist %>/',
+					dest: '<%= yeoman.server_node %>/',
 					src: ['config/environments/'+target+'/package.json','config/environments/'+target+'/server.js']
+				},{
+					expand: true,
+					flatten: true,
+					filter: 'isFile',
+					cwd: '.',
+					dest: '<%= yeoman.server_node %>/',
+					src: ['config/environments/index.html']
+				},{
+					expand: true,
+					dest: '<%= yeoman.server_node %>/',
+					src: ['home/**']
 				}],
 				styles: {
 					expand: true,
@@ -480,8 +492,19 @@ module.exports = function (grunt) {
 					flatten: true,
 					filter: 'isFile',
 					cwd: '.',
-					dest: '<%= yeoman.dist %>/',
+					dest: '<%= yeoman.server_node %>/',
 					src: ['config/environments/'+target+'/package.json','config/environments/'+target+'/server.js']
+				},{
+					expand: true,
+					flatten: true,
+					filter: 'isFile',
+					cwd: '.',
+					dest: '<%= yeoman.server_node %>/',
+					src: ['config/environments/index.html']
+				},{
+					expand: true,
+					dest: '<%= yeoman.server_node %>/',
+					src: ['home/**']
 				}]
 			}
 		},
@@ -510,20 +533,20 @@ module.exports = function (grunt) {
 		},
 
 		// Sync folder
-		sync: { 
+		sync: {
 			main: {
-				files: [ 
+				files: [
 					{cwd: 'app', src: ['scripts/**/*.*', 'styles/**/*.*', 'images/**/*.*', '!**/*.scss'], dest: 'dist/'}
 				],
-				//pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much. 
-				verbose: true, // Display log messages when copying files 
-				failOnError: true, // Fail the task when copying is not possible. Default: false 
-				//ignoreInDest: "**/*.js", // Never remove js files from destination. Default: none 
-				//updateAndDelete: true, // Remove all files from dest that are not found in src. Default: false 
-				//compareUsing: "md5" // compares via md5 hash of file contents, instead of file modification time. Default: "mtime" 
+				//pretend: true, // Don't do any IO. Before you run the task with `updateAndDelete` PLEASE MAKE SURE it doesn't remove too much.
+				verbose: true, // Display log messages when copying files
+				failOnError: true, // Fail the task when copying is not possible. Default: false
+				//ignoreInDest: "**/*.js", // Never remove js files from destination. Default: none
+				//updateAndDelete: true, // Remove all files from dest that are not found in src. Default: false
+				//compareUsing: "md5" // compares via md5 hash of file contents, instead of file modification time. Default: "mtime"
 			}
 		}
-		
+
 	});
 
 
@@ -577,7 +600,7 @@ module.exports = function (grunt) {
 
 	// lanciare nell'ordine:
 	// grunt build-local --target=local
-	// grunt watch	
+	// grunt watch
 	grunt.registerTask('build-local',[
 		'clean:dist',
 		'replace:dist',

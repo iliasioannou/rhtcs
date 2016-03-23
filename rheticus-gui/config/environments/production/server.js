@@ -6,8 +6,8 @@ var server = express();
 
 /*** Basic Auth for Production ***/
 var basicAuth = require('basic-auth');
-var usr = "planetek";
-var pwd = "agosto";
+var usr = "demo";
+var pwd = "displacement";
 
 var auth = function(req, res, next){
   var user = basicAuth(req);
@@ -30,6 +30,7 @@ server.get('/',function(req, res) {
  * PROXY CONFIGURATION
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
+  "DISPLACEMENT" : "http://localhost:80/rheticus",
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://localhost:8081",
 	"GEOSERVER" : "http://localhost:9080",
@@ -71,6 +72,13 @@ apiProxy.on('proxyRes', function (proxyRes, req, res) {
 //Grab error messages
 apiProxy.on('error', function (err, req, res) {
   res.end('Something went wrong. And we are reporting a custom error message.');
+});
+
+// Grab all requests to the server with "/iffi".
+server.all("/displacement", function(req, res) {
+	req.url = req.url.replace('/displacement','');
+	console.log("Forwarding rheticus requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.DISPLACEMENT});
 });
 
 // Grab all requests to the server with "/iffi".

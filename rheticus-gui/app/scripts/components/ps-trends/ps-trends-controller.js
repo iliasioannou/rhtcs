@@ -11,7 +11,9 @@ angular.module('rheticus')
 	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http','GeocodingService',function($rootScope,$scope,configuration,$http,GeocodingService){
 
 		var self = this; //this controller
-
+		var host = (configuration.rheticusAPI.host.indexOf("locationHost")!=-1)
+			? configuration.rheticusAPI.host.replace("locationHost",document.location.host)
+			: configuration.rheticusAPI.host;
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */
@@ -104,19 +106,20 @@ angular.module('rheticus')
 				}
 			},
 			"comboboxModel" : null,
-			"checkboxModel" : null,
+			"checkboxModelRegression" : null,
+			"checkboxModelErrorFilter" : true,
 			"checkboxModelView":false,
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"ps" : [],
 			"checkboxModel2": ['Daily','Cumulative 30 day','Cumulative 60 day','Cumulative 90 day','Cumulative 120 day'],
-			"checkboxModel2": null,
 			"isRegressiveActivated" : false,
-			"isCumulative30" : false,
+			"isFilterErrorActivated": true,
+			"coherence":0,
+			"isCumulative30" : true,
 			"isCumulative60" : false,
 			"isCumulative90" : false,
 			"isCumulative120" : false,
-
 			"yearCumulativeWeather" : 0,
 			"stringPeriod" : "",
 			"lastDatePs" : 0,
@@ -128,6 +131,8 @@ angular.module('rheticus')
 			"lat" : 0,
 			"lon" : 0,
 			"data" : [], // PS line chart data
+			"databkp" : [], // PS line chart data backup for speed refresh
+			"databkpCount" : [], // PS line chart index backup for speed refresh
 			"psDetails" : [], // PS feature details
 			"show_trends" : false, // dialog box closure
 			"showPsTrends" : function (show){ // showPsTrends hides this view and deletes OLs marker
@@ -140,40 +145,161 @@ angular.module('rheticus')
 				},
 			 "setRegressionView":function(){
 				 self.isRegressiveActivated=!self.isRegressiveActivated;
-				 generateChartData(self.ps);
+				 if(self.psLength===1 && self.isRegressiveActivated)
+ 				{
+					//minimi quadrati per la retta di interpolazione
+ 					var values=[];
+ 					var x=0,y=0,x2=0,y2=0,xy=0;
+ 					var coeff=0,q=0;
+ 					var i=0;
+ 					for (i=0;i<self.data[0].values.length;i++)
+ 					{
+ 						x+=new Date(self.data[0].values[i].x).getTime();
+ 						y+=self.data[0].values[i].y;
+ 						x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+ 						y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+ 						xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+
+ 					}
+ 					x=x/self.data[0].values.length;
+ 					y=y/self.data[0].values.length;
+ 					x2=x2/self.data[0].values.length;
+ 					y2=y2/self.data[0].values.length;
+ 					xy=xy/self.data[0].values.length;
+ 					coeff=(xy-(x*y))/(x2-(x*x));
+ 					q=y-(coeff*x);
+ 					var firstY=coeff*self.data[0].values[0].x+q;
+ 					var lastY=coeff*self.data[0].values[self.data[0].values.length-1].x+q;
+ 					if (self.isRegressiveActivated){
+ 						values.push({
+ 							"x" : self.data[0].values[0].x ,
+ 							"y": Math.round(firstY*100)/100,
+ 							"key" : "Interpolation"
+ 						});
+ 						values.push({
+ 							"x" : self.data[0].values[self.data[0].values.length-1].x ,
+ 							"y": Math.round(lastY*100)/100,
+ 							"key" : "Interpolation"
+ 						});
+ 						self.chartData.push({
+ 							"key" : "InterPolation",
+ 							"yAxis" : 1,
+ 							"type" : "line",
+ 							"values" : values,
+ 							"color" : "#00cc00"
+ 						});
+ 					}
+				}else{
+					for (var j=0;j<self.data.length;j++)
+ 					{
+						if(self.data[j].key==="InterPolation")
+						{
+							self.data.splice( j, 1 );
+						}
+					}
+				}
+				 //generateChartData(self.ps);
+			 },
+			 "filterErrorView":function(){
+				 self.isFilterErrorActivated=!self.isFilterErrorActivated;
+				 if (self.psLength===1 && self.isFilterErrorActivated){
+					 //minimi quadrati per la retta di interpolazione
+						 self.databkp=[];
+						 self.databkpCount=[];
+  					var x=0,y=0,x2=0,y2=0,xy=0;
+  					var coeff=0,q=0;
+  					var i=0;
+  					for (i=0;i<self.data[0].values.length;i++)
+  					{
+  						x+=new Date(self.data[0].values[i].x).getTime();
+  						y+=self.data[0].values[i].y;
+  						x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+  						y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+  						xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+
+  					}
+  					x=x/self.data[0].values.length;
+  					y=y/self.data[0].values.length;
+  					x2=x2/self.data[0].values.length;
+  					y2=y2/self.data[0].values.length;
+  					xy=xy/self.data[0].values.length;
+  					coeff=(xy-(x*y))/(x2-(x*x));
+  					q=y-(coeff*x);
+					 var yaxisLinear;
+					 var thresold= 2*Math.sqrt(Math.log(self.coherence));
+					 console.log(thresold);
+					 for (var c=0;c<self.data[0].values.length;c++){
+						 yaxisLinear=coeff*self.data[0].values[c].x+q;
+						 if(Math.abs((yaxisLinear-self.data[0].values[c].y))>thresold){
+							 //console.log(self.data[0].values[c]);
+							 self.databkp.push(self.data[0].values[c]);
+							 self.databkpCount.push(c);
+							 self.data[0].values.splice( c, 1 );
+
+						 }
+					 }
+
+				 }else{
+					 var j=0;
+					 for (var k=0;k<self.databkp.length;k++){
+
+						 //console.log(self.databkpCount[k]);
+						 //console.log(self.databkp[k]);
+					 		self.data[0].values.splice(self.databkpCount[k]+j,0,self.databkp[k]);
+							j++;
+				 		}
+
+				 }
+				 //generateChartData(self.ps);
 			 },
 			 "changeCumulativeView":function(){
 
 				document.getElementById("CumulativeSelect").className ="";
 				var combo = document.getElementById('CumulativeSelect');
-				if(combo.selectedIndex==0){
+				if(combo.selectedIndex===0){
 					self.isCumulative30 =false;
 					self.isCumulative60 =false;
 					self.isCumulative90 =false;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==1) {
+				}else if (combo.selectedIndex===1) {
 					self.isCumulative30 =true;
 					self.isCumulative60 =false;
 					self.isCumulative90 =false;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==2) {
+				}else if (combo.selectedIndex===2) {
 					self.isCumulative30 =false;
 					self.isCumulative60 =true;
 					self.isCumulative90 =false;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==3) {
+				}else if (combo.selectedIndex===3) {
 					self.isCumulative30 =false;
 					self.isCumulative60 =false;
 					self.isCumulative90 =true;
 					self.isCumulative120 =false;
-				}else if (combo.selectedIndex==4) {
+				}else if (combo.selectedIndex===4) {
 					self.isCumulative30 =false;
 					self.isCumulative60 =false;
 					self.isCumulative90 =false;
 					self.isCumulative120 =true;
 				}
 
-				 generateChartData(self.ps);
+				for (var i=0;i<self.data.length;i++)
+				{
+					if(self.data[i].key==="Precipitations")
+					{
+						self.data.splice( i, 1 );
+					}
+				}
+
+				var values = getWeather(); // get weather data
+				self.chartData.push({
+					"key" : "Precipitations",
+					"yAxis" : 2,
+					"type" : "bar",
+					"values" : values,
+					"color" : "#67C8FF"
+				});
+
 			 		}
 		});
 
@@ -198,13 +324,105 @@ angular.module('rheticus')
 			}
 		});
 
+		var calculateRegressionLine = function() {
+			if(self.psLength===1 && self.isRegressiveActivated)
+		 {
+			 //minimi quadrati per la retta di interpolazione
+			 var values=[];
+			 var x=0,y=0,x2=0,y2=0,xy=0;
+			 var coeff=0,q=0;
+			 var i=0;
+			 for (i=0;i<self.data[0].values.length;i++)
+			 {
+				 x+=new Date(self.data[0].values[i].x).getTime();
+				 y+=self.data[0].values[i].y;
+				 x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+				 y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+				 xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+
+			 }
+			 x=x/self.data[0].values.length;
+			 y=y/self.data[0].values.length;
+			 x2=x2/self.data[0].values.length;
+			 y2=y2/self.data[0].values.length;
+			 xy=xy/self.data[0].values.length;
+			 coeff=(xy-(x*y))/(x2-(x*x));
+			 q=y-(coeff*x);
+			 var firstY=coeff*self.data[0].values[0].x+q;
+			 var lastY=coeff*self.data[0].values[self.data[0].values.length-1].x+q;
+			 if (self.isRegressiveActivated){
+				 values.push({
+					 "x" : self.data[0].values[0].x ,
+					 "y": Math.round(firstY*100)/100,
+					 "key" : "Interpolation"
+				 });
+				 values.push({
+					 "x" : self.data[0].values[self.data[0].values.length-1].x ,
+					 "y": Math.round(lastY*100)/100,
+					 "key" : "Interpolation"
+				 });
+				 self.chartData.push({
+					 "key" : "InterPolation",
+					 "yAxis" : 1,
+					 "type" : "line",
+					 "values" : values,
+					 "color" : "#00cc00"
+				 });
+			 }
+		 }
+
+		};
+
+		var useNoiseFilter=function(){
+			//console.log(self.isFilterErrorActivated);
+			if (self.psLength===1 && self.isFilterErrorActivated){
+				//minimi quadrati per la retta di interpolazione
+					self.databkp=[];
+					self.databkpCount=[];
+				 var x=0,y=0,x2=0,y2=0,xy=0;
+				 var coeff=0,q=0;
+				 var i=0;
+				 for (i=0;i<self.data[0].values.length;i++)
+				 {
+					 x+=new Date(self.data[0].values[i].x).getTime();
+					 y+=self.data[0].values[i].y;
+					 x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
+					 y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
+					 xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+				 }
+				 x=x/self.data[0].values.length;
+				 y=y/self.data[0].values.length;
+				 x2=x2/self.data[0].values.length;
+				 y2=y2/self.data[0].values.length;
+				 xy=xy/self.data[0].values.length;
+				 coeff=(xy-(x*y))/(x2-(x*x));
+				 q=y-(coeff*x);
+					var yaxisLinear;
+					var thresold= 2*Math.sqrt(Math.log(self.coherence));
+					//console.log(thresold);
+					for (var c=0;c<self.data[0].values.length;c++){
+						yaxisLinear=coeff*self.data[0].values[c].x+q;
+						if(Math.abs((yaxisLinear-self.data[0].values[c].y))>thresold){
+							//console.log(self.data[0].values[c]);
+							self.databkp.push(self.data[0].values[c]);
+							self.databkpCount.push(c);
+							self.data[0].values.splice( c, 1 );
+
+						}
+					}
+				}
+		};
+
 		var setTitle = function (response,datasetId,psId) {
 			//console.log("featureinfo_"+datasetId+"_"+psId);
 			document.getElementById("featureinfo_"+datasetId+"_"+psId).title = response;
 		};
 
 		var setDatasetTitle = function(datasetId,psId){
-			var getDatasetUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.dataset.path;
+
+
+
+			var getDatasetUrl = host+configuration.rheticusAPI.dataset.path;
 			var _datasetidKey = configuration.rheticusAPI.dataset.datasetid;
 			var urlGetDataset = getDatasetUrl
 				.replace(_datasetidKey,datasetId);
@@ -280,6 +498,7 @@ angular.module('rheticus')
 							for (var key in ps.features[i].properties) {
 								if (key==="coherence"){
 									eval("featureInfo." + key + " = 100*ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+									self.coherence=featureInfo.coherence;
 								} else {
 									eval("featureInfo." + key + " = ps.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
 								}
@@ -336,7 +555,7 @@ angular.module('rheticus')
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */
-		var getMeasureUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.measure.path;
+		var getMeasureUrl = host+configuration.rheticusAPI.measure.path;
 		var datasetidKey = configuration.rheticusAPI.measure.datasetid;
 		var psidKey = configuration.rheticusAPI.measure.psid;
 		var periodsKey = configuration.rheticusAPI.measure.periods;
@@ -419,61 +638,23 @@ angular.module('rheticus')
 				//	console.log("normal",self.options.chart.yDomain1);
 				}
 				self.data = self.chartData;
-				if(self.psLength==1){
+				if(self.psLength===1){
 					self.checkboxModelView=true;
 				}else{
 					self.checkboxModelView=false;
 				}
-				if(self.psLength==1 && self.isRegressiveActivated)
-				{
 
-					//minimi quadrati per la retta di interpolazione
-					var values=[];
-					var x=0,y=0,x2=0,y2=0,xy=0;
-					var coeff=0,q=0;
-					var i=0;
-					for (i=0;i<self.data[0].values.length;i++)
-					{
-						x+=new Date(self.data[0].values[i].x).getTime();
-						y+=self.data[0].values[i].y;
-						x2+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].x.getTime());
-						y2+=(self.data[0].values[i].y * self.data[0].values[i].y);
-						xy+=(self.data[0].values[i].x.getTime() * self.data[0].values[i].y);
+				calculateRegressionLine();
+				useNoiseFilter();
 
-					}
-					x=x/self.data[0].values.length;
-					y=y/self.data[0].values.length;
-					x2=x2/self.data[0].values.length;
-					y2=y2/self.data[0].values.length;
-					xy=xy/self.data[0].values.length;
-					coeff=(xy-(x*y))/(x2-(x*x));
-					q=y-(coeff*x);
-					var firstY=coeff*self.data[0].values[0].x+q;
-					var lastY=coeff*self.data[0].values[self.data[0].values.length-1].x+q;
-					values.push({
-						"x" : self.data[0].values[0].x ,
-						"y": Math.round(firstY*100)/100,
-						"key" : "Interpolation"
-					});
-					values.push({
-						"x" : self.data[0].values[self.data[0].values.length-1].x ,
-						"y": Math.round(lastY*100)/100,
-						"key" : "Interpolation"
-					});
-					self.chartData.push({
-						"key" : "InterPolation",
-						"yAxis" : 1,
-						"type" : "line",
-						"values" : values,
-						"color" : "#00cc00"
-					});
+
 					//console.log(self.chartData);
 					//console.log(coeff);
 					//console.log(q);
 
 
 				}
-			}
+
 
 
 
@@ -501,7 +682,7 @@ angular.module('rheticus')
 			var currentWeatherValue60=0;
 			var currentWeatherValue90=0;
 			var currentWeatherValue120=0;
-			var getStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getStationId.path;
+			var getStationIdUrl = host+configuration.rheticusAPI.weather.getStationId.path;
 			var latKey = configuration.rheticusAPI.weather.getStationId.lat;
 			var lonKey = configuration.rheticusAPI.weather.getStationId.lon;
 			var url1 = getStationIdUrl
@@ -513,8 +694,7 @@ angular.module('rheticus')
 					var station = response[0].id;
 					var lastDatePs = d3.time.format("%Y-%m-%d")(new Date(self.lastDatePs)); // jshint ignore:line
 					var firstDatePs = d3.time.format("%Y-%m-%d")(new Date(self.firstDatePs)); // jshint ignore:line
-					var yearCumulativeWeather=0;
-					var getWeatherMeasuresByStationIdUrl = configuration.rheticusAPI.host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
+					var getWeatherMeasuresByStationIdUrl = host+configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.path;
 					var stationidKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.stationid;
 					var begindateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.begindate;
 					var enddateKey = configuration.rheticusAPI.weather.getWeatherMeasuresByStationId.enddate;
@@ -525,6 +705,7 @@ angular.module('rheticus')
 
 					$http.get(url2)
 						.success(function (response) {
+							var j=0;
 							for (var i=0; i< response.length;i++) {
 								var dateWeather = new Date(response[i].day);
 									currentWeatherValue+=Math.round(response[i].measure);
@@ -537,7 +718,7 @@ angular.module('rheticus')
 											//console.log(currentWeatherValue);
 										}else{
 											currentWeatherValue30=0;
-											for (var j=i; j> i-30;j--) {
+											for (j=i; j> i-30;j--) {
 												currentWeatherValue30+=Math.round(response[j].measure);
 											}
 											//console.log(currentWeatherValue30);
@@ -556,7 +737,7 @@ angular.module('rheticus')
 											//console.log(currentWeatherValue);
 										}else{
 											currentWeatherValue60=0;
-											for (var j=i; j> i-60;j--) {
+											for (j=i; j> i-60;j--) {
 												currentWeatherValue60+=Math.round(response[j].measure);
 											}
 											//console.log(currentWeatherValue60);
@@ -574,7 +755,7 @@ angular.module('rheticus')
 												//console.log(currentWeatherValue);
 											}else{
 												currentWeatherValue90=0;
-												for (var j=i; j> i-90;j--) {
+												for (j=i; j> i-90;j--) {
 													currentWeatherValue90+=Math.round(response[j].measure);
 												}
 												//console.log(currentWeatherValue90);
@@ -592,7 +773,7 @@ angular.module('rheticus')
 													//console.log(currentWeatherValue);
 												}else{
 													currentWeatherValue120=0;
-													for (var j=i; j> i-120;j--) {
+													for (j=i; j> i-120;j--) {
 														currentWeatherValue120+=Math.round(response[j].measure);
 													}
 													//console.log(currentWeatherValue120);
@@ -623,8 +804,5 @@ angular.module('rheticus')
 
 			return values;
 		};
-
-
-
 
 	}]);

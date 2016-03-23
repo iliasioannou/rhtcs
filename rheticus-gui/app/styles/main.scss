@@ -407,7 +407,7 @@ table.gridtable td {
 }
 
 .map-control-panel {
-	z-index:3;
+	z-index:4;
 	top: 7.4em;
 	right:.5em;
 }
@@ -498,6 +498,10 @@ table.gridtable td {
 .chardinjs-helper-layer {
     z-index: 2;
 }
+.chardinjs-helper-layer.chardinjs-left {
+    border-left: 1px solid white;
+    margin-left: -30px;
+}
 
 .psTrendsClose {
     margin: 5px;
@@ -509,6 +513,10 @@ table.gridtable td {
   width: auto;
   height: auto;
 }
+.psTrendsOptions {
+  width: auto;
+  height: auto;
+}
 .psTrendsTable {
     position: absolute;
     bottom: 0;
@@ -516,6 +524,7 @@ table.gridtable td {
     width: 100%;
     max-height: 200px;
 }
+
 
 .psTrends {
 	position: fixed;
