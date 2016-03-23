@@ -26,53 +26,69 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
 	</spring:beans>
 	
     <http:listener-config name="HTTP_Listener_Modis" host="0.0.0.0" port="9096" basePath="modis" doc:name="HTTP Listener Configuration"/>
-    <http:request-config name="HTTP_Request_Modis" host="${modis.search.host}" port="${modis.search.port}" basePath="${modis.search.path}" doc:name="HTTP Request Configuration"/>
+    
+    <http:request-config name="HTTP_Request_ModisSearch" host="${modis.search.host}" port="${modis.search.port}" basePath="${modis.search.path}" doc:name="HTTP Request Configuration"/>
+    <http:request-config name="HTTP_Request_ModisDownload" host="${modis.download.host}" port="${modis.download.port}" basePath="${modis.download.path}" doc:name="HTTP Request Configuration"/>
+	<http:request-config name="HTTP_Request_Elasticsearch" host="${elastic.search.host}" port="${elastic.search.port}" basePath="${elastic.search.path}" doc:name="HTTP Request Configuration"/>
+    
     <file:connector name="SyncronousFileConnector" validateConnections="true" doc:name="File">
     	<dispatcher-threading-profile doThreading="false"/>
     </file:connector>
-
+    
     <flow name="etl_modisFlow1" >
         <quartz:inbound-endpoint jobName="ModisUpdates" repeatInterval="0" responseTimeout="10000" doc:name="EveryDay" cronExpression="0 45 23 ? * *">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
+       
         <logger message="Modis Connector Started." level="INFO" doc:name="Modis connector started"/>
         <object-to-string-transformer doc:name="Object to String"/>
-        <set-variable variableName="inputPayload" value="#[payload]" doc:name="inputPayload"/>
-        <!--  <async doc:name="Async"> -->
-            <set-payload value="#[inputPayload]" doc:name="Set Payload"/>
-	        <set-variable variableName="qryString" value="#[new String()]" doc:name="qryString"/>
-	        <foreach collection="#[app.registry.modisProps]" doc:name="For Each modisProps">
-	            <expression-filter expression="#[key.startsWith(&quot;modis.filter&quot;)]" doc:name="Filter modis.filter"/>
-	            <expression-filter expression="#[payload != &quot;&quot;]" doc:name="Filter qryValue not blank"/>
-	            <set-variable variableName="qryField" value="#[key.replace(&quot;modis.filter.&quot;,&quot;&quot;)]" doc:name="qryField"/>
-	            <logger message="Added modis query filter: #[qryField] = #[payload]" level="INFO" doc:name="Log query filter"/>
-	            <set-variable variableName="qryString" value="#[qryString +&quot;&amp;&quot;+qryField+&quot;=&quot;+payload]" doc:name="update qryString"/>
-	        </foreach>
-        <expression-component doc:name="Add day field to queryString"><![CDATA[qryString  =+"&day="+(System.currentTimeMillis()/86400000)]]></expression-component>
-	        <logger message="Modis query string: http://${modis.search.host}:${modis.search.port}/${modis.search.path}#[qryString] " level="INFO" doc:name="Modis query string"/>
-            <!--  <http:request config-ref="HTTP_Request_Modis" path="#[qryString]" method="GET" doc:name="Search on Modis Browser" />  -->
-            <!--  <logger message="#[message]" level="INFO" doc:name="Logger"/>  -->
-	        <http:outbound-endpoint exchange-pattern="request-response" host="${modis.search.host}" port="${modis.search.port}" path="${modis.search.path}#[qryString]" method="GET" doc:name="Search on Modis Browser"/>
-	        <component class="it.planetek.rheticus.mule.components.ExtractModisProductsFromHtmlComponent" doc:name="Extract Products from HTML"/>
-	        <foreach doc:name="For Each">
-	            <logger message="ForEach: #[payload] #[&quot;\n&quot;] Downloading http://${modis.download.host}:${modis.download.port}/${modis.download.path}#[payload]" level="INFO" doc:name="Logger"/>
-	            <set-variable variableName="prodFilename" value="#[payload]" doc:name="prodFilename"/>
-	            <http:outbound-endpoint exchange-pattern="request-response" host="${modis.download.host}" port="${modis.download.port}" path="${modis.download.path}#[payload]" method="GET" mimeType="binary/octet-stream" contentType="binary/octet-stream" doc:name="Download Modis Product"/>
-	            <file:outbound-endpoint path="${download.temp.dir}" outputPattern="#[prodFilename]" responseTimeout="10000" doc:name="File" connector-ref="SyncronousFileConnector"/>
-	            <logger message="Res: #[payload]" level="INFO" doc:name="Logger"/>
-	            <component class="it.planetek.rheticus.mule.components.MODISMetadataReaderComponent" doc:name="MODIS Metadata Reader"/>
-	            <set-variable variableName="platform" value="#[payload.get(&quot;platform&quot;)]" doc:name="Set platform as MODIS data type"/>
-	            <set-variable variableName="product_name" value="#[payload.get(&quot;product_name&quot;)]" doc:name="Set product_name as MODIS product uuid"/>
-	            <json:object-to-json-transformer doc:name="HashMap to JSON"/>
-	            <logger message="Metadata in JSON: #[payload]" level="INFO" doc:name="Metadata in JSON"/>
-	
-				<http:outbound-endpoint exchange-pattern="request-response" host="${elastic.search.host}" port="${elastic.search.port}" path="${elastic.search.path}#[platform]/#[product_name]" method="POST" doc:name="Ingestion in Elastic Search (Deprecated)"/>
-				<logger level="INFO" doc:name="Elastic Search Response"/>
-	
-	        </foreach>
-        <logger message="Modis Connector ended" level="INFO" doc:name="END"/>
-	    <!--  </async> -->
 
+        <set-variable variableName="qryString" value="#[new java.util.HashMap()]" doc:name="qryString"/>
+        <foreach collection="#[app.registry.modisProps]" doc:name="For Each modisProps">
+            <expression-filter expression="#[key.startsWith(&quot;modis.filter&quot;)]" doc:name="Filter modis.filter"/>
+            <expression-filter expression="#[payload != &quot;&quot;]" doc:name="Filter qryValue not blank"/>
+           <choice doc:name="Is it modis.filter.prm?">
+               <when expression="#[key.equals(&quot;modis.filter.prm&quot;)]">
+                   <set-variable variableName="prmList" value="#[payload]" doc:name="prmList"/>
+               </when>
+               <otherwise>
+                   <set-variable variableName="qryField" value="#[key.replace(&quot;modis.filter.&quot;,&quot;&quot;)]" doc:name="qryField"/>
+                   <logger message="Added modis query filter: #[qryField] = #[payload]" level="INFO" doc:name="Added modis query filter"/>
+                    <expression-component doc:name="update qryString"><![CDATA[qryString.put(qryField, payload)]]></expression-component>
+               </otherwise>
+           </choice>
+
+        </foreach>
+        <expression-component doc:name="Add day field to queryString"><![CDATA[qryString.put( "day", new String(System.currentTimeMillis()/86400000-1) )]]></expression-component>
+        <foreach collection="#[prmList.split(&quot;,&quot;)]" doc:name="For Each prm in prmList">
+            <expression-component doc:name="Add prm to qryString"><![CDATA[qryString.put( "prm", payload )]]></expression-component>
+
+            <logger message="Modis query string to http://${modis.search.host}:${modis.search.port}/${modis.search.path} : #[qryString] " level="INFO" doc:name="Modis query string"/>
+            <http:request config-ref="HTTP_Request_ModisSearch" path="/" method="GET" doc:name="Search on Modis Browser (qryString)">
+                <http:request-builder>
+                    <http:query-params expression="#[qryString]"/>
+
+                </http:request-builder>
+            </http:request>
+
+            <component class="it.planetek.rheticus.mule.components.ExtractModisProductsFromHtmlComponent" doc:name="Extract Products from HTML"/>
+            <foreach doc:name="For Each product">
+                <logger message="ForEach: #[payload] #[&quot;\n&quot;]Downloading http://${modis.download.host}:${modis.download.port}/${modis.download.path}#[payload] ..." level="INFO" doc:name="ForEach"/>
+                <set-variable variableName="prodFilename" value="#[payload]" doc:name="prodFilename"/>
+                <http:request config-ref="HTTP_Request_ModisDownload" path="#[payload]" method="GET" doc:name="Download Modis Product"/>
+                <file:outbound-endpoint path="${download.temp.dir}" outputPattern="#[prodFilename]" connector-ref="SyncronousFileConnector" responseTimeout="10000" doc:name="File"/>
+
+                <component class="it.planetek.rheticus.mule.components.MODISMetadataReaderComponent" doc:name="MODIS Metadata Reader"/>
+                <set-variable variableName="platform" value="#[payload.get(&quot;platform&quot;)]" doc:name="Set platform as MODIS data type"/>
+                <set-variable variableName="product_name" value="#[payload.get(&quot;product_name&quot;)]" doc:name="Set product_name as MODIS product uuid"/>
+                <json:object-to-json-transformer doc:name="HashMap to JSON"/>
+                <logger message="Metadata in JSON: #[payload]" level="INFO" doc:name="Metadata in JSON"/>
+                <http:request config-ref="HTTP_Request_Elasticsearch" path="#[platform]/#[product_name]" method="POST" doc:name="Ingestion in Elastic Search"/>
+                <logger level="INFO" doc:name="Elastic Search return" message="Elastic search returned #[message.inboundProperties[&quot;http.status&quot;]]"/>
+            </foreach>
+        </foreach>
+
+        <logger message="Modis Connector ended" level="INFO" doc:name="END"/>
     </flow>
 
 </mule>
