@@ -28,13 +28,13 @@ var languagesJson={
       "welcomeTextSecondary":"Monitoring the evolution of our Earth",
       "servicesText" :"Servizi",
       "servicesTextDisplacement":"Displacement",
-      "servicesTextDisplacementDescription":"Rilevamento e reporting dei movimenti della superficie terrestre, volte a monitorare frane, subsidenza e la stabilità delle infrastrutture, quali edifici , strade e <br>ferrovie",
+      "servicesTextDisplacementDescription":"Monitoraggio dei movimenti di massa connessi a frane, subsidenza e stabilità di edifici ed infrastrutture, come strade, ferrovie, condotte e opere ingegneristiche.",
       "servicesTextMarine":"Marine",
-      "servicesTextMarineDescription":"Monitoraggio della qualità delle acque marino-costiere a supporto delle attività di reporting ambientale dei governi locali, dell'acquacoltura e degli impianti di <br>dissalazione",
+      "servicesTextMarineDescription":"Monitoraggio della qualità delle acque marino-costiere a supporto delle attività di reporting ambientale dei governi locali, dell'acquacoltura e degli impianti di dissalazione.",
       "servicesTextBurned":"Wildfires",
-      "servicesTextBurnedDescription":"Servizio di monitoraggio delle aree percorse dagli incendi, attraverso la perimetrazione e mappatura delle aree e la rilevazione dei cambiamenti di uso del suolo illegali nel tempo",
+      "servicesTextBurnedDescription":"Monitoraggio delle aree percorse dagli incendi, attraverso la mappatura delle aree e la rilevazione dei cambiamenti di uso del suolo illegali nel tempo.",
       "servicesTextUrban":"Urban Dynamics",
-      "servicesTextUrbanDescription":"Monitoraggio e reporting dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria",
+      "servicesTextUrbanDescription":"Monitoraggio dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria.",
       "contactText":"Contatti",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italia"
     }
