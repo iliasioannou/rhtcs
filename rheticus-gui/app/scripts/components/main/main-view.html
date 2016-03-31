@@ -5,28 +5,26 @@
 	<ol-layer name="{{overlay.name}}" ol-layer-properties="overlay" ng-repeat="overlay in main.overlays|filter:{active:true}"></ol-layer>
 	<ol-marker ol-marker-properties="main.marker"></ol-marker>
 
-	<div ng-include src="'scripts/components/header/header-view.html'"></div>
+	<div ng-include src="'scripts/components/toolbar/toolbar-view.html'"></div>
 	<div ng-include src="'scripts/components/switch-panel/switch-panel-view.html'"></div>
-	<div class="ol-control map-control-panel">
-		<div ng-include src="'scripts/components/login/login-button-view.html'"></div>
-		<div ng-include src="'scripts/components/geocoder/geocoder-button-view.html'"></div>
-		<div ng-include src="'scripts/components/filter/filter-button-view.html'"></div>
-		<div ng-include src="'scripts/components/basemap/basemap-button-view.html'"></div>
-		<div ng-include src="'scripts/components/cesiumViewer/cesiumViewer-button-view.html'"></div>
-		<div ng-include src="'scripts/components/help/help-view.html'"></div>
-	</div>
+	<!--div class="ol-control map-control-panel"-->
+		<!--div ng-include src="'scripts/components/login/login-button-view.html'"></div-->
+		<!--div ng-include src="'scripts/components/geocoder/geocoder-button-view.html'"></div-->
+		<!--div ng-include src="'scripts/components/filter/filter-button-view.html'"></div-->
+		<!--div ng-include src="'scripts/components/basemap/basemap-button-view.html'"></div-->
+		<!--div ng-include src="'scripts/components/cesiumViewer/cesiumViewer-button-view.html'"></div-->
+		<!--div ng-include src="'scripts/components/help/help-view.html'"></div-->
+	<!--/div-->
 	<div ng-include src="'scripts/components/feature-info/feature-info-view.html'"></div>
 	<div ng-include src="'scripts/components/ps-trends/ps-trends-view.html'"></div>
 	<div ng-include src="'scripts/components/timeline/timeline-view.html'"></div>
 	<div ng-include src="'scripts/components/credits/credits-view.html'"></div>
 
-	<div class="flashMessage" flash-message="10000"></div>
+	<!--div class="flashMessage" flash-message="10000"></div-->
 
-	<div class="footer" data-intro="Footer Description" data-position="right">
-		<div>
-			<p>Rheticus&#174;&nbsp;Planetek&nbsp;Italia&nbsp;2016&nbsp;</p>
-		</div>
+	<!--div class="footer" data-intro="Footer Description" data-position="right"-->
+
 	</div>
 </openlayers>
-<div class="FullScreenHelp" data-intro="Full screen" data-position="left"></div>
+<!--div class="FullScreenHelp" data-intro="Full screen" data-position="left"></div-->
 <div class="ZoomControlsHelp" data-intro="Zoom Controls" data-position="left"></div>

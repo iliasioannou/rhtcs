@@ -11,9 +11,7 @@ angular.module('rheticus')
 	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http','GeocodingService',function($rootScope,$scope,configuration,$http,GeocodingService){
 
 		var self = this; //this controller
-		var host = (configuration.rheticusAPI.host.indexOf("locationHost")!=-1)
-			? configuration.rheticusAPI.host.replace("locationHost",document.location.host)
-			: configuration.rheticusAPI.host;
+		var host = (configuration.rheticusAPI.host.indexOf("locationHost")!==-1)	? configuration.rheticusAPI.host.replace("locationHost",document.location.host)	: configuration.rheticusAPI.host;
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */
@@ -447,6 +445,7 @@ angular.module('rheticus')
 		var generateChartData = function(ps){
 			self.chartDataMeasureCount = false; // reset flag for download weather
 			self.currentWeather=[];
+			self.data=[];
 			self.maxVelPs=-100;
 			self.minVelPs=100;
 			self.lat=ps.point[1];
@@ -456,6 +455,7 @@ angular.module('rheticus')
 			var deals=$scope.getUserDeals(); // get user contracts
 			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
 			//console.log("Total deals for selected point: ",deals.length);
+			//console.log("Deals for selected point: ",deals);
 			if(deals.length>0) {// if exists at least one contract in the selected point
 				try {//get contracts start&end period
 					//console.log("filter contracts for this point: ",point);
@@ -602,7 +602,7 @@ angular.module('rheticus')
 						self.psTempLength ++;
 						updateyDomain1();
 					}
-					if (!self.chartDataMeasureCount){
+					if (!self.chartDataMeasureCount && measures.length>0){
 						var values = getWeather(); // get weather data
 						self.chartData.push({
 							"key" : "Precipitations",
@@ -613,6 +613,8 @@ angular.module('rheticus')
 						});
 
 						self.chartDataMeasureCount = true;
+					}else{
+						self.options.chart.noData = "Your subscrition do not includes this point.";
 					}
 				})
 				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful

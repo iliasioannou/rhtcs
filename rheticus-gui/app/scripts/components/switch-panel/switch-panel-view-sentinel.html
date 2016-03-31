@@ -1,14 +1,4 @@
 <!-- Sentinel Legend -->
-<div class = "panel" ng-show="switchpanel.show_panel_sentinel" style ="background-color: rgba(0, 60, 136, 0);" >
-	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-		<label class= switchpanelabelmin >Sentinel Catalog:</label>
-		<label class= switchpanelabelmin >{{switchpanel.sentinel_metadata.legend.description}}</label>
-		<label class= switchpanelabel>Options:<br/></label>
-		<label class= switchpanelabel2><input type="checkbox" ng-click="switchpanel.switchOverlaySentinel()" ng-checked ="switchpanel.view_overlay_sentinel"> Layer on</label><br/>
-			<label class= switchpanelabel2>Layer opacity
-			<input type="range" min="0" max="1" step="0.01" ng-model="switchpanel.sentinel.opacity">
-			</label><br/>
-		</label>
-	</div>	
+<div class = "panel" ng-show="switchpanel.show_panel_sentinel" style ="background-color: rgba(0, 60, 136, 0);" >	
 	<div class="switchpanelegend"></div>
 </div>

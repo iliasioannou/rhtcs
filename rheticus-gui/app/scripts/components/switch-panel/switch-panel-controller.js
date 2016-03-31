@@ -8,7 +8,7 @@
  * Switch Panel Controller for rheticus project
  */
 angular.module('rheticus')
-	.controller('SwitchPanelCtrl',['$scope',function ($scope){
+	.controller('SwitchPanelCtrl',['$scope','$mdSidenav',function ($scope,$mdSidenav){
 
 		var self = this; //this controller
 
@@ -38,6 +38,7 @@ angular.module('rheticus')
 						entities[position].geom_geo_json.type,
 						entities[position].geom_geo_json.coordinates
 					);
+					$mdSidenav('areaMenu').close();
 				}
 			});
 		};
@@ -67,7 +68,8 @@ angular.module('rheticus')
 			"iffi_metadata" : $scope.getOverlayMetadata("iffi"),
 			"sentinel" : $scope.getOverlayParams("sentinel"),
 			"sentinel_metadata" : $scope.getOverlayMetadata("sentinel"),
-			"userDeals" : $scope.getUserDeals()
+			"userDeals" : $scope.getUserDeals(),
+			"checkboxActive" : "prova"
 		});
 		angular.extend(self,{
 			//Tab controls

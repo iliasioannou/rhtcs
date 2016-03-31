@@ -48,6 +48,8 @@
 		"name" : " Sentinel"
 	},{
 		"name" : " Cosmo"
+	},{
+		"name" : " TerraSAR-X"
 	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",

@@ -13,6 +13,8 @@ angular
 	//modules addition
 	.module('rheticus',[
 		'ngAnimate',
+		'ngMaterial',
+		'ngMessages',
 		'ngCookies',
 		'ngResource',
 		'ngRoute',

@@ -1,0 +1,146 @@
+<div ng-controller="ToolbarCtrl" ng-cloak="">
+    <!--SETTINGS SIDENAV-->
+    <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="settingMenu">
+      <md-toolbar>
+        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
+              <md-icon  md-svg-src="images/icons/settings.svg"></md-icon>
+              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Settings</h1>
+        </md-item-content>
+      </md-toolbar>
+      <div style="margin:10px;">
+      	<label>Basemap</label>
+      	<form ng-controller="BasemapPopoupCtrl as basemapPop">
+      		<div ng-repeat="baselayer in basemapPop.baselayers">
+                  <input type="radio" ng-model="basemapPop.active.name" value="{{baselayer.name}}" ng-click="basemapPop.changeLayer(baselayer)"/>
+                  {{baselayer.name}}
+              </div>
+          </form>
+      </div>
+      <div style="margin:10px;" ng-controller="CesiumViewerCtrl as viewer">
+        <label>3D Viewer</label>
+        <form >
+          <button type="button" title="3D Viewer" ng-click="viewer.openViewer()">
+            <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
+          </button>
+          Go to 3D viewer
+      </div>
+      <div style="margin:10px;" ng-controller="SwitchPanelCtrl as switchpanel">
+        <label>Extra functionality</label>
+        <div >
+          <input type="radio" ng-click="switchpanel.switchOverlaySentinel()" ng-checked ="switchpanel.view_overlay_sentinel"> Sentinel catalog</label><br>
+          <input type="radio" ng-click="switchpanel.switchOverlayIffi()" ng-checked ="switchpanel.view_overlay_iffi"> IFFI</label>
+        </div>
+      </div>
+    </md-sidenav>
+
+    <!--FILTERS SIDENAV-->
+    <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="filterMenu">
+      <md-toolbar>
+        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
+              <md-icon  md-svg-src="images/icons/filters.svg"></md-icon>
+              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Filters</h1>
+        </md-item-content>
+      </md-toolbar>
+
+      <div data-intro="Area Of Interests" style="margin:20px;" ng-controller="FilterPopoupCtrl as filterPop">
+      	<h4>Persistent Scatterers Map Advanced Filters</h4>
+      	<h5>Move slider bounds to select desired range</h5>
+
+      	<!-- VELOCITY -->
+      	<hr style="margin-top:10px;margin-bottom:5px;">
+      	<div>
+      		<label>Velocity</label>
+      		<div>
+      			<input slider type="text" ng-model="filterPop.speedModelValue" options="filterPop.speedOptions" />
+      		</div>
+      	</div>
+
+      	<!-- COHERENCE -->
+      	<hr style="margin-top:20px;margin-bottom:5px;">
+      	<div>
+      		<label>Coherence</label>
+      		<div>
+      			<input slider type="text" ng-model="filterPop.coherenceModelValue" options="filterPop.coherenceOptions" />
+      		</div>
+      	</div>
+
+      	<!-- PROVIDER -->
+      	<hr style="margin-top:20px;margin-bottom:5px;">
+      	<!--div>
+      		<label>Data Providers</label>
+      		<div>
+      			<table>
+      				<tr ng-repeat="provider in filterPop.dataProviders">
+      					<td>
+      						<label style="font-size: 12px">
+      							<input type="checkbox" ng-model="provider.checked" ng-click="updateSelection($index,filterPop.dataProviders)" />{{provider.name}}
+      						</label>
+      					</td>
+      				</tr>
+      			</table>
+      		</div>
+      	</div-->
+      </div>
+    </md-sidenav>
+
+    <!--AREAS SIDENAV-->
+    <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="areaMenu">
+      <md-toolbar>
+        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
+              <md-icon  md-svg-src="images/icons/areas.svg"></md-icon>
+              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Areas</h1>
+        </md-item-content>
+      </md-toolbar>
+      <div ng-controller="SwitchPanelCtrl as switchpanel" style="margin-top:15px;">
+        <md-list-item ng-repeat="subscription in switchpanel.userDeals">
+          <p ng-click="switchpanel.updateSelectionArea($index,switchpanel.userDeals)">{{subscription.product_name}}</p>
+        </md-list-item>
+      </div>
+
+    </md-sidenav>
+
+    <!--MAIN TOOLBAR (TO CHANGE MIN SIZE GO IN ANGULARMATERIAL.CSS)-->
+    <md-toolbar>
+      <div class="md-toolbar-tools" style="margin-right:15px;">
+        <!--RHETICUS LOGO-->
+         <img src="images/icons/logo_regular.png" alt="Logo" width="120" height="40" style="cursor: pointer;" onclick="window.location.href = '../home'">
+        <!--SERVICE NAME-->
+        <span flex="35"></span>
+        <h3 class="noselect" style="cursor:default;font-weight: bold;color:#ffffff;">
+            Displacement
+        </h3>
+
+    <!--RIGHT BUTTON TOOL-->
+        <span flex=""></span>
+        <h4 id="userNameView"style="font-size:12px;" ng-click="showDialog($event)"></h4>
+        <md-button title="Account" class="md-icon-button" aria-label="account"  ng-click="showDialog($event)">
+          <md-icon md-svg-src="images/icons/account.svg" style="color: white;"></md-icon>
+        </md-button>
+
+        <!--GEOCODER-->
+        <div ng-controller="GeocoderCtrl as geo" >
+      		<form ng-submit="geo.searchLocation()" >
+      			<input class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" type="text" placeholder="Search..." ng-model="geo.location" ng-keyup="geo.searchLocation()"/>
+            <md-button title="Search" class="md-icon-button" aria-label="search" ng-click="geo.showSearchBar()">
+              <md-icon md-svg-src="images/icons/search.svg"></md-icon>
+            </md-button>
+      		</form>
+      		<div class="searchResult" ng-show="geo.visibleSearchBar" >
+      			<div ng-repeat="result in geo.results">
+      				<span style="color:#000000;"ng-click="geo.getLocation($index)" ng-bind="result.display_name"></span>
+      			</div>
+      		</div>
+        </div>
+
+        <md-button title="Your areas" class="md-icon-button" aria-label="Areas" ng-click="openAreaMenu()">
+          <md-icon md-svg-src="images/icons/areas.svg"></md-icon>
+        </md-button>
+        <md-button title="Filters" class="md-icon-button" aria-label="filters" ng-click="openFilterMenu()">
+          <md-icon md-svg-src="images/icons/filters.svg"></md-icon>
+        </md-button>
+        <md-button title="Settings" class="md-icon-button" aria-label="settings" ng-click="openSettingMenu()"  >
+          <md-icon md-svg-src="images/icons/settings.svg"></md-icon>
+        </md-button>
+      </div>
+    </md-toolbar>
+</div>
