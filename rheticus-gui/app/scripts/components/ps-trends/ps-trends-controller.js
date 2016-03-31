@@ -107,6 +107,7 @@ angular.module('rheticus')
 			"checkboxModelRegression" : null,
 			"checkboxModelErrorFilter" : true,
 			"checkboxModelView":false,
+			"measureFound":true,
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"ps" : [],
@@ -600,6 +601,7 @@ angular.module('rheticus')
 							}
 						}
 						self.psTempLength ++;
+						self.measureFound=true;
 						updateyDomain1();
 					}
 					if (!self.chartDataMeasureCount && measures.length>0){
@@ -611,10 +613,11 @@ angular.module('rheticus')
 							"values" : values,
 							"color" : "#67C8FF"
 						});
-
 						self.chartDataMeasureCount = true;
-					}else{
+					}else if (measures.length===0){
 						self.options.chart.noData = "Your subscrition do not includes this point.";
+						self.checkboxModelView=false;
+						self.measureFound=false;
 					}
 				})
 				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
@@ -648,12 +651,6 @@ angular.module('rheticus')
 
 				calculateRegressionLine();
 				useNoiseFilter();
-
-
-					//console.log(self.chartData);
-					//console.log(coeff);
-					//console.log(q);
-
 
 				}
 

@@ -26,11 +26,11 @@
 					</label>
 					<input id="errorFilter" type="checkbox" ng-model="pstrends.checkboxModelErrorFilter" ng-change="pstrends.filterErrorView()" ng-show="pstrends.checkboxModelView"  ></input>
 
-					<div style="float: right;margin-right:15px;">
+					<div ng-show="pstrends.measureFound" style="float: right;margin-right:15px;">
 						<label id="Precipitations">
 							Precipitations:
 						</label>
-						<select id="CumulativeSelect" ng-model="pstrends.comboboxModel" ng-change="pstrends.changeCumulativeView()">
+						<select id="CumulativeSelect" ng-model="pstrends.comboboxModel" ng-change="pstrends.changeCumulativeView() >
 						 <option value="Daily">Daily</option>
 						 <option value="">Cumulative 30 day</option>
 						 <option value="Cumulative 60 day">Cumulative 60 day</option>
