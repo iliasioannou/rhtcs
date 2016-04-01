@@ -1,7 +1,7 @@
 <div ng-controller="ToolbarCtrl" ng-cloak="">
     <!--SETTINGS SIDENAV-->
     <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="settingMenu">
-      <md-toolbar>
+      <md-toolbar ng-click="openSettingMenu()">
         <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
               <md-icon  md-svg-src="images/icons/settings.svg"></md-icon>
               <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Settings</h1>
@@ -28,14 +28,14 @@
         <label>Extra functionality</label>
         <div >
           <input type="radio" ng-click="switchpanel.switchOverlaySentinel()" ng-checked ="switchpanel.view_overlay_sentinel"> Sentinel catalog</label><br>
-          <input type="radio" ng-click="switchpanel.switchOverlayIffi()" ng-checked ="switchpanel.view_overlay_iffi"> IFFI</label>
+          <input type="radio" ng-click="switchpanel.switchOverlayIffi()" ng-checked ="switchpanel.view_overlay_iffi"> Landslide maps (IFFI)</label>
         </div>
       </div>
     </md-sidenav>
 
     <!--FILTERS SIDENAV-->
     <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="filterMenu">
-      <md-toolbar>
+      <md-toolbar ng-click="openFilterMenu()">
         <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
               <md-icon  md-svg-src="images/icons/filters.svg"></md-icon>
               <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Filters</h1>
@@ -85,10 +85,10 @@
 
     <!--AREAS SIDENAV-->
     <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="areaMenu">
-      <md-toolbar>
-        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
+      <md-toolbar ng-click="openAreaMenu()">
+        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 150px;">
               <md-icon  md-svg-src="images/icons/areas.svg"></md-icon>
-              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">My areas</h1>
+              <h1 class="md-toolbar-tools noselect" style="float:right;cursor:default;color:#ffffff;">My areas</h1>
         </md-item-content>
       </md-toolbar>
       <div ng-controller="SwitchPanelCtrl as switchpanel" style="margin-top:15px;">

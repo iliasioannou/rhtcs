@@ -40,7 +40,7 @@
   		"projection": "EPSG:4326"
 		},
 		"query" : {
-			"zoom" : 16
+			"zoom" : 7
 		},
 		"crs" : "EPSG:3857"
 	},

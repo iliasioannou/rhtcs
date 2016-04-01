@@ -615,7 +615,7 @@ angular.module('rheticus')
 						});
 						self.chartDataMeasureCount = true;
 					}else if (measures.length===0){
-						self.options.chart.noData = "Your subscrition do not includes this point.";
+						self.options.chart.noData = "Your subscrition does not include this point.";
 						self.checkboxModelView=false;
 						self.measureFound=false;
 					}
