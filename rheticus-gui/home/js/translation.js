@@ -4,7 +4,7 @@ var languagesJson={
     "translation": {
       "navHome"     : "Home",
       "navServices" :"Services",
-      "navContact"  :"Contact",
+      "navContact"  :"Contacts",
       "welcomeTextSecondary":"Monitoring the evolution of our Earth",
       "servicesText" :"Services",
       "servicesTextDisplacement":"Displacement",
@@ -15,7 +15,7 @@ var languagesJson={
       "servicesTextBurnedDescription":"A geoinformation service designed to support burnt areas detection and monitoring, through burned area perimeter, mapping and detection of illegal land use changes over time.",
       "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoring and reporting land use changes, soil loss and infrastructures development, to support decision makers in territorial planning and infrastructures building.",
-      "contactText":"Contact",
+      "contactText":"Contacts",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italy"
 
     }

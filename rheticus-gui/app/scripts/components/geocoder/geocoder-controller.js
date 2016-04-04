@@ -45,6 +45,8 @@ angular.module('rheticus')
 			"showSearchBar" : function(){
 				console.log(self.visibleSearchBar);
 				self.visibleSearchBar=!self.visibleSearchBar;
+				document.getElementById('geocoderInput').focus();
+
 			},
 			"getLocation" : getLocation,
 			"searchLocation" : searchLocation
