@@ -32,6 +32,7 @@ angular.module('rheticus')
 			self.visibleSearchBar=false;
 		};
 
+
 		angular.extend(self,{
 			"results" : {},
 			"location" : "",
@@ -43,10 +44,7 @@ angular.module('rheticus')
 				$scope.setController("geocoder");
 			},
 			"showSearchBar" : function(){
-				console.log(self.visibleSearchBar);
 				self.visibleSearchBar=!self.visibleSearchBar;
-				document.getElementById('geocoderInput').focus();
-
 			},
 			"getLocation" : getLocation,
 			"searchLocation" : searchLocation
