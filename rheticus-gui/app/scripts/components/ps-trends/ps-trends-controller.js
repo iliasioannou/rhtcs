@@ -252,8 +252,7 @@ angular.module('rheticus')
 				 }
 				 //generateChartData(self.ps);
 			 },
-			 "changeCumulativeView":function(){
-
+			 "changeCumulativeView" : function(){
 				document.getElementById("CumulativeSelect").className ="";
 				var combo = document.getElementById('CumulativeSelect');
 				if(combo.selectedIndex===0){
