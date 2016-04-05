@@ -29,16 +29,22 @@ angular.module('rheticus')
 			);
 			self.results = {};
 			self.location = "";
+			self.visibleSearchBar=false;
 		};
+
 
 		angular.extend(self,{
 			"results" : {},
 			"location" : "",
+			"visibleSearchBar" : false,
 			"getShow" : function(){
 				return $scope.getController("geocoder");
 			},
 			"setShow" : function(){
 				$scope.setController("geocoder");
+			},
+			"showSearchBar" : function(){
+				self.visibleSearchBar=!self.visibleSearchBar;
 			},
 			"getLocation" : getLocation,
 			"searchLocation" : searchLocation

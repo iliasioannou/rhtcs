@@ -13,7 +13,7 @@ server.get('/',function(req, res) {
  * PROXY CONFIGURATION
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
-  "DISPLACEMENT" : "http://localhost:8080/rheticus",
+  "DISPLACEMENT" : "http://localhost:8080/displacement",
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://kim.planetek.it:8081",
 	"GEOSERVER" : "http://kim.planetek.it:9080",

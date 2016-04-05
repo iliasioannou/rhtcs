@@ -10,7 +10,9 @@
 angular.module('rheticus')
     .controller('CesiumViewerCtrl',['$scope','configuration','olData',
     function ($scope,configuration,olData){
+
   		angular.extend(this,{
+        "active2D": "true",
   			"openViewer" : function(){
           olData.getMap().then(function (map) {
             var extent = ol.proj.transformExtent( // jshint ignore:line

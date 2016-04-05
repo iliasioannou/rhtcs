@@ -454,7 +454,7 @@ textarea {
     padding: 15px 7px 10px 7px;
     font-family: 'Varela Round', sans-serif;
     font-size: 13px;
-    color: #f3f3f3!important;
+    color: #003a57!important;
     color: #29dcb2;
     text-transform: uppercase;
     -webkit-transition-duration: .2s;
@@ -480,7 +480,7 @@ textarea {
 }
 
 .navbar-default .navbar-background {
-    background-color: #003a57
+    background-color: #ffffff
 }
 
 @media(max-width:640px) {
@@ -552,7 +552,10 @@ body {
 .container {
     position: relative;
     z-index: 2;
-    display: block
+    display: block;
+    padding-left: 15px !important;
+    padding-right: 15px !important;
+    width: 98% !important;
 }
 
 .hero-image {

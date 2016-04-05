@@ -4,18 +4,18 @@ var languagesJson={
     "translation": {
       "navHome"     : "Home",
       "navServices" :"Services",
-      "navContact"  :"Contact",
+      "navContact"  :"Contacts",
       "welcomeTextSecondary":"Monitoring the evolution of our Earth",
       "servicesText" :"Services",
       "servicesTextDisplacement":"Displacement",
-      "servicesTextDisplacementDescription":"Detecting and reporting earth’s surface movements, aimed at monitoring landslides, subsidence, and the stability of infrastructures, as buildings, roads and <br>railways.",
+      "servicesTextDisplacementDescription":"Detecting and reporting earth’s surface movements, aimed at monitoring landslides, subsidence, and the stability of infrastructures, as buildings, roads and railways.",
       "servicesTextMarine":"Marine",
-      "servicesTextMarineDescription":"Monitoring coastal seawaters quality, supporting local governments’ environmental reporting requirements, aquaculture and desalination<br> plants.",
+      "servicesTextMarineDescription":"Monitoring coastal seawaters quality, supporting local governments, environmental reporting <br>requirements, aquaculture and desalination plants.",
       "servicesTextBurned":"Wildfires",
       "servicesTextBurnedDescription":"A geoinformation service designed to support burnt areas detection and monitoring, through burned area perimeter, mapping and detection of illegal land use changes over time.",
       "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoring and reporting land use changes, soil loss and infrastructures development, to support decision makers in territorial planning and infrastructures building.",
-      "contactText":"Contact",
+      "contactText":"Contacts",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italy"
 
     }
@@ -28,13 +28,13 @@ var languagesJson={
       "welcomeTextSecondary":"Monitoring the evolution of our Earth",
       "servicesText" :"Servizi",
       "servicesTextDisplacement":"Displacement",
-      "servicesTextDisplacementDescription":"Rilevamento e reporting dei movimenti della superficie terrestre, volte a monitorare frane, subsidenza e la stabilità delle infrastrutture, quali edifici , strade e <br>ferrovie",
+      "servicesTextDisplacementDescription":"Monitoraggio dei movimenti superficiali connessi a frane, subsidenza e stabilità di edifici ed infrastrutture, come strade, ferrovie, condotte e opere ingegneristiche.",
       "servicesTextMarine":"Marine",
-      "servicesTextMarineDescription":"Monitoraggio della qualità delle acque marino-costiere a supporto delle attività di reporting ambientale dei governi locali, dell'acquacoltura e degli impianti di <br>dissalazione",
+      "servicesTextMarineDescription":"Monitoraggio della qualità delle acque marino-costiere a supporto delle attività di reporting ambientale dei governi locali, dell'acquacoltura e degli impianti di dissalazione.",
       "servicesTextBurned":"Wildfires",
-      "servicesTextBurnedDescription":"Servizio di monitoraggio delle aree percorse dagli incendi, attraverso la perimetrazione e mappatura delle aree e la rilevazione dei cambiamenti di uso del suolo illegali nel tempo",
+      "servicesTextBurnedDescription":"Monitoraggio delle aree percorse dagli incendi, attraverso la mappatura delle aree e la rilevazione dei cambiamenti di uso del suolo illegali nel </br>tempo.",
       "servicesTextUrban":"Urban Dynamics",
-      "servicesTextUrbanDescription":"Monitoraggio e reporting dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria",
+      "servicesTextUrbanDescription":"Monitoraggio dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria.",
       "contactText":"Contatti",
       "contactAddress":"Via Massaua 12, I-70132 Bari, Italia"
     }

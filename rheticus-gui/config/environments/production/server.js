@@ -18,7 +18,7 @@ var auth = function(req, res, next){
     return res.sendStatus(401);
   }
 }
-server.use(auth);
+//server.use(auth);
 
 server.set('port', 80);
 server.use(express.static(__dirname + '/'));
@@ -30,7 +30,7 @@ server.get('/',function(req, res) {
  * PROXY CONFIGURATION
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
-  "DISPLACEMENT" : "http://localhost:80/rheticus",
+  "DISPLACEMENT" : "http://localhost:80/displacement",
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://localhost:8081",
 	"GEOSERVER" : "http://localhost:9080",

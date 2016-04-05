@@ -8,15 +8,9 @@
  * Filter Popoup Controller for rheticus project
  */
 angular.module('rheticus')
-	.controller('FilterPopoupCtrl',['$scope','configuration',function($scope,configuration){
+	.controller('FilterPopoupCtrl',['$rootScope','$scope','configuration',function($rootScope,$scope,configuration){
 
-		var updateSelection = function(position, entities) {
-			angular.forEach(entities, function(subscription, index) {
-				if (position !== index) {
-					subscription.checked = false;
-				}
-			});
-		};
+
 
 		angular.extend(this,{
 			//SPEED SLIDER
@@ -64,6 +58,11 @@ angular.module('rheticus')
 				}
 			},
 			"dataProviders" : configuration.dataProviders, // data providers
-			"updateSelection" : updateSelection
+			"updateSelection" : function(position, entities) {
+				$rootScope.providersFilter=entities;
+				$scope.setSpatialFilter();
+				$scope.applyFiltersToMap();
+
+			}
 		});
 	}]);

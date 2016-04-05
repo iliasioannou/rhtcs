@@ -11,9 +11,7 @@ angular.module('rheticus')
 	.controller('PsTrendsCtrl',['$rootScope','$scope','configuration','$http','GeocodingService',function($rootScope,$scope,configuration,$http,GeocodingService){
 
 		var self = this; //this controller
-		var host = (configuration.rheticusAPI.host.indexOf("locationHost")!=-1)
-			? configuration.rheticusAPI.host.replace("locationHost",document.location.host)
-			: configuration.rheticusAPI.host;
+		var host = (configuration.rheticusAPI.host.indexOf("locationHost")!==-1)	? configuration.rheticusAPI.host.replace("locationHost",document.location.host)	: configuration.rheticusAPI.host;
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
 		 */
@@ -109,9 +107,11 @@ angular.module('rheticus')
 			"checkboxModelRegression" : null,
 			"checkboxModelErrorFilter" : true,
 			"checkboxModelView":false,
+			"measureFound":true,
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"ps" : [],
+			"psCandidate": [],
 			"checkboxModel2": ['Daily','Cumulative 30 day','Cumulative 60 day','Cumulative 90 day','Cumulative 120 day'],
 			"isRegressiveActivated" : false,
 			"isFilterErrorActivated": true,
@@ -252,8 +252,7 @@ angular.module('rheticus')
 				 }
 				 //generateChartData(self.ps);
 			 },
-			 "changeCumulativeView":function(){
-
+			 "changeCumulativeView" : function(){
 				document.getElementById("CumulativeSelect").className ="";
 				var combo = document.getElementById('CumulativeSelect');
 				if(combo.selectedIndex===0){
@@ -312,6 +311,16 @@ angular.module('rheticus')
 		/**
 		 * WATCHERS
 		 */
+		$scope.$watch("psCandidate",function(psCandidate){
+			if (psCandidate && (psCandidate!==null) && (psCandidate.features!==null) && (psCandidate.features.length>0)) {
+				self.psCandidate=psCandidate;
+				self.showPsTrends(
+					generateChartDataCandidate(psCandidate)
+				);
+			} else {
+				self.showPsTrends(false);
+			}
+		});
 		// ps watcher for rendering chart line data
 		$scope.$watch("ps",function(ps){
 			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
@@ -323,6 +332,7 @@ angular.module('rheticus')
 				self.showPsTrends(false);
 			}
 		});
+
 
 		var calculateRegressionLine = function() {
 			if(self.psLength===1 && self.isRegressiveActivated)
@@ -445,8 +455,10 @@ angular.module('rheticus')
 		 * Returns:
 		 */
 		var generateChartData = function(ps){
+			self.options.chart.noData = "Loading ...";
 			self.chartDataMeasureCount = false; // reset flag for download weather
 			self.currentWeather=[];
+			self.data=[];
 			self.maxVelPs=-100;
 			self.minVelPs=100;
 			self.lat=ps.point[1];
@@ -456,6 +468,7 @@ angular.module('rheticus')
 			var deals=$scope.getUserDeals(); // get user contracts
 			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
 			//console.log("Total deals for selected point: ",deals.length);
+			//console.log("Deals for selected point: ",deals);
 			if(deals.length>0) {// if exists at least one contract in the selected point
 				try {//get contracts start&end period
 					//console.log("filter contracts for this point: ",point);
@@ -600,9 +613,10 @@ angular.module('rheticus')
 							}
 						}
 						self.psTempLength ++;
+						self.measureFound=true;
 						updateyDomain1();
 					}
-					if (!self.chartDataMeasureCount){
+					if (!self.chartDataMeasureCount && measures.length>0){
 						var values = getWeather(); // get weather data
 						self.chartData.push({
 							"key" : "Precipitations",
@@ -611,8 +625,11 @@ angular.module('rheticus')
 							"values" : values,
 							"color" : "#67C8FF"
 						});
-
 						self.chartDataMeasureCount = true;
+					}else if (measures.length===0){
+						self.options.chart.noData = "Your subscrition does not include this point.";
+						self.checkboxModelView=false;
+						self.measureFound=false;
 					}
 				})
 				.error(function(){ //.error(function(data,status,headers,config){ //if request is not successful
@@ -646,12 +663,6 @@ angular.module('rheticus')
 
 				calculateRegressionLine();
 				useNoiseFilter();
-
-
-					//console.log(self.chartData);
-					//console.log(coeff);
-					//console.log(q);
-
 
 				}
 
@@ -804,5 +815,59 @@ angular.module('rheticus')
 
 			return values;
 		};
+
+		var generateChartDataCandidate = function(psCandidate){
+			self.options.chart.noData = "Your subscrition does not include this point.";
+			self.checkboxModelView=false;
+			self.measureFound=false;
+			self.data=[];
+			self.lat=psCandidate.point[1];
+			self.lon=psCandidate.point[0];
+			self.options.title.html = "";
+			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
+			//console.log("Total deals for selected point: ",deals.length);
+			//console.log("Deals for selected point: ",deals);
+			getCity();  // get city info from Nomimatim and save in titleChart
+			var tableInfo = []; // PS details
+			var datasetidParamKey = configuration.rheticusAPI.measure.properties.datasetid;
+			var psidParamKey = configuration.rheticusAPI.measure.properties.psid;
+
+			for (var i=0; i<psCandidate.features.length; i++) {
+				self.psLength=psCandidate.features.length;
+				self.psTempLength=0;
+				if (psCandidate.features[i].properties){
+					var datasetId = eval("psCandidate.features[i].properties."+datasetidParamKey+";"); // jshint ignore:line
+					var psId = eval("psCandidate.features[i].properties."+psidParamKey+";"); // jshint ignore:line
+
+					var featureInfo = {};
+					for (var key in psCandidate.features[i].properties) {
+						if (key==="coherence"){
+							eval("featureInfo." + key + " = 100*psCandidate.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+							self.coherence=featureInfo.coherence;
+						} else {
+							eval("featureInfo." + key + " = psCandidate.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+						}
+					}
+					featureInfo.color =  self.options.chart.color[i];
+					setDatasetTitle(datasetId,psId);
+					tableInfo.push(featureInfo);
+					//console.log(tableInfo);
+				}
+
+
+				//Line chart data should be sent as an array of series objects.
+				self.psDetails = tableInfo;
+				if(!$scope.$$phase) {
+					$scope.$apply();
+				}
+
+			}
+			return true;
+		};
+
+
+
+
+
 
 	}]);
