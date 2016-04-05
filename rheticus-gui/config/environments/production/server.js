@@ -18,7 +18,7 @@ var auth = function(req, res, next){
     return res.sendStatus(401);
   }
 }
-server.use(auth);
+//server.use(auth);
 
 server.set('port', 80);
 server.use(express.static(__dirname + '/'));

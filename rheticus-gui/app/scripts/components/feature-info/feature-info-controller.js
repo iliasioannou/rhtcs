@@ -53,6 +53,7 @@ angular.module('rheticus')
 			}
 		});
 
+
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */

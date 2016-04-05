@@ -87,7 +87,32 @@
 					"attribution" : "",
 					"url" : ""
 				}
-			},{
+			},
+			{
+				"id" : "psCandidate",
+				"name" : "Persistent Scatterers Candidate Map",
+				"group" : "Overlays",
+				"source" : {
+					"type" : "TileWMS",
+					"crossOrigin" : "null",
+					"urls" : [
+						"http://locationHost/geoserver/rheticus/gwc/service/wms"
+					],
+					"params" : {
+						"LAYERS" : "rheticus:vw_ps_candidate",
+						"TILED" : true
+					},
+					"serverType" : "geoserver"
+				},
+				"active" : true,
+				"visible" : false,
+				"opacity" : 0.8,
+				"layerOptions" : {
+					"attribution" : "",
+					"url" : ""
+				}
+			}
+			,{
 				"id" : "ps",
 				"name" : "Persistent Scatterers Map",
 				"group" : "Overlays",
@@ -98,7 +123,7 @@
 						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:ps",
+						"LAYERS" : "rheticus:vw_ps",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -248,6 +273,24 @@
 					]
 				}
 			},{
+				"id" : "psCandidate",
+				"type" : "ImageWMS",
+				"queryUrl" : "http://locationHost/geoserver/rheticus/gwc/service/wms",
+				"legend" : {
+					"title":"Displacement Maps",
+					"description" : "Here you will find the list of displacement maps covering the area.Choose your map and single-click each point of the map to enable the access to the measurements. ",
+					"uom" : "[mm/year]",
+					"url" : {
+						"velocity" : "./images/legend_vel_ps.png"
+					}
+				},
+				"custom" : {
+					"LAYERS" : [
+						{"id":"rheticus:vw_ps_candidate","name":"Persistent Scatterers","queryable":true}
+					]
+				}
+			}
+			,{
 				"id" : "ps",
 				"type" : "ImageWMS",
 				"queryUrl" : "http://locationHost/geoserver/rheticus/gwc/service/wms",
@@ -261,7 +304,7 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:ps","name":"Persistent Scatterers","queryable":true}
+						{"id":"rheticus:vw_ps","name":"Persistent Scatterers","queryable":true}
 					]
 				}
 			}]

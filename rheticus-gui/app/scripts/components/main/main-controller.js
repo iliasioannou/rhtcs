@@ -229,8 +229,9 @@ angular.module('rheticus')
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
 					.success(function (response) {
-						if (!response.features){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
-							Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
+						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
+							//console.log("no features");
+							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
 						} else {
 							Flash.dismiss();
 							var obj = {
@@ -352,6 +353,7 @@ angular.module('rheticus')
 				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
+						Flash.dismiss();
 						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");
 						var params = null;
 						switch(l.id) {
@@ -385,6 +387,19 @@ angular.module('rheticus')
 									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("ps").legend.title+"\"!");
 								}
 								break;
+							case "psCandidate":
+								if (showDetails()){ //proceed with getFeatureInfo request
+									params = {
+										"INFO_FORMAT" : "application/json",
+										"FEATURE_COUNT" : MAX_FEATURES,
+										"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
+									};
+									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"psCandidate",setMarker);
+								} else {
+									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("psCandidate").legend.title+"\"!");
+								}
+								break;
+
 							default:
 								//do nothing
 						}

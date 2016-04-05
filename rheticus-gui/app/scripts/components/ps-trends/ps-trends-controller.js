@@ -111,6 +111,7 @@ angular.module('rheticus')
 			"chartDataMeasureCount" : false, //flag to download weather only one time.
 			"chartData" : [],
 			"ps" : [],
+			"psCandidate": [],
 			"checkboxModel2": ['Daily','Cumulative 30 day','Cumulative 60 day','Cumulative 90 day','Cumulative 120 day'],
 			"isRegressiveActivated" : false,
 			"isFilterErrorActivated": true,
@@ -311,6 +312,17 @@ angular.module('rheticus')
 		/**
 		 * WATCHERS
 		 */
+		$scope.$watch("psCandidate",function(psCandidate){
+			console.log(psCandidate);
+			if (psCandidate && (psCandidate!==null) && (psCandidate.features!==null) && (psCandidate.features.length>0)) {
+				self.psCandidate=psCandidate;
+				self.showPsTrends(
+					generateChartDataCandidate(psCandidate)
+				);
+			} else {
+				self.showPsTrends(false);
+			}
+		});
 		// ps watcher for rendering chart line data
 		$scope.$watch("ps",function(ps){
 			if ((ps!==null) && (ps.features!==null) && (ps.features.length>0)) {
@@ -322,6 +334,7 @@ angular.module('rheticus')
 				self.showPsTrends(false);
 			}
 		});
+
 
 		var calculateRegressionLine = function() {
 			if(self.psLength===1 && self.isRegressiveActivated)
@@ -444,6 +457,7 @@ angular.module('rheticus')
 		 * Returns:
 		 */
 		var generateChartData = function(ps){
+			self.options.chart.noData = "Loading ...";
 			self.chartDataMeasureCount = false; // reset flag for download weather
 			self.currentWeather=[];
 			self.data=[];
@@ -803,5 +817,59 @@ angular.module('rheticus')
 
 			return values;
 		};
+
+		var generateChartDataCandidate = function(psCandidate){
+			self.options.chart.noData = "Your subscrition does not include this point.";
+			self.checkboxModelView=false;
+			self.measureFound=false;
+			self.data=[];
+			self.lat=psCandidate.point[1];
+			self.lon=psCandidate.point[0];
+			self.options.title.html = "";
+			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
+			//console.log("Total deals for selected point: ",deals.length);
+			//console.log("Deals for selected point: ",deals);
+			getCity();  // get city info from Nomimatim and save in titleChart
+			var tableInfo = []; // PS details
+			var datasetidParamKey = configuration.rheticusAPI.measure.properties.datasetid;
+			var psidParamKey = configuration.rheticusAPI.measure.properties.psid;
+
+			for (var i=0; i<psCandidate.features.length; i++) {
+				self.psLength=psCandidate.features.length;
+				self.psTempLength=0;
+				if (psCandidate.features[i].properties){
+					var datasetId = eval("psCandidate.features[i].properties."+datasetidParamKey+";"); // jshint ignore:line
+					var psId = eval("psCandidate.features[i].properties."+psidParamKey+";"); // jshint ignore:line
+
+					var featureInfo = {};
+					for (var key in psCandidate.features[i].properties) {
+						if (key==="coherence"){
+							eval("featureInfo." + key + " = 100*psCandidate.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+							self.coherence=featureInfo.coherence;
+						} else {
+							eval("featureInfo." + key + " = psCandidate.features[\"" + i + "\"].properties." + key + ";"); // jshint ignore:line
+						}
+					}
+					featureInfo.color =  self.options.chart.color[i];
+					setDatasetTitle(datasetId,psId);
+					tableInfo.push(featureInfo);
+					//console.log(tableInfo);
+				}
+
+
+				//Line chart data should be sent as an array of series objects.
+				self.psDetails = tableInfo;
+				if(!$scope.$$phase) {
+					$scope.$apply();
+				}
+
+			}
+			return true;
+		};
+
+
+
+
+
 
 	}]);
