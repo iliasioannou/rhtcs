@@ -313,7 +313,6 @@ angular.module('rheticus')
 		 * WATCHERS
 		 */
 		$scope.$watch("psCandidate",function(psCandidate){
-			console.log(psCandidate);
 			if (psCandidate && (psCandidate!==null) && (psCandidate.features!==null) && (psCandidate.features.length>0)) {
 				self.psCandidate=psCandidate;
 				self.showPsTrends(

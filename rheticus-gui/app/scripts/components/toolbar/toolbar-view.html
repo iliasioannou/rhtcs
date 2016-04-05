@@ -67,20 +67,20 @@
 
       	<!-- PROVIDER -->
       	<hr style="margin-top:20px;margin-bottom:5px;">
-      	<!--div>
+      	<div ng-controller="FilterPopoupCtrl as filterPop">
       		<label>Data Providers</label>
       		<div>
       			<table>
       				<tr ng-repeat="provider in filterPop.dataProviders">
       					<td>
       						<label style="font-size: 12px">
-      							<input type="checkbox" ng-model="provider.checked" ng-click="updateSelection($index,filterPop.dataProviders)" />{{provider.name}}
+      							<input type="checkbox" ng-model="provider.checked" ng-click="filterPop.updateSelection($index,filterPop.dataProviders)" />{{provider.name}}
       						</label>
       					</td>
       				</tr>
       			</table>
       		</div>
-      	</div-->
+      	</div>
       </div>
     </md-sidenav>
 
