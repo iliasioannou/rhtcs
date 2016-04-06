@@ -25,6 +25,12 @@ angular.module('rheticus')
 			}
 		};
 
+		$scope.$on("setTimelineClosure",function(e){ // jshint ignore:line
+			if (self.show_timeline) {
+				self.showTimeline(false);
+			}
+		});
+
 
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
