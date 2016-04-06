@@ -350,11 +350,11 @@ angular.module('rheticus')
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
 					.success(function (response) {
+						Flash.dismiss();
 						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
 							//console.log("no features");
 							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
 						} else {
-							Flash.dismiss();
 							var obj = {
 								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs), // jshint ignore:line
 								"features" : (response.features.length>0) ? response.features : null
@@ -462,7 +462,7 @@ angular.module('rheticus')
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
 						Flash.dismiss();
-						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");
+						Flash.create("info", "Loading results ..."); //for \""+getOverlayMetadata(l.id).legend.title+"\"
 						var params = null;
 						switch(l.id) {
 							case "iffi": //Progetto IFFI

@@ -33,7 +33,7 @@ angular.module('rheticus')
 					'				<h2>Welcome</h2>'+
 					'     </md-input-container>'+
           '			<md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					'				<label>Email</label>'+
+					'				<label>User</label>'+
 					'				<input autocomplete="off" style="width: 300px; margin-right: 5px;" md-autofocus="" ng-model="loginPop.username" id="username" >'+
 					'     </md-input-container><br>'+
 					'     <md-input-container style="margin:5px;" layout="row" layout-align="center">'+
