@@ -340,21 +340,69 @@ angular.module('rheticus')
 				"point" : [99999,99999]
 			});
 		};
+		//variables for set priority
+		var iffiWithResult=true;
+		var sentinelWithResult=true;
+		var psCandidateWithResult=true;
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayer,olParams,resultObj,callback){
+			/*console.log(map);
+			console.log(coordinate);
+			console.log(olLayer);
+			console.log(olParams);
+			console.log(resultObj);
+			console.log(callback);*/
 			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
 			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,$rootScope.configurationCurrentHost.map.crs,olParams);
+			//console.log(url);
 			if (url) {
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
 					.success(function (response) {
-						Flash.dismiss();
+						//REMOVE ALL INTERROGATION WINDOWS
+						$scope.$broadcast("setFeatureInfoClosure");
+						$scope.$broadcast("setPsTrendsClosure");
+						$scope.$broadcast("setTimelineClosure");
 						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
 							//console.log("no features");
 							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
+							//CALL OTHER ACTIVE LAYER IF PS RETURNS NO FEATURE
+							if(olLayer.id.indexOf('iffi')>-1){
+								iffiWithResult=false;
+							}
+							if(olLayer.id.indexOf('sentinel')>-1){
+								sentinelWithResult=false;
+							}
+							if(olLayer.id.indexOf('psCandidate')>-1){
+								psCandidateWithResult=false;
+							}
+							if (self.overlays[2].visible && psCandidateWithResult){
+								var params = {
+									"INFO_FORMAT" : "application/json",
+									"FEATURE_COUNT" : MAX_FEATURES,
+									"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
+								};
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[2]),params,"psCandidate",setMarker);
+							}else if (self.overlays[0].visible && iffiWithResult){
+								var params = {
+									"INFO_FORMAT" : "application/geojson",
+									"FEATURE_COUNT" : MAX_FEATURES
+								};
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[0]),params,"iffi",setMarker);
+							}else	if (self.overlays[1].visible && sentinelWithResult){
+								var params = {
+							    "INFO_FORMAT" : "application/json",
+							    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
+							    //"TIME" : startDate+"/"+endDate
+							  };
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[1]),params,"sentinel",setMarker);
+							}else{
+								Flash.create('warning', "No Persistent Scatterers found.");
+							}
 						} else {
+							Flash.dismiss();
 							var obj = {
 								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs), // jshint ignore:line
 								"features" : (response.features.length>0) ? response.features : null
@@ -458,6 +506,9 @@ angular.module('rheticus')
 		olData.getMap().then(function (map) {
 			//singleclick event
 			map.on("singleclick", function (evt) {
+				iffiWithResult=true;
+				sentinelWithResult=true;
+				psCandidateWithResult=true;
 				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
@@ -465,24 +516,6 @@ angular.module('rheticus')
 						Flash.create("info", "Loading results ..."); //for \""+getOverlayMetadata(l.id).legend.title+"\"
 						var params = null;
 						switch(l.id) {
-							case "iffi": //Progetto IFFI
-								params = {
-									"INFO_FORMAT" : "application/geojson",
-									"FEATURE_COUNT" : MAX_FEATURES
-								};
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"iffi",setMarker);
-								break;
-							case "sentinel": // Sentinel 1 Datatset and timeline management
-								//var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-								// if empty string set on today's date
-								//var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
-								params = {
-									"INFO_FORMAT" : "application/json",
-									"FEATURE_COUNT" : MAX_SENTINEL_MEASURES
-									//"TIME" : startDate+"/"+endDate
-								};
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"sentinel",setMarker);
-								break;
 							case "ps":
 								if (showDetails()){ //proceed with getFeatureInfo request
 									params = {
@@ -495,7 +528,7 @@ angular.module('rheticus')
 									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("ps").legend.title+"\"!");
 								}
 								break;
-							case "psCandidate":
+							/*case "psCandidate":
 								if (showDetails()){ //proceed with getFeatureInfo request
 									params = {
 										"INFO_FORMAT" : "application/json",
@@ -507,6 +540,24 @@ angular.module('rheticus')
 									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("psCandidate").legend.title+"\"!");
 								}
 								break;
+								case "iffi": 					REMOVED BECAUSE OF ASYNCRONOUS INTERROGATION (VIEW GetFeatureInfo)
+								  params = {
+								    "INFO_FORMAT" : "application/geojson",
+								    "FEATURE_COUNT" : MAX_FEATURES
+								  };
+								  getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"iffi",setMarker);
+								  break;
+								case "sentinel": // Sentinel 1 Datatset and timeline management
+								  //var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+								  // if empty string set on today's date
+								  //var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
+								  params = {
+								    "INFO_FORMAT" : "application/json",
+								    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
+								    //"TIME" : startDate+"/"+endDate
+								  };
+								  getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"sentinel",setMarker);
+								  break;	*/
 
 							default:
 								//do nothing
