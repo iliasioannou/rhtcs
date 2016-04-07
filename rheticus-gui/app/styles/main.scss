@@ -616,22 +616,23 @@ table.gridtable td {
     font-weight: bold;
     text-align: center;
 }
-.featureInfo {
-    transition: all .3s ease-in-out;
-    width: 100%;
-    height: 100%;
-    position: relative;
-	  z-index: 1;
+.featureInfoTable {
+    left: 0;
+    max-width: 700px;
 }
 .featureInfo {
-    &.active { left: 0; }
-    .resizable {
-        margin: auto;
-        position: absolute;
-		right: 3em;
-		top: 0.5em;
-    }
-}
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 4px;
+    padding: 2px;
+    right: 40px;
+    z-index: 1;
+    bottom: 65px;
+    /*min-width: 700px;
+    min-height: 430px;*/
+    width: 700px;
+    height: 470px;
+  }
 .resizable {
     text-align: center;
     box-sizing: border-box;
