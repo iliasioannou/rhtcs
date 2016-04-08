@@ -125,7 +125,9 @@ body {
 
 
 /* Overrides */
-
+md-backdrop.md-sidenav-backdrop {
+    background-color:transparent
+}
 md-input-container .md-input {
   -webkit-order: 2;
       -ms-flex-order: 2;
@@ -145,9 +147,10 @@ md-input-container .md-input {
   border-style: solid;
   width: 100%;
   box-sizing: border-box;
-  float: left; }
+  float: left;
+}
 
-  md-toolbar {
+md-toolbar {
     box-sizing: border-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -159,9 +162,10 @@ md-input-container .md-input {
     z-index: 2;
     font-size: 20px;
     max-height: 55px;
-    width: 100%; }
+    width: 100%;
+  }
 
-    .md-toolbar-tools {
+.md-toolbar-tools {
       font-size: 20px;
       letter-spacing: 0.005em;
       box-sizing: border-box;
@@ -179,7 +183,8 @@ md-input-container .md-input {
       height: 55px;
       max-height: 55px;
       padding: 0 16px;
-      margin: 0; }
+      margin: 0;
+}
 
 .navbar-default{
 	background-color: transparent;
@@ -465,6 +470,10 @@ table.gridtable td {
 }
 .close {
 	margin:5px;
+}
+.close:hover {
+	color:#ffffff;
+  opacity:1;
 }
 
 
