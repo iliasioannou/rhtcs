@@ -1,9 +1,17 @@
 <div class="featureInfo" ng-show="features.show_features" ng-controller="FeatureInfoCtrl as features" >
 				<!--NAME LAYER -->
-				<div class="featureInfoHeader">
+				<md-toolbar>
+			    <div class="md-toolbar-tools">
+						<span flex="40"></span>
+			      <h2>{{features.overlayName}}</h2>
+						<span flex=""></span>
+						<a class="close" ng-click="features.showFeatures(false);">&times;</a>
+			    </div>
+			  </md-toolbar>
+				<!--div class="featureInfoHeader">
 					{{features.overlayName}}
 					<a class="close" ng-click="features.showFeatures(false);">&times;</a>
-				</div>
+				</div-->
 				<div style="width:100% !important;overflow-y:auto;"ng-repeat="feature in features.featureDetails">
 					<div class="featureInfoTable">
 						<table style="width:100% !important;"st-table="feature.records" class="table table-striped table-condensed" >

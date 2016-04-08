@@ -428,14 +428,13 @@ md-input-container .md-input {
 }
 
 .timeline {
-	bottom: 50px;
+	bottom: 60px;
 	position: absolute;
 	right: 50px;
 	z-index: 1;
 	background-color: rgba(255, 255, 255, 0.8);
 	border-radius: 4px;
-	padding: 2px;
-	height: 270px;
+	height: 330px;
 	width: 50%;
 }
 table.gridtable {
@@ -599,8 +598,6 @@ table.gridtable td {
 .psTrends {
 	position: fixed;
 	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 4px;
-	padding: 2px;
 	right: 40px;
 	width: 50%;
 	z-index: 1;
@@ -608,7 +605,7 @@ table.gridtable td {
 	/*min-width: 700px;
 	min-height: 430px;*/
   width: 700px;
-	height: 470px;
+	height: 500px;
 }
 .featureInfoHeader {
 	width: 100%;
@@ -624,14 +621,13 @@ table.gridtable td {
     position: fixed;
     background-color: rgba(255, 255, 255, 0.8);
     border-radius: 4px;
-    padding: 2px;
     right: 40px;
     z-index: 1;
     bottom: 65px;
     /*min-width: 700px;
     min-height: 430px;*/
     width: 700px;
-    height: 470px;
+    //height: 470px;
   }
 .resizable {
     text-align: center;

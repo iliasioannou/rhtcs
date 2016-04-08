@@ -1,16 +1,16 @@
 <div ng-show="pstrends.show_trends" ng-controller="PsTrendsCtrl as pstrends">
 	<div class="psTrends">
+		<md-toolbar>
+			<div class="md-toolbar-tools">
+				<span flex></span>
+				<h2>Displacements</h2>
+				<span flex=""></span>
+				<a class="close" ng-click="pstrends.showPsTrends(false);">&times;</a>
+			</div>
+		</md-toolbar>
 			<div class="inner" data-intro="Persistent Scatterers Trends" data-position="top">
-				<div style="align:center;text-align:center">
-					<!--button style="margin-left:40px;margin-top:2px;" type="button" class="btn btn-default btn-xs pull-left" >
-						<span class="glyphicon glyphicon-chevron-left"></span>
-					</button-->
-					<b align="center" style="font-size:20px;">Displacements</b>
-					<a class="close pull-right" ng-click="pstrends.showPsTrends(false);">&times;</a>
-					<!--button style="margin-right:20px;margin-top:2px;"  type="button" class="btn btn-default btn-xs pull-right"  >
-						<span class="glyphicon glyphicon-chevron-right"></span>
-					</button-->
-				</div>
+
+
 				<div id="top-content" class="psTrendsChart">
 					<nvd3 options="pstrends.options" data="pstrends.data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
 				</div>

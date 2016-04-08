@@ -365,6 +365,7 @@ angular.module('rheticus')
 						$scope.$broadcast("setFeatureInfoClosure");
 						$scope.$broadcast("setPsTrendsClosure");
 						$scope.$broadcast("setTimelineClosure");
+						$rootScope.closeTimeline=true;
 						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
 							//console.log("no features");
 							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");

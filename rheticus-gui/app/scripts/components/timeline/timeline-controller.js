@@ -25,12 +25,6 @@ angular.module('rheticus')
 			}
 		};
 
-		$scope.$on("setTimelineClosure",function(e){ // jshint ignore:line
-			if (self.show_timeline) {
-				self.showTimeline(false);
-			}
-		});
-
 
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
@@ -48,7 +42,7 @@ angular.module('rheticus')
 			"options" : {
 				"chart" : {
 					"width" : 600,
-					"height" : 200,
+					"height" : 220,
 					"showLegend": false,
 					"type" : "discreteBarChart",
 					"x" : function(d){
@@ -74,6 +68,7 @@ angular.module('rheticus')
 								self.trendDataset=true;		//change ng-show variable
 								self.dataTrend=getTableData(e.data.features);
 								self.tableData=e.data;
+								$rootScope.closeTimeline=false;
 							    var jsonExtent =  getExtentSuperMaster(e.data.features);
 								$scope.setSentinelExtent(jsonExtent);
 								$scope.$apply(); //update view
@@ -98,10 +93,6 @@ angular.module('rheticus')
 					},
 					"transitionDuration" : 250,
 					"noData" : "Sorry... no data found"
-				},
-				"title" : {
-					enable : true,
-					html : "<b>Sentinel 1 Datasets Identifier</b>"
 				}
 			},
 			// Chart options
@@ -157,6 +148,13 @@ angular.module('rheticus')
 			}
 		});
 
+
+		$scope.$on("setTimelineClosure",function(e){ // jshint ignore:line
+			if (self.show_timeline && $rootScope.closeTimeline) {
+				console.log("elimino vista");
+				self.showTimeline(false);
+			}
+		});
 
 		/**
 		 * WATCHERS
@@ -328,5 +326,6 @@ angular.module('rheticus')
 				return(res);
 			}
 		};
+
 
 	}]);
