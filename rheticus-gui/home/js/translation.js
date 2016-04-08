@@ -16,7 +16,7 @@ var languagesJson={
       "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoring and reporting land use changes, soil loss and infrastructures development, to support decision makers in territorial planning and infrastructures building.",
       "contactText":"Contacts",
-      "contactAddress":"Via Massaua 12, I-70132 Bari, Italy"
+      "contactAddress":"Planetek"
 
     }
   },
@@ -36,7 +36,7 @@ var languagesJson={
       "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoraggio dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria.",
       "contactText":"Contatti",
-      "contactAddress":"Via Massaua 12, I-70132 Bari, Italia"
+      "contactAddress":"Planetek"
     }
   }
 };
