@@ -33,6 +33,9 @@ angular.module('rheticus')
 			},
 			"interactions" : {
 				"mouseWheelZoom" : true
+			},
+			"view":{
+				"maxZoom": 20
 			}
 		};
 		// Openlayers controls
