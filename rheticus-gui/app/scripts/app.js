@@ -29,7 +29,8 @@ angular
     'services.config',
 		'angularHelpOverlay',
 		'angularResizable',
-		'flash'
+		'flash',
+		'pascalprecht.translate',
 	])
 
 	//routing configuration

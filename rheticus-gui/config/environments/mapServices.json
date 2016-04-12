@@ -105,7 +105,7 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
-				"visible" : false,
+				"visible" : true,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "",

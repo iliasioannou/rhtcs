@@ -5,7 +5,7 @@
   	<md-toolbar>
   		<div class="md-toolbar-tools">
   			<span flex="30"></span>
-  			<h2>Sentinel 1 Datasets Identifier</h2>
+  			<h2>{{ 'titleSentinel' | translate }}</h2>
   			<span flex=""></span>
   			<a class="close" ng-click="timeline.showTimeline(false);">&times;</a>
   		</div>
@@ -19,15 +19,16 @@
   				data="timeline.data"
   				api="api" >
   			</nvd3>
-  			<p style="margin-left:35px;">Found {{timeline.totalDataset}} datasets (with more than 5 products). Total products: {{timeline.totalProduct}} .</p>
+  			<p style="margin-left:35px;">{{ 'result1Sentinel' | translate }} {{timeline.totalDataset}} {{ 'result2Sentinel' | translate }}  {{timeline.totalProduct}} .</p>
   		</div>
   		<div ng-show="timeline.trendDataset===true" style="margin:10px!important;">
   			<button style="margin: 5px;" type="button" class="btn btn-default btn-xs pull-left"  ng-show="timeline.trendDataset===true" ng-click="timeline.trendDataset=false">
   				<span class="glyphicon glyphicon-chevron-left"></span>
   			</button>
-  			<label style="margin: 5px;">{{timeline.tableData.label}} alias: {{timeline.tableData.features[0].properties.datasetId}}</label>
+  			<label hide-xs style="margin: 5px;">{{timeline.tableData.label}} {{ 'result3Sentinel' | translate }} {{timeline.tableData.features[0].properties.datasetId}}</label>
+        <label hide-gt-xs style="margin: 5px;font-size:9px;">{{timeline.tableData.label}} {{ 'result3Sentinel' | translate }} {{timeline.tableData.features[0].properties.datasetId}}</label>
   			<div ng-include src="'scripts/components/timeline/timeline-metadatiTable.html'"></div>
-  			<nvd3
+  			<nvd3 hide-xs
   				id="bar2"
   				options="timeline.optionsTrend"
   				data="timeline.dataTrend"  >

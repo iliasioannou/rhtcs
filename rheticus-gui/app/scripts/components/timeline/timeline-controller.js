@@ -41,7 +41,6 @@ angular.module('rheticus')
 			// Chart options
 			"options" : {
 				"chart" : {
-					"width" : 600,
 					"height" : 220,
 					"showLegend": false,
 					"type" : "discreteBarChart",
@@ -316,8 +315,8 @@ angular.module('rheticus')
 						"key" : "prova",
 						"values" : chartData
 					});
-					$scope.api.refresh();
-					$scope.api.updateWithData(chartDataExternal);
+					self.data =chartDataExternal;
+					$scope.api.refreshWithTimeout(0);
 					res = true;
 				}
 			} catch (e) {

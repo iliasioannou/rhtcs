@@ -1,7 +1,7 @@
 <!-- Ps Legend -->
-<div class = "panel" ng-show="switchpanel.show_panel_ps" style ="background-color: rgba(0, 60, 136, 0);">
+<div ng-show="switchpanel.show_panel_ps" style ="background-color: rgba(0, 60, 136, 0);">
 	<div class="switchpanelegend">
 		<img data-ng-src="{{switchpanel.ps_metadata.legend.url.velocity}}">
-		<label style="color: #C6C6C6; display: block; font-size: 10px">{{switchpanel.ps_metadata.legend.uom}}</label>
+		<label style="color: #C6C6C6; display: block; font-size: 10px">{{ 'velocityLegend' | translate }}</label>
 	</div>
 </div>

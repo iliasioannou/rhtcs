@@ -1,6 +1,18 @@
 'use strict';
 angular.module('rheticus')
-.controller('ToolbarCtrl', function($scope,$rootScope,$mdSidenav,$mdDialog) {
+.controller('ToolbarCtrl',function($scope,$rootScope,$translate,$mdSidenav,$mdDialog,Flash) {
+
+
+  $scope.changeLanguage = function (langKey) {
+    if(langKey==="it"){
+      Flash.create("success", "Lingua cambiata con successo.");
+    }else{
+      Flash.create("success", "Language changed successfully .");
+    }
+    $translate.use(langKey);
+
+  };
+
   $scope.openSettingMenu = function() {
     $mdSidenav('settingMenu').toggle();
   };
@@ -30,32 +42,32 @@ angular.module('rheticus')
           '<md-content ng-hide="loginPop.getLoginStatus()">'+
           '   <form name="formLogin" ng-submit="loginPop.login()">'+
 		      '			<md-input-container layout="row" layout-align="center">'+
-					'				<h2>Welcome</h2>'+
+					"				<h2>{{ 'welcomeLogin' | translate }}</h2>"+
 					'     </md-input-container>'+
           '			<md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					'				<label>User</label>'+
+					"				<label>{{ 'userLogin' | translate }}</label>"+
 					'				<input autocomplete="off" style="width: 300px; margin-right: 5px;" md-autofocus="" ng-model="loginPop.username" id="username" >'+
 					'     </md-input-container><br>'+
 					'     <md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					'				<label>Password</label>'+
+					"				<label>{{ 'passwordLogin' | translate }}</label>"+
 					'				<input ng-model="loginPop.password" type="password" id="password">'+
 					'     </md-input-container><br>'+
 					'     <md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					'					<md-button type="submit" class="md-raised md-primary" style="margin-left:5px;"ng-click="loginPop.login()">Login</md-button>'+
+					"					<md-button type='submit' class='md-raised md-primary' style='margin-left:px;'ng-click='loginPop.login()''>{{ 'buttonOnLogin' | translate }}</md-button>"+
 					'     </md-input-container><br>'+
           '   </form>'+
-					'			<label ng-show="loginPop.error!=null" style="color:red;display: block;text-align: center;" style="color:red;">Not authorized !!!</label>'+
+					'			<label ng-show="loginPop.error!=null" style="color:red;display: block;text-align: center;" style="color:red;">{{ "errorLogin" | translate }}</label>'+
           '     <md-progress-linear ng-show="loginPop.showLoading" md-mode="indeterminate"></md-progress-linear>'+
           '</md-content>' +
           '<md-content ng-show="loginPop.getLoginStatus()">'+
 		      '			<md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					'				<h2>You are logged as:</h2>'+
+					'				<h2>{{ "statusLogin" | translate }}</h2>'+
 					'     </md-input-container>'+
           '			<md-input-container layout="row" layout-align="center">'+
           '				<h4> {{loginPop.user}} </h4>'+
   				'     </md-input-container>'+
 					'     <md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					'					<md-button class="md-raised md-primary" style="margin-left:5px;"ng-click="loginPop.logout()">Logout</md-button>'+
+					'					<md-button class="md-raised md-primary" style="margin-left:5px;"ng-click="loginPop.logout()">{{ "buttonOffLogin" | translate }}</md-button>'+
 					'     </md-input-container><br>'+
           '     <md-progress-linear ng-show="loginPop.showLoading" md-mode="indeterminate"></md-progress-linear>'+
           '</md-content>' +

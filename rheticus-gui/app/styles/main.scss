@@ -186,6 +186,10 @@ md-toolbar {
       margin: 0;
 }
 
+.ol-touch .ol-control button {
+    font-size: 1.14em;
+}
+
 .navbar-default{
 	background-color: transparent;
 	border-color: transparent;;
@@ -439,8 +443,10 @@ md-toolbar {
 	z-index: 1;
 	background-color: rgba(255, 255, 255, 0.8);
 	border-radius: 4px;
-	height: 330px;
-	width: 50%;
+  width: 700px;
+	height: 350px;
+  max-width: 80% !important;
+  max-height: 60% !important;
 }
 table.gridtable {
 	font-family: verdana,arial,sans-serif;
@@ -468,9 +474,7 @@ table.gridtable td {
 	border-color: #666666;
 	background-color: #ffffff;
 }
-.close {
-	margin:5px;
-}
+
 .close:hover {
 	color:#ffffff;
   opacity:1;
@@ -608,13 +612,12 @@ table.gridtable td {
 	position: fixed;
 	background-color: rgba(255, 255, 255, 0.8);
 	right: 40px;
-	width: 50%;
 	z-index: 1;
 	bottom: 65px;
-	/*min-width: 700px;
-	min-height: 430px;*/
   width: 700px;
 	height: 500px;
+  max-width: 80% !important;
+  max-height: 60% !important;
 }
 .featureInfoHeader {
 	width: 100%;
@@ -633,10 +636,9 @@ table.gridtable td {
     right: 40px;
     z-index: 1;
     bottom: 65px;
-    /*min-width: 700px;
-    min-height: 430px;*/
     width: 700px;
-    //height: 470px;
+    max-width: 80% !important;
+    max-height: 60% !important;
   }
 .resizable {
     text-align: center;
