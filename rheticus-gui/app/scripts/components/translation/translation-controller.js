@@ -41,6 +41,8 @@
     'result2Sentinel':' datasets (with more than 5 products). Total products: ',
     'result3Sentinel':'alias:  ',
     'velocityLegend':'(mm/year)',
+    'noResult':'No Persistent Scatterers found.',
+    'loadingResult':'Loading result...',
     'FOO': 'This is a paragraph'
   });
 
@@ -83,6 +85,8 @@
     'result2Sentinel':" datasets (con piu' di 5 prodotti). Prodotti totali: ",
     'result3Sentinel':'alias:  ',
     'velocityLegend':'(mm/anno)',
+    'noResult':'Nessun Persistent Scatterers trovato.',
+    'loadingResult':'Caricamento ...',
     'FOO': 'This is a paragraph'
   });
 

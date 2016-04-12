@@ -8,8 +8,8 @@
  * Main Controller for rheticus project
  */
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','configuration','$http','olData','ArrayService','SpatialService','Flash',
-	function ($rootScope,$scope,configuration,$http,olData,ArrayService,SpatialService,Flash){
+	.controller('MainCtrl',['$rootScope','$scope','configuration','$translate','$http','olData','ArrayService','SpatialService','Flash',
+	function ($rootScope,$scope,configuration,$translate,$http,olData,ArrayService,SpatialService,Flash){
 
 		var self = this; //this controller
 
@@ -400,7 +400,9 @@ angular.module('rheticus')
 							  };
 								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[1]),params,"sentinel",setMarker);
 							}else{
-								Flash.create('warning', "No Persistent Scatterers found.");
+								$translate('noResult').then(function (translatedValue) {
+										Flash.create('warning', translatedValue);
+								});
 							}
 						} else {
 							Flash.dismiss();
@@ -514,7 +516,9 @@ angular.module('rheticus')
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
 						Flash.dismiss();
-						Flash.create("info", "Loading results ..."); //for \""+getOverlayMetadata(l.id).legend.title+"\"
+						$translate('loadingResult').then(function (translatedValue) {
+								Flash.create("info", translatedValue); //for \""+getOverlayMetadata(l.id).legend.title+"\"
+						});
 						var params = null;
 						switch(l.id) {
 							case "ps":
