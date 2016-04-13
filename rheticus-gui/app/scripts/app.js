@@ -26,8 +26,6 @@ angular
 		'nvd3',
 		'smart-table',
     'services.config',
-		'angularHelpOverlay',
-		'angularResizable',
 		'flash',
 		'pascalprecht.translate',
 	])
