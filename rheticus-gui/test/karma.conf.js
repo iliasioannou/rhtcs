@@ -33,7 +33,6 @@ module.exports = function(config) {
       'bower_components/angular-resource/angular-resource.js',
       'bower_components/angular-route/angular-route.js',
       'bower_components/angular-sanitize/angular-sanitize.js',
-      'bower_components/angular-touch/angular-touch.js',
       'bower_components/openlayers3/build/ol.js',
       'bower_components/angular-openlayers-directive/dist/angular-openlayers-directive.min.js',
       'bower_components/angular-bootstrap/ui-bootstrap-tpls.js',

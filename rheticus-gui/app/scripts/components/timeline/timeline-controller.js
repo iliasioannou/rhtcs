@@ -150,7 +150,6 @@ angular.module('rheticus')
 
 		$scope.$on("setTimelineClosure",function(e){ // jshint ignore:line
 			if (self.show_timeline && $rootScope.closeTimeline) {
-				console.log("elimino vista");
 				self.showTimeline(false);
 			}
 		});

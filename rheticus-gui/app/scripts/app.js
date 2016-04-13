@@ -19,7 +19,6 @@ angular
 		'ngResource',
 		'ngRoute',
 		'ngSanitize',
-		'ngTouch',
 		'openlayers-directive',
 		'openlayers-layerswitcher',
 		'ui.bootstrap',

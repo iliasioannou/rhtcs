@@ -99,7 +99,6 @@
    }else{
      userLang="it";
    }
-   console.log(userLang);
    return userLang;
  };
 
