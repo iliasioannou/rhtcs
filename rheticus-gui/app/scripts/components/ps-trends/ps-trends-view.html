@@ -10,6 +10,7 @@
 		</md-toolbar>
 			<div class="inner" data-intro="Persistent Scatterers Trends" data-position="top">
 
+				<div id="content" style="height:80% !important;overflow:auto !important">
 
 				<div id="top-content" class="psTrendsChart">
 					<nvd3 options="pstrends.options" data="pstrends.data" class="with-3d-shadow with-transitions" api="rc.api"></nvd3>
@@ -38,8 +39,9 @@
 						 <option value="Cumulative 120 day">{{ 'precipitations120PsTrend' | translate }}</option>
 						</select>
 					</div>
-
 				</div>
+
+
 
 
 
@@ -78,5 +80,6 @@
 					</table>
 				</div>
 			</div>
+		</div>
 	</div>
 </div>

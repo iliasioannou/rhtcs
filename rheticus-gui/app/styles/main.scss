@@ -321,7 +321,7 @@ md-toolbar {
 
 .switchpanel {
     position: fixed;
-    z-index: 1060;
+    z-index: 1;
     bottom: 40px;
     left: 8px;
 	max-width: 440px;
@@ -437,16 +437,15 @@ md-toolbar {
 }
 
 .timeline {
-	bottom: 60px;
+	bottom: 40px;
 	position: absolute;
 	right: 50px;
-	z-index: 1;
+	z-index: 2;
 	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 4px;
   width: 700px;
 	height: 350px;
   max-width: 80% !important;
-  max-height: 60% !important;
+  max-height: 70% !important;
 }
 table.gridtable {
 	font-family: verdana,arial,sans-serif;
@@ -612,12 +611,12 @@ table.gridtable td {
 	position: fixed;
 	background-color: rgba(255, 255, 255, 0.8);
 	right: 40px;
-	z-index: 1;
-	bottom: 65px;
+	z-index: 2;
+	bottom: 40px;
   width: 700px;
 	height: 500px;
   max-width: 80% !important;
-  max-height: 70% !important;
+  max-height: 80% !important;
 }
 .featureInfoHeader {
 	width: 100%;
@@ -632,13 +631,12 @@ table.gridtable td {
 .featureInfo {
     position: fixed;
     background-color: rgba(255, 255, 255, 0.8);
-    border-radius: 4px;
     right: 40px;
-    z-index: 1;
-    bottom: 65px;
+    z-index: 2;
+    bottom: 40px;
     width: 700px;
     max-width: 80% !important;
-    max-height: 60% !important;
+    max-height: 65% !important;
   }
 .resizable {
     text-align: center;

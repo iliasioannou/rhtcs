@@ -1,7 +1,7 @@
 
 
 
-  <div  class="timeline" ng-show="timeline.show_timeline===true" ng-controller="TimelineCtrl as timeline">
+  <div  class="timeline" ng-show="timeline.show_timeline===true" style="overflow:auto !important" ng-controller="TimelineCtrl as timeline">
   	<md-toolbar>
   		<div class="md-toolbar-tools">
   			<span flex="30"></span>
@@ -11,7 +11,7 @@
   		</div>
   	</md-toolbar>
 
-  	<div data-intro="Sentinel 1 Datasets Identifier" data-position="top"style="margin=20px;">
+  	<div data-intro="Sentinel 1 Datasets Identifier" data-position="top">
   		<div data-position="top" style="margin-top:15px!important;" ng-show="timeline.trendDataset===false">
   			<nvd3
   				id="bar1"
