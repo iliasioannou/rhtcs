@@ -8,13 +8,13 @@
  * Main Controller for rheticus project
  */
 angular.module('rheticus')
-	.controller('MainCtrl',['$rootScope','$scope','$http','olData','configuration','ArrayService','SpatialService','Flash',
-	function ($rootScope,$scope,$http,olData,configuration,ArrayService,SpatialService,Flash){
+	.controller('MainCtrl',['$rootScope','$scope','configuration','$translate','$http','olData','ArrayService','SpatialService','Flash',
+	function ($rootScope,$scope,configuration,$translate,$http,olData,ArrayService,SpatialService,Flash){
 
 		var self = this; //this controller
 
 		var setCrossOrigin = function() { // Review "CrossOrigin" openlayers parameter from overlays configuration
-			var overlays = configuration.layers.overlays.olLayers;
+			var overlays = $rootScope.configurationCurrentHost.layers.overlays.olLayers;
 			for(var o=0; o<overlays.length; o++){
 				overlays[o].source.crossOrigin = (overlays[o].source.crossOrigin && (overlays[o].source.crossOrigin==="null")) ? null : "";
 			}
@@ -33,6 +33,10 @@ angular.module('rheticus')
 			},
 			"interactions" : {
 				"mouseWheelZoom" : true
+			},
+			"view":{
+				"maxZoom": 20,
+				"minZoom": 3
 			}
 		};
 		// Openlayers controls
@@ -43,7 +47,6 @@ angular.module('rheticus')
 			//{"name" : 'zoomslider', "active" : true},
 			{"name" : 'scaleline', "active" : true},
 			{"name" : 'attribution', "active" : true},
-			{"name" : 'fullscreen', "active" : true}
 		];
 		//External Controller management : GETTER and SETTER
 		var setController = function(openController){
@@ -79,7 +82,7 @@ angular.module('rheticus')
 		};
 		// check on zoom level to enable getFeatureInfo query on PS
 		var showDetails = function() {
-			return $scope.center.zoom>=configuration.map.query.zoom;
+			return $scope.center.zoom>=$rootScope.configurationCurrentHost.map.query.zoom;
 		};
 		//Getter active baselayer useful for basemap controller
 		var getActiveBaselayer = function() {
@@ -124,6 +127,125 @@ angular.module('rheticus')
 				});
 			}
 		};
+		//CQL_FILTER SETTER ON "SPATIAL" PS
+		var setSpatialFilter = function(){
+
+			var provider=[];
+				for(var i=0; i<configuration.dataProviders.length; i++){
+					if((configuration.dataProviders[i].name.indexOf("Sentinel")> -1) && configuration.dataProviders[i].checked){
+						provider.push({
+ 							"name" : "S01"
+ 						});
+					}else if((configuration.dataProviders[i].name.indexOf("Cosmo")> -1) && configuration.dataProviders[i].checked){
+						provider.push({
+ 							"name" : "CSK"
+ 						});
+					}else if((configuration.dataProviders[i].name.indexOf("TerraSAR-X")> -1) && configuration.dataProviders[i].checked){
+						provider.push({
+ 							"name" : "TSX"
+ 						});
+					}
+				}
+
+			//console.log($rootScope.providersFilter);
+			//console.log(provider);
+			var cqlFilter = "";
+			for(var i=0; i<userDeals.length; i++){
+				if(provider !== undefined && provider.length!==0){
+					if (isActiveSensor(userDeals[i].sensorid,provider)){
+						if (userDeals[i].geom_geo_json!==null){
+							if (cqlFilter!==""){
+								cqlFilter += " OR ";
+							}
+							var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+								userDeals[i].geom_geo_json.type,
+								userDeals[i].geom_geo_json.coordinates
+							);
+							if (cqlText!==""){
+								if (userDeals[i].sensorid!==""){
+
+									cqlText = "("+cqlText+" AND (sensorid='"+userDeals[i].sensorid+"')"+")";
+								}
+								cqlFilter += cqlText;
+							}
+						}
+					}else{
+						if (userDeals[i].geom_geo_json!==null){
+							if (cqlFilter!==""){
+								cqlFilter += " OR ";
+							}
+							var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+								userDeals[i].geom_geo_json.type,
+								userDeals[i].geom_geo_json.coordinates
+							);
+							if (cqlText!==""){
+								if (userDeals[i].sensorid!==""){
+
+									cqlText = "("+cqlText+" AND (sensorid='NotExists')"+")";
+								}
+								cqlFilter += cqlText;
+							}
+						}
+					}
+				}else {
+					if (userDeals[i].geom_geo_json!==null){
+						if (cqlFilter!==""){
+							cqlFilter += " OR ";
+						}
+						var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+							userDeals[i].geom_geo_json.type,
+							userDeals[i].geom_geo_json.coordinates
+						);
+						if (cqlText!==""){
+							if (userDeals[i].sensorid!==""){
+
+								cqlText = "("+cqlText+" AND (sensorid='NotExists')"+")";
+							}
+							cqlFilter += cqlText;
+						}
+					}
+				}
+
+
+			}
+			advancedCqlFilters.spatial = (cqlFilter!=="") ? "("+cqlFilter+")" : "";
+		};
+
+		var isActiveSensor = function(sensorid, provider){
+			var exists=false;
+			if(provider[0]){
+				if(sensorid===provider[0].name){
+					exists=true;
+				}
+			}
+			if(provider[1] ){
+				if(sensorid===provider[1].name){
+					exists=true;
+				}
+			}
+			if(provider[2]){
+				if(sensorid===provider[2].name){
+					exists=true;
+				}
+			}
+			return exists;
+		}
+
+
+		var applyFiltersToMap = function(){
+			var cqlFilter = null;
+			for (var key in advancedCqlFilters) {
+				if (advancedCqlFilters.hasOwnProperty(key) && (advancedCqlFilters[key]!=="")) {
+					if (cqlFilter!==null){
+						cqlFilter += " AND "; //Add "AND" condition with prevoius item
+					} else {
+						cqlFilter = ""; //initialize as empty String
+					}
+					cqlFilter += advancedCqlFilters[key]; //Add new condition to cqlFilter
+				}
+			}
+			getOverlayParams("ps").source.params.CQL_FILTER = cqlFilter;
+		};
 
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
@@ -133,9 +255,9 @@ angular.module('rheticus')
 			"controls" : olControls,
 			"view" : {}, // Openlayers view
 			"marker" : {}, // OpenLayers Marker layer for PS query
-			"baselayers" : configuration.layers.baselayers, // basemap layer list
+			"baselayers" : $rootScope.configurationCurrentHost.layers.baselayers,
 			"overlays" : overlays, // overlay layer list
-			"metadata" : configuration.layers.overlays.metadata // overlay layer list
+			"metadata" : $rootScope.configurationCurrentHost.layers.overlays.metadata // overlay layer list
 		});
 
 		/**
@@ -143,12 +265,12 @@ angular.module('rheticus')
 		 */
 		angular.extend($scope,{
 			// externalized scope variables for watchers
-			"speedModel" : configuration.filters.speedSlider, // PS speed filter
-			"coherenceModel" : configuration.filters.coherenceSlider, // PS coherence filter
+			"speedModel" : $rootScope.configurationCurrentHost.filters.speedSlider, // PS speed filter
+			"coherenceModel" : $rootScope.configurationCurrentHost.filters.coherenceSlider, // PS coherence filter
 			"iffi" : null, // IFFI overlay getFeatureInfoResponse
 			"sentinel" : null, // SENTINEL overlay getFeatureInfoResponse
 			"ps" : null, // PS overlay getFeatureInfoResponse
-			"center" : configuration.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
+			"center" : $rootScope.configurationCurrentHost.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
 			// externalized scope methods for children controllers
 			"setController" : setController,
 			"getController" : getController,
@@ -160,7 +282,9 @@ angular.module('rheticus')
 			"getBaselayers" : getBaselayers,
 			"getOverlays" : getOverlays,
 			"getUserDeals" : getUserDeals,
-			"setSentinelExtent" : setSentinelExtent
+			"setSentinelExtent" : setSentinelExtent,
+			"setSpatialFilter" : setSpatialFilter,
+			"applyFiltersToMap" : applyFiltersToMap
 		});
 
 		/**
@@ -220,22 +344,74 @@ angular.module('rheticus')
 				"point" : [99999,99999]
 			});
 		};
+		//variables for set priority
+		var iffiWithResult=true;
+		var sentinelWithResult=true;
+		var psCandidateWithResult=true;
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayer,olParams,resultObj,callback){
-			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,configuration.map.crs); // jshint ignore:line
+			/*console.log(map);
+			console.log(coordinate);
+			console.log(olLayer);
+			console.log(olParams);
+			console.log(resultObj);
+			console.log(callback);*/
+			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
-			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.crs,olParams);
+			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,$rootScope.configurationCurrentHost.map.crs,olParams);
+			//console.log(url);
 			if (url) {
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
 					.success(function (response) {
-						if (!response.features){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
-							Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
+						//REMOVE ALL INTERROGATION WINDOWS
+						$scope.$broadcast("setFeatureInfoClosure");
+						$scope.$broadcast("setPsTrendsClosure");
+						$scope.$broadcast("setTimelineClosure");
+						$rootScope.closeTimeline=true;
+						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
+							//console.log("no features");
+							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
+							//CALL OTHER ACTIVE LAYER IF PS RETURNS NO FEATURE
+							if(olLayer.id.indexOf('iffi')>-1){
+								iffiWithResult=false;
+							}
+							if(olLayer.id.indexOf('sentinel')>-1){
+								sentinelWithResult=false;
+							}
+							if(olLayer.id.indexOf('psCandidate')>-1){
+								psCandidateWithResult=false;
+							}
+							if (self.overlays[2].visible && psCandidateWithResult){
+								var params = {
+									"INFO_FORMAT" : "application/json",
+									"FEATURE_COUNT" : MAX_FEATURES,
+									"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
+								};
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[2]),params,"psCandidate",setMarker);
+							}else if (self.overlays[0].visible && iffiWithResult){
+								var params = {
+									"INFO_FORMAT" : "application/geojson",
+									"FEATURE_COUNT" : MAX_FEATURES
+								};
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[0]),params,"iffi",setMarker);
+							}else	if (self.overlays[1].visible && sentinelWithResult){
+								var params = {
+							    "INFO_FORMAT" : "application/json",
+							    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
+							    //"TIME" : startDate+"/"+endDate
+							  };
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[1]),params,"sentinel",setMarker);
+							}else{
+								$translate('noResult').then(function (translatedValue) {
+										Flash.create('warning', translatedValue);
+								});
+							}
 						} else {
 							Flash.dismiss();
 							var obj = {
-								"point" : ol.proj.toLonLat(coordinate,configuration.map.crs), // jshint ignore:line
+								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs), // jshint ignore:line
 								"features" : (response.features.length>0) ? response.features : null
 							};
 							if (resultObj!==""){
@@ -259,20 +435,7 @@ angular.module('rheticus')
 			"coherence" : "",
 			"spatial" : ""
 		};
-		var applyFiltersToMap = function(){
-			var cqlFilter = null;
-			for (var key in advancedCqlFilters) {
-				if (advancedCqlFilters.hasOwnProperty(key) && (advancedCqlFilters[key]!=="")) {
-					if (cqlFilter!==null){
-						cqlFilter += " AND "; //Add "AND" condition with prevoius item
-					} else {
-						cqlFilter = ""; //initialize as empty String
-					}
-					cqlFilter += advancedCqlFilters[key]; //Add new condition to cqlFilter
-				}
-			}
-			getOverlayParams("ps").source.params.CQL_FILTER = cqlFilter;
-		};
+
 		var getCqlTextRange = function(minText, maxText){
 			var cqlText = "";
 			if ((minText!=="") || (maxText!=="")){
@@ -350,30 +513,18 @@ angular.module('rheticus')
 		olData.getMap().then(function (map) {
 			//singleclick event
 			map.on("singleclick", function (evt) {
-				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.crs); // jshint ignore:line
+				iffiWithResult=true;
+				sentinelWithResult=true;
+				psCandidateWithResult=true;
+				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
-						Flash.create("info", "Loading results for \""+getOverlayMetadata(l.id).legend.title+"\" ...");
+						Flash.dismiss();
+						$translate('loadingResult').then(function (translatedValue) {
+								Flash.create("info", translatedValue); //for \""+getOverlayMetadata(l.id).legend.title+"\"
+						});
 						var params = null;
 						switch(l.id) {
-							case "iffi": //Progetto IFFI
-								params = {
-									"INFO_FORMAT" : "application/geojson",
-									"FEATURE_COUNT" : MAX_FEATURES
-								};
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"iffi",setMarker);
-								break;
-							case "sentinel": // Sentinel 1 Datatset and timeline management
-								//var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-								// if empty string set on today's date
-								//var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
-								params = {
-									"INFO_FORMAT" : "application/json",
-									"FEATURE_COUNT" : MAX_SENTINEL_MEASURES
-									//"TIME" : startDate+"/"+endDate
-								};
-								getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"sentinel",setMarker);
-								break;
 							case "ps":
 								if (showDetails()){ //proceed with getFeatureInfo request
 									params = {
@@ -386,6 +537,37 @@ angular.module('rheticus')
 									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("ps").legend.title+"\"!");
 								}
 								break;
+							/*case "psCandidate":
+								if (showDetails()){ //proceed with getFeatureInfo request
+									params = {
+										"INFO_FORMAT" : "application/json",
+										"FEATURE_COUNT" : MAX_FEATURES,
+										"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
+									};
+									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"psCandidate",setMarker);
+								} else {
+									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("psCandidate").legend.title+"\"!");
+								}
+								break;
+								case "iffi": 					REMOVED BECAUSE OF ASYNCRONOUS INTERROGATION (VIEW GetFeatureInfo)
+								  params = {
+								    "INFO_FORMAT" : "application/geojson",
+								    "FEATURE_COUNT" : MAX_FEATURES
+								  };
+								  getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"iffi",setMarker);
+								  break;
+								case "sentinel": // Sentinel 1 Datatset and timeline management
+								  //var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
+								  // if empty string set on today's date
+								  //var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
+								  params = {
+								    "INFO_FORMAT" : "application/json",
+								    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
+								    //"TIME" : startDate+"/"+endDate
+								  };
+								  getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"sentinel",setMarker);
+								  break;	*/
+
 							default:
 								//do nothing
 						}
@@ -404,28 +586,7 @@ angular.module('rheticus')
 			});
 		});
 
-		//CQL_FILTER SETTER ON "SPATIAL" PS
-		var setSpatialFilter = function(){
-			var cqlFilter = "";
-			for(var i=0; i<userDeals.length; i++){
-				if (userDeals[i].geom_geo_json!==null){
-					if (cqlFilter!==""){
-						cqlFilter += " OR ";
-					}
-					var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
-						userDeals[i].geom_geo_json.type,
-						userDeals[i].geom_geo_json.coordinates
-					);
-					if (cqlText!==""){
-						if (userDeals[i].sensorid!==""){
-							cqlText = "("+cqlText+" AND (sensorid='"+userDeals[i].sensorid+"')"+")";
-						}
-						cqlFilter += cqlText;
-					}
-				}
-			}
-			advancedCqlFilters.spatial = (cqlFilter!=="") ? "("+cqlFilter+")" : "";
-		};
+
 		//User deals management
 		var setUserDeals = function(info){
 			userDeals = [];

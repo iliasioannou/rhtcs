@@ -4,9 +4,9 @@ var dbConfig = {
     connection: {
         host     : 'kim.planetek.it',
         user     : 'rheticus',
-        password : 'pkt284restiCUS ',
-        //database : 'RHETICUS',
-        database : 'RHETICUS_DEV',
+        password : 'pkt284restiCUS',
+        database : 'RHETICUS',
+        //database : 'RHETICUS_DEV',
         charset  : 'utf8',
         timezone : 'UTC'
   }

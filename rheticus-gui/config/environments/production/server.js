@@ -6,8 +6,8 @@ var server = express();
 
 /*** Basic Auth for Production ***/
 var basicAuth = require('basic-auth');
-var usr = "planetek";
-var pwd = "agosto";
+var usr = "demo";
+var pwd = "displacement";
 
 var auth = function(req, res, next){
   var user = basicAuth(req);
@@ -18,7 +18,7 @@ var auth = function(req, res, next){
     return res.sendStatus(401);
   }
 }
-server.use(auth);
+//server.use(auth);
 
 server.set('port', 80);
 server.use(express.static(__dirname + '/'));
@@ -30,6 +30,7 @@ server.get('/',function(req, res) {
  * PROXY CONFIGURATION
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
+  "DISPLACEMENT" : "http://localhost:80/displacement",
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://localhost:8081",
 	"GEOSERVER" : "http://localhost:9080",
@@ -74,29 +75,36 @@ apiProxy.on('error', function (err, req, res) {
 });
 
 // Grab all requests to the server with "/iffi".
+server.all("/displacement", function(req, res) {
+	req.url = req.url.replace('/displacement','');
+	//console.log("Forwarding rheticus requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.DISPLACEMENT});
+});
+
+// Grab all requests to the server with "/iffi".
 server.all("/iffi*", function(req, res) {
 	req.url = req.url.replace('/iffi/','');
-	console.log("Forwarding IFFI API requests to: "+req.url);
+	//console.log("Forwarding IFFI API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI});
 });
 
 // Grab all requests to the server with "/basemap".
 server.all("/basemap*", function(req, res) {
 	req.url = req.url.replace('/basemap/','');
-	console.log("Forwarding BASEMAP REALVISTA API requests to: "+req.url);
+	//console.log("Forwarding BASEMAP REALVISTA API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.BASEMAP_REALVISTA});
 });
 
 // Grab all requests to the server with "/rheticusapi".
 server.all("/rheticusapi*", function(req, res) {
 	req.url = req.url.replace('/rheticusapi/','');
-	console.log("Forwarding RHETICUS API requests to: "+req.url);
+	//console.log("Forwarding RHETICUS API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.RHETICUS_API});
 });
 
 // Grab all requests to the server with "/geoserver".
 server.all("/geoserver*", function(req, res) {
-  console.log("Forwarding Geoserver API requests to: "+req.url);
+  //console.log("Forwarding Geoserver API requests to: "+req.url);
   //console.log(req.headers);
   if (req.headers["authorization"]){
     delete req.headers["authorization"];

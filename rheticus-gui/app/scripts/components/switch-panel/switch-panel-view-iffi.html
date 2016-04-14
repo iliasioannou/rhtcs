@@ -1,15 +1,6 @@
 <!-- Iffi Legend -->
 <div class = "panel" ng-show="switchpanel.show_panel_iffi" style ="background-color: rgba(0, 60, 136, 0);" >
-	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-		<label class= switchpanelabelmin >Landslide Maps:</label>
-		<label class= switchpanelabelmin >{{switchpanel.iffi_metadata.legend.description}}</label>
-		<label class= switchpanelabel>Options:<br/></label>
-		<label class= switchpanelabel2><input type="checkbox" ng-click="switchpanel.switchOverlayIffi()" ng-checked ="switchpanel.view_overlay_iffi"> Layer on</label><br/>
-			<label class= switchpanelabel2>Layer opacity
-				<input type="range" min="0" max="1" step="0.01" ng-model="switchpanel.iffi.opacity">
-			</label><br/>
-	</div>
-	<div class="switchpanelegend">	
+	<div class="switchpanelegend">
 		<img style="float:left" data-ng-src="{{switchpanel.iffi_metadata.legend.url.tipologia_frana}}">
 		<img data-ng-src="{{switchpanel.iffi_metadata.legend.url.area_frane_diffuse}}">
 		<img data-ng-src="{{switchpanel.iffi_metadata.legend.url.piff}}">

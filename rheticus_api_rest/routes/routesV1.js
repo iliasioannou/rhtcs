@@ -56,10 +56,10 @@ var serverRouter = function(server) {
 
 		// Retrieve always the deal related to anonymous user
 		var anonymousDealPromise = repository.User.forge({username: userNameAnonymous})
-			.fetch({withRelated: ["deals"]});
+			.fetch({withRelated: ["deals.dataset"]});
 
 		var userDealPromise =  repository.User.forge({username: userName})
-			.fetch({withRelated: ["deals"]});
+			.fetch({withRelated: ["deals.dataset"]});
 
 		var joinPromise = promise.join;
 		joinPromise(anonymousDealPromise, userDealPromise,function(anonymousUser, user){

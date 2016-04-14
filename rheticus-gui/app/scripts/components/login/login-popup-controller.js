@@ -8,11 +8,11 @@
  * Login Popup Controller for rheticus project
  */
 angular.module('rheticus')
- 	.controller('LoginPopoupCtrl',['$rootScope','$scope','AuthenticationService',
-    function($rootScope,$scope,AuthenticationService){
+ 	.controller('LoginPopoupCtrl',['$rootScope','$scope','$mdDialog','AuthenticationService',
+    function($rootScope,$scope,$mdDialog,AuthenticationService){
 
       var self = this; //this controller
-
+      var showLoading = false;
       var getLoginStatus = function () {
 				return $rootScope.login.logged;
 			};
@@ -32,6 +32,7 @@ angular.module('rheticus')
       };
 
       var login = function () {
+        self.showLoading=true;
 				$scope.dataLoading = true;
 				AuthenticationService.Login(self.username,self.password,
           function(response) {
@@ -40,15 +41,20 @@ angular.module('rheticus')
   						AuthenticationService.SetCredentials(self.username,self.password,response);
               self.user = getUserDetails().name + " " + getUserDetails().surname;
               self.error = null;
+              $mdDialog.hide();
+              document.getElementById('userNameView').innerHTML=getUserDetails().name;
   					} else {
   						self.error = response.message;
   					}
             self.dataLoading = false;
+            self.showLoading=false;
   				}
         );
 			};
       var logout = function () {
 				AuthenticationService.ClearCredentials();
+        $mdDialog.hide();
+        document.getElementById('userNameView').innerHTML="";
 			};
 
       angular.extend(self,{

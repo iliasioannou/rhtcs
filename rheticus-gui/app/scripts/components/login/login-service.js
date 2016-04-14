@@ -8,9 +8,11 @@
  * Authentication Service for rheticus project
  */
 angular.module('rheticus')
-	.factory('AuthenticationService',['Base64','$http','$cookies','$rootScope','configuration','ArrayService',
-		function(Base64,$http,$cookies,$rootScope,configuration,ArrayService){
+	.factory('AuthenticationService',['Base64','$http','$cookies','$rootScope','ArrayService',
+		function(Base64,$http,$cookies,$rootScope,ArrayService){
 			var service = {};
+
+
 			service.Login = function (username, password, callback) {
 				//Use this for real authentication in POST
 				/* $http.post(configuration.authentication.url,
@@ -21,9 +23,9 @@ angular.module('rheticus')
 				);*/
 				var psw64 = Base64.encode(password);
 
-				var authurl = configuration.rheticusAPI.host+configuration.rheticusAPI.authentication.path;
-				var usnKey = configuration.rheticusAPI.authentication.username;
-				var pwdKey = configuration.rheticusAPI.authentication.password;
+				var authurl = $rootScope.configurationCurrentHost.rheticusAPI.host+$rootScope.configurationCurrentHost.rheticusAPI.authentication.path;
+				var usnKey = $rootScope.configurationCurrentHost.rheticusAPI.authentication.username;
+				var pwdKey = $rootScope.configurationCurrentHost.rheticusAPI.authentication.password;
 				var url = authurl
 					.replace(usnKey,username)
 					.replace(pwdKey,psw64);

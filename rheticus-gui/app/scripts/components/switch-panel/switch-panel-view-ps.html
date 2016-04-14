@@ -1,31 +1,7 @@
 <!-- Ps Legend -->
-<div class = "panel" ng-show="switchpanel.show_panel_ps" style ="background-color: rgba(0, 60, 136, 0);">
-	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-		<label class= switchpanelabelmin >Displacement Maps:</label>
-		<label class= switchpanelabelmin >{{switchpanel.ps_metadata.legend.description}}</label>
-			<label class= switchpanelabel>
-			Options:<br/></label>
-			<label class= switchpanelabel2><input type="checkbox" ng-click="switchpanel.switchOverlayPs()" ng-checked ="switchpanel.view_overlay_ps"> Layer on</label><br/>
-			<label class= switchpanelabel2>Layer opacity
-			<input type="range" min="0" max="1" step="0.01" ng-model="switchpanel.ps.opacity">
-			</label><br/>
-	</div>
+<div ng-show="switchpanel.show_panel_ps" style ="background-color: rgba(0, 60, 136, 0);">
 	<div class="switchpanelegend">
 		<img data-ng-src="{{switchpanel.ps_metadata.legend.url.velocity}}">
-		<label style="color: #C6C6C6; display: block; font-size: 10px">{{switchpanel.ps_metadata.legend.uom}}</label>
-	</div>
-</div>
-<!-- Area of Interest Legend -->
-<div class = "panel" ng-show="switchpanel.show_panel_ps_aoi" style ="background-color: rgba(0, 60, 136, 0);" >
-	<div class="switchpaneltop" ng-show="switchpanel.isCollapsed">
-		<table>
-			<tr ng-repeat="subscription in switchpanel.userDeals">
-			  <td>
-				<label class= switchpanelabel2>
-					<a class="aoi" ng-click="switchpanel.updateSelectionArea($index,switchpanel.userDeals)">{{subscription.product_name}}</a>
-				</label><br/>
-			  </td>
-			</tr>
-		</table>
+		<label style="color: #C6C6C6; display: block; font-size: 10px">{{ 'velocityLegend' | translate }}</label>
 	</div>
 </div>

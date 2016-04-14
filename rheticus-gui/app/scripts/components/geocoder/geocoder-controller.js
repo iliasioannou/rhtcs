@@ -29,16 +29,29 @@ angular.module('rheticus')
 			);
 			self.results = {};
 			self.location = "";
+			self.visibleSearchBar=false;
+			document.getElementById('searchForm').style.width="50px";
 		};
+
 
 		angular.extend(self,{
 			"results" : {},
 			"location" : "",
+			"visibleSearchBar" : false,
 			"getShow" : function(){
 				return $scope.getController("geocoder");
 			},
 			"setShow" : function(){
 				$scope.setController("geocoder");
+			},
+			"showSearchBar" : function(){
+				self.visibleSearchBar=!self.visibleSearchBar;
+				if(self.visibleSearchBar){
+					document.getElementById('searchForm').style.width="175px";
+				}else{
+					document.getElementById('searchForm').style.width="50px";
+				}
+
 			},
 			"getLocation" : getLocation,
 			"searchLocation" : searchLocation

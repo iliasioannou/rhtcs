@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting" xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:mulerequester="http://www.mulesoft.org/schema/mule/mulerequester" xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:jms="http://www.mulesoft.org/schema/mule/jms"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/jms http://www.mulesoft.org/schema/mule/jms/current/mule-jms.xsd
+http://www.mulesoft.org/schema/mule/mulerequester http://www.mulesoft.org/schema/mule/mulerequester/current/mule-mulerequester.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd">
+
+
+	<flow name="dp_ps_customFlow">
+        <http:inbound-endpoint exchange-pattern="one-way" host="0.0.0.0" port="9999" doc:name="HTTP"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="eee:m #[payload]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="did" value="#[json:did]" doc:name="TEMP did"/>
+        <logger message="did: #[did]" level="INFO" doc:name="Logger"/>
+        <!-- <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 30 10 ? * THU *">
+            <quartz:event-generator-job/>
+        </quartz:inbound-endpoint> -->
+        
+        <db:select config-ref="Postgres_Database_Configuration" doc:name="Distinct CUSTOM  DatasetIds">
+            <db:parameterized-query><![CDATA[select dataset_id, swath, polarisation, timestamp_last_acquisition_proc, dataset_prefix, geom_geo_json from deal_dataset left join deal on deal.id = deal_dataset.deal_id where dataset_prefix is not null;]]></db:parameterized-query>
+
+        </db:select>
+        <logger message="SQL deals datasets: #[payload]" level="INFO" doc:name="SQL deals datasets"/>
+
+        <set-variable variableName="orbitalDate" value="#[server.dateTime.plusDays(-22)]" doc:name="orbitalDate"/>
+        <foreach doc:name="For Each custom dataset">
+            <logger message="Deal SQL record: #[payload]" level="INFO" doc:name="New sql record"/>
+            <set-variable variableName="datasetId" value="#[payload.get(&quot;dataset_id&quot;)]" doc:name="datasetId"/>
+
+            <expression-filter expression="#[datasetId.equals(did)]" doc:name="dataset i want"/>
+            <logger message="Filtered dataset #[datasetId]" level="INFO" doc:name="Filtered dataset"/>
+            
+            <set-variable variableName="swath" value="#[payload.get(&quot;swath&quot;)]" doc:name="swath"/>
+            <set-variable variableName="polarisation" value="#[payload.get(&quot;polarisation&quot;)]" doc:name="polarisation"/>
+            <set-variable variableName="procDataLastDate" value="#[payload.get(&quot;timestamp_last_acquisition_proc&quot;)==null ? new org.mule.el.datetime.DateTime(&quot;1970-01-01&quot;) : new org.mule.el.datetime.DateTime(payload.get(&quot;timestamp_last_acquisition_proc&quot;))]" doc:name="procDataLastDate"/>
+            <set-variable variableName="datasetPrefix" value="#[payload.get(&quot;dataset_prefix&quot;)]" doc:name="datasetPrefix"/>
+            <set-variable variableName="geomGeojson" value="#[payload.get(&quot;geom_geo_json&quot;)]" doc:name="geomGeojson"/>
+            <expression-filter expression="#[procDataLastDate.isBefore(orbitalDate)]" doc:name="procDataLastDate&lt;orbitalDate"/>
+            <logger message="Found #[datasetId] with possible new acquisitions. Last updated on #[procDataLastDate] and new orbitalDate: #[orbitalDate]" level="INFO" doc:name="Found dataset"/>
+            <set-payload value="{&quot;esIndex&quot;:&quot;${elasticsearch.sentinel.index}&quot;,&quot;esType&quot;:&quot;${elasticsearch.sentinel.type}&quot;,&quot;esQuery&quot;:{&quot;query&quot;:{&quot;bool&quot;:{&quot;must&quot;:[{&quot;prefix&quot;:{&quot;datasetId&quot;:{&quot;value&quot;:&quot;#[datasetPrefix]&quot;}}},{&quot;geo_shape&quot;:{&quot;location&quot;:{&quot;shape&quot;:#[geomGeojson]}}},{&quot;range&quot;:{&quot;startTime&quot;:{&quot;gt&quot;:&quot;#[procDataLastDate]&quot;,&quot;lte&quot;:&quot;#[orbitalDate]&quot;}}}]}},&quot;sort&quot;:{&quot;startTime&quot;:{&quot;order&quot;:&quot;desc&quot;}}}}" doc:name="Set ES flow request"/>
+            <logger message="ES query for #[datasetId]: #[payload]" level="INFO" doc:name="ES query for dataset"/>
+            <flow-ref name="elasticSearchFlow" doc:name="elasticSearchFlow"/>
+            <expression-filter expression="#[payload.size()&gt;0]" doc:name="Check if any new data available"/>
+            <foreach doc:name="For Each product">
+                <expression-component doc:name="Update datasetId with custom"><![CDATA[payload.put("datasetId", datasetId);]]></expression-component>
+                <json:object-to-json-transformer doc:name="Object to JSON"/>
+                <http:request config-ref="HTTP_Request_ES" path="${elasticsearch.sen1custom.path}/#[json:uuid]" method="POST" doc:name="Insert into Custom dataset index"/>
+            </foreach>
+            <set-variable variableName="procDataLastDate" value="#[new org.mule.el.datetime.DateTime(payload[0].get(&quot;startTime&quot;))]" doc:name="update procDataLastDate" doc:description="Date of the last ingested processed data "/>
+            <logger message="New acquisitions found! New procDataLastDate: #[procDataLastDate] (parsed from #[payload[0].get(&quot;startTime&quot;)])" level="INFO" doc:name="New procDataLastDate"/>
+            <logger message="Launching processing flow for dataset #[datasetId] with swath #[swath] and polarisation #[polarisation]" level="INFO" doc:name="Process Dataset"/> 
+			<flow-ref name="dp_ps_custom_datasetFlow" doc:name="dp_ps_custom_datasetFlow" />
+            
+<!--             <db:update config-ref="Postgres_Database_Configuration" doc:name="Update Last proc timestamp">
+                <db:parameterized-query><![CDATA[update deal_dataset set timestamp_last_acquisition_proc=#[procDataLastDate.format("yyyy-MM-dd HH:mm:ss.SSSZ")] where dataset_id=#[datasetId];]]></db:parameterized-query>
+            </db:update> -->
+            
+            <logger message="DB update on dataset #[datasetId] result: #[payload]" level="INFO" doc:name="DB update result"/>
+        </foreach>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.filter.FilterUnacceptedException)" enableNotifications="false" doc:name="Catch JMS message-failed">
+                <logger message="Processor failure from orchestratorId &quot;#[orchestratorId]&quot; for dataset &quot;#[datasetId]&quot;, cause: &quot;#[message.inboundProperties.'message_failed']&quot;" level="ERROR" doc:name="Processor failure from JMS"/>
+                <logger level="DEBUG" doc:name="Full Message" message="Full message: #[message]"/>
+            </catch-exception-strategy>
+            <catch-exception-strategy when="exception.causedExactlyBy(org.mule.api.routing.ResponseTimeoutException)" doc:name="Catch JMS reply timeout">
+                <logger message="JMS reply timed out for request in &quot;#[message.outboundProperties['MULE_ENDPOINT']]&quot;  from orchestratorId &quot;#[orchestratorId]&quot; for dataset &quot;#[datasetId]&quot;" level="ERROR" doc:name="JMS Reply Timeout (managed by activeMQ DLQ)"/>
+                <logger message="Full message: #[message]" level="DEBUG" doc:name="Full Message"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
+	</flow>
+	
+	
+	<sub-flow name="dp_ps_custom_datasetFlow">
+		<logger message="DATASETID: #[datasetId]" level="INFO"
+			doc:name="Show datasetId" />
+		<set-variable variableName="datasetDataArrayList" value="#[payload]"
+			doc:name="save datasetDataArrayList" />
+        <set-variable variableName="orchestratorId" value="#[java.util.UUID.randomUUID().toString().replaceAll(&quot;-&quot;, &quot;&quot;)]" doc:name="orchestratorId"/>
+        <logger message="orchestratorId: #[orchestratorId]" level="INFO" doc:name="orchestratorId"/>
+
+		<set-payload
+			value="{  &quot;query&quot;: {    &quot;bool&quot;: {      &quot;must&quot;: [        { &quot;match&quot;: { &quot;datasetId&quot;:  &quot;#[datasetId]&quot; }},        { &quot;match&quot;: { &quot;superMaster&quot;: &quot;true&quot;   }}      ]    }  }}"
+			doc:name="Query getsuperMaster" />
+		<http:request config-ref="HTTP_Request_ES"
+			path="${elasticsearch.sen1custom.path}/_search" method="POST" doc:name="ElasticSearch" />
+		<set-variable variableName="resSize" value="#[json:hits/total]"
+			doc:name="resSize" />
+		<choice doc:name="SuperMaster exists?">
+			<when expression="#[resSize.equals('1') ]">
+				<logger message="***********SuperMaster exist**************"
+					level="INFO" doc:name="SuperMaster exist" />
+				<set-variable variableName="superMasterId"
+					value="#[json:hits/hits[0]/_source/uuid]" doc:name="superMasterId" />
+			</when>
+			<otherwise>
+				<logger message="***********SuperMaster not exist**************"
+					level="INFO" doc:name="SuperMaster not exist" />
+				<set-payload value="#[datasetDataArrayList]" doc:name="Set Payload to datasetDataArrayList" />
+				<json:object-to-json-transformer
+					doc:name="ArrayList to JSON" />
+				<logger message="**********Call Processor Calculate SuperMaster"
+					level="INFO" doc:name="Call SuperMaster Processor" />
+
+				<request-reply doc:name="Request-Reply" timeout="0">
+				
+					<jms:outbound-endpoint queue="rheticus.processor.ps.s0.request" connector-ref="Active_MQ" doc:name="ps.request S0" transformer-refs="Logstash-Properties S0-Properties"/>
+					<jms:inbound-endpoint queue="rheticus.processor.ps.s0.reply" connector-ref="Active_MQ" doc:name="ps.reply S0">
+						
+					</jms:inbound-endpoint>
+				</request-reply>
+                <object-to-string-transformer doc:name="Object to String"/>
+                <logger level="INFO" doc:name="S0 out" message="S0 out: #[payload]"/>
+                <message-filter throwOnUnaccepted="true" doc:name="If not message_failed (else Exception!)">
+                    <message-property-filter pattern="message_failed=null" caseSensitive="true" scope="inbound"/>
+
+                </message-filter>
+                <set-variable variableName="superMasterId" value="#[json:superMasterId]" doc:name="superMasterId"/>
+
+                <set-payload value="{    &quot;doc&quot; : {        &quot;superMaster&quot; : true    }}" doc:name="Update SM value"/>
+                <http:request config-ref="HTTP_Request_ES" path="${elasticsearch.sen1custom.path}/#[superMasterId]/_update" method="POST" doc:name="ElasticSearch"/>
+			</otherwise>
+		</choice>
+		<logger message="********superMasterId: #[superMasterId]"
+			level="INFO" doc:name="superMasterId" />
+		<logger message="*********Create Json for S1TB**********"
+			level="INFO" doc:name="Create Json for S1TB" />
+		<set-variable variableName="mapForS1TB" value="#[new java.util.HashMap()]"
+			doc:name="mapForS1TB" />
+		<expression-component doc:name="populate mapForS1TB"><![CDATA[mapForS1TB.put("datasetId", datasetId);
+mapForS1TB.put("supermasterId", superMasterId);
+mapForS1TB.put("swath", swath);
+mapForS1TB.put("polarisation", polarisation);
+mapForS1TB.put("data", datasetDataArrayList);
+
+]]></expression-component>
+		<set-payload value="#[mapForS1TB]" doc:name="mapForS1TB" />
+		<json:object-to-json-transformer
+			doc:name="Object to JSON" />
+		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
+
+
+
+		<request-reply doc:name="Request-Reply" timeout="0">
+			<jms:outbound-endpoint queue="rheticus.processor.ps.s1.request" connector-ref="Active_MQ" doc:name="ps.request S1" transformer-refs="Logstash-Properties S1-Properties"/>
+			<jms:inbound-endpoint queue="rheticus.processor.ps.s1.reply"	connector-ref="Active_MQ" doc:name="ps.reply S1" >
+					
+			</jms:inbound-endpoint>
+		</request-reply>
+		<message-filter throwOnUnaccepted="true" doc:name="If not message_failed (else Exception!)">
+            <message-property-filter pattern="message_failed=null" caseSensitive="true" scope="inbound"/>
+
+        </message-filter>
+		<object-to-string-transformer doc:name="Object to String" />
+
+		<logger message="S1TVB Request response:  #[payload]" level="INFO"
+			doc:name="Result S1TB" />
+		
+		<logger message="******Call PSinSAR " level="INFO" doc:name="Call PSinSAR" />
+
+		<request-reply doc:name="Request-Reply" timeout="0">
+			<jms:outbound-endpoint queue="rheticus.processor.ps.s2.request" connector-ref="Active_MQ" doc:name="ps.request S2" transformer-refs="Logstash-Properties S2-Properties"/>
+			<jms:inbound-endpoint queue="rheticus.processor.ps.s2.reply"	connector-ref="Active_MQ" doc:name="ps.reply S2" >
+					
+			</jms:inbound-endpoint>
+		</request-reply>
+		<message-filter throwOnUnaccepted="true" doc:name="If not message_failed (else Exception!)">
+            <message-property-filter pattern="message_failed=null" caseSensitive="true" scope="inbound"/>
+
+        </message-filter>
+        <object-to-string-transformer doc:name="Object to String"/>
+
+
+		<logger message="PSinSAR Request response:  #[payload]" level="INFO" doc:name="Result PSinSAR" />
+        <set-variable variableName="outputFolder" value="#[payload]" doc:name="outputFolder"/>
+        <component class="it.planetek.rheticus.mule.components.SftpFolderFilesRequester" doc:name="SftpFolderFilesRequester"/>
+
+        <foreach doc:name="For Each">
+
+            <logger message="Requester: #[message]" level="DEBUG" doc:name="Requester Msg"/>
+            <set-variable variableName="fileName" value="#[message.inboundProperties['originalFilename']]" doc:name="fileName"/>
+            <file:outbound-endpoint path="${import.shapefile.folder}" outputPattern="#[fileName]" responseTimeout="10000" doc:name="Download to import dir"/>
+            <expression-filter expression="#[fileName.endsWith(&quot;.shp&quot;)]" doc:name="is .shp?"/>
+            <set-variable variableName="shapefileName" value="#[fileName]" doc:name="shapefileName"/>
+        </foreach>
+		<component class="it.planetek.rheticus.mule.components.LauncherKettleJob" doc:name="Load shape through Geokettle"/>
+        <logger message="Geokettle output: #[payload]" level="INFO" doc:name="Geokettle output"/>
+        <logger message="END Orchestrator dp_ps" level="INFO" doc:name="End dp_ps"/>
+	</sub-flow>
+</mule>
