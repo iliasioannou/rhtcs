@@ -36,7 +36,7 @@ angular.module('rheticus')
 			},
 			"view":{
 				"maxZoom": 20,
-				"minZoom": 2
+				"minZoom": 3
 			}
 		};
 		// Openlayers controls
