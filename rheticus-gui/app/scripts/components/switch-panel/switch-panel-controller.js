@@ -57,6 +57,13 @@ angular.module('rheticus')
 		var viewPanelSentinel = function(){
 			viewPanel("sentinel");
 		};
+		//PSCANDIDATE
+		var switchOverlaypsCandidate = function(){
+			toggleOverlay("psCandidate");
+		};
+		var viewPanelpsCandidate = function(){
+			viewPanel("psCandidate");
+		};
 
 		/**
 		 * EXPORT AS PUBLIC CONTROLLER
@@ -68,6 +75,8 @@ angular.module('rheticus')
 			"iffi_metadata" : $scope.getOverlayMetadata("iffi"),
 			"sentinel" : $scope.getOverlayParams("sentinel"),
 			"sentinel_metadata" : $scope.getOverlayMetadata("sentinel"),
+			"psCandidate" : $scope.getOverlayParams("psCandidate"),
+			"psCandidate_metadata" : $scope.getOverlayMetadata("psCandidate"),
 			"userDeals" : $scope.getUserDeals(),
 			"checkboxActive" : "prova"
 		});
@@ -91,6 +100,12 @@ angular.module('rheticus')
 			"iffi_layer_visibility_text" : self.iffi.visible ? "Layer off" : "Layer on",
 			"switchOverlayIffi" : switchOverlayIffi,
 			"viewPanelIffi" : viewPanelIffi,
+			//PSCANDIDATE
+			"show_panel_psCandidate" : false,
+			"view_overlay_psCandidate" : self.psCandidate.visible,
+			"psCandidate_layer_visibility_text" : self.psCandidate.visible ? "Layer off" : "Layer on",
+			"switchOverlaypsCandidate" : switchOverlaypsCandidate,
+			"viewPanelpsCandidate" : viewPanelpsCandidate,
 			//SENTINEL
 			"show_panel_sentinel" : false,
 			"view_overlay_sentinel" : self.sentinel.visible,
@@ -120,6 +135,7 @@ angular.module('rheticus')
 			self.show_panel_ps_aoi = false;
 			self.show_panel_iffi = false;
 			self.show_panel_sentinel = false;
+			self.show_panel_psCandidate = false;
 			self.show_panel_ps = false;
 			eval("self.show_panel_"+panel+" = true;"); // jshint ignore:line
 		};

@@ -25,11 +25,14 @@ CREATE SCHEMA kaliopa
 GRANT ALL ON SCHEMA kaliopa TO postgres;
 GRANT USAGE ON SCHEMA kaliopa TO "RHETICUS_kaliopa";
 
--- Materialized View: kaliopa.vw_ps
 
--- DROP MATERIALIZED VIEW kaliopa.vw_ps;
+-- CREAZIONE DELLE VISTE MATERIALIZZATE DI ACCESSO AI PS
 
-CREATE MATERIALIZED VIEW kaliopa.vw_ps AS
+-- Materialized View: kaliopa.vwm_ps
+
+-- DROP MATERIALIZED VIEW kaliopa.vwm_ps;
+
+CREATE MATERIALIZED VIEW kaliopa.vwm_ps AS 
  SELECT ps.datasetid,
     ps.psid,
     ps.lat,
@@ -39,39 +42,36 @@ CREATE MATERIALIZED VIEW kaliopa.vw_ps AS
     ps.height,
     ps.velocity
    FROM ps
-  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW3124124DESCENDINGVV-VHSSLC1845.5'::text, 'Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5'::text, 'Sentinel-1IWIW1-IW2-IW3117117ASCENDINGVV-VHSSLC1237.5'::text])
-	-- L'ultimo dataset della lista è quello di Niscemi usato per test. E' da eliminare dopo la verifica
+  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5_IW3_VV_PS_CANDIDATE'::text])
 WITH DATA;
 
-ALTER TABLE kaliopa.vw_ps
+ALTER TABLE kaliopa.vwm_ps
   OWNER TO postgres;
-GRANT ALL ON TABLE kaliopa.vw_ps TO postgres;
-GRANT SELECT ON TABLE kaliopa.vw_ps TO "RHETICUS_kaliopa";
-COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps
-  IS 'View for read PS inside dataset concerns kaliopa';
+GRANT ALL ON TABLE kaliopa.vwm_ps TO postgres;
+GRANT SELECT ON TABLE kaliopa.vwm_ps TO "RHETICUS_kaliopa";
+COMMENT ON MATERIALIZED VIEW kaliopa.vwm_ps
+  IS 'Materialized view that enables access to PS for Kaliopa partners';
 
 
+-- Materialized View: kaliopa.vwm_ps_measure
 
+-- DROP MATERIALIZED VIEW kaliopa.vwm_ps_measure;
 
--- Materialized View: kaliopa.vw_ps_measure
-
--- DROP MATERIALIZED VIEW kaliopa.vw_ps_measure;
-
-CREATE MATERIALIZED VIEW kaliopa.vw_ps_measure AS
+CREATE MATERIALIZED VIEW kaliopa.vwm_ps_measure AS 
  SELECT ps_measure.datasetid,
     ps_measure.psid,
     ps_measure.type,
     ps_measure.data,
     ps_measure.measure
    FROM ps_measure
-  WHERE ps_measure.type = 'DL'::text AND (ps_measure.datasetid IN ( SELECT vw_ps.datasetid
-           FROM kaliopa.vw_ps))
+  WHERE ps_measure.type = 'DL'::text AND (ps_measure.datasetid IN ( SELECT vwm_ps.datasetid
+           FROM kaliopa.vwm_ps))
 WITH DATA;
 
-ALTER TABLE kaliopa.vw_ps_measure
+ALTER TABLE kaliopa.vwm_ps_measure
   OWNER TO postgres;
-GRANT ALL ON TABLE kaliopa.vw_ps_measure TO postgres;
-GRANT SELECT ON TABLE kaliopa.vw_ps_measure TO "RHETICUS_kaliopa";
-COMMENT ON MATERIALIZED VIEW kaliopa.vw_ps_measure
-  IS 'View for read the measure of displacement';
+GRANT ALL ON TABLE kaliopa.vwm_ps_measure TO postgres;
+GRANT SELECT ON TABLE kaliopa.vwm_ps_measure TO "RHETICUS_kaliopa";
+COMMENT ON MATERIALIZED VIEW kaliopa.vwm_ps_measure
+  IS 'materialized view that enables access to PS''s measure for Kaliopa partners';
 

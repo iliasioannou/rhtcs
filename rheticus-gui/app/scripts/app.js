@@ -19,7 +19,6 @@ angular
 		'ngResource',
 		'ngRoute',
 		'ngSanitize',
-		'ngTouch',
 		'openlayers-directive',
 		'openlayers-layerswitcher',
 		'ui.bootstrap',
@@ -27,9 +26,8 @@ angular
 		'nvd3',
 		'smart-table',
     'services.config',
-		'angularHelpOverlay',
-		'angularResizable',
-		'flash'
+		'flash',
+		'pascalprecht.translate',
 	])
 
 	//routing configuration

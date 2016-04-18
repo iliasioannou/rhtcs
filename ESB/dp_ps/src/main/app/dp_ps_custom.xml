@@ -22,7 +22,11 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
 
 
 	<flow name="dp_ps_customFlow">
-        <http:inbound-endpoint exchange-pattern="one-way" host="localhost" port="9999" doc:name="HTTP"/>
+        <http:inbound-endpoint exchange-pattern="one-way" host="0.0.0.0" port="9999" doc:name="HTTP"/>
+        <object-to-string-transformer doc:name="Object to String"/>
+        <logger message="eee:m #[payload]" level="INFO" doc:name="Logger"/>
+        <set-variable variableName="did" value="#[json:did]" doc:name="TEMP did"/>
+        <logger message="did: #[did]" level="INFO" doc:name="Logger"/>
         <!-- <quartz:inbound-endpoint jobName="dpPsJob" repeatInterval="0" responseTimeout="10000" doc:name="Quartz" cronExpression="0 30 10 ? * THU *">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint> -->
@@ -38,6 +42,9 @@ http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mul
             <logger message="Deal SQL record: #[payload]" level="INFO" doc:name="New sql record"/>
             <set-variable variableName="datasetId" value="#[payload.get(&quot;dataset_id&quot;)]" doc:name="datasetId"/>
 
+            <expression-filter expression="#[datasetId.equals(did)]" doc:name="dataset i want"/>
+            <logger message="Filtered dataset #[datasetId]" level="INFO" doc:name="Filtered dataset"/>
+            
             <set-variable variableName="swath" value="#[payload.get(&quot;swath&quot;)]" doc:name="swath"/>
             <set-variable variableName="polarisation" value="#[payload.get(&quot;polarisation&quot;)]" doc:name="polarisation"/>
             <set-variable variableName="procDataLastDate" value="#[payload.get(&quot;timestamp_last_acquisition_proc&quot;)==null ? new org.mule.el.datetime.DateTime(&quot;1970-01-01&quot;) : new org.mule.el.datetime.DateTime(payload.get(&quot;timestamp_last_acquisition_proc&quot;))]" doc:name="procDataLastDate"/>
@@ -145,9 +152,7 @@ mapForS1TB.put("data", datasetDataArrayList);
 		<json:object-to-json-transformer
 			doc:name="Object to JSON" />
 		<logger message="******Call S1TB " level="INFO" doc:name="Call S1TB " />
-        <scripting:component doc:name="STOP!">
-            <scripting:script engine="Groovy"><![CDATA[throw new Exception("STOP, DIMENTICA");]]></scripting:script>
-        </scripting:component>
+
 
 
 		<request-reply doc:name="Request-Reply" timeout="0">

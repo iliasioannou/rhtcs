@@ -30,6 +30,7 @@ angular.module('rheticus')
 			self.results = {};
 			self.location = "";
 			self.visibleSearchBar=false;
+			document.getElementById('searchForm').style.width="50px";
 		};
 
 
@@ -45,6 +46,12 @@ angular.module('rheticus')
 			},
 			"showSearchBar" : function(){
 				self.visibleSearchBar=!self.visibleSearchBar;
+				if(self.visibleSearchBar){
+					document.getElementById('searchForm').style.width="175px";
+				}else{
+					document.getElementById('searchForm').style.width="50px";
+				}
+
 			},
 			"getLocation" : getLocation,
 			"searchLocation" : searchLocation

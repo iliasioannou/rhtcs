@@ -45,11 +45,14 @@
 		"crs" : "EPSG:3857"
 	},
 	"dataProviders" : [{
-		"name" : " Sentinel"
+		"name" : " Sentinel",
+		"checked" : true
 	},{
-		"name" : " Cosmo"
+		"name" : " Cosmo",
+		"checked" : true
 	},{
-		"name" : " TerraSAR-X"
+		"name" : " TerraSAR-X",
+		"checked" : true
 	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",
