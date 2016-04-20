@@ -144,8 +144,8 @@
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1807</xloc>
-      <yloc>330</yloc>
+      <xloc>1830</xloc>
+      <yloc>335</yloc>
       </entry>
     <entry>
       <name>rheticus_ps_import_ps_into_db</name>
@@ -284,8 +284,8 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid
       <parallel>N</parallel>
       <draw>Y</draw>
       <nr>0</nr>
-      <xloc>1646</xloc>
-      <yloc>332</yloc>
+      <xloc>1665</xloc>
+      <yloc>334</yloc>
       </entry>
     <entry>
       <name>rheticus_ps_import_metadata_into_db</name>
@@ -403,8 +403,8 @@ WHERE PS_TABLE.datasetid = SUB.datasetid AND PS_TABLE.psid = SUB.psid
       <name>Refresh materialized view ps and ps candidate</name>
       <description>SQL</description>
       <type>SQL</type>
-      <sql>REFRESH MATERIALIZED VIEW vw_ps;
-REFRESH MATERIALIZED VIEW vw_ps_candidate;</sql>
+      <sql>REFRESH MATERIALIZED VIEW vwm_ps;
+REFRESH MATERIALIZED VIEW vwm_ps_candidate;</sql>
       <useVariableSubstitution>F</useVariableSubstitution>
       <sqlfromfile>F</sqlfromfile>
       <sqlfilename/>
