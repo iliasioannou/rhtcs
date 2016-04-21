@@ -65,7 +65,7 @@
     'filtersToolbar': 'Filtri',
     'titleFilters': 'Filtri avanzati per i Persistent Scatterers',
     'helpFilters': "Sposta i limiti dello slider per selezionare l'intervallo desiderato",
-    'velocityFilters': "Velocita'",
+    'velocityFilters': "Velocità",
     'coherenceFilters': 'Coerenza',
     'dataProvidersFilters': 'Fornitori di dati',
     'settingsToolbar': 'Impostazioni',
@@ -82,11 +82,11 @@
     'precipitations90PsTrend':'Cumultivo 90 giorni',
     'precipitations120PsTrend':'Cumultivo 120 giorni',
     'coherencePsTrend':'Coerenza (%)',
-    'velocityPsTrend':"Velocita' (mm/anno)",
+    'velocityPsTrend':"Velocità (mm/anno)",
     'titleLandslide':'Landslide maps',
     'titleSentinel':'Sentinel 1 Datasets Identifier',
     'result1Sentinel':'Trovati ',
-    'result2Sentinel':" datasets (con piu' di 5 prodotti). Prodotti totali: ",
+    'result2Sentinel':" datasets (con più di 5 prodotti). Prodotti totali: ",
     'result3Sentinel':'alias:  ',
     'velocityLegend':'(mm/anno)',
     'noResult':'Nessun Persistent Scatterers trovato.',
@@ -107,7 +107,7 @@
  };
 
 
-  $translateProvider.useSanitizeValueStrategy('sanitize');
+  $translateProvider.useSanitizeValueStrategy(null);
   $translateProvider.preferredLanguage(determineCurrentLanguage());
 
 

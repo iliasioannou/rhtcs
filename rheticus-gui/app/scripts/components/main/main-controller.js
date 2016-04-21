@@ -594,15 +594,17 @@ angular.module('rheticus')
 				angular.forEach(info.deals,
 					function(item) {
 						var coords = (item.geom_geo_json && item.geom_geo_json!=="") ? JSON.parse(item.geom_geo_json) : null;
-						userDeals.push({
-							"signature_date" : (item.signature_date && item.signature_date!=="") ? item.signature_date : "",
-							"product_id" : (item.product_id && item.product_id!=="") ? item.product_id : -1,
-							"product_name" : (item.product_name && item.product_name!=="") ? item.product_name : "",
-							"geom_geo_json" : coords, //geojson Object
-							"sensorid" : (item.sensorid && item.sensorid!=="") ? item.sensorid : "",
-							"start_period" : (item.start_period && item.start_period!=="") ? item.start_period : "",
-							"end_period" : (item.end_period && item.end_period!=="") ? item.end_period : ""
-						});
+						if(item.service_type.indexOf("displacement")>-1){
+							userDeals.push({
+								"signature_date" : (item.signature_date && item.signature_date!=="") ? item.signature_date : "",
+								"product_id" : (item.product_id && item.product_id!=="") ? item.product_id : -1,
+								"product_name" : (item.product_name && item.product_name!=="") ? item.product_name : "",
+								"geom_geo_json" : coords, //geojson Object
+								"sensorid" : (item.sensorid && item.sensorid!=="") ? item.sensorid : "",
+								"start_period" : (item.start_period && item.start_period!=="") ? item.start_period : "",
+								"end_period" : (item.end_period && item.end_period!=="") ? item.end_period : ""
+							});
+						}
 					}
 				);
 			}
