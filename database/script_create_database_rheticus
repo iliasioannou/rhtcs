@@ -357,7 +357,7 @@ CREATE TABLE deal
       REFERENCES "user" (id) MATCH SIMPLE
       ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT end_period CHECK (start_period <= end_period),
-  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSK'::text OR sensorid = 'TSX'::text),
+  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSK'::text OR sensorid = 'TSX'::text OR sensorid = 'MDS'::text),
   CONSTRAINT service_type CHECK (service_type::text = 'displacement'::text OR service_type::text = 'marine'::text)
 )
 WITH (
