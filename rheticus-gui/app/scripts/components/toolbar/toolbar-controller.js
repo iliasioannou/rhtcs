@@ -53,7 +53,7 @@ angular.module('rheticus')
 					'				<input ng-model="loginPop.password" type="password" id="password">'+
 					'     </md-input-container><br>'+
 					'     <md-input-container style="margin:5px;" layout="row" layout-align="center">'+
-					"					<md-button type='submit' class='md-raised md-primary' style='margin-left:px;'ng-click='loginPop.login()''>{{ 'buttonOnLogin' | translate }}</md-button>"+
+					"					<md-button type='submit' class='md-raised md-primary' >{{ 'buttonOnLogin' | translate }}</md-button>"+
 					'     </md-input-container><br>'+
           '   </form>'+
 					'			<label ng-show="loginPop.error!=null" style="color:red;display: block;text-align: center;" style="color:red;">{{ "errorLogin" | translate }}</label>'+
