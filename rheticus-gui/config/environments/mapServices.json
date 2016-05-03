@@ -15,7 +15,23 @@
 				"url" : "http://www.openstreetmap.org/copyright"
 			}
 		},{
-			"name" : "Satellite Base Map",
+			"name" : "Mapbox",
+			"group" : "base",
+			"source" : {
+				"type" : "MapBox",
+				"mapId" : "mapbox.satellite",
+				"accessToken" : "pk.eyJ1IjoicGsyMDE0IiwiYSI6IkRCTHI5Q28ifQ.oA7Qj3tLfqal-RZCRBISPA",
+				"crossOrigin" : "null"
+			},
+			"active" : false,
+			"visible" : true,
+			"opacity" : 1,
+			"layerOptions" : {
+				"attribution" : "",
+				"url" : ""
+			}
+		},{
+			"name" : "Ortofoto RealVista 1.0",
 			"group" : "base",
 			"source" : {
 				"type" : "TileWMS",
@@ -39,22 +55,6 @@
 		}],
 		"overlays" : {
 			"olLayers" : [{
-				"name" : "High Resolution Base Map",
-				"group" : "base",
-				"source" : {
-					"type" : "MapBox",
-					"mapId" : "mapbox.satellite",
-					"accessToken" : "pk.eyJ1IjoicGsyMDE0IiwiYSI6IkRCTHI5Q28ifQ.oA7Qj3tLfqal-RZCRBISPA",
-					"crossOrigin" : "null"
-				},
-				"active" : false,
-				"visible" : true,
-				"opacity" : 1,
-				"layerOptions" : {
-					"attribution" : "",
-					"url" : ""
-				}
-			},{
 				"id" : "iffi",
 				"name" : "Aree a rischio frana",
 				"group" : "Overlays",

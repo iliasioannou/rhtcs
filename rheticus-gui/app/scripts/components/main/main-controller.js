@@ -314,16 +314,6 @@ angular.module('rheticus')
 			$scope.$broadcast("setSwitchPanelUserDeals",{"userDeals":userDeals});
 		});
 
-		//update satellite map when zoom change
-		$scope.$watch("center.zoom", function (zoom) {
-
-			if(zoom>8 && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
-				$scope.getOverlays()[0].active=true;
-			}else if(zoom<=8 && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
-				$scope.getOverlays()[0].active=false;
-			}
-		});
-
 		/**
 		 * PRIVATE  VARIABLES AND METHODS
 		 */

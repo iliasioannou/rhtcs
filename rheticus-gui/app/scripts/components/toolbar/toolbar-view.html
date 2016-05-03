@@ -17,9 +17,13 @@
       <div style="margin:10px;">
       	<label>{{ 'basemapSettings' | translate }}</label>
       	<form ng-controller="BasemapPopoupCtrl as basemapPop">
-      		<div ng-repeat="baselayer in basemapPop.baselayers">
-                  <input type="radio" ng-model="basemapPop.active.name" value="{{baselayer.name}}" ng-click="basemapPop.changeLayer(baselayer)"/>
-                  {{baselayer.name}}
+      		    <div>
+                  <input type="radio" ng-checked="basemapPop.view_osm" ng-click="basemapPop.changeBaseLayerOSM()"/>
+                  OpenStreetMap
+              </div>
+              <div>
+                  <input type="radio" ng-checked="basemapPop.view_sbm" ng-click="basemapPop.changeBaseLayerSBM()"/>
+                  Satellite Base Map
               </div>
           </form>
       </div>
