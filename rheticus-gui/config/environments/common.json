@@ -61,7 +61,6 @@
 		"urlReverse" : "http://nominatim.openstreetmap.org/reverse?"
 	},
 	"cesiumViewer" : {
-		"url" : "http://orbis.planetek.it/apps/rheticus",
-		"mapId" : "RHETICUS_PS"
+		"url" : "http://orbis.planetek.it/apps/rheticus"
 	}
 }

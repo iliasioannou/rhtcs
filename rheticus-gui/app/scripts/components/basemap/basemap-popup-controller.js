@@ -9,7 +9,7 @@
  */
 angular.module('rheticus')
 	.controller('BasemapPopoupCtrl',['$scope',function($scope){
-		self=this;
+		var self = this;
 		angular.extend(self,{
 			"view_osm" : false, // overlay visibility
 			"view_sbm" : true, // overlay visibility

@@ -383,13 +383,13 @@ angular.module('rheticus')
 							if(olLayer.id.indexOf('psCandidate')>-1){
 								psCandidateWithResult=false;
 							}
-							if (self.overlays[2].visible && psCandidateWithResult){
+							if (self.overlays[3].visible && psCandidateWithResult){
 								var params = {
 									"INFO_FORMAT" : "application/json",
 									"FEATURE_COUNT" : MAX_FEATURES,
 									"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
 								};
-								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[2]),params,"psCandidate",setMarker);
+								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[3]),params,"psCandidate",setMarker);
 							}else if (self.overlays[0].visible && iffiWithResult){
 								var params = {
 									"INFO_FORMAT" : "application/geojson",

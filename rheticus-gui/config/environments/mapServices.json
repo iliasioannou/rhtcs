@@ -103,6 +103,29 @@
 					"attribution" : "",
 					"url" : ""
 				}
+			},{
+				"id" : "condotte_fognarie_milano",
+				"name" : "",
+				"group" : "Overlays",
+				"source" : {
+					"type" : "TileWMS",
+					"crossOrigin" : "null",
+					"urls" : [
+						"http://locationHost/geoserver/rheticus/gwc/service/wms"
+					],
+					"params" : {
+						"LAYERS" : "rheticus:rete_condotte_fognarie_milano_buffer_400",
+						"TILED" : true
+					},
+					"serverType" : "geoserver"
+				},
+				"active" : true,
+				"visible" : true,
+				"opacity" : 0.4,
+				"layerOptions" : {
+					"attribution" : "",
+					"url" : ""
+				}
 			},
 			{
 				"id" : "psCandidate",
@@ -286,6 +309,22 @@
 				"custom" : {
 					"LAYERS" : [
 						{"id":"rheticus:slc","name":"sentinel 1","queryable":true}
+					]
+				}
+			},{
+				"id" : "condotte_fognarie_milano",
+				"type" : "ImageWMS",
+				"queryUrl" : "http://locationHost/geoserver/rheticus/gwc/service/wms",
+				"legend" : {
+					"title":"condotte_fognarie_milano",
+					"description" : "",
+					"url" : {
+						"velocity" : ""
+					}
+				},
+				"custom" : {
+					"LAYERS" : [
+						{"id":"rheticus:rete_condotte_fognarie_milano_buffer_400","name":"","queryable":true}
 					]
 				}
 			},{
