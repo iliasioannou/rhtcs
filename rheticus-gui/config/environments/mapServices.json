@@ -114,14 +114,14 @@
 						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:rete_condotte_fognarie_milano_buffer_400",
+						"LAYERS" : "rheticus:rete_condotte_milano_group",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
 				},
 				"active" : true,
 				"visible" : true,
-				"opacity" : 0.4,
+				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "",
 					"url" : ""
@@ -144,7 +144,7 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
-				"visible" : true,
+				"visible" : false,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "",
