@@ -6,7 +6,7 @@
 					{{baselayer.layerOptions.attribution}}
 				</a>
 			</label>
-			<label ng-repeat="overlay in credits.overlays|filter:{active:true}">
+			<label ng-repeat="overlay in credits.overlays|filter:{visible:true}">
 				<a href="{{overlay.layerOptions.url}}">
 					{{overlay.layerOptions.attribution}}
 				</a>

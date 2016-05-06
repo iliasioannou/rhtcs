@@ -27,8 +27,8 @@
 			"visible" : true,
 			"opacity" : 1,
 			"layerOptions" : {
-				"attribution" : "",
-				"url" : ""
+				"attribution" : "Mapbox ©",
+				"url" : "https://www.mapbox.com/about/maps"
 			}
 		},{
 			"name" : "Ortofoto RealVista 1.0",
