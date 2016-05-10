@@ -18,8 +18,7 @@ var HASH_MAP_EXTERNAL_SERVICES = {
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://localhost:8081",
 	"GEOSERVER" : "http://localhost:9080",
-  "TEBEGEOSERVER" : "http://tebe.planetek.it:8080",
-  "BASEMAP_REALVISTA" : "http://213.215.135.196/reflector/open/service"
+  "TEBEGEOSERVER" : "http://tebe.planetek.it:8080"
 };
 
 var httpProxy = require('http-proxy');
@@ -80,12 +79,6 @@ server.all("/iffi*", function(req, res) {
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI});
 });
 
-// Grab all requests to the server with "/basemap".
-server.all("/basemap*", function(req, res) {
-	req.url = req.url.replace('/basemap/','');
-	console.log("Forwarding BASEMAP REALVISTA API requests to: "+req.url);
-	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.BASEMAP_REALVISTA});
-});
 
 // Grab all requests to the server with "/rheticusapi".
 server.all("/rheticusapi*", function(req, res) {
