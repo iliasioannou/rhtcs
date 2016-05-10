@@ -30,6 +30,9 @@ angular.module('rheticus')
 			self.results = {};
 			self.location = "";
 			self.visibleSearchBar=false;
+			if(document.getElementById('searchForm')){
+				document.getElementById('searchForm').style.width="50px";
+			}
 		};
 
 
@@ -45,6 +48,17 @@ angular.module('rheticus')
 			},
 			"showSearchBar" : function(){
 				self.visibleSearchBar=!self.visibleSearchBar;
+				if(self.visibleSearchBar){
+					if(document.getElementById('searchForm')){
+						document.getElementById('searchForm').style.width="175px";
+					}
+
+				}else{
+					if(document.getElementById('searchForm')){
+						document.getElementById('searchForm').style.width="50px";
+					}
+				}
+
 			},
 			"getLocation" : getLocation,
 			"searchLocation" : searchLocation

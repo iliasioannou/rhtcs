@@ -11,7 +11,8 @@ http://www.mulesoft.org/schema/mule/smtp http://www.mulesoft.org/schema/mule/smt
 
     <http:request-config name="Orchestrator" host="${ps.host}" port="${ps.port}" basePath="${ps.path}" doc:name="HTTP Request Configuration"/>
 	<http:listener-config name="entryPoint" host="0.0.0.0" port="9090" doc:name="HTTP Listener Configuration"/>
-    <flow name="SearchDownloadPaginationFlow1" doc:description="{ &quot;startRows&quot;:&quot;0&quot;,&quot;type&quot;:&quot;SLC&quot;, &quot;startDate&quot;:&quot;NOW-5YEARS&quot;, &quot;endDate&quot;:&quot;NOW&quot; }">
+    <flow name="SearchDownloadPaginationFlow1" doc:description="Redownload all product or overwrite the index.
+{ &quot;startRows&quot;:&quot;0&quot;,&quot;type&quot;:&quot;SLC&quot;, &quot;startDate&quot;:&quot;NOW-5YEARS&quot;, &quot;endDate&quot;:&quot;NOW&quot; }">
         <http:listener config-ref="entryPoint" path="/SearchDownloadPagination" doc:name="HTTP"/>
         <set-session-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
         <set-payload value="*** Search and Download are running !!!" doc:name="Status response"/>
@@ -78,7 +79,7 @@ querystr=aURL.getQuery().substring(2).replaceAll(" ", "+")+"&format=json";]]></e
                     <when expression="#[Integer.parseInt(scihubTotalProducts)  &gt; Integer.parseInt(esTotalProducts)]">
                         <logger message=" PROBLEM !!!! esTotalProducts:#[esTotalProducts] &lt; scihubTotalProducts: #[scihubTotalProducts]" level="INFO" doc:name="Acquisition problem !!!"/>
                         <set-payload value=" PROBLEM !!!! esTotalProducts:#[esTotalProducts] &lt; scihubTotalProducts: #[scihubTotalProducts]" doc:name="Set Payload"/>
-                        <smtp:outbound-endpoint host="smtp.planetek.it" to="ferrulli@planetek.it" from="ferrulli@planetek.it" subject="Connector S1 ERROR !!!!" responseTimeout="10000" doc:name="SMTP"/>
+                        <smtp:outbound-endpoint host="smtp.planetek.it" to="ferrulli@planetek.it" from="ferrulli@planetek.it" subject="Connector S1 ERROR !!!!" responseTimeout="10000" doc:name="SMTP" cc="giorgio@planetek.it"/>
                         <logger message="*** Process terminated with errors ***" level="INFO" doc:name="Flow end with errors"/>
                     </when>
                     <otherwise>

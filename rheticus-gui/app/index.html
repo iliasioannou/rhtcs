@@ -10,14 +10,12 @@
 		<!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
 
 		<!-- build:css(.) styles/vendor.css -->
-		<link rel="stylesheet" href="/bower_components/angular-material/angular-material.css">
 		<link rel="stylesheet" href="bower_components/openlayers3/build/ol.css" />
 		<link rel="stylesheet" href="bower_components/chardin.js/chardinjs.css" />
 		<!-- bower:css -->
 		<link rel="stylesheet" href="bower_components/angular-material/angular-material.css" />
 		<link rel="stylesheet" href="bower_components/angular-awesome-slider/dist/css/angular-awesome-slider.min.css" />
 		<link rel="stylesheet" href="bower_components/nvd3/build/nv.d3.css" />
-		<link rel="stylesheet" href="bower_components/angular-resizable/angular-resizable.min.css" />
 		<link rel="stylesheet" href="bower_components/angular-flash-alert/dist/angular-flash.min.css" />
 		<!-- endbower -->
 
@@ -29,12 +27,12 @@
 		<!-- endbuild -->
 	</head>
 
-	<body ng-controller="HelpCtrl as help">
+	<body >
 		<!--[if lte IE 8]>l
 		  <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
 		<![endif]-->
 
-		<div help-overlay="showHelp" overlay-start-callback="onStart(event)" overlay-stop-callback="onStop(event)">
+		<div >
 			<!-- Add your site or application content here -->
 			<div class="container">
 				<div ng-view></div>
@@ -70,7 +68,6 @@
 		<script src="bower_components/angular-resource/angular-resource.js"></script>
 		<script src="bower_components/angular-route/angular-route.js"></script>
 		<script src="bower_components/angular-sanitize/angular-sanitize.js"></script>
-		<script src="bower_components/angular-touch/angular-touch.js"></script>
 		<script src="bower_components/angular-openlayers-directive/dist/angular-openlayers-directive.min.js"></script>
 		<script src="bower_components/angular-bootstrap/ui-bootstrap-tpls.js"></script>
 		<script src="bower_components/angular-awesome-slider/dist/angular-awesome-slider.js"></script>
@@ -79,15 +76,14 @@
 		<script src="bower_components/angular-nvd3/dist/angular-nvd3.js"></script>
 		<script src="bower_components/angular-smart-table/dist/smart-table.js"></script>
 		<script src="bower_components/angular-openlayers-layerswitcher/dist/angular-openlayers-layerswitcher.js"></script>
-		<script src="bower_components/chardin.js/chardinjs.min.js"></script>
-		<script src="bower_components/angular-help-overlay/lib/angular-help-overlay.js"></script>
-		<script src="bower_components/angular-resizable/angular-resizable.min.js"></script>
 		<script src="bower_components/angular-flash-alert/dist/angular-flash.min.js"></script>
+		<script src="bower_components/angular-translate/angular-translate.js"></script>
 		<!-- endbower -->
 		<!-- endbuild -->
 
 		<!-- build:js({.tmp,app}) scripts/scripts.js -->
 		<script src="scripts/app.js"></script>
+		<script src="scripts/components/translation/translation-controller.js"></script>
 		<script src="scripts/components/toolbar/toolbar-controller.js"></script>
 		<script src="scripts/directives/draggable.js"></script>
 		<script src="scripts/services/ArrayService.js"></script>
@@ -95,7 +91,6 @@
 		<script src="scripts/services/SpatialService.js"></script>
 		<script src="scripts/services/config.js"></script>
 		<script src="scripts/services/utils.js"></script>
-		<script src="scripts/components/help/help-controller.js"></script>
 		<script src="scripts/components/header/header-controller.js"></script>
 		<script src="scripts/components/login/login-button-controller.js"></script>
 		<script src="scripts/components/login/login-popup-controller.js"></script>

@@ -22,12 +22,12 @@ http://www.springframework.org/schema/context http://www.springframework.org/sch
     <spring:beans>
 		<spring:bean id="objectStore"
 			class="org.mule.util.store.SimpleMemoryObjectStore" />
-		<context:property-placeholder location="classpath:sentinelclient.properties" />
+		<context:property-placeholder location="classpath:sen1utility.properties" />
 		<spring:bean id="sentinelProps"
 			class="org.springframework.beans.factory.config.PropertiesFactoryBean">
 			<spring:property name="singleton" value="true" />
 			<spring:property name="location"
-				value="classpath:sentinelclient.properties" />
+				value="classpath:sen1utility.properties" />
 		</spring:bean>
 	</spring:beans>
 	<flow name="sentinelMainSearchALTFlow1" 

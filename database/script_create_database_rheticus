@@ -351,12 +351,14 @@ CREATE TABLE deal
   sensorid text NOT NULL,
   start_period date DEFAULT ('now'::text)::date,
   end_period date DEFAULT ('now'::text)::date,
+  service_type character varying(50) DEFAULT 'displacement'::character varying,
   CONSTRAINT pk_deal PRIMARY KEY (id),
   CONSTRAINT fk_user FOREIGN KEY (user_id)
       REFERENCES "user" (id) MATCH SIMPLE
-      ON UPDATE NO ACTION ON DELETE NO ACTION,
+      ON UPDATE NO ACTION ON DELETE CASCADE,
   CONSTRAINT end_period CHECK (start_period <= end_period),
-  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSK'::text)
+  CONSTRAINT sensorid CHECK (sensorid = 'S01'::text OR sensorid = 'CSK'::text OR sensorid = 'TSX'::text OR sensorid = 'MDS'::text),
+  CONSTRAINT service_type CHECK (service_type::text = 'displacement'::text OR service_type::text = 'marine'::text)
 )
 WITH (
   OIDS=FALSE
@@ -398,7 +400,9 @@ CREATE TABLE deal_dataset
   dataset_id text NOT NULL,
   swath character varying(10) NOT NULL,
   polarisation character varying(5) NOT NULL,
-  timestamp_last_acquisition_proc timestamp with time zone
+  timestamp_last_acquisition_proc timestamp with time zone,
+  dataset_prefix text,
+  CONSTRAINT pk_deal_dataset PRIMARY KEY (deal_id, dataset_id)
 )
 WITH (
   OIDS=FALSE

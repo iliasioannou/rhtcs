@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:quartz="http://www.mulesoft.org/schema/mule/quartz"  xmlns:mulexml="http://www.mulesoft.org/schema/mule/xml" xmlns:scripting="http://www.mulesoft.org/schema/mule/scripting"
+	xmlns:ftp="http://www.mulesoft.org/schema/mule/ftp" xmlns:email="http://www.mulesoft.org/schema/mule/email"
+	xmlns:json="http://www.mulesoft.org/schema/mule/json" xmlns:https="http://www.mulesoft.org/schema/mule/https"
+	xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:spring="http://www.springframework.org/schema/beans" xmlns:core="http://www.mulesoft.org/schema/mule/core"
+	xmlns:context="http://www.springframework.org/schema/context"
+	
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-current.xsd
+http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/https http://www.mulesoft.org/schema/mule/https/current/mule-https.xsd
+http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/json/current/mule-json.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/email http://www.mulesoft.org/schema/mule/email/current/mule-email.xsd
+http://www.mulesoft.org/schema/mule/ftp http://www.mulesoft.org/schema/mule/ftp/current/mule-ftp.xsd
+http://www.mulesoft.org/schema/mule/scripting http://www.mulesoft.org/schema/mule/scripting/current/mule-scripting.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.mulesoft.org/schema/mule/xml http://www.mulesoft.org/schema/mule/xml/current/mule-xml.xsd
+http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/quartz/current/mule-quartz.xsd" >
+
+    
+    
+	<!-- Hide MULE Headers in the HTTP packets -->
+    <http:request-config name="ManifestDownload" protocol="HTTPS" host="${sentinel.host}" port="${sentinel.port}" basePath="${sentinel.path.odata}('#[id]')/Nodes('#[title].SAFE')/Nodes('manifest.safe')/$value" doc:name="HTTP Request Configuration">
+        <http:ntlm-authentication username="${sentinel.usr}" password="${sentinel.pwd}"/>
+
+    </http:request-config>
+    <http:request-config name="InsertElastic" host="${elastic.host}" port="${elastic.port}" basePath="${elastic.index}/${elastic.type}/#[id]" doc:name="HTTP Request Configuration"/>
+    <choice-exception-strategy name="Choice_Exception_Strategy">
+        <catch-exception-strategy doc:name="Catch Exception Strategy" when="#[exception.causedBy(java.net.SocketTimeoutException)]">
+            <logger message="****************TIMEOUT Exception****************" level="WARN" doc:name="Generic Exception"/>
+            <set-payload value="#[flowVars.savePayload]" doc:name="savePayload" mimeType="application/json"/>
+            <logger message="*** Waiting 1 min before retry download. Payload is : #[payload]" level="INFO" doc:name="waitint log"/>
+            <scripting:component doc:name="repeat after 1 min">
+                <scripting:script engine="Groovy"><![CDATA[sleep(180000)]]></scripting:script>
+            </scripting:component>
+            <flow-ref name="sentinelDownloadFlow1" doc:name="sentinelDownloadFlow1"/>
+
+
+        </catch-exception-strategy>
+    </choice-exception-strategy>
+    <flow name="sentinelDownloadFlow1" processingStrategy="synchronous" doc:description="SLC 1.7gb
+{
+&quot;UUID&quot;:&quot;3016488c-721f-451a-b2a0-2a8602334ee2&quot;
+}
+
+GRD 130mb
+{
+&quot;UUID&quot;:&quot;f40e9bac-7046-42a5-aaff-4690aaf1bd60&quot;
+}">
+
+        <set-variable variableName="savePayload" value="#[payload]" doc:name="savePayload"/>
+        <set-payload value="#[json:feed/entry]" doc:name="Filter entry payload"/>
+        <set-variable variableName="arrayListData" value="#[new java.util.ArrayList()]" doc:name="arrayListData"/>
+        <foreach doc:name="For Each">
+            <set-variable variableName="metadataMap" value="#[new java.util.HashMap()]" doc:name="metadataMap"/>
+            <json:json-to-object-transformer returnClass="java.util.HashMap" doc:name="JSON to HashMap"/>
+            <set-variable variableName="safeMap" value="#[payload]" doc:name="safeMap"/>
+            <foreach collection="#[[&quot;str&quot;,&quot;int&quot;,&quot;date&quot;, &quot;link&quot;]]" doc:name="For Each metaArraysNames (&quot;str&quot;,&quot;int&quot;,&quot;date&quot;,&quot;link&quot;)">
+                <set-variable variableName="currentArrayName" value="#[payload]" doc:name="currentArrayName"/>
+                <set-payload value="#[safeMap.get(payload)]" doc:name="extract metaArray"/>
+                <choice doc:name="Choice">
+                    <when expression="#[currentArrayName.equals('link')]">
+                        <foreach doc:name="For Each &quot;link&quot;">
+                            <expression-component doc:name="save rel=href into safeMap"><![CDATA[String rel="";
+if (!payload.containsKey("rel"))
+	rel = "linkdownload";
+else
+	rel = payload.get("rel");
+safeMap.put(rel, payload.get("href"))]]></expression-component>
+                        </foreach>
+                    </when>
+                    <otherwise>
+                        <foreach doc:name="For Each">
+                            <expression-component doc:name="save name=content into safeMap"><![CDATA[safeMap.put(payload.get("name"), payload.get("content"))]]></expression-component>
+                        </foreach>
+                    </otherwise>
+                </choice>
+                <expression-component doc:name="Remove original metaArray"><![CDATA[safeMap.remove(currentArrayName)]]></expression-component>
+            </foreach>
+
+            <set-variable variableName="id" value="#[payload.get(&quot;id&quot;)]" doc:name="id"/>
+            <set-variable variableName="title" value="#[payload.get(&quot;title&quot;)]" doc:name="title"/>
+            <set-variable variableName="link" value="#[payload.get(&quot;linkdownload&quot;)]" doc:name="link"/>
+            <set-variable variableName="ingestion" value="#[payload.get(&quot;ingestiondate&quot;)]" doc:name="ingestion"/>
+            <set-variable variableName="coordinates" value="#[payload.get(&quot;footprint&quot;)]" doc:name="coordinates"/>
+            <set-variable variableName="familyName" value="#[payload.get(&quot;platformname&quot;)]" doc:name="familyName"/>
+            <set-variable variableName="mode" value="#[payload.get(&quot;sensoroperationalmode&quot;)]" doc:name="mode"/>
+            <set-variable variableName="swath" value="#[payload.get(&quot;swathidentifier&quot;).replace(&quot; &quot;,&quot;-&quot;)]" doc:name="swath"/>
+            <set-variable variableName="missionDataTakeId" value="#[payload.get(&quot;missiondatatakeid&quot;)]" doc:name="missionDataTakeId"/>
+            <set-variable variableName="relativeOrbitNumberTypeStart" value="#[payload.get(&quot;relativeorbitnumber&quot;)]" doc:name="relativeOrbitNumberTypeStart"/>
+            <set-variable variableName="relativeOrbitNumberTypeStop" value="#[payload.get(&quot;lastrelativeorbitnumber&quot;)]" doc:name="relativeOrbitNumberTypeStop"/>
+            <set-variable variableName="pass" value="#[payload.get(&quot;orbitdirection&quot;)]" doc:name="pass"/>
+            <set-variable variableName="transmitterReceiverPolarisation" value="#[payload.get(&quot;polarisationmode&quot;).replace(&quot; &quot;,&quot;-&quot;)]" doc:name="transmitterReceiverPolarisation"/>
+            <set-variable variableName="productClass" value="#[payload.get(&quot;productclass&quot;)]" doc:name="productClass"/>
+            <set-variable variableName="productType" value="#[payload.get(&quot;producttype&quot;)]" doc:name="productType"/>
+            <set-variable variableName="startTime" value="#[payload.get(&quot;beginposition&quot;)]" doc:name="startTime"/>
+            <set-variable variableName="stopTime" value="#[payload.get(&quot;endposition&quot;)]" doc:name="stopTime"/>
+            <set-variable variableName="sliceNumber" value="#[payload.get(&quot;slicenumber&quot;)]" doc:name="sliceNumber"/>
+            <set-variable variableName="orbitNumberTypeStart" value="#[payload.get(&quot;orbitnumber&quot;)]" doc:name="orbitNumberTypeStart"/>
+            <set-variable variableName="orbitNumberTypeStop" value="#[payload.get(&quot;lastorbitnumber&quot;)]" doc:name="orbitNumberTypeStop"/>
+            <logger message="*** Now saving product: &quot;#[id]&quot; with title: &quot;#[title]&quot;" level="INFO" doc:name="id&amp; title"/>
+
+            <expression-component doc:name="Populate metadataMap"><![CDATA[import java.lang.Math;
+double CoordinateLon;
+double CoordinateLat;
+
+java.util.HashMap location = new java.util.HashMap();
+location.put('type' , 'Polygon');
+java.util.ArrayList coordinatefinal = new java.util.ArrayList();
+java.util.ArrayList coordinate = new java.util.ArrayList();
+java.util.ArrayList coordinate2 = new java.util.ArrayList();
+String coordinates = coordinates.replace("POLYGON","").replace("((","").replace("))","");
+java.util.StringTokenizer tokenizerCoordinates = new java.util.StringTokenizer(coordinates,",");
+int j=0;
+while ((java.lang.Boolean)tokenizerCoordinates.hasMoreTokens())
+{
+	java.util.StringTokenizer pointCoordinate = new java.util.StringTokenizer(tokenizerCoordinates.nextToken()," ");
+	CoordinateLon=(Double.parseDouble(pointCoordinate.nextToken()));
+	CoordinateLat=(Double.parseDouble(pointCoordinate.nextToken()));
+    if (j==0)
+    {
+		flowVars['metaCoordinateLon']=(Math.round(CoordinateLon)) ;
+		flowVars['metaCoordinateLat']=(Math.ceil(CoordinateLat*2))/2 ;
+        j++;
+	}
+	coordinate2.add(CoordinateLon);
+	coordinate2.add(CoordinateLat);
+	coordinate.add(coordinate2);
+	coordinate2=new java.util.ArrayList();
+}
+coordinatefinal.add(coordinate);
+location.put('coordinates' , coordinatefinal);
+
+metadataMap.put('uuid',id);
+metadataMap.put('filename',title);
+metadataMap.put('linkDownload',link);
+metadataMap.put('superMaster','false');
+metadataMap.put('location',location);
+metadataMap.put('ingestion',ingestion);
+metadataMap.put('productClass',productClass);
+metadataMap.put('productType',productType);
+metadataMap.put('familyName',familyName);
+metadataMap.put('mode',mode);
+metadataMap.put('startTime',startTime);
+metadataMap.put('relativeOrbitNumberTypeStop',relativeOrbitNumberTypeStop);
+metadataMap.put('swath',swath);
+metadataMap.put('sliceNumber',sliceNumber);
+metadataMap.put('pass',pass);
+metadataMap.put('stopTime',stopTime);
+metadataMap.put('orbitNumberTypeStart',orbitNumberTypeStart);
+metadataMap.put('orbitNumberTypeStop',orbitNumberTypeStop);
+metadataMap.put('relativeOrbitNumberTypeStart',relativeOrbitNumberTypeStart);
+metadataMap.put('transmitterReceiverPolarisation',transmitterReceiverPolarisation);
+metadataMap.put('missionDataTakeId',missionDataTakeId);
+
+
+String dataset = familyName+mode+swath+relativeOrbitNumberTypeStart+relativeOrbitNumberTypeStop+pass+transmitterReceiverPolarisation+productClass+productType+metaCoordinateLon+metaCoordinateLat;
+metadataMap.put('datasetId',dataset);
+
+]]></expression-component>
+            <logger message="***** DATASETID LON #[metaCoordinateLon] ***LAT: #[metaCoordinateLat]" level="DEBUG" doc:name="metacoordinate"/>
+            <set-payload value="#[metadataMap]" doc:name="metadataMap"/>
+
+            <expression-component doc:name="Add metadataMap to arraylist"><![CDATA[arrayListData.add(metadataMap);]]></expression-component>
+            <json:object-to-json-transformer doc:name="Object to JSON"/>
+            <logger message="*** Insert into ElasticSearch" level="INFO" doc:name="Log status"/>
+            <until-successful maxRetries="5" synchronous="true" doc:name="Until Successful">
+                <http:request config-ref="InsertElastic" path="/" method="POST" doc:name="Insert in ElasticSearch"/>
+            </until-successful>
+
+
+        </foreach>
+        <set-payload value="#[arrayListData]" doc:name="arrayListData"/>
+        <json:object-to-json-transformer doc:name="Object to JSON"/>
+    </flow>
+
+</mule>

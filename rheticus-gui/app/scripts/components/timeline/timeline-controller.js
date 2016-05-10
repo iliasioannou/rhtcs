@@ -41,8 +41,7 @@ angular.module('rheticus')
 			// Chart options
 			"options" : {
 				"chart" : {
-					"width" : 600,
-					"height" : 200,
+					"height" : 220,
 					"showLegend": false,
 					"type" : "discreteBarChart",
 					"x" : function(d){
@@ -68,6 +67,7 @@ angular.module('rheticus')
 								self.trendDataset=true;		//change ng-show variable
 								self.dataTrend=getTableData(e.data.features);
 								self.tableData=e.data;
+								$rootScope.closeTimeline=false;
 							    var jsonExtent =  getExtentSuperMaster(e.data.features);
 								$scope.setSentinelExtent(jsonExtent);
 								$scope.$apply(); //update view
@@ -92,10 +92,6 @@ angular.module('rheticus')
 					},
 					"transitionDuration" : 250,
 					"noData" : "Sorry... no data found"
-				},
-				"title" : {
-					enable : true,
-					html : "<b>Sentinel 1 Datasets Identifier</b>"
 				}
 			},
 			// Chart options
@@ -151,6 +147,12 @@ angular.module('rheticus')
 			}
 		});
 
+
+		$scope.$on("setTimelineClosure",function(e){ // jshint ignore:line
+			if (self.show_timeline && $rootScope.closeTimeline) {
+				self.showTimeline(false);
+			}
+		});
 
 		/**
 		 * WATCHERS
@@ -312,8 +314,8 @@ angular.module('rheticus')
 						"key" : "prova",
 						"values" : chartData
 					});
-					$scope.api.refresh();
-					$scope.api.updateWithData(chartDataExternal);
+					self.data =chartDataExternal;
+					$scope.api.refreshWithTimeout(0);
 					res = true;
 				}
 			} catch (e) {
@@ -322,5 +324,6 @@ angular.module('rheticus')
 				return(res);
 			}
 		};
+
 
 	}]);

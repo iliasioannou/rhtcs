@@ -16,8 +16,7 @@ http://www.mulesoft.org/schema/mule/json http://www.mulesoft.org/schema/mule/jso
 			<spring:property name="location" value="classpath:sen1utility.properties" />
 		</spring:bean>
 	</spring:beans>
-	
-    <http:listener-config name="entryPoint" host="0.0.0.0" port="9090" doc:name="HTTP Listener Configuration"/>
+
     
     <flow name="EsToJsonGroupingFlow1" doc:description="Get full Product From ElasticSearch and create a json file" >
         <http:listener config-ref="entryPoint" path="/EsToJson" doc:name="HTTP"/>

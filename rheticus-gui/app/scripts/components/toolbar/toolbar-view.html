@@ -4,28 +4,39 @@
       <md-toolbar ng-click="openSettingMenu()">
         <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
               <md-icon  md-svg-src="images/icons/settings.svg"></md-icon>
-              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Settings</h1>
+              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">{{ 'settingsToolbar' | translate }}</h1>
         </md-item-content>
       </md-toolbar>
       <div style="margin:10px;">
-      	<label>Basemap</label>
+      	<label>{{ 'language' | translate }}</label>
+        <div>
+          <img src="images/itFlag.png" alt="Logo" width="30" height="30" style="cursor: pointer;" ng-click="changeLanguage('it')">
+          <img style="margin-left:10px;" src="images/enFlag.png" alt="Logo" width="30" height="30" style="cursor: pointer;" ng-click="changeLanguage('en')">
+        </div>
+      </div>
+      <div style="margin:10px;">
+      	<label>{{ 'basemapSettings' | translate }}</label>
       	<form ng-controller="BasemapPopoupCtrl as basemapPop">
-      		<div ng-repeat="baselayer in basemapPop.baselayers">
-                  <input type="radio" ng-model="basemapPop.active.name" value="{{baselayer.name}}" ng-click="basemapPop.changeLayer(baselayer)"/>
-                  {{baselayer.name}}
+      		    <div>
+                  <input type="radio" ng-checked="basemapPop.view_osm" ng-click="basemapPop.changeBaseLayerOSM()"/>
+                  OpenStreetMap
+              </div>
+              <div>
+                  <input type="radio" ng-checked="basemapPop.view_sbm" ng-click="basemapPop.changeBaseLayerSBM()"/>
+                  Satellite Base Map
               </div>
           </form>
       </div>
-      <!--div style="margin:10px;" ng-controller="CesiumViewerCtrl as viewer">
-        <label>3D Viewer</label>
+      <div style="margin:10px;" ng-controller="CesiumViewerCtrl as viewer">
+        <label>{{ '3dViewerSettings' | translate }}</label>
         <form >
           <button type="button" title="3D Viewer" ng-click="viewer.openViewer()">
             <span class="glyphicon glyphicon-globe" aria-hidden="true"></span>
           </button>
-          Go to 3D viewer
-      </div-->
+          {{ '3dViewerHelpSettings' | translate }}
+      </div>
       <div style="margin:10px;" ng-controller="SwitchPanelCtrl as switchpanel">
-        <label>Extra features</label>
+        <label>{{ 'extraFeaturesSettings' | translate }}</label>
         <div >
           <input type="checkbox" ng-click="switchpanel.switchOverlaySentinel()" ng-checked ="switchpanel.view_overlay_sentinel"> Sentinel catalog</label><br>
           <input type="checkbox" ng-click="switchpanel.switchOverlayIffi()" ng-checked ="switchpanel.view_overlay_iffi"> Landslide maps (IFFI)</label><br>
@@ -39,18 +50,18 @@
       <md-toolbar ng-click="openFilterMenu()">
         <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 130px;">
               <md-icon  md-svg-src="images/icons/filters.svg"></md-icon>
-              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">Filters</h1>
+              <h1 class="md-toolbar-tools noselect" style="cursor:default;color:#ffffff;">{{ 'filtersToolbar' | translate }}</h1>
         </md-item-content>
       </md-toolbar>
 
       <div data-intro="Area Of Interests" style="margin:20px;" ng-controller="FilterPopoupCtrl as filterPop">
-      	<h4>Persistent Scatterers Map Advanced Filters</h4>
-      	<h5>Move slider bounds to select desired range</h5>
+      	<h4>{{ 'titleFilters' | translate }}</h4>
+      	<h5>{{ 'helpFilters' | translate }}</h5>
 
       	<!-- VELOCITY -->
       	<hr style="margin-top:10px;margin-bottom:5px;">
       	<div>
-      		<label>Velocity</label>
+      		<label>{{ 'velocityFilters' | translate }}</label>
       		<div>
       			<input slider type="text" ng-model="filterPop.speedModelValue" options="filterPop.speedOptions" />
       		</div>
@@ -59,7 +70,7 @@
       	<!-- COHERENCE -->
       	<hr style="margin-top:20px;margin-bottom:5px;">
       	<div>
-      		<label>Coherence</label>
+      		<label>{{ 'coherenceFilters' | translate }}</label>
       		<div>
       			<input slider type="text" ng-model="filterPop.coherenceModelValue" options="filterPop.coherenceOptions" />
       		</div>
@@ -68,7 +79,7 @@
       	<!-- PROVIDER -->
       	<hr style="margin-top:20px;margin-bottom:5px;">
       	<div ng-controller="FilterPopoupCtrl as filterPop">
-      		<label>Data Providers</label>
+      		<label>{{ 'dataProvidersFilters' | translate }}</label>
       		<div>
       			<table>
       				<tr ng-repeat="provider in filterPop.dataProviders">
@@ -87,9 +98,9 @@
     <!--AREAS SIDENAV-->
     <md-sidenav layout="column" class="md-sidenav-right md-whiteframe-z2" md-component-id="areaMenu">
       <md-toolbar ng-click="openAreaMenu()">
-        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 150px;">
+        <md-item-content layout="row" layout-align="center center" style="margin: 0 auto; width: 170px;">
               <md-icon  md-svg-src="images/icons/areas.svg"></md-icon>
-              <h1 class="md-toolbar-tools noselect" style="float:right;cursor:default;color:#ffffff;">My areas</h1>
+              <h1 class="md-toolbar-tools noselect" style="float:right;cursor:default;color:#ffffff;">{{ 'myAreasToolbar' | translate }}</h1>
         </md-item-content>
       </md-toolbar>
       <div ng-controller="SwitchPanelCtrl as switchpanel" style="margin-top:15px;">
@@ -104,25 +115,26 @@
     <md-toolbar>
       <div class="md-toolbar-tools" style="margin-right:15px;">
         <!--RHETICUS LOGO-->
-         <img src="images/icons/logo_regular.png" alt="Logo" width="120" height="40" style="cursor: pointer;" onclick="window.location.href = '../home'">
+         <img hide-xs src="images/icons/logo_regular.png" alt="Logo" width="120" height="40" style="cursor: pointer;" onclick="window.location.href = '../home'">
+         <img hide-gt-xs src="images/logo_small.png" alt="Logo" width="25" height="25" style="cursor: pointer;" onclick="window.location.href = '../home'">
         <!--SERVICE NAME-->
         <span flex="35"></span>
-        <h3 class="noselect" style="cursor:default;font-weight: bold;color:#ffffff;">
-            Displacement
+        <h3 hide-xs class="noselect" style="cursor:default;font-weight: bold;color:#ffffff;">
+            {{ 'titleToolbar' | translate }}
         </h3>
 
     <!--RIGHT BUTTON TOOL-->
         <span flex=""></span>
-        <h4 id="userNameView"style="font-size:12px;" ng-click="showDialog($event)"></h4>
-        <md-button title="Account" class="md-icon-button" aria-label="account"  ng-click="showDialog($event)">
+        <h4 hide-xs id="userNameView"style="font-size:12px;" ng-click="showDialog($event)"></h4>
+        <md-button title="{{ 'accountToolbar' | translate }}" class="md-icon-button" aria-label="account"  ng-click="showDialog($event)">
           <md-icon md-svg-src="images/icons/account.svg" style="color: white;"></md-icon>
         </md-button>
 
         <!--GEOCODER-->
-        <div ng-controller="GeocoderCtrl as geo" >
-      		<form ng-submit="geo.searchLocation()" >
-      			<input class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" type="text" placeholder="Search..." ng-model="geo.location" ng-keyup="geo.searchLocation()"/>
-            <md-button title="Search" class="md-icon-button" aria-label="search" ng-click="geo.showSearchBar()">
+        <div style="margin-left:5px;" ng-controller="GeocoderCtrl as geo" >
+      		<form id="searchForm" ng-submit="geo.searchLocation()" >
+      			<input style="float:left;width: 120px;" class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" type="text" placeholder="{{ 'geocoderPlaceholder' | translate }}" ng-model="geo.location" ng-keyup="geo.searchLocation()"/>
+            <md-button title="{{ 'geocoderToolbar' | translate }}" class="md-icon-button" aria-label="search" ng-click="geo.showSearchBar()">
               <md-icon md-svg-src="images/icons/search.svg"></md-icon>
             </md-button>
       		</form>
@@ -133,13 +145,13 @@
       		</div>
         </div>
 
-        <md-button title="My areas" class="md-icon-button" aria-label="Areas" ng-click="openAreaMenu()">
+        <md-button title="{{ 'myAreasToolbar' | translate }}" class="md-icon-button" aria-label="{{ 'myAreasToolbar' | translate }}" ng-click="openAreaMenu()">
           <md-icon md-svg-src="images/icons/areas.svg"></md-icon>
         </md-button>
-        <md-button title="Filters" class="md-icon-button" aria-label="filters" ng-click="openFilterMenu()">
+        <md-button title="{{ 'filtersToolbar' | translate }}" class="md-icon-button" aria-label="{{ 'filtersToolbar' | translate }}" ng-click="openFilterMenu()">
           <md-icon md-svg-src="images/icons/filters.svg"></md-icon>
         </md-button>
-        <md-button title="Settings" class="md-icon-button" aria-label="settings" ng-click="openSettingMenu()"  >
+        <md-button title="{{ 'settingsToolbar' | translate }}" class="md-icon-button" aria-label="{{ 'settingsToolbar' | translate }}" ng-click="openSettingMenu()"  >
           <md-icon md-svg-src="images/icons/settings.svg"></md-icon>
         </md-button>
       </div>

@@ -30,10 +30,12 @@ server.get('/',function(req, res) {
  * PROXY CONFIGURATION
  */
 var HASH_MAP_EXTERNAL_SERVICES = {
+  "MARINE" : "http://localhost:80/marine",
   "DISPLACEMENT" : "http://localhost:80/displacement",
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://localhost:8081",
 	"GEOSERVER" : "http://localhost:9080",
+  "TEBEGEOSERVER" : "http://tebe.planetek.it:8080",
   "BASEMAP_REALVISTA" : "http://213.215.135.196/reflector/open/service"
 };
 
@@ -74,37 +76,44 @@ apiProxy.on('error', function (err, req, res) {
   res.end('Something went wrong. And we are reporting a custom error message.');
 });
 
-// Grab all requests to the server with "/iffi".
+// Grab all requests to the server with "/displacement".
 server.all("/displacement", function(req, res) {
 	req.url = req.url.replace('/displacement','');
-	console.log("Forwarding rheticus requests to: "+req.url);
+	//console.log("Forwarding rheticus requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.DISPLACEMENT});
+});
+
+// Grab all requests to the server with "/marine".
+server.all("/marine", function(req, res) {
+	req.url = req.url.replace('/marine','');
+	//console.log("Forwarding rheticus requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.MARINE});
 });
 
 // Grab all requests to the server with "/iffi".
 server.all("/iffi*", function(req, res) {
 	req.url = req.url.replace('/iffi/','');
-	console.log("Forwarding IFFI API requests to: "+req.url);
+	//console.log("Forwarding IFFI API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.IFFI});
 });
 
 // Grab all requests to the server with "/basemap".
 server.all("/basemap*", function(req, res) {
 	req.url = req.url.replace('/basemap/','');
-	console.log("Forwarding BASEMAP REALVISTA API requests to: "+req.url);
+	//console.log("Forwarding BASEMAP REALVISTA API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.BASEMAP_REALVISTA});
 });
 
 // Grab all requests to the server with "/rheticusapi".
 server.all("/rheticusapi*", function(req, res) {
 	req.url = req.url.replace('/rheticusapi/','');
-	console.log("Forwarding RHETICUS API requests to: "+req.url);
+	//console.log("Forwarding RHETICUS API requests to: "+req.url);
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.RHETICUS_API});
 });
 
 // Grab all requests to the server with "/geoserver".
 server.all("/geoserver*", function(req, res) {
-  console.log("Forwarding Geoserver API requests to: "+req.url);
+  //console.log("Forwarding Geoserver API requests to: "+req.url);
   //console.log(req.headers);
   if (req.headers["authorization"]){
     delete req.headers["authorization"];
@@ -115,6 +124,13 @@ server.all("/geoserver*", function(req, res) {
   //console.log(req.headers);
   //res.removeHeader("WWW-Authenticate");
 	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.GEOSERVER});
+});
+
+// Grab all requests to the server with "/tebegeoserver".
+server.all("/tebegeoserver*", function(req, res) {
+	req.url = req.url.replace('/tebegeoserver/','geoserver/');
+	//console.log("Forwarding TEBE requests to: "+req.url);
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.TEBEGEOSERVER});
 });
 
 /*

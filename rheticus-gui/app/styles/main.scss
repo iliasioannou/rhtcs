@@ -125,7 +125,9 @@ body {
 
 
 /* Overrides */
-
+md-backdrop.md-sidenav-backdrop {
+    background-color:transparent
+}
 md-input-container .md-input {
   -webkit-order: 2;
       -ms-flex-order: 2;
@@ -145,9 +147,10 @@ md-input-container .md-input {
   border-style: solid;
   width: 100%;
   box-sizing: border-box;
-  float: left; }
+  float: left;
+}
 
-  md-toolbar {
+md-toolbar {
     box-sizing: border-box;
     display: -webkit-flex;
     display: -ms-flexbox;
@@ -158,10 +161,12 @@ md-input-container .md-input {
     position: relative;
     z-index: 2;
     font-size: 20px;
+    min-height: 55px;
     max-height: 55px;
-    width: 100%; }
+    width: 100%;
+  }
 
-    .md-toolbar-tools {
+.md-toolbar-tools {
       font-size: 20px;
       letter-spacing: 0.005em;
       box-sizing: border-box;
@@ -179,7 +184,12 @@ md-input-container .md-input {
       height: 55px;
       max-height: 55px;
       padding: 0 16px;
-      margin: 0; }
+      margin: 0;
+}
+
+.ol-touch .ol-control button {
+    font-size: 1.14em;
+}
 
 .navbar-default{
 	background-color: transparent;
@@ -312,7 +322,7 @@ md-input-container .md-input {
 
 .switchpanel {
     position: fixed;
-    z-index: 1060;
+    z-index: 1;
     bottom: 40px;
     left: 8px;
 	max-width: 440px;
@@ -428,15 +438,15 @@ md-input-container .md-input {
 }
 
 .timeline {
-	bottom: 50px;
+	bottom: 40px;
 	position: absolute;
 	right: 50px;
-	z-index: 1;
+	z-index: 2;
 	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 4px;
-	padding: 2px;
-	height: 270px;
-	width: 50%;
+  width: 700px;
+	height: 350px;
+  max-width: 80% !important;
+  max-height: 70% !important;
 }
 table.gridtable {
 	font-family: verdana,arial,sans-serif;
@@ -464,8 +474,10 @@ table.gridtable td {
 	border-color: #666666;
 	background-color: #ffffff;
 }
-.close {
-	margin:5px;
+
+.close:hover {
+	color:#ffffff;
+  opacity:1;
 }
 
 
@@ -599,16 +611,13 @@ table.gridtable td {
 .psTrends {
 	position: fixed;
 	background-color: rgba(255, 255, 255, 0.8);
-	border-radius: 4px;
-	padding: 2px;
 	right: 40px;
-	width: 50%;
-	z-index: 1;
-	bottom: 65px;
-	/*min-width: 700px;
-	min-height: 430px;*/
+	z-index: 2;
+	bottom: 40px;
   width: 700px;
-	height: 470px;
+	height: 500px;
+  max-width: 80% !important;
+  max-height: 80% !important;
 }
 .featureInfoHeader {
 	width: 100%;
@@ -616,22 +625,20 @@ table.gridtable td {
     font-weight: bold;
     text-align: center;
 }
-.featureInfo {
-    transition: all .3s ease-in-out;
-    width: 100%;
-    height: 100%;
-    position: relative;
-	  z-index: 1;
+.featureInfoTable {
+    left: 0;
+    max-width: 700px;
 }
 .featureInfo {
-    &.active { left: 0; }
-    .resizable {
-        margin: auto;
-        position: absolute;
-		right: 3em;
-		top: 0.5em;
-    }
-}
+    position: fixed;
+    background-color: rgba(255, 255, 255, 0.8);
+    right: 40px;
+    z-index: 2;
+    bottom: 40px;
+    width: 700px;
+    max-width: 80% !important;
+    max-height: 65% !important;
+  }
 .resizable {
     text-align: center;
     box-sizing: border-box;
