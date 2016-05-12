@@ -11,7 +11,6 @@ angular.module('rheticus')
 	.controller('CreditsController',['$scope',function($scope){
 		angular.extend(this,{
 			"baselayers" : $scope.getBaselayers(),
-			"overlays" : $scope.getOverlays(),
-			"show" : false
+			"overlays" : $scope.getOverlays()
 		});
 	}]);
