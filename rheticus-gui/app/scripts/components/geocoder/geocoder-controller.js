@@ -12,8 +12,13 @@ angular.module('rheticus')
 
 		var self = this; //this controller
 
-		var searchLocation = function(){
-			GeocodingService.geocode(this.location, searchLocationCallback);
+		var searchLocation = function(event){
+			if (event.which!=13){
+				GeocodingService.geocode(this.location, searchLocationCallback);
+			}else{
+				getLocation(0);
+			}
+
 		};
 
 		var searchLocationCallback = function(list){
@@ -21,18 +26,21 @@ angular.module('rheticus')
 		};
 
 		var getLocation = function(index){
-			var jsonLocation = self.results[index];
-			//jsonLocation.geojson.type == Polygon
-			$scope.setMapViewExtent(
-				jsonLocation.geojson.type,
-				jsonLocation.geojson.coordinates
-			);
-			self.results = {};
-			self.location = "";
-			self.visibleSearchBar=false;
-			if(document.getElementById('searchForm')){
-				document.getElementById('searchForm').style.width="50px";
+			if(self.results[index]){
+				var jsonLocation = self.results[index];
+				//jsonLocation.geojson.type == Polygon
+				$scope.setMapViewExtent(
+					jsonLocation.geojson.type,
+					jsonLocation.geojson.coordinates
+				);
+				self.results = {};
+				self.location = "";
+				self.visibleSearchBar=false;
+				if(document.getElementById('searchForm')){
+					document.getElementById('searchForm').style.width="50px";
+				}
 			}
+
 		};
 
 

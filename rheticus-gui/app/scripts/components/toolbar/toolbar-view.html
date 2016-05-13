@@ -137,8 +137,8 @@
 
         <!--GEOCODER-->
         <div style="margin-left:5px;" ng-controller="GeocoderCtrl as geo" >
-      		<form id="searchForm" ng-submit="geo.searchLocation()" >
-      			<input style="float:left;width: 120px;" class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" type="text" placeholder="{{ 'geocoderPlaceholder' | translate }}" ng-model="geo.location" ng-keyup="geo.searchLocation()"/>
+      		<form id="searchForm">
+      			<input id="searchInput" style="float:left;width: 120px;" class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" moo-focus-expression="geo.visibleSearchBar" type="text" ng-model="geo.location" ng-keyup="geo.searchLocation($event)" focus="true"/>
             <md-button title="{{ 'geocoderToolbar' | translate }}" class="md-icon-button" aria-label="search" ng-click="geo.showSearchBar()">
               <md-icon md-svg-src="images/icons/search.svg"></md-icon>
             </md-button>
