@@ -150,118 +150,6 @@ angular.module('rheticus')
 			}
 			advancedCqlFilters.dataProvider = (cqlFilter!=="") ? cqlFilter : "";
 		};
-		/*
-		//CQL_FILTER SETTER ON "SPATIAL" PS
-		var setSpatialFilter = function(){
-
-			var provider = [];
-			var i;
-			for(i=0; i<configuration.dataProviders.length; i++){
-				provider.push({
-					"name" : configuration.dataProviders[i].id;
-				});
-				if((configuration.dataProviders[i].name.indexOf("Sentinel")> -1) && configuration.dataProviders[i].checked){
-					provider.push({
-							"name" : "S01"
-						});
-				}else if((configuration.dataProviders[i].name.indexOf("Cosmo")> -1) && configuration.dataProviders[i].checked){
-					provider.push({
-							"name" : "CSK"
-						});
-				}else if((configuration.dataProviders[i].name.indexOf("TerraSAR-X")> -1) && configuration.dataProviders[i].checked){
-					provider.push({
-							"name" : "TSX"
-						});
-				}
-			}
-
-			//console.log($rootScope.providersFilter);
-			//console.log(provider);
-			var cqlFilter = "";
-			var cqlText = "";
-			for(i=0; i<userDeals.length; i++){
-				if(provider !== undefined && provider.length!==0){
-
-					if (isActiveSensor(userDeals[i].sensorid,provider)){
-
-						if (userDeals[i].geom_geo_json!==null){
-							if (cqlFilter!==""){
-								cqlFilter += " OR ";
-							}
-							cqlText = SpatialService.getIntersectSpatialFilterCqlText(
-								userDeals[i].geom_geo_json.type,
-								userDeals[i].geom_geo_json.coordinates
-							);
-							if (cqlText!==""){
-								if (userDeals[i].sensorid!==""){
-
-									cqlText = "("+cqlText+" AND (sensorid='"+userDeals[i].sensorid+"')"+")";
-								}
-								cqlFilter += cqlText;
-							}
-						}
-					} else {
-						if (userDeals[i].geom_geo_json!==null){
-							if (cqlFilter!==""){
-								cqlFilter += " OR ";
-							}
-							cqlText = SpatialService.getIntersectSpatialFilterCqlText(
-								userDeals[i].geom_geo_json.type,
-								userDeals[i].geom_geo_json.coordinates
-							);
-							if (cqlText!==""){
-								if (userDeals[i].sensorid!==""){
-
-									cqlText = "("+cqlText+" AND (sensorid='NotExists')"+")";
-								}
-								cqlFilter += cqlText;
-							}
-						}
-					}
-				}else {
-					if (userDeals[i].geom_geo_json!==null){
-						if (cqlFilter!==""){
-							cqlFilter += " OR ";
-						}
-						cqlText = SpatialService.getIntersectSpatialFilterCqlText(
-							userDeals[i].geom_geo_json.type,
-							userDeals[i].geom_geo_json.coordinates
-						);
-						if (cqlText!==""){
-							if (userDeals[i].sensorid!==""){
-
-								cqlText = "("+cqlText+" AND (sensorid='NotExists')"+")";
-							}
-							cqlFilter += cqlText;
-						}
-					}
-				}
-
-
-			}
-			advancedCqlFilters.spatial = (cqlFilter!=="") ? "("+cqlFilter+")" : "";
-		};
-
-		var isActiveSensor = function(sensorid, provider){
-			var exists=false;
-			if(provider[0]){
-				if(sensorid===provider[0].name){
-					exists=true;
-				}
-			}
-			if(provider[1] ){
-				if(sensorid===provider[1].name){
-					exists=true;
-				}
-			}
-			if(provider[2]){
-				if(sensorid===provider[2].name){
-					exists=true;
-				}
-			}
-			return exists;
-		};
-*/
 
 		var applyFiltersToMap = function(){
 			var cqlFilter = null;
@@ -400,12 +288,6 @@ angular.module('rheticus')
 		var psCandidateWithResult=true;
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayer,olParams,resultObj,callback){
-			/*console.log(map);
-			console.log(coordinate);
-			console.log(olLayer);
-			console.log(olParams);
-			console.log(resultObj);
-			console.log(callback);*/
 			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.view.projection); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
@@ -585,39 +467,34 @@ angular.module('rheticus')
 									};
 									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"ps",setMarker);
 								} else {
-									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("ps").legend.title+"\"!");
+									//CHECK IF THE OTHER LAYERS ARE ACTIVATED AND CALL THEM.
+									if (self.overlays[3].visible && psCandidateWithResult){
+										params = {
+											"INFO_FORMAT" : "application/json",
+											"FEATURE_COUNT" : MAX_FEATURES,
+											"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
+										};
+										getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(self.overlays[3]),params,"psCandidate",setMarker);
+									}else if (self.overlays[0].visible && iffiWithResult){
+										params = {
+											"INFO_FORMAT" : "application/geojson",
+											"FEATURE_COUNT" : MAX_FEATURES
+										};
+										getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(self.overlays[0]),params,"iffi",setMarker);
+									}else	if (self.overlays[1].visible && sentinelWithResult){
+										 params = {
+									    "INFO_FORMAT" : "application/json",
+									    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
+									    //"TIME" : startDate+"/"+endDate
+									  };
+										getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(self.overlays[1]),params,"sentinel",setMarker);
+									}else{
+										$translate('errorZoom').then(function (translatedValue) {
+												Flash.create('warning', translatedValue);
+										});
+									}
 								}
 								break;
-							/*case "psCandidate":
-								if (showDetails()){ //proceed with getFeatureInfo request
-									params = {
-										"INFO_FORMAT" : "application/json",
-										"FEATURE_COUNT" : MAX_FEATURES,
-										"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
-									};
-									getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"psCandidate",setMarker);
-								} else {
-									Flash.create("warning", "At this level of zoom isn't possible to display feature info for \""+getOverlayMetadata("psCandidate").legend.title+"\"!");
-								}
-								break;
-								case "iffi": 					REMOVED BECAUSE OF ASYNCRONOUS INTERROGATION (VIEW GetFeatureInfo)
-								  params = {
-								    "INFO_FORMAT" : "application/geojson",
-								    "FEATURE_COUNT" : MAX_FEATURES
-								  };
-								  getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"iffi",setMarker);
-								  break;
-								case "sentinel": // Sentinel 1 Datatset and timeline management
-								  //var startDate = (configuration.timeSlider.domain.start!=="") ? configuration.timeSlider.domain.start : "2014-10-01T00:00:00Z"; // if empty string set on 01 Oct 2014
-								  // if empty string set on today's date
-								  //var endDate = (configuration.timeSlider.domain.end!=="") ? configuration.timeSlider.domain.end : d3.time.format("%Y-%m-%dT%H:%M:%SZ")(new Date()); // jshint ignore:line
-								  params = {
-								    "INFO_FORMAT" : "application/json",
-								    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
-								    //"TIME" : startDate+"/"+endDate
-								  };
-								  getFeatureInfo(map,evt.coordinate,getGetFeatureInfoOlLayer(l),params,"sentinel",setMarker);
-								  break;	*/
 
 							default:
 								//do nothing

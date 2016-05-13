@@ -46,6 +46,7 @@
     'velocityLegend':'(mm/year)',
     'noResult':'No Persistent Scatterers found.',
     'loadingResult':'Loading result...',
+    'errorZoom':"Please zoom again to view Persistent Scatterers",
     'FOO': 'This is a paragraph'
   });
 
@@ -93,6 +94,7 @@
     'velocityLegend':'(mm/anno)',
     'noResult':'Nessun Persistent Scatterers trovato.',
     'loadingResult':'Caricamento ...',
+    'errorZoom':"Aumenta lo zoom per vedere i Persistent Scatterers",
     'FOO': 'This is a paragraph'
   });
 

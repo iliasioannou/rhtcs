@@ -40,7 +40,7 @@
   		"projection": "EPSG:4326"
 		},
 		"query" : {
-			"zoom" : 7
+			"zoom" : 8
 		},
 		"basemap" : {
 			"zoom" : 12
