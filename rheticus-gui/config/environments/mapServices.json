@@ -34,11 +34,9 @@
 			"name" : "Ortofoto RealVista 1.0",
 			"group" : "base",
 			"source" : {
-				"type" : "TileWMS",
+				"type" : "XYZ",
 				"crossOrigin" : "null",
-				"urls" : [
-					"http://locationHost/basemap"
-				],
+				"url" : "http://earth.realvista.it/realvista2d/query?request=ImageryMaps&channel=1004&version=17&x={x}&y={y}&z={z}",
 				"params" : {
 					"LAYERS" : "rv1",
 					"TILED" : true,
