@@ -12,7 +12,7 @@ angular.module('rheticus')
     function($rootScope,$scope,$mdDialog,AuthenticationService){
 
       var self = this; //this controller
-      var showLoading = false;
+      //var showLoading = false;
       var getLoginStatus = function () {
 				return $rootScope.login.logged;
 			};
@@ -25,7 +25,8 @@ angular.module('rheticus')
             "name" : ($rootScope.login.details.info.name) ? $rootScope.login.details.info.name : "",
             "surname" : ($rootScope.login.details.info.surname) ? $rootScope.login.details.info.surname : "",
             "company" : ($rootScope.login.details.info.company) ? $rootScope.login.details.info.company : "",
-            "email" : ($rootScope.login.details.info.email) ? $rootScope.login.details.info.email : ""
+            "email" : ($rootScope.login.details.info.email) ? $rootScope.login.details.info.email : "",
+            "layer" : ($rootScope.login.details.info.layer) ? $rootScope.login.details.info.layer : ""
           };
         }
         return userDetails;
@@ -58,6 +59,7 @@ angular.module('rheticus')
 			};
 
       angular.extend(self,{
+        "showLoading" : false,
         "dataLoading" : false,
         "error" : null,
         "username" : "",

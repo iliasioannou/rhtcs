@@ -34,10 +34,8 @@ angular.module('rheticus')
 			"interactions" : {
 				"mouseWheelZoom" : true
 			},
-			"view":{
-				"maxZoom": 20,
-				"minZoom": 3
-			}
+			"view" : configuration.map.view,
+			"center" : configuration.map.center
 		};
 		// Openlayers controls
 		var olControls = [
@@ -66,7 +64,7 @@ angular.module('rheticus')
 			if (geoJSON && (geoJSON!==null)){
 				var geom = eval("new ol.geom."+geometryType+"(geoJSON);"); // jshint ignore:line
 				var extent = geom.getExtent();
-				extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", "EPSG:3857")); // jshint ignore:line
+				extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", configuration.map.view.projection)); // jshint ignore:line
 				olData.getMap().then(function (map) {
 					map.getView().fit(extent, map.getSize());
 				});
@@ -102,7 +100,8 @@ angular.module('rheticus')
 			getOverlayParams("sentinel").source = {
 				"type": "GeoJSON",
 				"geojson": {
-					"projection": "EPSG:3857",
+					//"projection": "EPSG:4326",
+					//"projection": configuration.map.view.projection,
 					"object": {
 						"type": "FeatureCollection",
 						"features": [{
@@ -127,37 +126,69 @@ angular.module('rheticus')
 				});
 			}
 		};
+
+		var setDataProviders = function(){
+			var i = 0;
+			for(i=0; i<userDeals.length; i++){
+				var index = ArrayService.getIndexByAttributeValue(configuration.dataProviders,"id",userDeals[i].sensorid);
+				if (index!==-1){
+					configuration.dataProviders[index].disabled = false;
+					configuration.dataProviders[index].checked = true;
+				}
+			}
+		};
+		var setDataProviderFilter = function(){
+			var cqlFilter = "";
+			var i = 0;
+			for(i=0; i<configuration.dataProviders.length; i++){
+				if (!configuration.dataProviders[i].disabled && !configuration.dataProviders[i].checked){
+					if (cqlFilter!==""){
+						cqlFilter += " AND ";
+					}
+					cqlFilter += "(sensorid<>'"+configuration.dataProviders[i].id+"')";
+				}
+			}
+			advancedCqlFilters.dataProvider = (cqlFilter!=="") ? cqlFilter : "";
+		};
+		/*
 		//CQL_FILTER SETTER ON "SPATIAL" PS
 		var setSpatialFilter = function(){
 
-			var provider=[];
-				for(var i=0; i<configuration.dataProviders.length; i++){
-					if((configuration.dataProviders[i].name.indexOf("Sentinel")> -1) && configuration.dataProviders[i].checked){
-						provider.push({
- 							"name" : "S01"
- 						});
-					}else if((configuration.dataProviders[i].name.indexOf("Cosmo")> -1) && configuration.dataProviders[i].checked){
-						provider.push({
- 							"name" : "CSK"
- 						});
-					}else if((configuration.dataProviders[i].name.indexOf("TerraSAR-X")> -1) && configuration.dataProviders[i].checked){
-						provider.push({
- 							"name" : "TSX"
- 						});
-					}
+			var provider = [];
+			var i;
+			for(i=0; i<configuration.dataProviders.length; i++){
+				provider.push({
+					"name" : configuration.dataProviders[i].id;
+				});
+				if((configuration.dataProviders[i].name.indexOf("Sentinel")> -1) && configuration.dataProviders[i].checked){
+					provider.push({
+							"name" : "S01"
+						});
+				}else if((configuration.dataProviders[i].name.indexOf("Cosmo")> -1) && configuration.dataProviders[i].checked){
+					provider.push({
+							"name" : "CSK"
+						});
+				}else if((configuration.dataProviders[i].name.indexOf("TerraSAR-X")> -1) && configuration.dataProviders[i].checked){
+					provider.push({
+							"name" : "TSX"
+						});
 				}
+			}
 
 			//console.log($rootScope.providersFilter);
 			//console.log(provider);
 			var cqlFilter = "";
-			for(var i=0; i<userDeals.length; i++){
+			var cqlText = "";
+			for(i=0; i<userDeals.length; i++){
 				if(provider !== undefined && provider.length!==0){
+
 					if (isActiveSensor(userDeals[i].sensorid,provider)){
+
 						if (userDeals[i].geom_geo_json!==null){
 							if (cqlFilter!==""){
 								cqlFilter += " OR ";
 							}
-							var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+							cqlText = SpatialService.getIntersectSpatialFilterCqlText(
 								userDeals[i].geom_geo_json.type,
 								userDeals[i].geom_geo_json.coordinates
 							);
@@ -169,12 +200,12 @@ angular.module('rheticus')
 								cqlFilter += cqlText;
 							}
 						}
-					}else{
+					} else {
 						if (userDeals[i].geom_geo_json!==null){
 							if (cqlFilter!==""){
 								cqlFilter += " OR ";
 							}
-							var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+							cqlText = SpatialService.getIntersectSpatialFilterCqlText(
 								userDeals[i].geom_geo_json.type,
 								userDeals[i].geom_geo_json.coordinates
 							);
@@ -192,7 +223,7 @@ angular.module('rheticus')
 						if (cqlFilter!==""){
 							cqlFilter += " OR ";
 						}
-						var cqlText = SpatialService.getIntersectSpatialFilterCqlText(
+						cqlText = SpatialService.getIntersectSpatialFilterCqlText(
 							userDeals[i].geom_geo_json.type,
 							userDeals[i].geom_geo_json.coordinates
 						);
@@ -229,19 +260,22 @@ angular.module('rheticus')
 				}
 			}
 			return exists;
-		}
-
+		};
+*/
 
 		var applyFiltersToMap = function(){
 			var cqlFilter = null;
-			for (var key in advancedCqlFilters) {
-				if (advancedCqlFilters.hasOwnProperty(key) && (advancedCqlFilters[key]!=="")) {
-					if (cqlFilter!==null){
-						cqlFilter += " AND "; //Add "AND" condition with prevoius item
-					} else {
-						cqlFilter = ""; //initialize as empty String
+			if ($scope.center.zoom >= configuration.map.query.zoom) {
+				//console.log("applyFiltersToMap");
+				for (var key in advancedCqlFilters) {
+					if (advancedCqlFilters.hasOwnProperty(key) && (advancedCqlFilters[key]!=="")) {
+						if (cqlFilter!==null){
+							cqlFilter += " AND "; //Add "AND" condition with prevoius item
+						} else {
+							cqlFilter = ""; //initialize as empty String
+						}
+						cqlFilter += advancedCqlFilters[key]; //Add new condition to cqlFilter
 					}
-					cqlFilter += advancedCqlFilters[key]; //Add new condition to cqlFilter
 				}
 			}
 			getOverlayParams("ps").source.params.CQL_FILTER = cqlFilter;
@@ -283,7 +317,7 @@ angular.module('rheticus')
 			"getOverlays" : getOverlays,
 			"getUserDeals" : getUserDeals,
 			"setSentinelExtent" : setSentinelExtent,
-			"setSpatialFilter" : setSpatialFilter,
+			"setDataProviderFilter" : setDataProviderFilter,
 			"applyFiltersToMap" : applyFiltersToMap
 		});
 
@@ -308,6 +342,22 @@ angular.module('rheticus')
 		});
 		//update user details on login change status
 		$rootScope.$watch("login.details", function () {
+			if (($rootScope.login.details!==null) && $rootScope.login.details.info && $rootScope.login.details.info.layer && $rootScope.login.details.info.layer!==""){
+				getOverlayParams("ps").source.params.LAYERS = $rootScope.login.details.info.layer;
+				getOverlayMetadata("ps").custom.LAYERS.id = $rootScope.login.details.info.layer;
+
+				//TODO: remove following snippet of MILANO management
+				// when something better is implemented for managing
+				// user ad hoc layers
+				if ($rootScope.login.details.info.username==="milano"){
+					// enable visualization
+					getOverlayParams("condotte_fognarie_milano").visible = true;
+				} else {
+					// disable visualization
+					getOverlayParams("condotte_fognarie_milano").visible = false;
+				}
+
+			}
 			setUserDeals(
 				(($rootScope.login.details!==null) && $rootScope.login.details.info) ? $rootScope.login.details.info : null
 			);
@@ -356,10 +406,10 @@ angular.module('rheticus')
 			console.log(olParams);
 			console.log(resultObj);
 			console.log(callback);*/
-			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
+			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.view.projection); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
-			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,$rootScope.configurationCurrentHost.map.crs,olParams);
+			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,$rootScope.configurationCurrentHost.map.view.projection,olParams);
 			//console.log(url);
 			if (url) {
 				var that = $scope; // jshint ignore:line
@@ -370,6 +420,7 @@ angular.module('rheticus')
 						$scope.$broadcast("setPsTrendsClosure");
 						$scope.$broadcast("setTimelineClosure");
 						$rootScope.closeTimeline=true;
+						var params = null;
 						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
 							//console.log("no features");
 							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
@@ -384,20 +435,20 @@ angular.module('rheticus')
 								psCandidateWithResult=false;
 							}
 							if (self.overlays[3].visible && psCandidateWithResult){
-								var params = {
+								params = {
 									"INFO_FORMAT" : "application/json",
 									"FEATURE_COUNT" : MAX_FEATURES,
 									"CQL_FILTER" : getOverlayParams("psCandidate").source.params.CQL_FILTER
 								};
 								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[3]),params,"psCandidate",setMarker);
 							}else if (self.overlays[0].visible && iffiWithResult){
-								var params = {
+								params = {
 									"INFO_FORMAT" : "application/geojson",
 									"FEATURE_COUNT" : MAX_FEATURES
 								};
 								getFeatureInfo(map,coordinate,getGetFeatureInfoOlLayer(self.overlays[0]),params,"iffi",setMarker);
 							}else	if (self.overlays[1].visible && sentinelWithResult){
-								var params = {
+								 params = {
 							    "INFO_FORMAT" : "application/json",
 							    "FEATURE_COUNT" : MAX_SENTINEL_MEASURES
 							    //"TIME" : startDate+"/"+endDate
@@ -411,7 +462,7 @@ angular.module('rheticus')
 						} else {
 							Flash.dismiss();
 							var obj = {
-								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.crs), // jshint ignore:line
+								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.view.projection), // jshint ignore:line
 								"features" : (response.features.length>0) ? response.features : null
 							};
 							if (resultObj!==""){
@@ -433,7 +484,7 @@ angular.module('rheticus')
 		var advancedCqlFilters = {
 			"velocity" : "",
 			"coherence" : "",
-			"spatial" : ""
+			"dataProvider" : ""
 		};
 
 		var getCqlTextRange = function(minText, maxText){
@@ -516,7 +567,7 @@ angular.module('rheticus')
 				iffiWithResult=true;
 				sentinelWithResult=true;
 				psCandidateWithResult=true;
-				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.crs); // jshint ignore:line
+				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.view.projection); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
 						Flash.dismiss();
@@ -583,6 +634,9 @@ angular.module('rheticus')
 				if ($scope.$parent.showHelp){
 					$scope.$parent.showHelp = false;
 				}
+				if ($scope.center.zoom < configuration.map.query.zoom) {
+					getOverlayParams("ps").source.params.CQL_FILTER = null;
+				}
 			});
 		});
 
@@ -608,7 +662,8 @@ angular.module('rheticus')
 					}
 				);
 			}
-			setSpatialFilter();
+			setDataProviders();
+			//setSpatialFilter();
 			applyFiltersToMap();
 		};
 

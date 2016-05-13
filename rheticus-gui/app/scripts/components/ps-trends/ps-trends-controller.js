@@ -824,7 +824,7 @@ angular.module('rheticus')
 			self.lat=psCandidate.point[1];
 			self.lon=psCandidate.point[0];
 			self.options.title.html = "";
-			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
+			//var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
 			//console.log("Total deals for selected point: ",deals.length);
 			//console.log("Deals for selected point: ",deals);
 			getCity();  // get city info from Nomimatim and save in titleChart
@@ -864,10 +864,5 @@ angular.module('rheticus')
 			}
 			return true;
 		};
-
-
-
-
-
 
 	}]);

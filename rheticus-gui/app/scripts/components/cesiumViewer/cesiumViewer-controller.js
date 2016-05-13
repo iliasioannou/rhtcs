@@ -16,8 +16,9 @@ angular.module('rheticus')
   			"openViewer" : function(){
           olData.getMap().then(function (map) {
             var extent = ol.proj.transformExtent( // jshint ignore:line
-              map.getView().calculateExtent(map.getSize()), "EPSG:3857", "EPSG:4326"
+              map.getView().calculateExtent(map.getSize()), configuration.map.view.projection, "EPSG:4326"
             );
+            //var extent = map.getView().calculateExtent(map.getSize());
             window.open(
               configuration.cesiumViewer.url+
               "?west="+extent[0]+
