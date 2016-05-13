@@ -13,10 +13,10 @@ angular.module('rheticus')
 		var self = this; //this controller
 
 		var searchLocation = function(event){
-			if (event.which!=13){
+			if (event.which!=13){ // 13 = ENTER EVENT
 				GeocodingService.geocode(this.location, searchLocationCallback);
 			}else{
-				getLocation(0);
+				getLocation(0); // GET FIRST RESULT 
 			}
 
 		};
