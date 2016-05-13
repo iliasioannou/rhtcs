@@ -137,7 +137,7 @@
 						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:vw_ps_candidate",
+						"LAYERS" : "rheticus:ps_candidate",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -160,7 +160,7 @@
 						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:vw_ps_anonymous",
+						"LAYERS" : "rheticus:ps_anonymous",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -339,7 +339,7 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:vw_ps_candidate","name":"Persistent Scatterers","queryable":true}
+						{"id":"rheticus:ps_candidate","name":"Persistent Scatterers","queryable":true}
 					]
 				}
 			},{
@@ -356,7 +356,7 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:vw_ps_anonymous","name":"Persistent Scatterers","queryable":true}
+						{"id":"rheticus:ps_anonymous","name":"Persistent Scatterers","queryable":true}
 					]
 				}
 			}]
