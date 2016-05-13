@@ -40,12 +40,10 @@ angular.module('rheticus')
 
 		//update satellite map when zoom change
 		$scope.$watch("center.zoom", function (zoom) {
-			//console.log($scope.getActiveBaselayer());
-			//console.log(zoom);
-			if (zoom>configuration.map.basemap.zoom){
+			if(zoom>configuration.map.basemap.zoom && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
 				$scope.getActiveBaselayer().active=false;
 				$scope.getBaselayers()[1].active=true;
-			} else {
+			}else if(zoom<=configuration.map.basemap.zoom && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
 				$scope.getBaselayers()[1].active=false;
 				$scope.getBaselayers()[2].active=true;
 			}

@@ -605,7 +605,7 @@ angular.module('rheticus')
 								if(self.firstDatePs > milliTime){
 									self.firstDatePs = milliTime;
 								}
-								//console.log(idComplete);
+								//this array appears in PSTREND tooltip.
 								ret.push({
 									"x" : measureDate,
 									"y" : eval("measures[i]."+measureParamKey+";"), // jshint ignore:line
