@@ -296,14 +296,26 @@ angular.module('rheticus')
 			if (url) {
 				var that = $scope; // jshint ignore:line
 				$http.get(url)
-					.success(function (response) {
+					//.success(function (response) {
+					.success(function(response, status, headers, config) {
+
 						//REMOVE ALL INTERROGATION WINDOWS
 						$scope.$broadcast("setFeatureInfoClosure");
 						$scope.$broadcast("setPsTrendsClosure");
 						$scope.$broadcast("setTimelineClosure");
 						$rootScope.closeTimeline=true;
 						var params = null;
-						if (response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
+
+						var contentType = headers('Content-Type');
+						if (contentType.indexOf("/xml")!==-1){
+							var xmlDoc = $.parseXML( response );
+							var xml = $( xmlDoc );
+							var dateString = xml.find("ServiceExceptionReport")
+							Flash.create('danger', "Layer \""+olLayer.name+"\" returned an error!!");
+							return;
+						}
+
+						if (response.features && response.features.length===0){ //HTTP STATUS == 200 -- no features returned or "ServiceException"
 							//console.log("no features");
 							//Flash.create('warning', "Layer \""+olLayer.name+"\" returned no features!");
 							//CALL OTHER ACTIVE LAYER IF PS RETURNS NO FEATURE
