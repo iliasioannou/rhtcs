@@ -320,7 +320,9 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:rete_condotte_fognarie_milano_buffer_400","name":"","queryable":false}
+						{"id":"rheticus:rete_condotte_fognarie_milano_buffer_400","name":"","queryable":false},
+						{"id":"rheticus:ps_mmspa","name":"","queryable":false}
+
 					]
 				}
 			},{

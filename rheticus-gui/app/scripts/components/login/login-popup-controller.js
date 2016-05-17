@@ -19,7 +19,7 @@ angular.module('rheticus')
 
       var getUserDetails = function () {
         var userDetails = {"username" : "", "name" : "", "surname" : "", "company" : "", "email" : ""};
-        if (($rootScope.login.details!==null) && $rootScope.login.details.info){
+        if (($rootScope.login.details!==null) && $rootScope.login.details.info && $rootScope.login.details.info!==null){
           userDetails = {
             "username" : ($rootScope.login.details.info.username) ? $rootScope.login.details.info.username : "",
             "name" : ($rootScope.login.details.info.name) ? $rootScope.login.details.info.name : "",

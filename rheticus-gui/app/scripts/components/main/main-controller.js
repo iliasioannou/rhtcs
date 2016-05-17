@@ -230,7 +230,6 @@ angular.module('rheticus')
 		});
 		//update user details on login change status
 		$rootScope.$watch("login.details", function () {
-			console.log("layer: "+$rootScope.login.details.info.layer);
 			if (($rootScope.login.details!==null) && $rootScope.login.details.info && $rootScope.login.details.info.layer && $rootScope.login.details.info.layer!==""){
 				getOverlayParams("ps").source.params.LAYERS = $rootScope.login.details.info.layer;
 				getOverlayMetadata("ps").custom.LAYERS[0].id = $rootScope.login.details.info.layer;
@@ -238,7 +237,7 @@ angular.module('rheticus')
 				//TODO: remove following snippet of MILANO management
 				// when something better is implemented for managing
 				// user ad hoc layers
-				if ($rootScope.login.details.info.username==="milano"){
+				if ($rootScope.login.details.info.layer===getOverlayMetadata("condotte_fognarie_milano").custom.LAYERS[1].id){
 					// enable visualization
 					getOverlayParams("condotte_fognarie_milano").visible = true;
 				} else {
