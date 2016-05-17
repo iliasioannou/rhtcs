@@ -7,10 +7,22 @@
  * # SwitchPanelCtrl
  * Switch Panel Controller for rheticus project
  */
-angular.module('rheticus')
-	.controller('SwitchPanelCtrl',['$scope','$mdSidenav',function ($scope,$mdSidenav){
+ angular.module('rheticus')
+ 	.controller('SwitchPanelCtrl',['$scope','$rootScope','$mdSidenav',function ($scope,$rootScope,$mdSidenav){
 
-		var self = this; //this controller
+ 		var self = this; //this controller
+
+
+ 		$rootScope.$watch("login.details", function () {
+			var deals=$scope.getUserDeals();
+			console.log(deals[0].geom_geo_json.type);
+
+ 			$scope.setMapViewExtent(
+ 				deals[0].geom_geo_json.type,
+ 				deals[0].geom_geo_json.coordinates
+ 			);
+
+ 		});
 
 		/**
 		 * PUBLIC VARIABLES AND METHODS

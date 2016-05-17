@@ -39,7 +39,7 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
         <quartz:inbound-endpoint jobName="ModisUpdates" repeatInterval="0" responseTimeout="10000" doc:name="EveryDay" cronExpression="0 00 03 ? * *">
             <quartz:event-generator-job/>
         </quartz:inbound-endpoint>
-       
+        
         <logger message="Modis Connector Started." level="INFO" doc:name="Modis connector started"/>
         <object-to-string-transformer doc:name="Object to String"/>
 
@@ -94,6 +94,11 @@ http://www.mulesoft.org/schema/mule/quartz http://www.mulesoft.org/schema/mule/q
         </foreach>
 
         <logger message="Modis Connector ended" level="INFO" doc:name="END"/>
+        <choice-exception-strategy doc:name="Choice Exception Strategy">
+            <catch-exception-strategy doc:name="Catch Exception Strategy">
+                <logger message="!EXCEPTION!#[&quot;\n&quot;] - EXCEPTION TYPE: #[exception.getCauseException().getClass()] #[&quot;\n&quot;] - EXCEPTION MESSAGE: #[exception.getMessage()] #[&quot;\n&quot;] - EXCEPTION CAUSE: #[exception.getCauseException()] #[&quot;\n&quot;] - EXCEPTION ORIGINAL PAYLOAD: #[payload]" level="INFO" doc:name="!EXCEPTION!"/>
+            </catch-exception-strategy>
+        </choice-exception-strategy>
     </flow>
 
 </mule>
