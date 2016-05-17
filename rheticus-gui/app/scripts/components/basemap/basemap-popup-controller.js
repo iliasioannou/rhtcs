@@ -8,7 +8,7 @@
  * Basemap Popoup Controller for rheticus project
  */
 angular.module('rheticus')
-	.controller('BasemapPopoupCtrl',['$scope',function($scope){
+	.controller('BasemapPopoupCtrl',['$scope','configuration',function($scope,configuration){
 		var self = this;
 		angular.extend(self,{
 			"view_osm" : false, // overlay visibility
@@ -40,18 +40,13 @@ angular.module('rheticus')
 
 		//update satellite map when zoom change
 		$scope.$watch("center.zoom", function (zoom) {
-			//console.log($scope.getActiveBaselayer());
-			//console.log(zoom);
-			if(zoom>12 && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
+			if(zoom>configuration.map.basemap.zoom && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
 				$scope.getActiveBaselayer().active=false;
 				$scope.getBaselayers()[1].active=true;
-			}else if(zoom<=12 && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
+			}else if(zoom<=configuration.map.basemap.zoom && $scope.getActiveBaselayer().name.indexOf("OpenStreetMap")===-1){
 				$scope.getBaselayers()[1].active=false;
 				$scope.getBaselayers()[2].active=true;
 			}
 		});
-
-
-
 
 	}]);

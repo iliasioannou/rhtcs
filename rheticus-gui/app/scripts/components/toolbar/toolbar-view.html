@@ -56,42 +56,47 @@
 
       <div data-intro="Area Of Interests" style="margin:20px;" ng-controller="FilterPopoupCtrl as filterPop">
       	<h4>{{ 'titleFilters' | translate }}</h4>
-      	<h5>{{ 'helpFilters' | translate }}</h5>
 
-      	<!-- VELOCITY -->
-      	<hr style="margin-top:10px;margin-bottom:5px;">
-      	<div>
-      		<label>{{ 'velocityFilters' | translate }}</label>
-      		<div>
-      			<input slider type="text" ng-model="filterPop.speedModelValue" options="filterPop.speedOptions" />
-      		</div>
-      	</div>
+        <div ng-show="filterPop.visibleWarning">
+          <h5>{{ 'warningFilters' | translate }}</h5>
+        </div>
 
-      	<!-- COHERENCE -->
-      	<hr style="margin-top:20px;margin-bottom:5px;">
-      	<div>
-      		<label>{{ 'coherenceFilters' | translate }}</label>
-      		<div>
-      			<input slider type="text" ng-model="filterPop.coherenceModelValue" options="filterPop.coherenceOptions" />
-      		</div>
-      	</div>
+        <div ng-hide="filterPop.visibleWarning">
+          <h5>{{ 'helpFilters' | translate }}</h5>
+        	<!-- VELOCITY -->
+        	<hr style="margin-top:10px;margin-bottom:5px;">
+        	<div>
+        		<label>{{ 'velocityFilters' | translate }}</label>
+        		<div>
+        			<input slider type="text" ng-model="filterPop.speedModelValue" options="filterPop.speedOptions" />
+        		</div>
+        	</div>
+        	<!-- COHERENCE -->
+        	<hr style="margin-top:20px;margin-bottom:5px;">
+        	<div>
+        		<label>{{ 'coherenceFilters' | translate }}</label>
+        		<div>
+        			<input slider type="text" ng-model="filterPop.coherenceModelValue" options="filterPop.coherenceOptions" />
+        		</div>
+        	</div>
+        	<!-- PROVIDER -->
+        	<hr style="margin-top:20px;margin-bottom:5px;">
+        	<div ng-controller="FilterPopoupCtrl as filterPop">
+        		<label>{{ 'dataProvidersFilters' | translate }}</label>
+        		<div>
+        			<table>
+        				<tr ng-repeat="provider in filterPop.dataProviders">
+        					<td>
+        						<label style="font-size: 12px">
+        							<input type="checkbox" ng-disabled="provider.disabled" ng-model="provider.checked" ng-click="filterPop.updateSelection($index,filterPop.dataProviders)" />{{provider.name}}
+        						</label>
+        					</td>
+        				</tr>
+        			</table>
+        		</div>
+        	</div>
+        </div>
 
-      	<!-- PROVIDER -->
-      	<hr style="margin-top:20px;margin-bottom:5px;">
-      	<div ng-controller="FilterPopoupCtrl as filterPop">
-      		<label>{{ 'dataProvidersFilters' | translate }}</label>
-      		<div>
-      			<table>
-      				<tr ng-repeat="provider in filterPop.dataProviders">
-      					<td>
-      						<label style="font-size: 12px">
-      							<input type="checkbox" ng-model="provider.checked" ng-click="filterPop.updateSelection($index,filterPop.dataProviders)" />{{provider.name}}
-      						</label>
-      					</td>
-      				</tr>
-      			</table>
-      		</div>
-      	</div>
       </div>
     </md-sidenav>
 
@@ -132,8 +137,8 @@
 
         <!--GEOCODER-->
         <div style="margin-left:5px;" ng-controller="GeocoderCtrl as geo" >
-      		<form id="searchForm" ng-submit="geo.searchLocation()" >
-      			<input style="float:left;width: 120px;" class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" type="text" placeholder="{{ 'geocoderPlaceholder' | translate }}" ng-model="geo.location" ng-keyup="geo.searchLocation()"/>
+      		<form id="searchForm">
+      			<input id="searchInput" style="float:left;width: 120px;" class="geocoderBar" autocomplete="off" ng-show="geo.visibleSearchBar" moo-focus-expression="geo.visibleSearchBar" type="text" ng-model="geo.location" ng-keyup="geo.searchLocation($event)" focus="true"/>
             <md-button title="{{ 'geocoderToolbar' | translate }}" class="md-icon-button" aria-label="search" ng-click="geo.showSearchBar()">
               <md-icon md-svg-src="images/icons/search.svg"></md-icon>
             </md-button>

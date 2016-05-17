@@ -14,31 +14,29 @@
 				"attribution" : "\u00A9 OpenStreetMap contributors",
 				"url" : "http://www.openstreetmap.org/copyright"
 			}
-		},{
-			"name" : "Mapbox",
-			"group" : "base",
-			"source" : {
-				"type" : "MapBox",
-				"mapId" : "mapbox.satellite",
-				"accessToken" : "pk.eyJ1IjoicGsyMDE0IiwiYSI6IkRCTHI5Q28ifQ.oA7Qj3tLfqal-RZCRBISPA",
-				"crossOrigin" : "null"
-			},
-			"active" : false,
-			"visible" : true,
-			"opacity" : 1,
-			"layerOptions" : {
-				"attribution" : "Mapbox ©",
-				"url" : "https://www.mapbox.com/about/maps"
-			}
-		},{
+			},{
+				"name" : "Mapbox",
+				"group" : "base",
+				"source" : {
+					"type" : "MapBox",
+					"mapId" : "mapbox.satellite",
+					"accessToken" : "pk.eyJ1IjoicGsyMDE0IiwiYSI6IkRCTHI5Q28ifQ.oA7Qj3tLfqal-RZCRBISPA",
+					"crossOrigin" : "null"
+				},
+				"active" : false,
+				"visible" : true,
+				"opacity" : 1,
+				"layerOptions" : {
+					"attribution" : "Mapbox \u00A9",
+					"url" : "https://www.mapbox.com/about/maps"
+				}
+			},{
 			"name" : "Ortofoto RealVista 1.0",
 			"group" : "base",
 			"source" : {
-				"type" : "TileWMS",
+				"type" : "XYZ",
 				"crossOrigin" : "null",
-				"urls" : [
-					"http://locationHost/basemap"
-				],
+				"url" : "http://earth.realvista.it/realvista2d/query?request=ImageryMaps&channel=1004&version=17&x={x}&y={y}&z={z}",
 				"params" : {
 					"LAYERS" : "rv1",
 					"TILED" : true,
@@ -83,7 +81,6 @@
 				"source" : {
 					"type": "GeoJSON",
 					"geojson": {
-						"projection": "EPSG:3857",
 						"object": {}
 					}
 				},
@@ -120,7 +117,7 @@
 					"serverType" : "geoserver"
 				},
 				"active" : true,
-				"visible" : true,
+				"visible" : false,
 				"opacity" : 0.8,
 				"layerOptions" : {
 					"attribution" : "",
@@ -138,7 +135,7 @@
 						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:vw_ps_candidate",
+						"LAYERS" : "rheticus:ps_candidate",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -150,8 +147,7 @@
 					"attribution" : "",
 					"url" : ""
 				}
-			}
-			,{
+			},{
 				"id" : "ps",
 				"name" : "Persistent Scatterers Map",
 				"group" : "Overlays",
@@ -162,7 +158,7 @@
 						"http://locationHost/geoserver/rheticus/gwc/service/wms"
 					],
 					"params" : {
-						"LAYERS" : "rheticus:vw_ps",
+						"LAYERS" : "rheticus:ps_anonymous",
 						"TILED" : true
 					},
 					"serverType" : "geoserver"
@@ -324,7 +320,9 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:rete_condotte_fognarie_milano_buffer_400","name":"","queryable":true}
+						{"id":"rheticus:rete_condotte_fognarie_milano_buffer_400","name":"","queryable":false},
+						{"id":"rheticus:ps_mmspa","name":"","queryable":false}
+
 					]
 				}
 			},{
@@ -341,11 +339,10 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:vw_ps_candidate","name":"Persistent Scatterers","queryable":true}
+						{"id":"rheticus:ps_candidate","name":"Persistent Scatterers","queryable":true}
 					]
 				}
-			}
-			,{
+			},{
 				"id" : "ps",
 				"type" : "ImageWMS",
 				"queryUrl" : "http://locationHost/geoserver/rheticus/gwc/service/wms",
@@ -359,7 +356,7 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:vw_ps","name":"Persistent Scatterers","queryable":true}
+						{"id":"rheticus:ps_anonymous","name":"Persistent Scatterers","queryable":true}
 					]
 				}
 			}]

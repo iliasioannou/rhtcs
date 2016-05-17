@@ -18,6 +18,7 @@ var HASH_MAP_EXTERNAL_SERVICES = {
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
 	"RHETICUS_API" : "http://kim.planetek.it:8081",
 	"GEOSERVER" : "http://kim.planetek.it:9080",
+  "GEOSERVER_PROD" : "http://metis.planetek.it:9080",
   "TEBEGEOSERVER" : "http://tebe.planetek.it:8080",
   "BASEMAP_REALVISTA" : "http://213.215.135.196/reflector/open/service"
 };
@@ -106,7 +107,7 @@ server.all("/geoserver*", function(req, res) {
   }
   //console.log(req.headers);
   //res.removeHeader("WWW-Authenticate");
-	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.GEOSERVER});
+	apiProxy.web(req, res, {target: HASH_MAP_EXTERNAL_SERVICES.GEOSERVER_PROD});
 });
 
 // Grab all requests to the server with "/tebegeoserver".

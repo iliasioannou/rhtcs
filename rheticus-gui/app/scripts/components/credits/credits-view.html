@@ -1,19 +1,26 @@
 <div class="ol-control credits" data-intro="Show Credits" data-position="left" ng-controller="CreditsController as credits">
-	<div ng-show="credits.show">
+	<div>
 		<div style="font-size:10px; padding-bottom:0px;">
 			<label ng-repeat="baselayer in credits.baselayers|filter:{active:true}">
-				<a href="{{baselayer.layerOptions.url}}">
+				<a href="{{baselayer.layerOptions.url}}" style="color:white">
 					{{baselayer.layerOptions.attribution}}
 				</a>
 			</label>
 			<label ng-repeat="overlay in credits.overlays|filter:{visible:true}">
-				<a href="{{overlay.layerOptions.url}}">
+				<a href="{{overlay.layerOptions.url}}" style="color:white">
 					{{overlay.layerOptions.attribution}}
+				</a>
+			</label>
+			<label>
+				<a style="color:white" >
+					-
+				</a>
+			</label>
+			<label >
+				<a href="../home/pdf/terms_and_conditions.pdf" style="color:white">
+					Rheticus®
 				</a>
 			</label>
 		</div>
 	</div>
-	<button style="float:right;" type="button" title="Credits" ng-model="credits.show" uib-btn-checkbox >
-		<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
-	</button>
 </div>

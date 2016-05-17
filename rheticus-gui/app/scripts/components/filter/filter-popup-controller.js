@@ -10,9 +10,11 @@
 angular.module('rheticus')
 	.controller('FilterPopoupCtrl',['$rootScope','$scope','configuration',function($rootScope,$scope,configuration){
 
-
+		var self = this; //this controller
 
 		angular.extend(this,{
+			//warning notification
+			"visibleWarning" : true,
 			//SPEED SLIDER
 			"speedModelValue" : $scope.speedModel.init,
 			"speedOptions" : {
@@ -60,9 +62,18 @@ angular.module('rheticus')
 			"dataProviders" : configuration.dataProviders, // data providers
 			"updateSelection" : function(position, entities) {
 				$rootScope.providersFilter=entities;
-				$scope.setSpatialFilter();
+				$scope.setDataProviderFilter();
 				$scope.applyFiltersToMap();
+			},
+		});
 
+		//show/hide warning text on zoom change
+		$scope.$watch("center.zoom", function (zoom) {
+			if (zoom >= configuration.map.query.zoom) {
+				self.visibleWarning = false;
+			} else {
+				self.visibleWarning = true;
 			}
 		});
+
 	}]);

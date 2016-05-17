@@ -18,6 +18,7 @@
     'myAreasToolbar':'My areas',
     'filtersToolbar': 'Filters',
     'titleFilters': 'Persistent Scatterers Map Advanced Filters',
+    'warningFilters': 'At this zoom level no filters are available',
     'helpFilters': 'Move slider bounds to select desired range',
     'velocityFilters': 'Velocity',
     'coherenceFilters': 'Coherence',
@@ -45,6 +46,7 @@
     'velocityLegend':'(mm/year)',
     'noResult':'No Persistent Scatterers found.',
     'loadingResult':'Loading result...',
+    'errorZoom':"Please zoom again to view Persistent Scatterers",
     'FOO': 'This is a paragraph'
   });
 
@@ -64,6 +66,7 @@
     'myAreasToolbar':'Le mie aree',
     'filtersToolbar': 'Filtri',
     'titleFilters': 'Filtri avanzati per i Persistent Scatterers',
+    'warningFilters': 'A questo livello di zoom non è disponibile alcun filtro',
     'helpFilters': "Sposta i limiti dello slider per selezionare l'intervallo desiderato",
     'velocityFilters': "Velocità",
     'coherenceFilters': 'Coerenza',
@@ -91,6 +94,7 @@
     'velocityLegend':'(mm/anno)',
     'noResult':'Nessun Persistent Scatterers trovato.',
     'loadingResult':'Caricamento ...',
+    'errorZoom':"Aumenta lo zoom per vedere i Persistent Scatterers",
     'FOO': 'This is a paragraph'
   });
 

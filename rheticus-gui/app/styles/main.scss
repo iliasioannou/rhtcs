@@ -325,13 +325,13 @@ md-toolbar {
     z-index: 1;
     bottom: 40px;
     left: 8px;
-	max-width: 440px;
-	height: auto;
-	min-height: 50px;
+    max-width: 440px;
+    height: auto;
+    min-height: 50px;
     border-radius: 4px;
     padding: 2px;
-    background-color: rgba(255, 255, 255, 0.4);
-	margin: 1px;
+    background-color: rgba(0, 60, 136, 0.6);
+    margin: 1px;
 }
 
 .noselect {
@@ -527,8 +527,12 @@ table.gridtable td {
 }
 .credits{
 	z-index:1;
+  background-color: rgba(0, 60, 136, 0.6);
 	bottom: 0.5em;
     right: 0.5em;
+}
+.credits:hover{
+  background-color: rgba(0, 60, 136, 0.6);
 }
 .credits > div{
 	float:left;

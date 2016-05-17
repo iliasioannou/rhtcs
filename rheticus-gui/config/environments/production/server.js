@@ -5,10 +5,10 @@ var express = require('express');
 var server = express();
 
 /*** Basic Auth for Production ***/
+/*
 var basicAuth = require('basic-auth');
 var usr = "demo";
 var pwd = "displacement";
-
 var auth = function(req, res, next){
   var user = basicAuth(req);
   if(user && user.name && (user.name==usr) && user.pass && (user.pass==pwd)) {
@@ -18,6 +18,7 @@ var auth = function(req, res, next){
     return res.sendStatus(401);
   }
 }
+*/
 //server.use(auth);
 
 server.set('port', 80);

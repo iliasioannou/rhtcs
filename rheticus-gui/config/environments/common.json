@@ -23,7 +23,7 @@
 			"scale" : [-10, "|", -5, "|", 0, "|", 5, "|", 10]
 		},
 		"coherenceSlider" : {
-			"init" : "85;100",
+			"init" : "70;100",
 			"from" : 70,
 			"to" : 100,
 			"step" : 1,
@@ -40,19 +40,32 @@
   		"projection": "EPSG:4326"
 		},
 		"query" : {
-			"zoom" : 7
+			"zoom" : 8
 		},
-		"crs" : "EPSG:3857"
+		"basemap" : {
+			"zoom" : 12
+		},
+		"view" : {
+				"projection" : "EPSG:3857",
+				"maxZoom": 19,
+				"minZoom": 3
+		}
 	},
 	"dataProviders" : [{
+		"id" : "S01",
 		"name" : " Sentinel",
-		"checked" : true
+		"checked" : false,
+		"disabled" : true
 	},{
+		"id" : "CSK",
 		"name" : " Cosmo",
-		"checked" : true
+		"checked" : false,
+		"disabled" : true
 	},{
+		"id" : "TSX",
 		"name" : " TerraSAR-X",
-		"checked" : true
+		"checked" : false,
+		"disabled" : true
 	}],
 	"geocoder" : {
 		"url" : "http://nominatim.openstreetmap.org/search?q=",
@@ -61,6 +74,7 @@
 		"urlReverse" : "http://nominatim.openstreetmap.org/reverse?"
 	},
 	"cesiumViewer" : {
-		"url" : "http://orbis.planetek.it/apps/rheticus"
+		"url" : "http://orbis.planetek.it/apps/rheticus",
+		"mapId" : "RHETICUS_PS"
 	}
 }

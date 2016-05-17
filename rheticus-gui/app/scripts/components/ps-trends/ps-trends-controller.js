@@ -605,10 +605,11 @@ angular.module('rheticus')
 								if(self.firstDatePs > milliTime){
 									self.firstDatePs = milliTime;
 								}
+								//this array appears in PSTREND tooltip.
 								ret.push({
 									"x" : measureDate,
 									"y" : eval("measures[i]."+measureParamKey+";"), // jshint ignore:line
-									"key" : idComplete
+									"key" : psid
 								});
 							}
 						}
@@ -824,7 +825,7 @@ angular.module('rheticus')
 			self.lat=psCandidate.point[1];
 			self.lon=psCandidate.point[0];
 			self.options.title.html = "";
-			var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
+			//var point = [Math.round(self.lon*10000)/10000,Math.round(self.lat*10000)/10000];
 			//console.log("Total deals for selected point: ",deals.length);
 			//console.log("Deals for selected point: ",deals);
 			getCity();  // get city info from Nomimatim and save in titleChart
@@ -864,10 +865,5 @@ angular.module('rheticus')
 			}
 			return true;
 		};
-
-
-
-
-
 
 	}]);
