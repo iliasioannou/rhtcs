@@ -12,10 +12,11 @@
 
  		var self = this; //this controller
 
-
  		$rootScope.$watch("login.details", function (user) {
 			var deals=$scope.getUserDeals();
-      if(user.info.name.indexOf("anonymous")== -1){
+      if( user && (user!==null) &&
+          user.info && (user.info!==null) &&
+          user.info.name && (user.info.name!=="") && (user.info.name.indexOf("anonymous")===-1)){
         $scope.setMapViewExtent(
    				deals[0].geom_geo_json.type,
    				deals[0].geom_geo_json.coordinates
