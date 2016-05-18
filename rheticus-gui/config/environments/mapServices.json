@@ -356,7 +356,8 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:ps_anonymous","name":"Persistent Scatterers","queryable":true}
+						{"id":"rheticus:ps_anonymous","name":"Persistent Scatterers","queryable":true},
+						{"id":"rheticus:ps_mmspa","name":"","queryable":false}
 					]
 				}
 			}]
