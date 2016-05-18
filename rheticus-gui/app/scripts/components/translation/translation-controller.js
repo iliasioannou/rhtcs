@@ -50,6 +50,54 @@
     'FOO': 'This is a paragraph'
   });
 
+  $translateProvider.translations('gr', {
+      'language':'Γλώσσα',
+      'titleToolbar': 'Displacement',
+      'welcomeLogin':'Καλώς ήρθατε',
+      'userLogin':'Χρήστης',
+      'passwordLogin':'Κωδικός',
+      'buttonOnLogin':'Συνδεση',
+      'buttonOffLogin':'Αποσύνδεση',
+      'errorLogin':'Εσφαλμένα διαπιστευτήρια !',
+      'statusLogin':'Είστε καταχωρημένος/η ως:',
+      'geocoderToolbar':'Αναζήτηση',
+      'geocoderPlaceholder':'Αναζήτηση ...',
+      'accountToolbar':'Λογαριασμός',
+      'myAreasToolbar':'περιοχές μου',
+      'filtersToolbar': 'Φίλτρα',
+      'titleFilters': 'Προχωρημένα φίλτρα για per i Persistent Scatterers',
+      'warningFilters': 'Δεν υπάρχει διαθέσιμο φίλτρο σε αυτό το επίπεδο μεγέθυνσης ',
+      'helpFilters': "Μετακινήστε το ρυθμιστικό για να επιλέξετε τα επιθυμητά όρια του εύρους",
+      'velocityFilters': "Ταχύτητα",
+      'coherenceFilters': 'Συνοχή',
+      'dataProvidersFilters': 'Πάροχοι δεδομένων',
+      'settingsToolbar': 'Ρυθμίσεις',
+      'basemapSettings': 'Φόντο χάρτη',
+      '3dViewerSettings': 'Προβολή 3D',
+      '3dViewerHelpSettings': 'Πήγαινε σε προβολή 3D ',
+      'extraFeaturesSettings': "Συμπληρωματικές λειτουργίες ",
+      'regressionLinePsTrend':'Γραμμή παλινδρόμησης',
+      'noiseFilterPsTrend':'Μείωση θορύβου',
+      'precipitationsPsTrend':'Βροχόπτωση:',
+      'precipitationsDailyPsTrend':'Ημερήσια',
+      'precipitations30PsTrend':'Αθροιστική βροχόπτωση 30 ημερών',
+      'precipitations60PsTrend':'Αθροιστική βροχόπτωση 60 ημερών',
+      'precipitations90PsTrend':'Αθροιστική βροχόπτωση 90 ημερών',
+      'precipitations120PsTrend':'Αθροιστική βροχόπτωση 120 ημερών',
+      'coherencePsTrend':'Συνοχή (%)',
+      'velocityPsTrend':"Ταχύτητα (χλστ./έτος)",
+      'titleLandslide':'Χάρτες κατολίσθησης',
+      'titleSentinel':'Αναγνωριστικά σύνολα δεδομένων Sentinel 1 ',
+      'result1Sentinel':'Βρέθηκαν ',
+      'result2Sentinel':" Σύνολα δεδομένων(με περισσότερα από 5 προϊόντα). Συνολικά προϊόντα: ",
+      'result3Sentinel':'Ψευδώνυμο:  ',
+      'velocityLegend':'(χλστ./έτος)',
+      'noResult':'Δεν βρέθηκαν Έμμονοι Διασκορπιστές.',
+      'loadingResult':'Φόρτωση ...',
+      'errorZoom':"Μεγενθύνετε για να δείτε τους Έμμονους Διασκορπιστές",
+      'FOO': 'Αυτή είναι μια παράγραφος ..'
+    });
+
   $translateProvider.translations('it', {
     'language':'Lingua',
     'titleToolbar': 'Displacement',
@@ -101,11 +149,12 @@
   var determineCurrentLanguage= function () {
 
    var userLang = navigator.language || navigator.browserLanguage;
-   if(userLang.indexOf("it")<0){
-     userLang="en";
-
-   }else{
+   if (userLang.indexOf("it")>-1){
      userLang="it";
+   }else if (userLang.indexOf("gr")>-1){
+     userLang="gr";
+   }else{
+     userLang="en";
    }
    return userLang;
  };
