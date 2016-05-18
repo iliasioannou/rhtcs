@@ -230,7 +230,11 @@ angular.module('rheticus')
 		});
 		//update user details on login change status
 		$rootScope.$watch("login.details", function () {
-			if (($rootScope.login.details!==null) && $rootScope.login.details.info && $rootScope.login.details.info.layer && $rootScope.login.details.info.layer!==""){
+			if (
+				($rootScope.login.details!==null) &&
+				$rootScope.login.details.info && ($rootScope.login.details.info!==null) &&
+				$rootScope.login.details.info.layer && $rootScope.login.details.info.layer!=="")
+			{
 				getOverlayParams("ps").source.params.LAYERS = $rootScope.login.details.info.layer;
 				getOverlayMetadata("ps").custom.LAYERS[0].id = $rootScope.login.details.info.layer;
 

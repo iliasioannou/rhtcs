@@ -26,7 +26,7 @@ angular.module('rheticus')
     $mdDialog.hide();
   };
   $scope.showLoading=false;
-  if (($rootScope.login.details!==null) && $rootScope.login.details.info){
+  if (($rootScope.login.details!==null) && $rootScope.login.details.info && ($rootScope.login.details.info!==null)){
     document.getElementById('userNameView').innerHTML=($rootScope.login.details.info.username) ? $rootScope.login.details.info.username : "";
   }
 
