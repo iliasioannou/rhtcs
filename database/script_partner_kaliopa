@@ -42,7 +42,8 @@ CREATE MATERIALIZED VIEW kaliopa.vwm_ps AS
     ps.height,
     ps.velocity
    FROM ps
-  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5_IW3_VV_PS_CANDIDATE'::text])
+  WHERE ps.datasetid = ANY (ARRAY['Sentinel-1IWIW1-IW2-IW34444ASCENDINGVV-VHSSLC1147.5_IW3_VV_PS_CANDIDATE'::text]) or
+        ps.datasetid = ANY (ARRAY['S01_Jesenice'::text])
 WITH DATA;
 
 ALTER TABLE kaliopa.vwm_ps
