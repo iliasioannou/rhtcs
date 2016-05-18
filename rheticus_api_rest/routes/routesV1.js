@@ -40,7 +40,6 @@ var serverRouter = function(server) {
     // Check identity for user and return AOI
     server.get({ path: '/authenticate', version: VERSION }, function (req, res, next) {
         console.log("Check autentication");
-        var userNameAnonymous = "anonymous";
 
 		var userName = req.query.username;
         if (userName == undefined || userName == null){
@@ -54,45 +53,28 @@ var serverRouter = function(server) {
         console.log("\tUsername  = -%s-", userName);
         console.log("\tPassword  = -%s-", passwordPlain);
 
-		// Retrieve always the deal related to anonymous user
-		var anonymousDealPromise = repository.User.forge({username: userNameAnonymous})
-			.fetch({withRelated: ["deals.dataset"]});
-
-		var userDealPromise =  repository.User.forge({username: userName})
-			.fetch({withRelated: ["deals.dataset"]});
-
-		var joinPromise = promise.join;
-		joinPromise(anonymousDealPromise, userDealPromise,function(anonymousUser, user){
-			var anonymousUserDeals = [];
-			if (anonymousUser){
-				anonymousUserDeals = anonymousUser.serialize().deals;
-				console.log("\tDeal for anonymous user = %s", JSON.stringify(anonymousUserDeals));
-			}
-			else {
-				console.log("\tProblem during retrieve anonymous user");
-			}
-			if (user){
-				var userPassword = user.get("password");
-				if(userPassword !== passwordPlain) {
-					next(new restify.NotAuthorizedError());
-				}
-				else{
-					if (user.get("username") !== userNameAnonymous){
-						// add anonymous user deals to user's deals
-						user.related("deals").add(anonymousUserDeals, {merge: false});
-					}
-					res.send(user.toJSON());
-				}
-			}
-			else {
-				// Respond with { code: 'NotAuthorized', message: '' }
-				next(new restify.NotAuthorizedError());
-			}
-		})
-		.catch(function(error){
-			console.log(error);
-			next(new restify.NotAuthorizedError());
-		});       
+        repository.User
+                .forge({username: userName})
+                .fetch({withRelated: ["deals.dataset"]})
+                .then(function(user){
+                        if (user){
+                                var userPassword = user.get("password");
+                                if(userPassword !== passwordPlain) {
+                                        next(new restify.NotAuthorizedError());
+                                }
+                                else{
+                                        res.send(user.toJSON());
+                                }
+                        }
+                        else {
+                                // Respond with { code: 'NotAuthorized', message: '' }
+                                next(new restify.NotAuthorizedError());
+                        }
+                })
+                .catch(function(error){
+                        console.log(error);
+                        next(new restify.NotAuthorizedError());
+                });
 
     });
 	
