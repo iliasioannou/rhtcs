@@ -16,10 +16,9 @@ var HASH_MAP_EXTERNAL_SERVICES = {
   "MARINE" : "http://localhost:8080/marine",
   "DISPLACEMENT" : "http://localhost:8080/displacement",
 	"IFFI" : "http://www.geoservices.isprambiente.it/arcgis/services/IFFI/Progetto_IFFI_WMS_public/MapServer/WMSServer",
-	//"RHETICUS_API" : "http://kim.planetek.it:8081",
-  "RHETICUS_API" : "http://metis.planetek.it:8081",
-	//"GEOSERVER" : "http://kim.planetek.it:9080",
-  "GEOSERVER" : "http://metis.planetek.it:9080",
+	"RHETICUS_API" : "http://kim.planetek.it:8081",
+	"GEOSERVER" : "http://kim.planetek.it:9080",
+  "GEOSERVER_PROD" : "http://kim.planetek.it:9080",
   "TEBEGEOSERVER" : "http://tebe.planetek.it:8080",
   "BASEMAP_REALVISTA" : "http://213.215.135.196/reflector/open/service"
 };

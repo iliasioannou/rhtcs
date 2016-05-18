@@ -13,14 +13,14 @@
  		var self = this; //this controller
 
 
- 		$rootScope.$watch("login.details", function () {
+ 		$rootScope.$watch("login.details", function (user) {
 			var deals=$scope.getUserDeals();
-			console.log(deals[0].geom_geo_json.type);
-
- 			$scope.setMapViewExtent(
- 				deals[0].geom_geo_json.type,
- 				deals[0].geom_geo_json.coordinates
- 			);
+      if(user.info.name.indexOf("anonymous")== -1){
+        $scope.setMapViewExtent(
+   				deals[0].geom_geo_json.type,
+   				deals[0].geom_geo_json.coordinates
+   			);
+      }
 
  		});
 
