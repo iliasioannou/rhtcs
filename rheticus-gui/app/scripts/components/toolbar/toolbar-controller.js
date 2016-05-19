@@ -6,8 +6,10 @@ angular.module('rheticus')
   $scope.changeLanguage = function (langKey) {
     if(langKey==="it"){
       Flash.create("success", "Lingua cambiata con successo.");
+    }else if(langKey==="gr"){
+      Flash.create("success", "Γλώσσα άλλαξε με επιτυχία.");
     }else{
-      Flash.create("success", "Language changed successfully .");
+      Flash.create("success", "Language changed successfully.");
     }
     $translate.use(langKey);
 
