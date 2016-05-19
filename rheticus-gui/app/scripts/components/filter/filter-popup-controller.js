@@ -59,13 +59,17 @@ angular.module('rheticus')
 					}
 				}
 			},
-			"dataProviders" : configuration.dataProviders, // data providers
+			"dataProviders" : $scope.dataProviders, // data providers
 			"updateSelection" : function(position, entities) {
-				$rootScope.providersFilter=entities;
+				$rootScope.providersFilter = entities;
 				$scope.setDataProviderFilter();
 				$scope.applyFiltersToMap();
-			},
+			}
 		});
+
+		/*
+		 * WATCHERS
+		*/
 
 		//show/hide warning text on zoom change
 		$scope.$watch("center.zoom", function (zoom) {
@@ -73,6 +77,35 @@ angular.module('rheticus')
 				self.visibleWarning = false;
 			} else {
 				self.visibleWarning = true;
+			}
+		});
+
+		//Speed setted externally (i.e.: login controller)
+		$scope.$watch("speedModel.init", function (value) {
+			self.speedModelValue = value;
+		});
+		/*$scope.$watch("speedModel.from", function (value) {
+			self.speedOptions.from = value;
+		});
+		$scope.$watch("speedModel.to", function (value) {
+			self.speedOptions.to = value;
+		});*/
+
+		//Coherence setted externally (i.e.: login controller)
+		$scope.$watch("coherenceModel.init", function (value) {
+			self.coherenceModelValue = value;
+		});
+		/*$scope.$watch("coherenceModel.from", function (value) {
+			self.coherenceOptions.from = value;
+		});
+		$scope.$watch("coherenceModel.to", function (value) {
+			self.coherenceOptions.to = value;
+		});*/
+
+		$scope.$on("setDataProvidersOnFilter",function(){ // jshint ignore:line
+			self.dataProviders = $scope.dataProviders;
+			if(!$scope.$$phase) {
+				$scope.$apply();
 			}
 		});
 

@@ -80,7 +80,7 @@ angular.module('rheticus')
 		};
 		// check on zoom level to enable getFeatureInfo query on PS
 		var showDetails = function() {
-			return $scope.center.zoom>=$rootScope.configurationCurrentHost.map.query.zoom;
+			return $scope.center.zoom>=configuration.map.query.zoom;
 		};
 		//Getter active baselayer useful for basemap controller
 		var getActiveBaselayer = function() {
@@ -129,23 +129,28 @@ angular.module('rheticus')
 
 		var setDataProviders = function(){
 			var i = 0;
+			$scope.dataProviders = setDefaultDataProviders();
 			for(i=0; i<userDeals.length; i++){
-				var index = ArrayService.getIndexByAttributeValue(configuration.dataProviders,"id",userDeals[i].sensorid);
+				var index = ArrayService.getIndexByAttributeValue($scope.dataProviders,"id",userDeals[i].sensorid);
 				if (index!==-1){
-					configuration.dataProviders[index].disabled = false;
-					configuration.dataProviders[index].checked = true;
+					$scope.dataProviders[index].disabled = false;
+					$scope.dataProviders[index].checked = true;
+				} else {
+					$scope.dataProviders[index].checked = false;
+					$scope.dataProviders[index].disabled = true;
 				}
 			}
+			$scope.$broadcast("setDataProvidersOnFilter");
 		};
 		var setDataProviderFilter = function(){
 			var cqlFilter = "";
 			var i = 0;
-			for(i=0; i<configuration.dataProviders.length; i++){
-				if (!configuration.dataProviders[i].disabled && !configuration.dataProviders[i].checked){
+			for(i=0; i<$scope.dataProviders.length; i++){
+				if (!$scope.dataProviders[i].disabled && !$scope.dataProviders[i].checked){
 					if (cqlFilter!==""){
 						cqlFilter += " AND ";
 					}
-					cqlFilter += "(sensorid<>'"+configuration.dataProviders[i].id+"')";
+					cqlFilter += "(sensorid<>'"+$scope.dataProviders[i].id+"')";
 				}
 			}
 			advancedCqlFilters.dataProvider = (cqlFilter!=="") ? cqlFilter : "";
@@ -154,7 +159,6 @@ angular.module('rheticus')
 		var applyFiltersToMap = function(){
 			var cqlFilter = null;
 			if ($scope.center.zoom >= configuration.map.query.zoom) {
-				//console.log("applyFiltersToMap");
 				for (var key in advancedCqlFilters) {
 					if (advancedCqlFilters.hasOwnProperty(key) && (advancedCqlFilters[key]!=="")) {
 						if (cqlFilter!==null){
@@ -167,6 +171,14 @@ angular.module('rheticus')
 				}
 			}
 			getOverlayParams("ps").source.params.CQL_FILTER = cqlFilter;
+		};
+
+		var setDefaultDataProviders = function() { // PS dataProviders filter
+			var dp = [];
+			for(var i=0; i<configuration.dataProviders.length; i++){
+				dp.push(ArrayService.cloneObj(configuration.dataProviders[i]));
+			}
+			return dp;
 		};
 
 		/**
@@ -187,12 +199,13 @@ angular.module('rheticus')
 		 */
 		angular.extend($scope,{
 			// externalized scope variables for watchers
-			"speedModel" : $rootScope.configurationCurrentHost.filters.speedSlider, // PS speed filter
-			"coherenceModel" : $rootScope.configurationCurrentHost.filters.coherenceSlider, // PS coherence filter
+			"speedModel" : ArrayService.cloneObj(configuration.filters.speedSlider), // PS speed filter
+			"coherenceModel" : ArrayService.cloneObj(configuration.filters.coherenceSlider), // PS coherence filter
+			"dataProviders" : setDefaultDataProviders(),
 			"iffi" : null, // IFFI overlay getFeatureInfoResponse
 			"sentinel" : null, // SENTINEL overlay getFeatureInfoResponse
 			"ps" : null, // PS overlay getFeatureInfoResponse
-			"center" : $rootScope.configurationCurrentHost.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
+			"center" : configuration.map.center, // for scope watcher reasons because "ols moveend event" makes ols too slow!
 			// externalized scope methods for children controllers
 			"setController" : setController,
 			"getController" : getController,
@@ -228,8 +241,61 @@ angular.module('rheticus')
 				initMarker();
 			}
 		});
+
+		var setDefaultDisplacementFilters  = function () {
+			//reset cql filer main controller settings
+			resetAdvancedCqlFilters();
+
+			// set default advanced slider filter (speed and coherence)
+			//SPEED
+			$scope.speedModel.init = configuration.filters.speedSlider.init;
+			setSpeedModelFilter($scope.speedModel.init);
+
+			//COHERENCE
+			$scope.coherenceModel.init = configuration.filters.coherenceSlider.init;
+			setCoherenceModelFilter($scope.coherenceModel.init);
+
+			//Setting user data providers
+			setDataProviders();
+
+			// apply above filters to current map for refresh
+			applyFiltersToMap();
+		};
+
 		//update user details on login change status
 		$rootScope.$watch("login.details", function () {
+
+			if (($rootScope.login.details!==null) && $rootScope.login.details.info){
+
+				//Setting user deals
+				setUserDeals($rootScope.login.details.info);
+				$scope.$broadcast("setSwitchPanelUserDeals",{"userDeals":userDeals});
+
+				//Setting advanced default displacement filters
+				setDefaultDisplacementFilters();
+
+				//Setting overlay and metadata ps rheticus displacement layer
+				if (($rootScope.login.details.info!==null) &&
+						$rootScope.login.details.info.layer && ($rootScope.login.details.info.layer!=="")
+				){
+					getOverlayParams("ps").source.params.LAYERS = $rootScope.login.details.info.layer;
+					getOverlayMetadata("ps").custom.LAYERS[0].id = $rootScope.login.details.info.layer;
+
+					//TODO: remove following snippet of MILANO management
+					// when something better is implemented for managing
+					// user ad hoc layers
+					if ($rootScope.login.details.info.layer===getOverlayMetadata("condotte_fognarie_milano").custom.LAYERS[1].id){
+						// enable visualization
+						getOverlayParams("condotte_fognarie_milano").visible = true;
+					} else {
+						// disable visualization
+						getOverlayParams("condotte_fognarie_milano").visible = false;
+					}
+
+				}
+			}
+			/*
+			setDefaultDisplacementFilters();
 			if (
 				($rootScope.login.details!==null) &&
 				$rootScope.login.details.info && ($rootScope.login.details.info!==null) &&
@@ -248,12 +314,12 @@ angular.module('rheticus')
 					// disable visualization
 					getOverlayParams("condotte_fognarie_milano").visible = false;
 				}
-
 			}
 			setUserDeals(
 				(($rootScope.login.details!==null) && $rootScope.login.details.info) ? $rootScope.login.details.info : null
 			);
 			$scope.$broadcast("setSwitchPanelUserDeals",{"userDeals":userDeals});
+			*/
 		});
 
 		/**
@@ -292,10 +358,10 @@ angular.module('rheticus')
 		var psCandidateWithResult=true;
 		//GetFeatureInfo
 		var getFeatureInfo = function(map,coordinate,olLayer,olParams,resultObj,callback){
-			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.view.projection); // jshint ignore:line
+			getFeatureInfoPoint = ol.proj.toLonLat(coordinate,configuration.map.view.projection); // jshint ignore:line
 			var viewResolution = map.getView().getResolution();
 			var wms = eval("new ol.source."+olLayer.source.type+"(olLayer.source);"); // jshint ignore:line
-			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,$rootScope.configurationCurrentHost.map.view.projection,olParams);
+			var url = wms.getGetFeatureInfoUrl(coordinate,viewResolution,configuration.map.view.projection,olParams);
 			//console.log(url);
 			if (url) {
 				var that = $scope; // jshint ignore:line
@@ -360,7 +426,7 @@ angular.module('rheticus')
 						} else {
 							Flash.dismiss();
 							var obj = {
-								"point" : ol.proj.toLonLat(coordinate,$rootScope.configurationCurrentHost.map.view.projection), // jshint ignore:line
+								"point" : ol.proj.toLonLat(coordinate,configuration.map.view.projection), // jshint ignore:line
 								"features" : (response.features.length>0) ? response.features : null
 							};
 							if (resultObj!==""){
@@ -379,11 +445,15 @@ angular.module('rheticus')
 				console.log("[main-controller :: getFeatureInfo] URL undefined!");
 			}
 		};
-		var advancedCqlFilters = {
-			"velocity" : "",
-			"coherence" : "",
-			"dataProvider" : ""
+		var advancedCqlFilters = null;
+		var resetAdvancedCqlFilters = function(){
+			advancedCqlFilters = {
+				"velocity" : "",
+				"coherence" : "",
+				"dataProvider" : ""
+			};
 		};
+		resetAdvancedCqlFilters();
 
 		var getCqlTextRange = function(minText, maxText){
 			var cqlText = "";
@@ -465,7 +535,7 @@ angular.module('rheticus')
 				iffiWithResult=true;
 				sentinelWithResult=true;
 				psCandidateWithResult=true;
-				var point = ol.proj.toLonLat(evt.coordinate,$rootScope.configurationCurrentHost.map.view.projection); // jshint ignore:line
+				var point = ol.proj.toLonLat(evt.coordinate,configuration.map.view.projection); // jshint ignore:line
 				self.overlays.map(function(l) {
 					if (l./*active*/visible){
 						Flash.dismiss();
@@ -555,9 +625,6 @@ angular.module('rheticus')
 					}
 				);
 			}
-			setDataProviders();
-			//setSpatialFilter();
-			applyFiltersToMap();
 		};
 
 	}]);

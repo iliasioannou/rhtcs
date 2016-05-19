@@ -6,7 +6,7 @@ angular
 		//common environment configuration
 		rheticusHeaderImage : "./images/RheticusLogo.png",
 		timeSlider : {"domain":{"start":"2014-10-01T00:00:00Z","end":""},"brush":{"start":"2014-10-01T00:00:00Z","end":""},"attributes":{"datasetIdentifier":"datasetId"}},
-		filters : {"speedSlider":{"init":"-10;10","from":-10,"to":10,"step":0.5,"dimension":" mm/year","scale":[-10,"|",-5,"|",0,"|",5,"|",10]},"coherenceSlider":{"init":"70;100","from":70,"to":100,"step":1,"dimension":" %","scale":[70,"|",80,"|",90,"|",100]}},
+		filters : {"speedSlider":{"init":"-10;10","from":-10,"to":10,"step":0.5,"dimension":" mm/year","scale":[-10,"|",-5,"|",0,"|",5,"|",10]},"coherenceSlider":{"init":"85;100","from":70,"to":100,"step":1,"dimension":" %","scale":[70,"|",80,"|",90,"|",100]}},
 		map : {"center":{"lon":14.24,"lat":37.05,"zoom":14,"bounds":[],"projection":"EPSG:4326"},"query":{"zoom":8},"basemap":{"zoom":12},"view":{"projection":"EPSG:3857","maxZoom":19,"minZoom":3}},
 		dataProviders : [{"id":"S01","name":" Sentinel","checked":false,"disabled":true},{"id":"CSK","name":" Cosmo","checked":false,"disabled":true},{"id":"TSX","name":" TerraSAR-X","checked":false,"disabled":true}],
 		geocoder : {"url":"http://nominatim.openstreetmap.org/search?q=","params":"&limit=5&format=json&accept-language=en&polygon_geojson=1","paramsReverse":"&limit=1&format=json&zoom=18&accept-language=en","urlReverse":"http://nominatim.openstreetmap.org/reverse?"},
