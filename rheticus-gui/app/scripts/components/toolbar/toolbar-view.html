@@ -110,8 +110,8 @@
         </md-item-content>
       </md-toolbar>
       <div ng-controller="SwitchPanelCtrl as switchpanel" style="margin-top:15px;">
-        <md-list-item ng-repeat="subscription in switchpanel.userDeals">
-          <p ng-click="switchpanel.updateSelectionArea($index,switchpanel.userDeals)">{{subscription.product_name}}</p>
+        <md-list-item ng-repeat="subscription in switchpanel.userDealsDistinct">
+          <p ng-click="switchpanel.updateSelectionArea($index,switchpanel.userDealsDistinct)">{{subscription.product_name}}</p>
         </md-list-item>
       </div>
 

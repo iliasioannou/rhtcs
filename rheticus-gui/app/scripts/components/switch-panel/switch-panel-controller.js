@@ -13,6 +13,8 @@
  		var self = this; //this controller
 
  		$rootScope.$watch("login.details", function (user) {
+      //reset distinct array
+      self.userDealsDistinct=[];
 			var deals=$scope.getUserDeals();
       if( user && (user!==null) &&
           user.info && (user.info!==null) &&
@@ -22,8 +24,24 @@
    				deals[0].geom_geo_json.coordinates
    			);
       }
+      //setLastUpdate call api "maestro" TODO
 
-      //setLastUpdate call api "maestro"
+      //REMOVE DUPLICATE AREAS
+      for (var i = 0; i < deals.length; i++) {
+        var j=i+1;
+        var trovato=false;
+        while (j<deals.length && !trovato) {
+          if(deals[i].product_name===deals[j].product_name){
+            trovato=true;
+          }
+          j++;
+        }
+        if(!trovato){
+          self.userDealsDistinct.push(deals[i]);
+        }
+      }
+
+
 
  		});
 
@@ -93,6 +111,7 @@
 			"psCandidate" : $scope.getOverlayParams("psCandidate"),
 			"psCandidate_metadata" : $scope.getOverlayMetadata("psCandidate"),
 			"userDeals" : $scope.getUserDeals(),
+      "userDealsDistinct": [],
 			"checkboxActive" : "prova"
 		});
 		angular.extend(self,{
