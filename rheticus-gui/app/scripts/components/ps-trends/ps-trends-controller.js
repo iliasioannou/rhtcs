@@ -519,7 +519,6 @@ angular.module('rheticus')
 							featureInfo.color =  self.options.chart.color[i];
 							setDatasetTitle(datasetId,psId);
 							tableInfo.push(featureInfo);
-							//console.log(tableInfo);
 						}
 					}
 
