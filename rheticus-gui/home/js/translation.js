@@ -16,7 +16,8 @@ var languagesJson={
       "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoring and reporting land use changes, soil loss and infrastructures development, to support decision makers in territorial planning and infrastructures building.",
       "contactText":"Contacts",
-      "contactAddress":"Planetek Italia website"
+      "contactAddress":"Planetek Italia website",
+      "terms":"Terms&Conditions"
 
     }
   },
@@ -36,7 +37,8 @@ var languagesJson={
       "servicesTextUrban":"Urban Dynamics",
       "servicesTextUrbanDescription":"Monitoraggio dei cambiamenti del territorio, perdita di suolo e costruzione di infrastrutture, per attività di pianificazione territoriale ed ingegneria.",
       "contactText":"Contatti",
-      "contactAddress":"Planetek Italia website"
+      "contactAddress":"Planetek Italia website",
+      "terms":"Termini e condizioni"
     }
   }
 };
@@ -97,5 +99,6 @@ var updateLanguage = function(){
     document.getElementById("servicesTextUrbanDescription").innerHTML = i18next.t('servicesTextUrbanDescription');
     document.getElementById("contactText").innerHTML = i18next.t('contactText');
     document.getElementById("contactAddress").innerHTML = i18next.t('contactAddress');
+    document.getElementById("terms").innerHTML = i18next.t('terms');
   });
 }

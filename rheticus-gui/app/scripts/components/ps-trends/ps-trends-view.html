@@ -32,6 +32,7 @@
 							{{ 'precipitationsPsTrend' | translate }}
 						</label>
 						<select id="CumulativeSelect" ng-model="pstrends.comboboxModel" ng-change="pstrends.changeCumulativeView()" >
+						 <option value="None">{{ 'precipitationsNonePsTrend' | translate }}</option>
 						 <option value="Daily">{{ 'precipitationsDailyPsTrend' | translate }}</option>
 						 <option value="">{{ 'precipitations30PsTrend' | translate }}</option>
 						 <option value="Cumulative 60 day">{{ 'precipitations60PsTrend' | translate }}</option>
