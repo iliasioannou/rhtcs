@@ -75,6 +75,10 @@
 	},
 	"cesiumViewer" : {
 		"url" : "http://orbis.planetek.it/apps/rheticus",
-		"mapId" : "RHETICUS_PS"
+		"mapId" : "RHETICUS_PS",
+		"layer" : {
+			"id" : "rheticus:ps_anonymous",
+			"extent" : "minx,miny,maxx,maxy"
+		}
 	}
 }

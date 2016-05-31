@@ -11,6 +11,34 @@ angular.module('rheticus')
     .controller('CesiumViewerCtrl',['$scope','configuration','olData',
     function ($scope,configuration,olData){
 
+      // Get 4326 map extent from GeoJSON bounds
+      var getMapViewExtent = function(){
+        var minx = 180,
+            maxx = -180,
+            miny = 90,
+            maxy = -90;
+
+        angular.forEach($scope.getUserDeals(), function(item) {
+						if (
+              item.geom_geo_json && (item.geom_geo_json!==null) &&
+              item.geom_geo_json.type && (item.geom_geo_json.type!=="") &&
+              item.geom_geo_json.coordinates && (item.geom_geo_json.coordinates!==null) && (item.geom_geo_json.coordinates.length>0)
+            ){
+              var geom = eval("new ol.geom."+item.geom_geo_json.type+"(item.geom_geo_json.coordinates);"); // jshint ignore:line
+              var ex = geom.getExtent();
+              minx = (minx>ex[0]) ? ex[0] : minx;
+              miny = (miny>ex[1]) ? ex[1] : miny;
+              maxx = (maxx<ex[2]) ? ex[2] : maxx;
+              maxy = (maxy<ex[3]) ? ex[3] : maxy;
+            }
+					}
+        );
+        if((minx!==180) && (maxx!==-180) && (miny!==90) && (maxy!==-90)) {
+          return minx+","+miny+","+maxx+","+maxy;
+        }
+        return "";
+      };
+
   		angular.extend(this,{
         "active2D": "true",
   			"openViewer" : function(){
@@ -25,7 +53,9 @@ angular.module('rheticus')
               "&south="+extent[1]+
               "&east="+extent[2]+
               "&north="+extent[3]+
-              "&mapId="+configuration.cesiumViewer.mapId
+              "&mapId="+configuration.cesiumViewer.mapId+
+              "&layerId="+$scope.getOverlayParams("ps").source.params.LAYERS+
+              "&extent="+getMapViewExtent()
             );
           });
   			}

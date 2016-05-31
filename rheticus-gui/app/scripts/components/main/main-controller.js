@@ -61,7 +61,7 @@ angular.module('rheticus')
 		};
 		// Setter map view extent on GeoJSON bounds
 		var setMapViewExtent = function(geometryType,geoJSON){
-			if (geoJSON && (geoJSON!==null)){
+			if (geometryType && (geometryType!=="") && geoJSON && (geoJSON!==null)){
 				var geom = eval("new ol.geom."+geometryType+"(geoJSON);"); // jshint ignore:line
 				var extent = geom.getExtent();
 				extent = ol.extent.applyTransform(extent, ol.proj.getTransform("EPSG:4326", configuration.map.view.projection)); // jshint ignore:line
