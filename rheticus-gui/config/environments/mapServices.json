@@ -320,9 +320,7 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:rete_condotte_fognarie_milano_buffer_400","name":"","queryable":false},
 						{"id":"rheticus:ps_mmspa","name":"","queryable":false}
-
 					]
 				}
 			},{
@@ -356,8 +354,7 @@
 				},
 				"custom" : {
 					"LAYERS" : [
-						{"id":"rheticus:ps_anonymous","name":"Persistent Scatterers","queryable":true},
-						{"id":"rheticus:ps_mmspa","name":"","queryable":false}
+						{"id":"rheticus:ps_anonymous","name":"Persistent Scatterers","queryable":true}
 					]
 				}
 			}]

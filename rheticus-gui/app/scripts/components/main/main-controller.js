@@ -284,7 +284,7 @@ angular.module('rheticus')
 					//TODO: remove following snippet of MILANO management
 					// when something better is implemented for managing
 					// user ad hoc layers
-					if ($rootScope.login.details.info.layer===getOverlayMetadata("condotte_fognarie_milano").custom.LAYERS[1].id){
+					if ($rootScope.login.details.info.layer===getOverlayMetadata("condotte_fognarie_milano").custom.LAYERS[0].id){
 						// enable visualization
 						getOverlayParams("condotte_fognarie_milano").visible = true;
 					} else {
@@ -294,32 +294,6 @@ angular.module('rheticus')
 
 				}
 			}
-			/*
-			setDefaultDisplacementFilters();
-			if (
-				($rootScope.login.details!==null) &&
-				$rootScope.login.details.info && ($rootScope.login.details.info!==null) &&
-				$rootScope.login.details.info.layer && $rootScope.login.details.info.layer!=="")
-			{
-				getOverlayParams("ps").source.params.LAYERS = $rootScope.login.details.info.layer;
-				getOverlayMetadata("ps").custom.LAYERS[0].id = $rootScope.login.details.info.layer;
-
-				//TODO: remove following snippet of MILANO management
-				// when something better is implemented for managing
-				// user ad hoc layers
-				if ($rootScope.login.details.info.layer===getOverlayMetadata("condotte_fognarie_milano").custom.LAYERS[1].id){
-					// enable visualization
-					getOverlayParams("condotte_fognarie_milano").visible = true;
-				} else {
-					// disable visualization
-					getOverlayParams("condotte_fognarie_milano").visible = false;
-				}
-			}
-			setUserDeals(
-				(($rootScope.login.details!==null) && $rootScope.login.details.info) ? $rootScope.login.details.info : null
-			);
-			$scope.$broadcast("setSwitchPanelUserDeals",{"userDeals":userDeals});
-			*/
 		});
 
 		/**
