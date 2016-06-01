@@ -11,18 +11,23 @@ angular.module('rheticus')
 	.controller('GeocoderCtrl',['$scope','GeocodingService',function($scope,GeocodingService){
 
 		var self = this; //this controller
+		var lengthLocationName=0;
 
 		var searchLocation = function(event){
+			lengthLocationName=this.location.length;
 			if (event.which!=13){ // 13 = ENTER EVENT
 				GeocodingService.geocode(this.location, searchLocationCallback);
 			}else{
-				getLocation(0); // GET FIRST RESULT 
+				getLocation(0); // GET FIRST RESULT
 			}
 
 		};
 
-		var searchLocationCallback = function(list){
-			self.results = (list!==null) ? list : {};
+		var searchLocationCallback = function(list,size){
+			if(lengthLocationName===size){
+				self.results = (list!==null) ? list : {};
+			}
+
 		};
 
 		var getLocation = function(index){

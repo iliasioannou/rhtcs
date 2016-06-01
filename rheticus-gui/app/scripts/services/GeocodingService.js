@@ -23,11 +23,12 @@ angular.module('rheticus')
       }
       try {
         if (location.length>2){
+          var sizeLocation=location.length;
           location = location.replace('/[^a-zA-Z0-9]/g','+');
           var url = configuration.geocoder.url+location+configuration.geocoder.params;
           $http.get(url)
             .success(function (response) {
-							callback(response);
+							callback(response,sizeLocation);
             })
             .error(function (response) { // jshint ignore:line
               //HTTP STATUS != 200
