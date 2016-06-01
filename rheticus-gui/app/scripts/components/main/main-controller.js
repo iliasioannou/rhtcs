@@ -44,7 +44,7 @@ angular.module('rheticus')
 			{"name" : 'zoomtoextent', "active" : false},
 			//{"name" : 'zoomslider', "active" : true},
 			{"name" : 'scaleline', "active" : true},
-			{"name" : 'attribution', "active" : true},
+			{"name" : 'attribution', "active" : true}
 		];
 		//External Controller management : GETTER and SETTER
 		var setController = function(openController){

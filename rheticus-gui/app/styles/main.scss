@@ -123,8 +123,19 @@ body {
     }
 }
 
+.mouseposition {
+    border-radius: 25px;
+    position: absolute;
+    right: 8px;
+    top: 65px;
+    color:#fff;
+    font-size: 10px;
+    z-index: 1;
+}
 
 /* Overrides */
+
+
 md-backdrop.md-sidenav-backdrop {
     background-color:transparent
 }
@@ -464,7 +475,7 @@ md-toolbar {
 	position: absolute;
 	right: 50px;
 	z-index: 2;
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 1);
   width: 700px;
 	height: 350px;
   max-width: 80% !important;
@@ -636,7 +647,7 @@ table.gridtable td {
 
 .psTrends {
 	position: fixed;
-	background-color: rgba(255, 255, 255, 0.8);
+	background-color: rgba(255, 255, 255, 1);
 	right: 40px;
 	z-index: 2;
 	bottom: 40px;
@@ -657,7 +668,7 @@ table.gridtable td {
 }
 .featureInfo {
     position: fixed;
-    background-color: rgba(255, 255, 255, 0.8);
+    background-color: rgba(255, 255, 255, 1);
     right: 40px;
     z-index: 2;
     bottom: 40px;

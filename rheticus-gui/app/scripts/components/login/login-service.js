@@ -55,6 +55,14 @@ angular.module('rheticus')
           "info" : response
         };
         $cookies.putObject('rheticus.login.details', $rootScope.login.details);
+				//SEND GOOGLE ANALYTICS LOGIN EVENT
+				ga('send', {
+					hitType: 'event',
+					eventCategory: 'User info',
+					eventAction: 'login',
+					eventLabel: username
+				});
+				//console.log("ga send"+username);
 			};
 			service.ClearCredentials = function () {
         //TODO: uncomment for HTTPS
